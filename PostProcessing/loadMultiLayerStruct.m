@@ -4,6 +4,7 @@ function [output, outputName] = loadMultiLayerStruct(firstLayer,layers)
 %form with layers inside
 %   function output = loadMultiLayerStruct(firstLayer,Layers)
 
+layers = cellstr(layers);
 numLayers = length(layers);
 
 output = firstLayer.(layers{1});

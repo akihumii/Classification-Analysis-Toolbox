@@ -23,6 +23,7 @@ classdef classData
         dataRaw
         dataFiltered
         dataFFT
+        dataDelta
         dataTKEO
         dataPCA
     end
@@ -63,13 +64,24 @@ classdef classData
             end
         end
         
-        function data = filterData(data, targetValue, targetName, highPassCutoffFreq, lowPassCutoffFreq, samplingFreq)
-            data.dataFiltered.values = filterData(targetValue, highPassCutoffFreq, lowPassCutoffFreq, samplingFreq);
+        function data = filterData(data, targetName, samplingFreq, highPassCutoffFreq, lowPassCutoffFreq, varargin)
+            if nargin == 6
+                notchFreq = varargin{1};
+                data.dataFiltered.values = filterData(data.(targetName), samplingFreq, highPassCutoffFreq, lowPassCutoffFreq, notchFreq);
+            else
+                notchFreq = nan;
+                data.dataFiltered.values = filterData(data.(targetName), samplingFreq, highPassCutoffFreq, lowPassCutoffFreq);
+            end
             data.dataFiltered.highPassCutoffFreq = highPassCutoffFreq;
             data.dataFiltered.lowPassCutoffFreq = lowPassCutoffFreq;
+            data.dataFiltered.notchFreq = notchFreq;
             data.dataFiltered.samplingFreq = samplingFreq;
             data.dataFiltered.dataBeingProcessed = targetName;
             errorShow(targetName, 'targetName', 'char');
+        end
+        
+        function data = dataDifferentialSubtraction(data, targetName, channelRef)
+            data.dataDelta = dataDifferentialSubtraction(data.(targetName), channelRef);
         end
         
         function data = fftDataConvert(data,targetValue, targetName,samplingFreq)

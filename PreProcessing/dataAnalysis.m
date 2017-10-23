@@ -13,12 +13,15 @@ dataName = cell(iter,1);
 %% Parameters
 highPassCutoffFreq = 500;
 lowPassCutoffFreq = 3000;
-channel = 1:2;
+notchFreq = 50;
+channel = 1:3;
+channelRef = 1;
 
 %% Analyse Data
 for i = 1:iter
-    data(i,1) = classData(files{i},path,'sylphX',channel);
-    data(i,1) = filterData(data(i,1),data(i,1).dataRaw,'dataRaw',highPassCutoffFreq,lowPassCutoffFreq,data(i,1).samplingFreq);
+    data(i,1) = classData(files{i},path,'Neutrino',channel);
+    data(i,1) = filterData(data(i,1),'dataRaw', data(i,1).samplingFreq, highPassCutoffFreq,lowPassCutoffFreq, notchFreq);
+    data(i,1) = dataDifferentialSubtraction(data(i,1),'dataRaw',channelRef);
     dataName{i,1} = data(i,1).file;
     disp([data(i,1).file, ' has been analysed... '])
 end

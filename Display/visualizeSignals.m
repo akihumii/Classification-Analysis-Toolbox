@@ -7,7 +7,7 @@ for i = 1:length(signal)
     samplingFreq = signal(i,1).dataFiltered.samplingFreq;
     plotFig(1/samplingFreq:1/samplingFreq:size(signal(i,1).dataRaw,1)/samplingFreq,signal(i,1).dataRaw,signal(i,1).fileName,'Raw Signal','Time(s)','Amplitude(V)',...
         'n',... % save
-        'n',... % show
+        'y',... % show
         signal(i,1).path,'subplot', signal.channel);
     
     clear samplingFreq
@@ -18,7 +18,7 @@ for i = 1:length(signal)
     samplingFreq = signal(i,1).dataFiltered.samplingFreq;
     plotFig((1:size(signal(i,1).dataFiltered.values,1))/samplingFreq,signal(i,1).dataFiltered.values,signal(i,1).fileName,['Filtered Signal (', num2str(signal(i,1).dataFiltered.highPassCutoffFreq),'-', num2str(signal(i,1).dataFiltered.lowPassCutoffFreq), ')'],'Time(s)','Amplitude(V)',...
         'n',... % save
-        'n',... % show
+        'y',... % show
         signal(i,1).path,'subplot', signal.channel);
     
     clear samplingFreq
@@ -38,9 +38,9 @@ for i = 1:length(signalClassification)
         [-extraTimeAddedBeforeStartLocs, signalClassification(i,1).window(2)+extraTimeAddedAfterEndLocs],...
         samplingFreq);
     
-    plotFig(windowsValues.xAxisValues/samplingFreq,windowsValues.windowFollowing,signal(i,1).fileName,['Windows Following Artefacts (', num2str(signal(i,1).dataFiltered.highPassCutoffFreq),'-', num2str(signal(i,1).dataFiltered.lowPassCutoffFreq), ')'],'Time(s)','Amplitude(V)',...
+    plotFig(windowsValues.xAxisValues/samplingFreq,windowsValues.windowFollowing,signal(i,1).fileName,['Windows Following Artefacts ( ', signalClassification.selectedWindows.dataProcessed, ' )'],'Time(s)','Amplitude(V)',...
         'n',... % save
-        'n',... % show
+        'y',... % show
         signal(i,1).path,'overlap', signal.channel);
     
     clear xAxisValues yAxisValues samplingFreq...

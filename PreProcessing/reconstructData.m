@@ -26,9 +26,6 @@ switch lower(fileType)
         [data, time] = readIntan([path,files]);
         data = data*res;
         
-        %% obtain differential signal
-        % data = dataDifferentialSubtraction(data, 3);
-
     case 'neutrino'
         %% For Neutrino
         data = csvread([path,files]); % read the csv file into variable data
