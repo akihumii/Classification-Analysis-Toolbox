@@ -19,6 +19,7 @@ classdef classData
         samplingFreq
         channel
         noiseData
+        dataAll
         dataRaw
         dataFiltered
         dataFFT
@@ -31,12 +32,13 @@ classdef classData
     
     %% Methods
     methods
-        function data = classData(file,path,fileType)
+        function data = classData(file,path,fileType, varargin)
             if nargin > 0
                 data.file = file;
                 data.path = path;
                 data.fileType = fileType;
-                [data.dataRaw, data.time, data.channel] = reconstructData(file, path, fileType);
+                [data.dataAll, data.time] = reconstructData(file, path, fileType);
+                data.channel = 1:size(data.dataAll,2);
                 data.fileName = naming(data.file);
                 switch lower(data.fileType)
                     case 'intan'
@@ -45,12 +47,19 @@ classdef classData
                         data.samplingFreq = 16671;
                     case 'sylphii'
                         data.samplingFreq = 16671;
+                    case 'neutrino'
+                        data.samplingFreq = 17500;
                     otherwise
                         error('Invalid fileType. Possible fileType: ''intan'', ''sylphX'', ''sylphII''')
                 end
-%                 % For trimming
-%                 data.dataRaw = data.dataRaw(7*data.samplingFreq:end);
-%                 data.time = data.time(7*data.samplingFreq:end);
+                %                 % For trimming
+                %                 data.dataRaw = data.dataRaw(7*data.samplingFreq:end);
+                %                 data.time = data.time(7*data.samplingFreq:end);
+                if nargin == 4
+                    clear data.channel
+                    data.channel = varargin{1};
+                end
+                data.dataRaw = data.dataAll(:,data.channel);
             end
         end
         
