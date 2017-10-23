@@ -1,0 +1,30 @@
+function output = detectSpikes(data, minDistance)
+%detectSpikes Summary of this function goes here
+%   output = detectSpikes(data)
+
+if nargin < 2
+    minDistance = 1;
+end
+
+%% Find Peaks
+[rowData, colData] = size(data);
+thresholdValue = 1/2;
+
+for i = 1:colData % channel
+    maxPeak = max(data(:,i));
+    
+    threshold(i,1) = maxPeak * thresholdValue;
+    
+    [spikePeaksValue{i,1}, spikeLocs{i,1}] = findpeaks(data(:,i),'minPeakHeight',threshold(i,1),'minPeakDistance',minDistance);
+end
+
+%% reconstruct spikePeaksValue and spikeLocs
+spikePeaksValue = cell2nanMat(spikePeaksValue);
+spikeLocs = cell2nanMat(spikeLocs);
+
+output.spikePeaksValue = spikePeaksValue;
+output.spikeLocs = spikeLocs;
+output.threshold = threshold;
+
+end
+

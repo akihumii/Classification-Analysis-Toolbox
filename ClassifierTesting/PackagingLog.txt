@@ -1,0 +1,42 @@
+ant:
+<ant>
+  <mkdir dir="C:\Users\a0126587\Documents\GitHub\SIRE-Matlab\ClassifierTesting\for_redistribution" />
+  <mkdir dir="C:\Users\a0126587\Documents\GitHub\SIRE-Matlab\ClassifierTesting\for_testing" />
+  <mkdir dir="C:\Users\a0126587\Documents\GitHub\SIRE-Matlab\ClassifierTesting\for_redistribution_files_only" />
+</ant>
+mcc -C -o ClassifierTesting -W WinMain:ClassifierTesting -T link:exe -d C:\Users\a0126587\Documents\GitHub\SIRE-Matlab\ClassifierTesting\for_testing -v C:\Users\a0126587\Documents\GitHub\SIRE-Matlab\RobotArmClassifyMovement.m 
+[Warning: Name is nonexistent or not a directory:
+C:\Users\a0126587\Documents\GitHub\SIRE-Matlab\ClassifierProgram\for_redistribution] 
+[Warning: Name is nonexistent or not a directory:
+C:\Users\a0126587\Documents\GitHub\SIRE-Matlab\ClassifierProgram\for_redistribution_files_only] 
+[Warning: Name is nonexistent or not a directory:
+C:\Users\a0126587\Documents\GitHub\SIRE-Matlab\ClassifierProgram\for_testing] 
+[Warning: Name is nonexistent or not a directory:
+C:\Users\a0126587\Documents\GitHub\SIRE-Matlab\SyncPulseVSArtefacts] 
+[Warning: Name is nonexistent or not a directory:
+C:\Users\a0126587\Documents\GitHub\SIRE-Matlab\SyncPulseVSArtefacts\supernewdata] 
+[Warning: Name is nonexistent or not a directory:
+C:\Users\a0126587\Documents\GitHub\SIRE-Matlab\SyncPulseVSArtefacts\supernewdata\Filtered
+Signal] 
+[Warning: Name is nonexistent or not a directory:
+C:\Users\a0126587\Documents\GitHub\SIRE-Matlab\SyncPulseVSArtefacts\supernewdata\Frequency
+Spectrum] 
+[Warning: Name is nonexistent or not a directory:
+C:\Users\a0126587\Documents\GitHub\SIRE-Matlab\SyncPulseVSArtefacts\supernewdata\Raw
+Signal] 
+Compiler version: 6.0 (R2015a)
+Dependency analysis by REQUIREMENTS.
+[Warning: Adding path "C:\Users\a0126587\Documents\GitHub\SIRE-Matlab" to
+Compiler path instance.] 
+Parsing file "C:\Users\a0126587\Documents\GitHub\SIRE-Matlab\RobotArmClassifyMovement.m"
+	(Referenced from: "Compiler Command Line").
+Deleting 0 temporary MEX authorization files.
+Generating file "C:\Users\a0126587\Documents\GitHub\SIRE-Matlab\ClassifierTesting\for_testing\readme.txt".
+Packaging...
+Adding custom icon C:\Program Files\MATLAB\R2015a\toolbox\compiler\Resources\default_icon.ico to C:\Users\a0126587\Documents\GitHub\SIRE-Matlab\ClassifierTesting\for_testing\ClassifierTesting.exe.
+Attempting to embed the CTF archive into the application C:\Users\a0126587\Documents\GitHub\SIRE-Matlab\ClassifierTesting\for_testing\ClassifierTesting.exe.
+Finished embedding CTF archive. Deleting the external CTF archive.
+Creating the bundle...
+Web based installer created at C:\Users\a0126587\Documents\GitHub\SIRE-Matlab\ClassifierTesting\for_redistribution\MyAppInstaller_web.exe.
+Packaging complete.
+Elapsed packaging time was: 3 minutes and 37 seconds.
