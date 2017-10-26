@@ -1,8 +1,6 @@
 %% main code for EMG analysis
-% including plotting figures, saving figures, selecting partial signals
-% locating starting point and end point
-% feature extraction
-% classification
+% Include data filtering, peak detecting, windows overlapping, 
+% figures displaying and saving.
 
 clear
 close all
