@@ -12,16 +12,17 @@ clc
 % Parameters
 dataType = 'neutrino';
 channel = [4,8,10]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
-channelRef = 8; % input 0 if no differential data is needed. Raw data will be referred to differential data if this action is performed.
+channelRef = 0; % input 0 if no differential data is needed.
 
 dataToBeFiltered = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataDelta' for differential data.
 highPassCutoffFreq = 5; % high pass cutoff frequency, input 0 if not applied
 lowPassCutoffFreq = 500; % low pass cutoff frequency, input 0 if not applied
 notchFreq = 50; % notch frequency, input 0 if not applied
 
-% Select window for overlapping. Input 'dataRaw' for raw data and
-% 'dataFiltered' for filtered data, input 'dataDelta' for differential data
-selectedWindow = 'dataDelta'; 
+% Select window for overlapping. 
+% Input 'dataRaw' for raw data, 'dataFiltered' for filtered data, 
+% 'dataDelta' for differential data
+selectedWindow = 'dataFiltered'; 
 windowSize = [0.005, 0.02]; % size of selected window (in seconds)
 
 % Show & Save Plots. Input 1 to save/show, otherwise input 0.
@@ -53,7 +54,7 @@ visualizeSignals(signal, signalClassification, selectedWindow, saveRaw, showRaw,
 disp ([num2str(toc), ' seconds used for visualizing signals...'])
 
 %% Run Classification
-classifier = runClassification('lda',signalClassification)
+% classifier = runClassification('lda',signalClassification)
 
 % classificationOutput = classification(features);
 % 

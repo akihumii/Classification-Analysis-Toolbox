@@ -13,16 +13,20 @@ for i = 1:length(signal)
     clear samplingFreq
 end
 %% Plot differential signal
-for i = 1:length(signal)
-    samplingFreq = signal(i,1).dataFiltered.samplingFreq;
-    plotFig(1/samplingFreq:1/samplingFreq:size(signal(i,1).dataDelta,1)/samplingFreq,signal(i,1).dataDelta,signal(i,1).fileName,'Differential Signal','Time(s)','Amplitude(V)',...
-        saveDelta,... % save
-        showDelta,... % show
-        signal(i,1).path,'subplot', signal.channel);
-    
-    clear samplingFreq
+if isempty(signal.channelRef)
+if saveDelta == 1 || showDelta == 1
+    warning('ChannelRef is not keyed in...')
+else
+    for i = 1:length(signal)
+        samplingFreq = signal(i,1).dataFiltered.samplingFreq;
+        plotFig(1/samplingFreq:1/samplingFreq:size(signal(i,1).dataDelta,1)/samplingFreq,signal(i,1).dataDelta,signal(i,1).fileName,'Differential Signal','Time(s)','Amplitude(V)',...
+            saveDelta,... % save
+            showDelta,... % show
+            signal(i,1).path,'subplot', signal.channel);
+        
+        clear samplingFreq
+    end
 end
-
 %% Plot filtered signal
 for i = 1:length(signal)
     samplingFreq = signal(i,1).dataFiltered.samplingFreq;
