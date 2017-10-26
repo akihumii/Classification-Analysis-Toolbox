@@ -30,12 +30,12 @@ else
     path = varargin{9};
 end
 if nargin < 8
-    answerShow = 'n';
+    answerShow = 0;
 else
     answerShow = varargin{8};
 end
 if nargin < 7
-    answerSave = 'n';
+    answerSave = 0;
 else
     answerSave = varargin{7};
 end
@@ -100,7 +100,7 @@ for i = 1:numData
     hold off
     
     %% Save & Show
-    if isequal(answerSave,'y')
+    if answerSave
         saveLocation = [path,'Figures\',titleName];
         if ~exist(saveLocation,'file')
             mkdir(saveLocation);
@@ -110,7 +110,7 @@ for i = 1:numData
         disp('Figures saved...')
     end
     
-    if ~isequal(answerShow,'y')
+    if ~answerShow
         close gcf
     end
 

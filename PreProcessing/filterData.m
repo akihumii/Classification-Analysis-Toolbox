@@ -1,15 +1,14 @@
-function dataFilt = filterData(data, samplingFreq, highPassCutoffFreq, lowPassCutoffFreq, varargin)
-%filterData Apply LowPass/HighPass/BandPass filter. Enter 0 if that 
+function dataFilt = filterData(data, samplingFreq, highPassCutoffFreq, lowPassCutoffFreq, notchFreq)
+%filterData Apply LowPass/HighPass/BandPass filter. Enter 0 if that
 %particular filter is not applied. Enter both low and high cutoff
 %frequency if a bandpass filter is being selected.
 %   dataFilt = filterData(data, highPassCutoffFreq, lowPassCutoffFreq, Fs)
 
 %% Built Filter
-[bHigh,aHigh] = butter(4,highPassCutoffFreq/(samplingFreq/2),'high');
-[bLow,aLow] = butter(4,lowPassCutoffFreq/(samplingFreq/2),'low');
-if nargin == 5
-    notchFreq = varargin{1};
-    wo = notchFreq/(samplingFreq/2);  bw = wo/35;
+[bHigh,aHigh] = butter(4,highPassCutoffFreq/(samplingFreq/2),'high'); % high pass filter
+[bLow,aLow] = butter(4,lowPassCutoffFreq/(samplingFreq/2),'low'); % low pass filter
+if notchFreq ~= 0
+    wo = notchFreq/(samplingFreq/2);  bw = wo/35; % notch filter
     [bNotch,aNotch] = iirnotch(wo,bw);
 end
 
@@ -37,12 +36,9 @@ elseif lowPassCutoffFreq==0
     end
     
     dataFilt = dataHPF;
-end
-
-if nargin == 5
+    
+elseif notchFilt ~= 0
     dataFilt = filtfilt(bNotch,aNotch,dataFilt); % applly notch filter
 end
-
-
 end
 

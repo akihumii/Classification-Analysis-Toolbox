@@ -18,6 +18,7 @@ classdef classData
         time
         samplingFreq
         channel
+        channelRef % reference channel for differential data
         noiseData
         dataAll
         dataRaw
@@ -64,24 +65,20 @@ classdef classData
             end
         end
         
-        function data = filterData(data, targetName, samplingFreq, highPassCutoffFreq, lowPassCutoffFreq, varargin)
-            if nargin == 6
-                notchFreq = varargin{1};
-                data.dataFiltered.values = filterData(data.(targetName), samplingFreq, highPassCutoffFreq, lowPassCutoffFreq, notchFreq);
-            else
-                notchFreq = nan;
-                data.dataFiltered.values = filterData(data.(targetName), samplingFreq, highPassCutoffFreq, lowPassCutoffFreq);
-            end
+        function data = dataDifferentialSubtraction(data, targetName, channelRef)
+            channelRefLocs = find(data.channel == channelRef);
+            data.dataDelta = dataDifferentialSubtraction(data.(targetName), channelRefLocs);
+            data.channelRef = channelRef;
+        end        
+
+        function data = filterData(data, targetName, samplingFreq, highPassCutoffFreq, lowPassCutoffFreq, notchFreq)
+            data.dataFiltered.values = filterData(data.(targetName), samplingFreq, highPassCutoffFreq, lowPassCutoffFreq, notchFreq);
             data.dataFiltered.highPassCutoffFreq = highPassCutoffFreq;
             data.dataFiltered.lowPassCutoffFreq = lowPassCutoffFreq;
             data.dataFiltered.notchFreq = notchFreq;
             data.dataFiltered.samplingFreq = samplingFreq;
             data.dataFiltered.dataBeingProcessed = targetName;
             errorShow(targetName, 'targetName', 'char');
-        end
-        
-        function data = dataDifferentialSubtraction(data, targetName, channelRef)
-            data.dataDelta = dataDifferentialSubtraction(data.(targetName), channelRef);
         end
         
         function data = fftDataConvert(data,targetValue, targetName,samplingFreq)
