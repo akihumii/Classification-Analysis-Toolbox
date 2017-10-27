@@ -55,6 +55,25 @@ tic
 visualizeSignals(signal, signalClassification, selectedWindow, saveRaw, showRaw, saveDelta, showDelta, saveFilt, showFilt, saveOverlap, showOverlap);
 disp ([num2str(toc), ' seconds is used for visualizing signals...'])
 
+%% Run Classification
+% classifier = runClassification('lda',signalClassification)
+
+% classificationOutput = classification(features);
+% 
+% for i = 1:length(classificationOutput.accuracy)
+%     accuracy(i,1) = classificationOutput.accuracy{1,i}.accuracy;
+%     const(i,1) = classificationOutput.coefficient{1,i}(1,2).const;
+%     linear(i,1) = classificationOutput.coefficient{1,i}(1,2).linear;
+% end
+% 
+% %% Run SVM
+% svmOuput = svmClassify(classificationOutput.grouping);
+% 
+% %% Save file as .txt
+% saveText(accuracy,const,linear,classificationOutput.channelPair, spikeTiming.threshold, windowSize);
+
+% clear
+
 finishMsg = msgbox('Finished all prcoesses...');
 pause(2)
 delete(finishMsg)
