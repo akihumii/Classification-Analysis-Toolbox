@@ -28,14 +28,14 @@ windowSize = [0.005, 0.02]; % size of selected window (in seconds)
 % Show & Save Plots. Input 1 to save/show, otherwise input 0.
 % Plots will be saved in the folder 'Figures' at the same path with the 
 % processed data 
-showRaw = 1;
+showRaw = 0;
 showDelta = 0;
-showFilt = 1;
-showOverlap = 1;
-saveRaw = 0;
+showFilt = 0;
+showOverlap = 0;
+saveRaw = 1;
 saveDelta = 0;
-saveFilt = 0;
-saveOverlap = 0;
+saveFilt = 1;
+saveOverlap = 1;
 
 %% Main
 ticDataAnalysis = tic;

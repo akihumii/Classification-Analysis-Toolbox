@@ -1,5 +1,11 @@
 function [] = visualizeSignals(signal, signalClassification, selectedWindow, saveRaw, showRaw, saveDelta, showDelta, saveFilt, showFilt, saveOverlap, showOverlap)
-%visualizeSignal Visualize needed signals
+%visualizeSignal Visualize needed signals. Raw, filtered, differential,
+%overlapping windows, average windows, and overall signal with indicated
+%spikes can be plotted.
+% Average window will be show/save according to the input of
+% 'showOverlap/saveOverlap'.
+% Overall signal with indicated spikes will be show only when the input 
+% 'showOverlap' is 1 and will not be saved.
 %   function [] = visualizeSignal(signal, signalClassification)
 
 %% Plot raw signal
@@ -39,7 +45,7 @@ end
 %% Plot filtered signal
 if ~saveFilt && ~showFilt
 else
-    if signal.dataFiltered.highPassCutoffFreq ~= 0 || signal.dataFiltered.lowPassCutoffFreq ~= 0 || signal.dataFiltered.notchFreq ~= 0
+    if signal(i,1).dataFiltered.highPassCutoffFreq ~= 0 || signal(i,1).dataFiltered.lowPassCutoffFreq ~= 0 || signal(i,1).dataFiltered.notchFreq ~= 0
         for i = 1:length(signal)
             samplingFreq = signal(i,1).dataFiltered.samplingFreq;
             plotFig((1:size(signal(i,1).dataFiltered.values,1))/samplingFreq,signal(i,1).dataFiltered.values,signal(i,1).fileName,['Filtered Signal (', num2str(signal(i,1).dataFiltered.highPassCutoffFreq),'-', num2str(signal(i,1).dataFiltered.lowPassCutoffFreq), ')'],'Time(s)','Amplitude(V)',...
@@ -73,24 +79,26 @@ else
             [-extraTimeAddedBeforeStartLocs, signalClassification(i,1).window(2)+extraTimeAddedAfterEndLocs],...
             samplingFreq);
         
-        plotFig(windowsValues.xAxisValues/samplingFreq,windowsValues.windowFollowing,signal(i,1).fileName,['Windows Following Artefacts ( ', signalClassification.selectedWindows.dataProcessed, ' )'],'Time(s)','Amplitude(V)',...
+        plotFig(windowsValues.xAxisValues/samplingFreq,windowsValues.windowFollowing,signal(i,1).fileName,['Windows Following Artefacts ( ', signalClassification(i,1).selectedWindows.dataProcessed, ' )'],'Time(s)','Amplitude(V)',...
             saveOverlap,... % save
             showOverlap,... % show
             signal(i,1).path,'overlap', signal.channel);
         
         % plot averaging overlapping windows
-        plotFig(windowsValues.xAxisValues/samplingFreq,mean(windowsValues.windowFollowing,2),signal(i,1).fileName,['Average Windows Following Artefacts ( ', signalClassification.selectedWindows.dataProcessed, ' )'],'Time(s)','Amplitude(V)',...
+        plotFig(windowsValues.xAxisValues/samplingFreq,mean(windowsValues.windowFollowing,2),signal(i,1).fileName,['Average Windows Following Artefacts ( ', signalClassification(i,1).selectedWindows.dataProcessed, ' )'],'Time(s)','Amplitude(V)',...
             saveOverlap,... % save
             showOverlap,... % show
             signal(i,1).path,'overlap', signal.channel);
         
         % plot overall signal with spikes indicated
-        plotFig((1:size(dataValues,1))/samplingFreq,dataValues,signal(i,1).fileName,['Overall Signal with Indicated Spikes ( ', dataName, ')'],'Time(s)','Amplitude(V)',...
-            0,... % save
-            1,... % show
-            signal(i,1).path,'subplot', signal.channel);
-        hold on
-        plot(signalClassification.burstDetection.spikeLocs/samplingFreq,dataValues(signalClassification.burstDetection.spikeLocs),'ro')
+        if showOverlap
+            plotFig((1:size(dataValues,1))/samplingFreq,dataValues,signal(i,1).fileName,['Overall Signal with Indicated Spikes ( ', dataName, ')'],'Time(s)','Amplitude(V)',...
+                0,... % save
+                1,... % show
+                signal(i,1).path,'subplot', signal.channel);
+            hold on
+            plot(signalClassification(i,1).burstDetection.spikeLocs/samplingFreq,dataValues(signalClassification(i,1).burstDetection.spikeLocs),'ro')
+        end
         
         clear xAxisValues yAxisValues samplingFreq...
             xAxisValuesEndLocs xAxisValuesStartLocs
