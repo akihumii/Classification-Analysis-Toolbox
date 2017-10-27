@@ -8,13 +8,13 @@ clc
 
 %% User's Input
 % Parameters
-dataType = 'neutrino';
-channel = [4,8,10]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
+dataType = 'neutrino'; % configurable types: 'neutirno', 'intan', 'sylphx', 'sylphii'
+channel = [1,2]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
 channelRef = 0; % input 0 if no differential data is needed.
 
 dataToBeFiltered = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataDelta' for differential data.
-highPassCutoffFreq = 5; % high pass cutoff frequency, input 0 if not applied
-lowPassCutoffFreq = 500; % low pass cutoff frequency, input 0 if not applied
+highPassCutoffFreq = 0; % high pass cutoff frequency, input 0 if not applied
+lowPassCutoffFreq = 0; % low pass cutoff frequency, input 0 if not applied
 notchFreq = 50; % notch frequency, input 0 if not applied
 
 % Select window for overlapping. 
@@ -24,10 +24,12 @@ selectedWindow = 'dataFiltered';
 windowSize = [0.005, 0.02]; % size of selected window (in seconds)
 
 % Show & Save Plots. Input 1 to save/show, otherwise input 0.
+% Plots will be saved in the folder 'Figures' at the same path with the 
+% processed data 
 showRaw = 1;
-showDelta = 1;
+showDelta = 0;
 showFilt = 1;
-showOverlap = 1;
+showOverlap = 0;
 saveRaw = 0;
 saveDelta = 0;
 saveFilt = 0;

@@ -39,9 +39,6 @@ classdef classData
                 data.file = file;
                 data.path = path;
                 data.fileType = fileType;
-                [data.dataAll, data.time] = reconstructData(file, path, fileType);
-                data.channel = 1:size(data.dataAll,2);
-                data.fileName = naming(data.file);
                 switch lower(data.fileType)
                     case 'intan'
                         data.samplingFreq = 30000;
@@ -52,8 +49,11 @@ classdef classData
                     case 'neutrino'
                         data.samplingFreq = 17500;
                     otherwise
-                        error('Invalid fileType. Possible fileType: ''intan'', ''sylphX'', ''sylphII''')
+                        error('Invalid dataType. Configurable dataType: ''Neutrino'', ''intan'', ''sylphX'', ''sylphII''')
                 end
+                [data.dataAll, data.time] = reconstructData(file, path, fileType);
+                data.channel = 1:size(data.dataAll,2);
+                data.fileName = naming(data.file);
                 %                 % For trimming
                 %                 data.dataRaw = data.dataRaw(7*data.samplingFreq:end);
                 %                 data.time = data.time(7*data.samplingFreq:end);

@@ -5,8 +5,12 @@ function dataFilt = filterData(data, samplingFreq, highPassCutoffFreq, lowPassCu
 %   dataFilt = filterData(data, highPassCutoffFreq, lowPassCutoffFreq, Fs)
 
 %% Built Filter
-[bHigh,aHigh] = butter(4,highPassCutoffFreq/(samplingFreq/2),'high'); % high pass filter
-[bLow,aLow] = butter(4,lowPassCutoffFreq/(samplingFreq/2),'low'); % low pass filter
+if highPassCutoffFreq ~= 0
+    [bHigh,aHigh] = butter(4,highPassCutoffFreq/(samplingFreq/2),'high'); % high pass filter
+end
+if lowPassCutoffFreq ~= 0
+    [bLow,aLow] = butter(4,lowPassCutoffFreq/(samplingFreq/2),'low'); % low pass filter
+end
 if notchFreq ~= 0
     wo = notchFreq/(samplingFreq/2);  bw = wo/35; % notch filter
     [bNotch,aNotch] = iirnotch(wo,bw);
@@ -14,31 +18,32 @@ end
 
 %% Apply Filter
 [rowData, colData] = size(data);
+if highPassCutoffFreq ~= 0 || lowPassCutoffFreq ~= 0
+    if highPassCutoffFreq ~= 0 && lowPassCutoffFreq == 0
+        for j = 1:colData
+            dataHPF(:,j) = filtfilt(bHigh,aHigh,data(:,j)); % apply high pass filter
+        end
+        dataFilt = dataHPF;
+        
+    elseif highPassCutoffFreq == 0 && lowPassCutoffFreq ~= 0
+        for j = 1:colData
+            dataLPF(:,j) = filtfilt(bLow,aLow,data(:,j)); % apply low pass filter
+        end
+        dataFilt = dataLPF;
+        
+    else
+        for j = 1:colData
+            dataHPF(:,j) = filtfilt(bHigh,aHigh,data(:,j)); % apply high pass filter
+            dataBPF(:,j) = filtfilt(bLow,aLow,dataHPF(:,j)); % apply low pass filter
+        end
+        dataFilt = dataBPF;
+    end
+else
+    dataFilt = data; % no highPassFilter nor lowPassFilter is applied
+end
 
-if highPassCutoffFreq~=0 && lowPassCutoffFreq~=0
-    for j = 1:colData
-        dataHPF(:,j) = filtfilt(bHigh,aHigh,data(:,j)); % apply high pass filter
-        dataBPF(:,j) = filtfilt(bLow,aLow,dataHPF(:,j)); % apply low pass filter
-    end
-    
-    dataFilt = dataBPF;
-    
-elseif highPassCutoffFreq==0
-    for j = 1:colData
-        dataLPF(:,j) = filtfilt(bLow,aLow,data(:,j)); % apply low pass filter
-    end
-    
-    dataFilt = dataLPF;
-    
-elseif lowPassCutoffFreq==0
-    for j = 1:colData
-        dataHPF(:,j) = filtfilt(bHigh,aHigh,data(:,j)); % apply high pass filter
-    end
-    
-    dataFilt = dataHPF;
-    
-elseif notchFilt ~= 0
-    dataFilt = filtfilt(bNotch,aNotch,dataFilt); % applly notch filter
+if notchFreq ~= 0
+    dataFilt = filtfilt(bNotch,aNotch,dataFilt); % apply notch filter
 end
 end
 
