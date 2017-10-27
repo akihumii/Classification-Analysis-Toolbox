@@ -25,12 +25,12 @@ end
 %% Plot differential signal
 if ~saveDelta && ~showDelta
 else
-    if isempty(signal.channelRef)
-        if saveDelta == 1 || showDelta == 1
-            warning('ChannelRef is not keyed in...')
-        end
-    else
-        for i = 1:length(signal)
+    for i = 1:length(signal)
+        if isempty(signal(i,1).channelRef)
+            if saveDelta == 1 || showDelta == 1
+                warning('ChannelRef is not keyed in...')
+            end
+        else
             samplingFreq = signal(i,1).dataFiltered.samplingFreq;
             plotFig(1/samplingFreq:1/samplingFreq:size(signal(i,1).dataDelta,1)/samplingFreq,signal(i,1).dataDelta,signal(i,1).fileName,'Differential Signal','Time(s)','Amplitude(V)',...
                 saveDelta,... % save

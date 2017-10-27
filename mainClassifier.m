@@ -28,10 +28,10 @@ windowSize = [0.005, 0.02]; % size of selected window (in seconds)
 % Show & Save Plots. Input 1 to save/show, otherwise input 0.
 % Plots will be saved in the folder 'Figures' at the same path with the 
 % processed data 
-showRaw = 0;
+showRaw = 1;
 showDelta = 0;
-showFilt = 0;
-showOverlap = 0;
+showFilt = 1;
+showOverlap = 1;
 saveRaw = 1;
 saveDelta = 0;
 saveFilt = 1;
@@ -41,38 +41,19 @@ saveOverlap = 1;
 ticDataAnalysis = tic;
 [signal, signalName, iter] = dataAnalysis(dataType,dataToBeFiltered,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,channel,channelRef,samplingFreq);
 signal
-disp([num2str(toc(ticDataAnalysis)), ' seconds used for loading and processing data...'])
+disp([num2str(toc(ticDataAnalysis)), ' seconds is used for loading and processing data...'])
 
 %% Locate bursts and select windows around them
 tic
 signalClassification = dataClassificationPreparation(signal, iter, selectedWindow, windowSize)
-disp([num2str(toc),' seconds used for classification preparation...'])
+disp([num2str(toc),' seconds is used for classification preparation...'])
 
 %% Plot selected windows
 close all
 
 tic
 visualizeSignals(signal, signalClassification, selectedWindow, saveRaw, showRaw, saveDelta, showDelta, saveFilt, showFilt, saveOverlap, showOverlap);
-disp ([num2str(toc), ' seconds used for visualizing signals...'])
-
-%% Run Classification
-% classifier = runClassification('lda',signalClassification)
-
-% classificationOutput = classification(features);
-% 
-% for i = 1:length(classificationOutput.accuracy)
-%     accuracy(i,1) = classificationOutput.accuracy{1,i}.accuracy;
-%     const(i,1) = classificationOutput.coefficient{1,i}(1,2).const;
-%     linear(i,1) = classificationOutput.coefficient{1,i}(1,2).linear;
-% end
-% 
-% %% Run SVM
-% svmOuput = svmClassify(classificationOutput.grouping);
-% 
-% %% Save file as .txt
-% saveText(accuracy,const,linear,classificationOutput.channelPair, spikeTiming.threshold, windowSize);
-
-% clear
+disp ([num2str(toc), ' seconds is used for visualizing signals...'])
 
 finishMsg = msgbox('Finished all prcoesses...');
 pause(2)

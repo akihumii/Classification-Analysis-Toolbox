@@ -114,7 +114,7 @@ for i = 1:numData
         end
         saveas(gcf,[saveLocation,'\',saveName,'.fig']);
         saveas(gcf,[saveLocation,'\',saveName,'.jpg']);
-        disp('Figures saved...')
+        disp([titleName,' ',fileName, ' is saved...'])
     end
     
     if ~answerShow
