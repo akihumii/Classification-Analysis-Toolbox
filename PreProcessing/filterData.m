@@ -2,7 +2,7 @@ function dataFilt = filterData(data, samplingFreq, highPassCutoffFreq, lowPassCu
 %filterData Apply LowPass/HighPass/BandPass filter. Enter 0 if that
 %particular filter is not applied. Enter both low and high cutoff
 %frequency if a bandpass filter is being selected.
-%   dataFilt = filterData(data, highPassCutoffFreq, lowPassCutoffFreq, Fs)
+%   dataFilt = filterData(data, samplingFreq, highPassCutoffFreq, lowPassCutoffFreq, notchFreq)
 
 %% Built Filter
 if highPassCutoffFreq ~= 0

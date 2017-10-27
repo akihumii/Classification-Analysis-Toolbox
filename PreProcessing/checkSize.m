@@ -1,5 +1,6 @@
 function [numData, numIteration] = checkSize(data)
-%checkSize Check the dimension size of data and output useful info
+%checkSize Check the dimension size of data, output the number of channels
+% and the number of iteration in inner layer
 %   [numData, numFeatures] = checkSize(data)
 
 numData = ones(1,3); % initiate 1 by 3 array of ones

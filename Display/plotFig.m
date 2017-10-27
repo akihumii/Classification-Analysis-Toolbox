@@ -1,9 +1,16 @@
 function p = plotFig(varargin)
 %plotFig Plot data into figure.
+% Any number of input is possible, as long as they are in order:
+% (If there is only one input, it will be y value.)
+% 
 % Variable "type" could be 'subplot' or 'overlap', default type is 'subplot'.
+% 
 % Variable 'y' could be a matrix where the data in column will be plotted
 % as one signal trial; Different rows represent different trials that have been performed.
-%   p = plotFig(x, y, fileName, titleName, xScale, yScale, answerSave, answerShow, path, type)
+% 
+% Variable 'channel' is for the title purpose, default value is 1.
+% 
+%   p = plotFig(x, y, fileName, titleName, xScale, yScale, answerSave, answerShow, path, type, channel, continuePlotting)
 
 %% fill unset parameters
 if nargin == 1

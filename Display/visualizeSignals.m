@@ -78,6 +78,14 @@ else
             showOverlap,... % show
             signal(i,1).path,'overlap', signal.channel);
         
+        % plot overall signal with spikes indicated
+        plotFig((1:size(dataValues,1))/samplingFreq,dataValues,signal(i,1).fileName,['Overall Signal with Indicated Spikes ( ', dataName, ')'],'Time(s)','Amplitude(V)',...
+            0,... % save
+            1,... % show
+            signal(i,1).path,'subplot', signal.channel);
+        hold on
+        plot(signalClassification.burstDetection.spikeLocs/samplingFreq,dataValues(signalClassification.burstDetection.spikeLocs),'ro')
+        
         clear xAxisValues yAxisValues samplingFreq...
             xAxisValuesEndLocs xAxisValuesStartLocs
     end

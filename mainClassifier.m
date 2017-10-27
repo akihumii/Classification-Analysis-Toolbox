@@ -9,7 +9,7 @@ clc
 %% User's Input
 % Parameters
 dataType = 'neutrino'; % configurable types: 'neutirno', 'intan', 'sylphx', 'sylphii'
-channel = [1,2]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
+channel = [6]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
 channelRef = 0; % input 0 if no differential data is needed.
 samplingFreq = 3e6/14/3; % specified sampling frequency, otherwise input 0 for default value (Neutrino: 17500, intan: 30000, sylphX: 16671, sylphII: 16671)
 
@@ -31,7 +31,7 @@ windowSize = [0.005, 0.02]; % size of selected window (in seconds)
 showRaw = 1;
 showDelta = 0;
 showFilt = 1;
-showOverlap = 0;
+showOverlap = 1;
 saveRaw = 0;
 saveDelta = 0;
 saveFilt = 0;
