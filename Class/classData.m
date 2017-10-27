@@ -34,33 +34,33 @@ classdef classData
     
     %% Methods
     methods
-        function data = classData(file,path,fileType, varargin)
+        function data = classData(file,path,fileType,channel,samplingFreq)
             if nargin > 0
                 data.file = file;
                 data.path = path;
                 data.fileType = fileType;
-                switch lower(data.fileType)
-                    case 'intan'
-                        data.samplingFreq = 30000;
-                    case 'sylphx'
-                        data.samplingFreq = 16671;
-                    case 'sylphii'
-                        data.samplingFreq = 16671;
-                    case 'neutrino'
-                        data.samplingFreq = 17500;
-                    otherwise
-                        error('Invalid dataType. Configurable dataType: ''Neutrino'', ''intan'', ''sylphX'', ''sylphII''')
+                if samplingFreq == 0
+                    switch lower(data.fileType)
+                        case 'intan'
+                            data.samplingFreq = 30000;
+                        case 'sylphx'
+                            data.samplingFreq = 16671;
+                        case 'sylphii'
+                            data.samplingFreq = 16671;
+                        case 'neutrino'
+                            data.samplingFreq = 17500;
+                        otherwise
+                            error('Invalid dataType. Configurable dataType: ''Neutrino'', ''intan'', ''sylphX'', ''sylphII''')
+                    end
+                else
+                    data.samplingFreq = samplingFreq;
                 end
                 [data.dataAll, data.time] = reconstructData(file, path, fileType);
-                data.channel = 1:size(data.dataAll,2);
                 data.fileName = naming(data.file);
                 %                 % For trimming
                 %                 data.dataRaw = data.dataRaw(7*data.samplingFreq:end);
                 %                 data.time = data.time(7*data.samplingFreq:end);
-                if nargin == 4
-                    clear data.channel
-                    data.channel = varargin{1};
-                end
+                data.channel = channel;
                 data.dataRaw = data.dataAll(:,data.channel);
             end
         end
@@ -69,8 +69,8 @@ classdef classData
             channelRefLocs = find(data.channel == channelRef);
             data.dataDelta = dataDifferentialSubtraction(data.(targetName), channelRefLocs);
             data.channelRef = channelRef;
-        end        
-
+        end
+        
         function data = filterData(data, targetName, samplingFreq, highPassCutoffFreq, lowPassCutoffFreq, notchFreq)
             data.dataFiltered.values = filterData(data.(targetName), samplingFreq, highPassCutoffFreq, lowPassCutoffFreq, notchFreq);
             data.dataFiltered.highPassCutoffFreq = highPassCutoffFreq;

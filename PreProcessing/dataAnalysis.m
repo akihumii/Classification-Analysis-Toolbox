@@ -1,6 +1,6 @@
-function [data, dataName, iter] = dataAnalysis(dataType,dataToBeFiltered,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,channel,channelRef)
+function [data, dataName, iter] = dataAnalysis(dataType,dataToBeFiltered,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,channel,channelRef,samplingFreq)
 %dataAnalysis Generate objects that describes each processed data
-%   [data, dataName, iter] = dataAnalysis()
+%   [data, dataName, iter] = dataAnalysis(dataType,dataToBeFiltered,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,channel,channelRef,samplingFreq)
 close all
 
 [files, path, iter] = selectFiles(); % select files to be analysed
@@ -11,7 +11,7 @@ dataName = cell(iter,1);
 
 %% Analyse Data
 for i = 1:iter
-    data(i,1) = classData(files{i},path,dataType,channel);
+    data(i,1) = classData(files{i},path,dataType,channel,samplingFreq);
     if channelRef ~= 0
         data(i,1) = dataDifferentialSubtraction(data(i,1),'dataRaw',channelRef);
     end

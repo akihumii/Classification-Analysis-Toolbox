@@ -11,13 +11,15 @@ clc
 dataType = 'neutrino'; % configurable types: 'neutirno', 'intan', 'sylphx', 'sylphii'
 channel = [1,2]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
 channelRef = 0; % input 0 if no differential data is needed.
+samplingFreq = 3e6/14/3; % specified sampling frequency, otherwise input 0 for default value (Neutrino: 17500, intan: 30000, sylphX: 16671, sylphII: 16671)
 
 dataToBeFiltered = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataDelta' for differential data.
 highPassCutoffFreq = 0; % high pass cutoff frequency, input 0 if not applied
 lowPassCutoffFreq = 0; % low pass cutoff frequency, input 0 if not applied
 notchFreq = 50; % notch frequency, input 0 if not applied
 
-% Select window for overlapping. 
+% Select window for overlapping. Spikes will be detected by thresholding
+% with the value of 3/4 of the maximum value in the signal.
 % Input 'dataRaw' for raw data, 'dataFiltered' for filtered data, 
 % 'dataDelta' for differential data
 selectedWindow = 'dataFiltered'; 
@@ -37,7 +39,7 @@ saveOverlap = 0;
 
 %% Main
 ticDataAnalysis = tic;
-[signal, signalName, iter] = dataAnalysis(dataType,dataToBeFiltered,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,channel,channelRef);
+[signal, signalName, iter] = dataAnalysis(dataType,dataToBeFiltered,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,channel,channelRef,samplingFreq);
 signal
 disp([num2str(toc(ticDataAnalysis)), ' seconds used for loading and processing data...'])
 
