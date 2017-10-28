@@ -18,6 +18,8 @@ highPassCutoffFreq = 0; % high pass cutoff frequency, input 0 if not applied
 lowPassCutoffFreq = 0; % low pass cutoff frequency, input 0 if not applied
 notchFreq = 50; % notch frequency, input 0 if not applied
 
+dataToBeFFT = 'dataFiltered'; % input 'dataRaw' for raw data; input 'dataFiltered' for filtered data
+
 % Select window for overlapping. 
 % Input 'dataRaw' for raw data, 'dataFiltered' for filtered data, 
 % 'dataDelta' for differential data
@@ -32,14 +34,17 @@ showRaw = 1;
 showDelta = 0;
 showFilt = 1;
 showOverlap = 1;
+showFFT = 1;
+
 saveRaw = 0;
 saveDelta = 0;
 saveFilt = 0;
 saveOverlap = 0;
+saveFFT = 0;
 
 %% Main
 ticDataAnalysis = tic;
-[signal, signalName, iter] = dataAnalysis(dataType,dataToBeFiltered,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,channel,channelRef,samplingFreq);
+[signal, signalName, iter] = dataAnalysis(dataType,dataToBeFiltered,dataToBeFFT,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,channel,channelRef,samplingFreq);
 signal
 disp([num2str(toc(ticDataAnalysis)), ' seconds is used for loading and processing data...'])
 
@@ -52,7 +57,7 @@ disp([num2str(toc),' seconds is used for classification preparation...'])
 close all
 
 tic
-visualizeSignals(signal, signalClassification, selectedWindow, saveRaw, showRaw, saveDelta, showDelta, saveFilt, showFilt, saveOverlap, showOverlap);
+visualizeSignals(signal, signalClassification, selectedWindow, saveRaw, showRaw, saveDelta, showDelta, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT);
 disp ([num2str(toc), ' seconds is used for visualizing signals...'])
 
 %% Run Classification

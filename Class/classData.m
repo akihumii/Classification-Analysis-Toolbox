@@ -3,11 +3,11 @@ classdef classData
     % sylphii, sylphx
     % function data = classData(file,path,fileType)
     %
-    % function data = filterData(data, targetValue, targetName, lowCutoffFreq, highCutoffFreq, samplingFreq)
-    % function data = fftDataConvert(data,targetValue, targetName,samplingFreq)
-    % function data = noiseLevelDetection(data,targetValue,targetName)
-    % function data = TKEO(data,targetValue,targetName,samplingFreq)
-    % function data = pcaConverter(data,targetValue,targetName)
+    % data = filterData(data, targetName, samplingFreq, highPassCutoffFreq, lowPassCutoffFreq, notchFreq)
+    % data = fftDataConvert(data, targetName,samplingFreq)
+    % data = noiseLevelDetection(data,targetValue,targetName)
+    % data = TKEO(data,targetValue,targetName,samplingFreq)
+    % data = pcaConverter(data,targetValue,targetName)
     
     %% Properties
     properties
@@ -81,11 +81,14 @@ classdef classData
             errorShow(targetName, 'targetName', 'char');
         end
         
-        function data = fftDataConvert(data,targetValue, targetName,samplingFreq)
+        function data = fftDataConvert(data,targetName,samplingFreq)
+            if isequal(targetName,'dataFiltered')
+                targetName = [{'dataFiltered'};{'values'}];
+            end
+            [dataValue, dataName] = loadMultiLayerStruct(data,targetName);
             [data.dataFFT.values, data.dataFFT.freqDomain] = ...
-                fftDataConvert(targetValue, samplingFreq);
-            data.dataFFT.dataBeingProcessed = targetName;
-            errorShow(targetName, 'targetName', 'char');
+                fftDataConvert(dataValue, samplingFreq);
+            data.dataFFT.dataBeingProcessed = dataName;
         end
         
         function data = noiseLevelDetection(data,targetValue,targetName)

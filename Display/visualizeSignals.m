@@ -1,4 +1,4 @@
-function [] = visualizeSignals(signal, signalClassification, selectedWindow, saveRaw, showRaw, saveDelta, showDelta, saveFilt, showFilt, saveOverlap, showOverlap)
+function [] = visualizeSignals(signal, signalClassification, selectedWindow, saveRaw, showRaw, saveDelta, showDelta, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT)
 %visualizeSignal Visualize needed signals. Raw, filtered, differential,
 %overlapping windows, average windows, and overall signal with indicated
 %spikes can be plotted.
@@ -55,6 +55,17 @@ else
             
             clear samplingFreq
         end
+    end
+end
+
+%% Plot FFT signal
+if ~saveFFT && ~showFFT
+else
+    for i = 1:length(signal)
+        plotFig(signal(i,1).dataFFT.freqDomain,signal(i,1).dataFFT.values,signal(i,1).fileName,[signal(i,1).dataFFT.dataBeingProcessed,' FFT Signal'],'Frequency(Hz)','Amplitude',...
+            saveFFT,... % save
+            showFFT,... % show
+            signal(i,1).path,'subplot', signal.channel);
     end
 end
 
