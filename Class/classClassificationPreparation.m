@@ -50,11 +50,11 @@ classdef classClassificationPreparation
             end
         end
         
-        function clfp = detectSpikes(clfp,targetClassData,targetFieldName,type)
+        function clfp = detectSpikes(clfp,targetClassData,targetFieldName,type, threshold)
             switch type
                 case 'threshold'
                     minDistance = clfp.window(2)*targetClassData.samplingFreq;
-                    clfp.burstDetection = detectSpikes(targetClassData.(targetFieldName),minDistance);
+                    clfp.burstDetection = detectSpikes(targetClassData.(targetFieldName),minDistance,threshold);
                 otherwise
             end                        
             clfp.burstDetection.dataAnalysed = [targetClassData.file,' -> ',targetFieldName];
