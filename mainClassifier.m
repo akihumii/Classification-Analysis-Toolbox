@@ -8,10 +8,10 @@ clc
 
 %% User's Input
 % Parameters
-dataType = 'neutrino'; % configurable types: 'neutirno', 'intan', 'sylphx', 'sylphii'
+dataType = 'neutrino2'; % configurable types: ,'neutrino2','neutirno', 'intan', 'sylphx', 'sylphii'
 channel = [1]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
 channelRef = 0; % input 0 if no differential data is needed.
-samplingFreq = 0; % specified sampling frequency, otherwise input 0 for default value (Neutrino: 17500, intan: 30000, sylphX: 16671, sylphII: 16671)
+samplingFreq = 0; % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 30000, sylphX: 16671, sylphII: 16671)
 
 dataToBeFiltered = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataDelta' for differential data.
 highPassCutoffFreq = 0; % high pass cutoff frequency, input 0 if not applied

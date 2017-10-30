@@ -12,7 +12,7 @@ if lowPassCutoffFreq ~= 0
     [bLow,aLow] = butter(4,lowPassCutoffFreq/(samplingFreq/2),'low'); % low pass filter
 end
 if notchFreq ~= 0
-    wo = notchFreq/(samplingFreq/2);  bw = wo/35; % notch filter
+    wo = notchFreq/(samplingFreq/2);  bw = wo/5; % notch filter
     [bNotch,aNotch] = iirnotch(wo,bw);
 end
 
