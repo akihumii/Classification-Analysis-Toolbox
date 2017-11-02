@@ -96,19 +96,25 @@ else
             signal(i,1).path,'overlap', signal.channel);
         
         % plot averaging overlapping windows
-        plotFig(windowsValues.xAxisValues/samplingFreq,mean(windowsValues.windowFollowing,2),signal(i,1).fileName,['Average Windows Following Artefacts ( ', signalClassification(i,1).selectedWindows.dataProcessed, ' )'],'Time(s)','Amplitude(V)',...
+        plotFig(windowsValues.xAxisValues/samplingFreq,nanmean(windowsValues.windowFollowing,2),signal(i,1).fileName,['Average Windows Following Artefacts ( ', signalClassification(i,1).selectedWindows.dataProcessed, ' )'],'Time(s)','Amplitude(V)',...
             saveOverlap,... % save
             showOverlap,... % show
             signal(i,1).path,'overlap', signal.channel);
         
         % plot overall signal with spikes indicated
         if showOverlap
-            plotFig((1:size(dataValues,1))/samplingFreq,dataValues,signal(i,1).fileName,['Overall Signal with Indicated Spikes ( ', dataName, ')'],'Time(s)','Amplitude(V)',...
+            numChannel = size(signalClassification(i,1).burstDetection.spikeLocs,2);
+            overallP = plotFig((1:size(dataValues,1))/samplingFreq,dataValues,signal(i,1).fileName,['Overall Signal with Indicated Spikes ( ', dataName, ')'],'Time(s)','Amplitude(V)',...
                 0,... % save
                 1,... % show
                 signal(i,1).path,'subplot', signal.channel);
             hold on
-            plot(signalClassification(i,1).burstDetection.spikeLocs/samplingFreq,dataValues(signalClassification(i,1).burstDetection.spikeLocs),'ro')
+            for j = 1:numChannel
+                axes(overallP(j,1))
+                notNanSpikeLocs = ~isnan(signalClassification(i,1).burstDetection.spikeLocs(:,j)); % get locs that are non nan
+                plot(signalClassification(i,1).burstDetection.spikeLocs(notNanSpikeLocs,j)/samplingFreq,dataValues(signalClassification(i,1).burstDetection.spikeLocs(notNanSpikeLocs,j),j),'ro')
+                clear notNanSpikeLocs
+            end
         end
         
         clear xAxisValues yAxisValues samplingFreq...

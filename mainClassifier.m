@@ -9,7 +9,7 @@ clc
 %% User's Input
 % Parameters
 dataType = 'intan'; % configurable types: ,'neutrino2','neutirno', 'intan', 'sylphx', 'sylphii'
-channel = [39]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
+channel = [5:10]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
 channelRef = 0; % input 0 if no differential data is needed.
 samplingFreq = 0; % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 30000, sylphX: 16671, sylphII: 16671)
 
