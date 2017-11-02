@@ -1,6 +1,8 @@
-%% main code for EMG analysis
+%% Main code for EMG analysis
 % Include data filtering, peak detecting, windows overlapping, 
 % figures displaying and saving.
+% 
+% Written by Tsai Chne Wuen
 
 clear
 close all
