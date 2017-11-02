@@ -25,6 +25,7 @@ switch lower(fileType)
         %% For Intan
         [data, time] = readIntan([path,files]);
         data = data*res;
+        data = data'; % make it into structure of [samplePoint x channels]
         
     case 'neutrino'
         %% For Neutrino

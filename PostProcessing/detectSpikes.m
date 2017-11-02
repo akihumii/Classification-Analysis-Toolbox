@@ -26,6 +26,10 @@ for i = 1:colData % channel
 end
 
 %% reconstruct spikePeaksValue and spikeLocs
+if isempty(spikePeaksValue{1,1})
+    error('No spikes detected, threshold is higher than all the points...')
+end
+
 spikePeaksValue = cell2nanMat(spikePeaksValue);
 spikeLocs = cell2nanMat(spikeLocs);
 

@@ -8,8 +8,8 @@ clc
 
 %% User's Input
 % Parameters
-dataType = 'neutrino2'; % configurable types: ,'neutrino2','neutirno', 'intan', 'sylphx', 'sylphii'
-channel = [1]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
+dataType = 'intan'; % configurable types: ,'neutrino2','neutirno', 'intan', 'sylphx', 'sylphii'
+channel = [39]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
 channelRef = 0; % input 0 if no differential data is needed.
 samplingFreq = 0; % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 30000, sylphX: 16671, sylphII: 16671)
 
@@ -24,7 +24,7 @@ dataToBeFFT = 'dataFiltered'; % input 'dataRaw' for raw data; input 'dataFiltere
 % Input 'dataRaw' for raw data, 'dataFiltered' for filtered data, 
 % 'dataDelta' for differential data
 selectedWindow = 'dataFiltered'; 
-threshold = 0.65; % specified threshold for spikes detection, otehrwise input 0 for default value (3/4 of the maximum value of the signal)
+threshold = 0; % specified threshold for spikes detection, otehrwise input 0 for default value (3/4 of the maximum value of the signal)
 windowSize = [0.005, 0.02]; % size of selected window (in seconds)
 
 % Show & Save Plots. Input 1 to save/show, otherwise input 0.
