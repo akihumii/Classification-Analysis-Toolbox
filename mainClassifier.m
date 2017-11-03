@@ -13,7 +13,9 @@ clc
 dataType = 'intan'; % configurable types: ,'neutrino2','neutirno', 'intan', 'sylphx', 'sylphii'
 channel = [5:10]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
 channelRef = 0; % input 0 if no differential data is needed.
-samplingFreq = 0; % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 30000, sylphX: 16671, sylphII: 16671)
+samplingFreq = 0; % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 16671, sylphII: 16671)
+
+dataSelection = [2,22]; % specified window (in seconds) to be read for ALL the selected file, input nothing for default (read the whole signal). eg. input [5:20] to read data from 5th second to 20th second
 
 dataToBeFiltered = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataDelta' for differential data.
 highPassCutoffFreq = 0; % high pass cutoff frequency, input 0 if not applied
@@ -34,9 +36,9 @@ windowSize = [0.005, 0.02]; % size of selected window (in seconds)
 % processed data 
 showRaw = 1;
 showDelta = 0;
-showFilt = 1;
-showOverlap = 1;
-showFFT = 1;
+showFilt = 0;
+showOverlap = 0;
+showFFT = 0;
 
 saveRaw = 0;
 saveDelta = 0;
@@ -46,7 +48,7 @@ saveFFT = 0;
 
 %% Main
 ticDataAnalysis = tic;
-[signal, signalName, iter] = dataAnalysis(dataType,dataToBeFiltered,dataToBeFFT,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,channel,channelRef,samplingFreq);
+[signal, signalName, iter] = dataAnalysis(dataType,dataToBeFiltered,dataToBeFFT,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,channel,channelRef,samplingFreq,dataSelection);
 signal
 disp([num2str(toc(ticDataAnalysis)), ' seconds is used for loading and processing data...'])
 

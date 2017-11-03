@@ -34,7 +34,7 @@ classdef classData
     
     %% Methods
     methods
-        function data = classData(file,path,fileType,channel,samplingFreq)
+        function data = classData(file,path,fileType,channel,samplingFreq,dataSelection)
             if nargin > 0
                 data.file = file;
                 data.path = path;
@@ -42,7 +42,7 @@ classdef classData
                 if samplingFreq == 0
                     switch lower(data.fileType)
                         case 'intan'
-                            data.samplingFreq = 30000;
+                            data.samplingFreq = 20000;
                         case 'sylphx'
                             data.samplingFreq = 16671;
                         case 'sylphii'
@@ -59,11 +59,16 @@ classdef classData
                 end
                 [data.dataAll, data.time] = reconstructData(file, path, fileType);
                 data.fileName = naming(data.file);
-                %                 % For trimming
-                %                 data.dataRaw = data.dataRaw(7*data.samplingFreq:end);
-                %                 data.time = data.time(7*data.samplingFreq:end);
                 data.channel = channel;
                 data.dataRaw = data.dataAll(:,data.channel);
+                % for trimming
+                if ~isempty(dataSelection)
+                    locsStart = dataSelection(1) * data.samplingFreq;
+                    locsEnd = dataSelection(2) * data.samplingFreq;
+                    data.dataRaw = data.dataRaw(locsStart:locsEnd,:);
+                    data.time = data.time(locsStart:locsEnd);
+                    data.time = data.time - data.time(1) + 1;
+                end
             end
         end
         
