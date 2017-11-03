@@ -15,7 +15,7 @@ channel = [5:10]; % channels to be processed. Consecutive channels can be exrpes
 channelRef = 0; % input 0 if no differential data is needed.
 samplingFreq = 0; % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 16671, sylphII: 16671)
 
-dataSelection = [2,22]; % specified window (in seconds) to be read for ALL the selected file, input nothing for default (read the whole signal). eg. input [5:20] to read data from 5th second to 20th second
+dataSelection = [2,22]; % specified window (in seconds) to be read for ALL the selected file, leaving empty for default value(read the whole signal). eg. input [5:20] to read data from 5th second to 20th second; input [] for default
 
 dataToBeFiltered = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataDelta' for differential data.
 highPassCutoffFreq = 0; % high pass cutoff frequency, input 0 if not applied
