@@ -22,6 +22,7 @@ classdef classData
         noiseData
         dataAll
         dataRaw
+        dataRectified
         dataFiltered
         dataFFT
         dataDelta
@@ -69,6 +70,7 @@ classdef classData
                     data.time = data.time(locsStart:locsEnd);
                     data.time = data.time - data.time(1) + 1;
                 end
+                data.dataRectified = abs(data.dataRaw);
             end
         end
         

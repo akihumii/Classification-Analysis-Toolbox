@@ -1,4 +1,4 @@
-function [] = visualizeSignals(signal, signalClassification, selectedWindow, saveRaw, showRaw, saveDelta, showDelta, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT)
+function [] = visualizeSignals(signal, signalClassification, selectedWindow, saveRaw, showRaw, saveDelta, showDelta, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT)
 %visualizeSignal Visualize needed signals. Raw, filtered, differential,
 %overlapping windows, average windows, and overall signal with indicated
 %spikes can be plotted.
@@ -16,6 +16,20 @@ else
         plotFig(1/samplingFreq:1/samplingFreq:size(signal(i,1).dataRaw,1)/samplingFreq,signal(i,1).dataRaw,signal(i,1).fileName,'Raw Signal','Time(s)','Amplitude(V)',...
             saveRaw,... % save
             showRaw,... % show
+            signal(i,1).path,'subplot', signal.channel);
+        
+        clear samplingFreq
+    end
+end
+
+%% Plot raw signal
+if ~saveRectified && ~showRectified
+else
+    for i = 1:length(signal)
+        samplingFreq = signal(i,1).dataFiltered.samplingFreq;
+        plotFig(1/samplingFreq:1/samplingFreq:size(signal(i,1).dataRectified,1)/samplingFreq,signal(i,1).dataRectified,signal(i,1).fileName,'Rectified Signal','Time(s)','Amplitude(V)',...
+            saveRectified,... % save
+            showRectified,... % show
             signal(i,1).path,'subplot', signal.channel);
         
         clear samplingFreq
