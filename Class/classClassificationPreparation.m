@@ -51,12 +51,12 @@ classdef classClassificationPreparation
         end
         
         function clfp = detectSpikes(clfp,targetClassData,targetName,type,threshold,sign)
+            if isequal(targetName,'dataFiltered')
+                targetName = [{'dataFiltered'};{'values'}];
+            end
+            [dataValue, dataName] = loadMultiLayerStruct(targetClassData,targetName);
             switch type
                 case 'threshold'
-                    if isequal(targetName,'dataFiltered')
-                        targetName = [{'dataFiltered'};{'values'}];
-                    end
-                    [dataValue, dataName] = loadMultiLayerStruct(targetClassData,targetName);
                     minDistance = clfp.window(2)*targetClassData.samplingFreq;
                     clfp.burstDetection = detectSpikes(dataValue,minDistance,threshold,sign);
                 otherwise

@@ -11,7 +11,7 @@ clc
 %% User's Input
 % Parameters
 dataType = 'intan'; % configurable types: ,'neutrino2','neutirno', 'intan', 'sylphx', 'sylphii'
-channel = [6]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
+channel = [39]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
 channelRef = 0; % input 0 if no differential data is needed.
 samplingFreq = 0; % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 16671, sylphII: 16671)
 
@@ -22,14 +22,14 @@ highPassCutoffFreq = 30; % high pass cutoff frequency, input 0 if not applied
 lowPassCutoffFreq = 300; % low pass cutoff frequency, input 0 if not applied
 notchFreq = 50; % notch frequency, input 0 if not applied
 
-dataToBeFFT = 'dataRectified'; % input 'dataRaw' for raw data; input 'dataFiltered' for filtered data; input 'dataRectified' for rectified data
+dataToBeFFT = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataFiltered' for filtered data; input 'dataRectified' for rectified data
 
-dataToBeDetectedSpike = 'dataRectified'; % data for spike detecting
+dataToBeDetectedSpike = 'dataRaw'; % data for spike detecting
 
 % Select window for overlapping. 
 % Input 'dataRaw' for raw data, 'dataFiltered' for filtered data, 
 % 'dataDelta' for differential data
-selectedWindow = 'dataRaw'; 
+selectedWindow = 'dataFiltered'; 
 threshold = 0; % specified threshold for spikes detection, otehrwise input 0 for default value (3/4 of the maximum value of the signal)
 sign = 1; % input 1 for threhoslding upwards, input -1 for thresholding downwards
 windowSize = [0.005, 0.02]; % size of selected window (in seconds)
