@@ -1,4 +1,4 @@
-function output = detectSpikes(data, minDistance, threshold)
+function output = detectSpikes(data, minDistance, threshold, sign)
 %detectSpikes After taking baseline into account, any sample point exceeds 
 %3/5 of the maximum value of the signal will be considered as a spike. No 2
 %spikes will be detected in one window.
@@ -6,9 +6,13 @@ function output = detectSpikes(data, minDistance, threshold)
 
 if nargin < 2
     minDistance = 1;
+    threshold = 0;
+    sign = 1;
 end
 
 %% Find Peaks
+data = sign*data;
+
 [rowData, colData] = size(data);
 
 for i = 1:colData % channel
@@ -22,7 +26,8 @@ for i = 1:colData % channel
     end
     thresholdAll(i,1) = thresholdValue;
     
-    [spikePeaksValue{i,1}, spikeLocs{i,1}] = findpeaks(data(:,i),'minPeakHeight',thresholdAll(i,1),'minPeakDistance',minDistance);
+    [spikePeaksValue{i,1}, spikeLocs{i,1}] = findpeaks(data(:,i),'minPeakHeight',...
+        thresholdAll(i,1),'minPeakDistance',minDistance);
 end
 
 %% reconstruct spikePeaksValue and spikeLocs
@@ -33,10 +38,10 @@ end
 spikePeaksValue = cell2nanMat(spikePeaksValue);
 spikeLocs = cell2nanMat(spikeLocs);
 
-output.spikePeaksValue = spikePeaksValue;
+output.spikePeaksValue = sign * spikePeaksValue;
 output.spikeLocs = spikeLocs;
-output.threshold = thresholdAll;
-output.baseline = baseline;
+output.threshold = sign * thresholdAll;
+output.baseline = sign * baseline;
 
 end
 

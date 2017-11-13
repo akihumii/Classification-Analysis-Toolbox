@@ -50,22 +50,25 @@ classdef classClassificationPreparation
             end
         end
         
-        function clfp = detectSpikes(clfp,targetClassData,targetFieldName,type, threshold)
+        function clfp = detectSpikes(clfp,targetClassData,targetName,type,threshold,sign)
             switch type
                 case 'threshold'
+                    if isequal(targetName,'dataFiltered')
+                        targetName = [{'dataFiltered'};{'values'}];
+                    end
+                    [dataValue, dataName] = loadMultiLayerStruct(targetClassData,targetName);
                     minDistance = clfp.window(2)*targetClassData.samplingFreq;
-                    clfp.burstDetection = detectSpikes(targetClassData.(targetFieldName),minDistance,threshold);
+                    clfp.burstDetection = detectSpikes(dataValue,minDistance,threshold,sign);
                 otherwise
             end                        
-            clfp.burstDetection.dataAnalysed = [targetClassData.file,' -> ',targetFieldName];
-            errorShow(targetFieldName, 'targetFieldName', 'char');
+            clfp.burstDetection.dataAnalysed = [targetClassData.file,' -> ',dataName];
             clfp.burstDetection.detectionMethod = type;
         end
         
         function clfp = classificationWindowSelection(clfp, targetClassData, targetFieldName)
             [dataValues, dataName] = loadMultiLayerStruct(targetClassData,targetFieldName);
-            clfp.selectedWindows = ...
-                classificationWindowSelection(dataValues,...
+            clfp.selectedWindows = classificationWindowSelection(...
+                dataValues,...
                 clfp.burstDetection.spikeLocs,...
                 clfp.window,...
                 targetClassData.samplingFreq);

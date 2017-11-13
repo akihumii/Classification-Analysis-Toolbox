@@ -70,8 +70,12 @@ classdef classData
                     data.time = data.time(locsStart:locsEnd);
                     data.time = data.time - data.time(1) + 1;
                 end
-                data.dataRectified = abs(data.dataRaw);
             end
+        end
+        
+        function data = rectifyData(data,targetName)
+            data.dataRectified = filterData(data.(targetName),data.samplingFreq,1,0,0);
+            data.dataRectified = abs(data.dataRectified);
         end
         
         function data = dataDifferentialSubtraction(data, targetName, channelRef)
@@ -106,10 +110,13 @@ classdef classData
             errorShow(targetName, 'targetName', 'char');
         end
         
-        function data = TKEO(data,targetValue,targetName,samplingFreq)
-            data.dataTKEO.values = TKEO(targetValue, samplingFreq);
-            data.dataTKEO.dataBeingProcessed = targetName;
-            errorShow(targetName, 'targetName', 'char');
+        function data = TKEO(data,targetName,samplingFreq)
+            if isequal(targetName,'dataFiltered')
+                targetName = [{'dataFiltered'};{'values'}];
+            end
+            [dataValue, dataName] = loadMultiLayerStruct(data,targetName);
+            data.dataTKEO.values = TKEO(dataValue, samplingFreq);
+            data.dataTKEO.dataBeingProcessed = dataName;
         end
         
         function data = pcaConverter(data,targetValue,targetName)

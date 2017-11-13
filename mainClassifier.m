@@ -15,20 +15,23 @@ channel = [6]; % channels to be processed. Consecutive channels can be exrpessed
 channelRef = 0; % input 0 if no differential data is needed.
 samplingFreq = 0; % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 16671, sylphII: 16671)
 
-dataSelection = [2,22]; % specified window (in seconds) to be read for ALL the selected file, leaving empty for default value(read the whole signal). eg. input [5:20] to read data from 5th second to 20th second; input [] for default
+dataSelection = []; % specified window (in seconds) to be read for ALL the selected file, leaving empty for default value(read the whole signal). eg. input [5:20] to read data from 5th second to 20th second; input [] for default
 
-dataToBeFiltered = 'dataRectified'; % input 'dataRaw' for raw data; input 'dataDelta' for differential data; input 'dataRectified' for rectified data
-highPassCutoffFreq = 0; % high pass cutoff frequency, input 0 if not applied
-lowPassCutoffFreq = 0; % low pass cutoff frequency, input 0 if not applied
+dataToBeFiltered = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataDelta' for differential data; input 'dataRectified' for rectified data
+highPassCutoffFreq = 30; % high pass cutoff frequency, input 0 if not applied
+lowPassCutoffFreq = 300; % low pass cutoff frequency, input 0 if not applied
 notchFreq = 50; % notch frequency, input 0 if not applied
 
 dataToBeFFT = 'dataRectified'; % input 'dataRaw' for raw data; input 'dataFiltered' for filtered data; input 'dataRectified' for rectified data
 
+dataToBeDetectedSpike = 'dataRectified'; % data for spike detecting
+
 % Select window for overlapping. 
 % Input 'dataRaw' for raw data, 'dataFiltered' for filtered data, 
 % 'dataDelta' for differential data
-selectedWindow = 'dataFiltered'; 
+selectedWindow = 'dataRaw'; 
 threshold = 0; % specified threshold for spikes detection, otehrwise input 0 for default value (3/4 of the maximum value of the signal)
+sign = 1; % input 1 for threhoslding upwards, input -1 for thresholding downwards
 windowSize = [0.005, 0.02]; % size of selected window (in seconds)
 
 % Show & Save Plots. Input 1 to save/show, otherwise input 0.
@@ -37,9 +40,9 @@ windowSize = [0.005, 0.02]; % size of selected window (in seconds)
 showRaw = 1;
 showDelta = 0;
 showRectified = 1;
-showFilt = 1;
-showOverlap = 0;
-showFFT = 1;
+showFilt = 0;
+showOverlap = 1;
+showFFT = 0;
 
 saveRaw = 0;
 saveDelta = 0;
@@ -56,14 +59,14 @@ disp([num2str(toc(ticDataAnalysis)), ' seconds is used for loading and processin
 
 %% Locate bursts and select windows around them
 tic
-signalClassification = dataClassificationPreparation(signal, iter, selectedWindow, windowSize, threshold)
+signalClassification = dataClassificationPreparation(signal, iter, selectedWindow, windowSize,dataToBeDetectedSpike, threshold, sign)
 disp([num2str(toc),' seconds is used for classification preparation...'])
 
 %% Plot selected windows
 close all
 
 tic
-visualizeSignals(signal, signalClassification, selectedWindow, saveRaw, showRaw, saveDelta, showDelta, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT);
+visualizeSignals(signal, signalClassification, selectedWindow, windowSize, saveRaw, showRaw, saveDelta, showDelta, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT);
 disp ([num2str(toc), ' seconds is used for visualizing signals...'])
 
 %% Run Classification

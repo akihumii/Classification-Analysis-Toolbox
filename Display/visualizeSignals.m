@@ -1,4 +1,4 @@
-function [] = visualizeSignals(signal, signalClassification, selectedWindow, saveRaw, showRaw, saveDelta, showDelta, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT)
+function [] = visualizeSignals(signal, signalClassification, selectedWindow, windowSize, saveRaw, showRaw, saveDelta, showDelta, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT)
 %visualizeSignal Visualize needed signals. Raw, filtered, differential,
 %overlapping windows, average windows, and overall signal with indicated
 %spikes can be plotted.
@@ -22,12 +22,12 @@ else
     end
 end
 
-%% Plot raw signal
+%% Plot rectified signal
 if ~saveRectified && ~showRectified
 else
     for i = 1:length(signal)
         samplingFreq = signal(i,1).dataFiltered.samplingFreq;
-        plotFig(1/samplingFreq:1/samplingFreq:size(signal(i,1).dataRectified,1)/samplingFreq,signal(i,1).dataRectified,signal(i,1).fileName,'Rectified Signal','Time(s)','Amplitude(V)',...
+        plotFig(1/samplingFreq:1/samplingFreq:size(signal(i,1).dataRectified,1)/samplingFreq,signal(i,1).dataRectified,signal(i,1).fileName,'Rectified Signal (High Pass Filtered 1 Hz)','Time(s)','Amplitude(V)',...
             saveRectified,... % save
             showRectified,... % show
             signal(i,1).path,'subplot', signal.channel);
@@ -86,8 +86,7 @@ end
 %% Plot windows following stimulation artefacts
 if ~saveOverlap && ~showOverlap
 else
-    extraTimeAddedBeforeStartLocs = 0.002; % in seconds
-    extraTimeAddedAfterEndLocs = 0.000; % in seconds
+    windowSize(1) = -windowSize(1); 
     
     for i = 1:length(signalClassification)
         samplingFreq = signal(i,1).dataFiltered.samplingFreq;
@@ -101,7 +100,7 @@ else
         windowsValues =...
             classificationWindowSelection(dataValues,...
             signalClassification(i,1).burstDetection.spikeLocs,...
-            [-extraTimeAddedBeforeStartLocs, signalClassification(i,1).window(2)+extraTimeAddedAfterEndLocs],...
+            windowSize,...
             samplingFreq);
         
         plotFig(windowsValues.xAxisValues/samplingFreq,windowsValues.windowFollowing,signal(i,1).fileName,['Windows Following Artefacts ( ', signalClassification(i,1).selectedWindows.dataProcessed, ' )'],'Time(s)','Amplitude(V)',...
