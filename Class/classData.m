@@ -22,6 +22,7 @@ classdef classData
         noiseData
         dataAll
         dataRaw
+        dataRectified
         dataFiltered
         dataFFT
         dataDelta
@@ -34,7 +35,7 @@ classdef classData
     
     %% Methods
     methods
-        function data = classData(file,path,fileType,channel,samplingFreq)
+        function data = classData(file,path,fileType,channel,samplingFreq,dataSelection)
             if nargin > 0
                 data.file = file;
                 data.path = path;
@@ -42,12 +43,14 @@ classdef classData
                 if samplingFreq == 0
                     switch lower(data.fileType)
                         case 'intan'
-                            data.samplingFreq = 30000;
+                            data.samplingFreq = 20000;
                         case 'sylphx'
                             data.samplingFreq = 16671;
                         case 'sylphii'
                             data.samplingFreq = 16671;
                         case 'neutrino'
+                            data.samplingFreq = 3e6/14/12;
+                        case 'neutrino2'
                             data.samplingFreq = 3e6/14/12;
                         otherwise
                             error('Invalid dataType. Configurable dataType: ''Neutrino'', ''intan'', ''sylphX'', ''sylphII''')
@@ -57,12 +60,22 @@ classdef classData
                 end
                 [data.dataAll, data.time] = reconstructData(file, path, fileType);
                 data.fileName = naming(data.file);
-                %                 % For trimming
-                %                 data.dataRaw = data.dataRaw(7*data.samplingFreq:end);
-                %                 data.time = data.time(7*data.samplingFreq:end);
                 data.channel = channel;
                 data.dataRaw = data.dataAll(:,data.channel);
+                % for trimming
+                if ~isempty(dataSelection)
+                    locsStart = dataSelection(1) * data.samplingFreq;
+                    locsEnd = dataSelection(2) * data.samplingFreq;
+                    data.dataRaw = data.dataRaw(locsStart:locsEnd,:);
+                    data.time = data.time(locsStart:locsEnd);
+                    data.time = data.time - data.time(1) + 1;
+                end
             end
+        end
+        
+        function data = rectifyData(data,targetName)
+            data.dataRectified = filterData(data.(targetName),data.samplingFreq,1,0,0);
+            data.dataRectified = abs(data.dataRectified);
         end
         
         function data = dataDifferentialSubtraction(data, targetName, channelRef)
@@ -97,10 +110,13 @@ classdef classData
             errorShow(targetName, 'targetName', 'char');
         end
         
-        function data = TKEO(data,targetValue,targetName,samplingFreq)
-            data.dataTKEO.values = TKEO(targetValue, samplingFreq);
-            data.dataTKEO.dataBeingProcessed = targetName;
-            errorShow(targetName, 'targetName', 'char');
+        function data = TKEO(data,targetName,samplingFreq)
+            if isequal(targetName,'dataFiltered')
+                targetName = [{'dataFiltered'};{'values'}];
+            end
+            [dataValue, dataName] = loadMultiLayerStruct(data,targetName);
+            data.dataTKEO.values = TKEO(dataValue, samplingFreq);
+            data.dataTKEO.dataBeingProcessed = dataName;
         end
         
         function data = pcaConverter(data,targetValue,targetName)

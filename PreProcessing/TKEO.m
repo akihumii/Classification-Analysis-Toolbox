@@ -1,6 +1,6 @@
-function [dataTKEO_abs_filtered] = TKEO(data,Fs,iter)
-%TKEO Summary of this function goes here
-%   Detailed explanation goes here
+function [dataTKEO_abs_filtered] = TKEO(data,Fs)
+%TKEO Output the TKEO data
+%   [dataTKEO_abs_filtered] = TKEO(data,Fs,iter)
 
 [rowData,colData] = size(data);
 for n = 1:colData
@@ -11,6 +11,7 @@ end
 
 dataTKEO_abs = abs(dataTKEO);
 
-dataTKEO_abs_filtered = filterData(dataTKEO_abs,0,15,Fs,iter);
+dataTKEO_abs_filtered = filterData(dataTKEO_abs,Fs,0,15,50);
 end
+
 

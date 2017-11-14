@@ -25,13 +25,21 @@ switch lower(fileType)
         %% For Intan
         [data, time] = readIntan([path,files]);
         data = data*res;
+        data = data'; % make it into structure of [samplePoint x channels]
         
     case 'neutrino'
         %% For Neutrino
         data = csvread([path,files]); % read the csv file into variable data
         data = 1.2*data/1024; % convert to Voltage
         time = 1:size(data,1); 
-
+        
+    case 'neutrino2'
+        %% For Neutrino with bit analysing function
+        [data,~,~] = xlsread([path,files]);
+        info = data(2,4); % info for multiplicatoin
+        bitInfo = bitget(info,3:8); % convert info into binary for comparison
+        data = data(3:end,1:end); % raw data before multiplication
+        time = 1:size(data,1);
         
 end
 end

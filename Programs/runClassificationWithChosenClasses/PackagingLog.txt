@@ -1,0 +1,22 @@
+ant:
+<ant>
+  <mkdir dir="C:\Users\a0126587\Desktop\Kianan\code\runClassificationWithChosenClasses\for_redistribution" />
+  <mkdir dir="C:\Users\a0126587\Desktop\Kianan\code\runClassificationWithChosenClasses\for_testing" />
+  <mkdir dir="C:\Users\a0126587\Desktop\Kianan\code\runClassificationWithChosenClasses\for_redistribution_files_only" />
+</ant>
+mcc -C -o runClassificationWithChosenClasses -W WinMain:runClassificationWithChosenClasses -T link:exe -d C:\Users\a0126587\Desktop\Kianan\code\runClassificationWithChosenClasses\for_testing -v F:\FYP\code\runClassificationWithChosenClasses.m -a C:\Users\a0126587\Desktop\Kianan\code\calculateAccuracy.m -a C:\Users\a0126587\Desktop\Kianan\code\classification.m -a C:\Users\a0126587\Desktop\Kianan\code\classificationGrouping.m -a C:\Users\a0126587\Desktop\Kianan\code\selectFiles.m 
+Compiler version: 6.0 (R2015a)
+Dependency analysis by REQUIREMENTS.
+[Warning: Adding path "F:\FYP\code" to Compiler path instance.] 
+Parsing file "F:\FYP\code\runClassificationWithChosenClasses.m"
+	(Referenced from: "Compiler Command Line").
+Deleting 0 temporary MEX authorization files.
+Generating file "C:\Users\a0126587\Desktop\Kianan\code\runClassificationWithChosenClasses\for_testing\readme.txt".
+Packaging...
+Adding custom icon C:\Program Files\MATLAB\R2015a\toolbox\compiler\Resources\default_icon.ico to C:\Users\a0126587\Desktop\Kianan\code\runClassificationWithChosenClasses\for_testing\runClassificationWithChosenClasses.exe.
+Attempting to embed the CTF archive into the application C:\Users\a0126587\Desktop\Kianan\code\runClassificationWithChosenClasses\for_testing\runClassificationWithChosenClasses.exe.
+Finished embedding CTF archive. Deleting the external CTF archive.
+Creating the bundle...
+Web based installer created at C:\Users\a0126587\Desktop\Kianan\code\runClassificationWithChosenClasses\for_redistribution\MyAppInstaller_web.exe.
+Packaging complete.
+Elapsed packaging time was: 3 minutes and 20 seconds.
