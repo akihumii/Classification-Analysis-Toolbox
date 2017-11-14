@@ -43,6 +43,6 @@ hold on;
 linkaxes(ax, 'x');
 
 %% Distance between sync pulses and peaks
-deletePairs = [31,32,46,47];
+deletePairs = [];
 distance = findFirstPeaks(extractedData, reconstructedSignal, deletePairs);
 

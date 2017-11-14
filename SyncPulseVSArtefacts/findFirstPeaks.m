@@ -42,8 +42,9 @@ legend('signal','first peak','sync pulse')
 %% counter
 counter = extractedData.data(1:end,12);
 counterDiff = diff(counter);
-counterSkip = length(counterDiff(counterDiff~=1 & counterDiff~=-250)); 
-counterSkipPerc = counterSkip/length(counter);
+counterSkipLocs = find(counterDiff~=1 & counterDiff~=-65534);
+counterSkipNum = length(counterSkipLocs); 
+counterSkipPerc = counterSkipNum/length(counter);
 
 %% Analyse
 distance = (firstPeakLocs-syncPulsesLocs)/samplingFreq; % distance between first spike location and pulse location prior to it
@@ -54,7 +55,8 @@ output.s = std(distance); % standard deviation
 output.m = mean(distance); % mean
 output.minimum = min(distance); % min
 output.maximum = max(distance); % max
-output.counterSkip = counterSkip; % number of skipping points
+output.counterSkipLocs = counterSkipLocs; % location of skipping points
+output.counterSkipNum = counterSkipNum; % number of skiiping points
 output.counterSkipPerc = counterSkipPerc; % percentage of skipping points over the entire trial
 
 end
