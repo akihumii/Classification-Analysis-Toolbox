@@ -9,7 +9,7 @@ close all
 clc
 
 %% User's Input
-% Parameters
+% General Parameters
 dataType = 'neutrino2'; % configurable types: ,'neutrino2','neutirno', 'intan', 'sylphx', 'sylphii'
 channel = [1]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
 channelRef = 0; % input 0 if no differential data is needed.
@@ -17,29 +17,28 @@ samplingFreq = 0; % specified sampling frequency, otherwise input 0 for default 
 neutrinoInputRefer = 1; % input 1 to check input refer, otherwise input 0
 dataSelection = []; % specified window (in seconds) to be read for ALL the selected file, leaving empty for default value(read the whole signal). eg. input [5:20] to read data from 5th second to 20th second; input [] for default
 
+% Filtering Parameters
 dataToBeFiltered = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataDelta' for differential data; input 'dataRectified' for rectified data
 highPassCutoffFreq = 30; % high pass cutoff frequency, input 0 if not applied
 lowPassCutoffFreq = 300; % low pass cutoff frequency, input 0 if not applied
 notchFreq = 50; % notch frequency, input 0 if not applied
 
+% FFT parameters
 dataToBeFFT = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataFiltered' for filtered data; input 'dataRectified' for rectified data
 
+% Peak Detection Parameters
 dataToBeDetectedSpike = 'dataRaw'; % data for spike detecting
-
-% Select window for overlapping. 
-% Input 'dataRaw' for raw data, 'dataFiltered' for filtered data, 
-% 'dataDelta' for differential data
-selectedWindow = 'dataFiltered'; 
+selectedWindow = 'dataRaw'; % Select window for overlapping. Input 'dataRaw' for raw data, 'dataFiltered' for filtered data, 'dataDelta' for differential data
+spikeDetectionType = 'threshold'; % input 'threshold' for local maxima, input 'trigger for first point exceeding threshold
 threshold = 0; % specified threshold for spikes detection, otehrwise input 0 for default value (3/4 of the maximum value of the signal)
 sign = 1; % input 1 for threhoslding upwards, input -1 for thresholding downwards
-windowSize = [0.005, 0.02]; % size of selected window (in seconds)
+windowSize = [0.005, 0.015]; % size of selected window (in seconds)
 
-% Show & Save Plots. Input 1 to save/show, otherwise input 0.
-% Plots will be saved in the folder 'Figures' at the same path with the 
-% processed data 
+% Show & Save Plots Parameters. Input 1 to save/show, otherwise input 0.
+% Plots will be saved in the folder 'Figures' at the same path with the processed data 
 showRaw = 1;
 showDelta = 0;
-showRectified = 1;
+showRectified = 0;
 showFilt = 0;
 showOverlap = 1;
 showFFT = 0;
@@ -59,7 +58,7 @@ disp([num2str(toc(ticDataAnalysis)), ' seconds is used for loading and processin
 
 %% Locate bursts and select windows around them
 tic
-signalClassification = dataClassificationPreparation(signal, iter, selectedWindow, windowSize,dataToBeDetectedSpike, threshold, sign)
+signalClassification = dataClassificationPreparation(signal, iter, selectedWindow, windowSize,dataToBeDetectedSpike, spikeDetectionType, threshold, sign)
 disp([num2str(toc),' seconds is used for classification preparation...'])
 
 %% Plot selected windows
