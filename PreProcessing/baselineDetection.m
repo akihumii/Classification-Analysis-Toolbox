@@ -6,6 +6,12 @@ dataSorted = sort(data,1);
 
 numSample = length(dataSorted);
 
-baseline = mean(dataSorted(floor(numSample/4) : floor(numSample*3/4))); % mean value of the samples that appears the most
+baselineArray = dataSorted(floor(numSample/4) : floor(numSample*3/4)); 
+baselineMean = mean(baselineArray); % mean value of the samples that appears the most
+baselineStd = std(baselineArray); % standard deviation of baseline
+
+baseline.array = baselineArray;
+baseline.mean = baselineMean;
+baseline.std = baselineStd;
 end
 
