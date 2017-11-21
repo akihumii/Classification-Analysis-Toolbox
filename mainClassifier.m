@@ -28,11 +28,11 @@ dataToBeFFT = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataFiltered' fo
 
 % Peak Detection Parameters
 dataToBeDetectedSpike = 'dataRaw'; % data for spike detecting
-selectedWindow = 'dataRaw'; % Select window for overlapping. Input 'dataRaw' for raw data, 'dataFiltered' for filtered data, 'dataDelta' for differential data
-spikeDetectionType = 'trigger'; % input 'threshold' for local maxima, input 'trigger for first point exceeding threshold
+overlappedWindow = 'dataRaw'; % Select window for overlapping. Input 'dataRaw' for raw data, 'dataFiltered' for filtered data, 'dataDelta' for differential data
+spikeDetectionType = 'TKEO'; % input 'threshold' for local maxima, input 'trigger for first point exceeding threshold, input 'TKEO' for taking following consecutive points into account (default is 25)
 threshold = 0; % specified threshold for spikes detection, otehrwise input 0 for default value (3/4 of the maximum value of the signal)
 sign = 1; % input 1 for threhoslding upwards, input -1 for thresholding downwards
-windowSize = [0.005, 0.5]; % size of selected window (in seconds)
+windowSize = [0.00, 0.02]; % range of window starting from the detected peaks(in seconds)
 
 % Show & Save Plots Parameters. Input 1 to save/show, otherwise input 0.
 % Plots will be saved in the folder 'Figures' at the same path with the processed data 
@@ -58,14 +58,14 @@ disp([num2str(toc(ticDataAnalysis)), ' seconds is used for loading and processin
 
 %% Locate bursts and select windows around them
 tic
-signalClassification = dataClassificationPreparation(signal, iter, selectedWindow, windowSize,dataToBeDetectedSpike, spikeDetectionType, threshold, sign)
+signalClassification = dataClassificationPreparation(signal, iter, overlappedWindow, windowSize,dataToBeDetectedSpike, spikeDetectionType, threshold, sign)
 disp([num2str(toc),' seconds is used for classification preparation...'])
 
 %% Plot selected windows
 close all
 
 tic
-visualizeSignals(signal, signalClassification, selectedWindow, windowSize, saveRaw, showRaw, saveDelta, showDelta, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT);
+visualizeSignals(signal, signalClassification, overlappedWindow, windowSize, saveRaw, showRaw, saveDelta, showDelta, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT);
 disp ([num2str(toc), ' seconds is used for visualizing signals...'])
 
 %% Run Classification

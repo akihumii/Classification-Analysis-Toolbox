@@ -30,7 +30,7 @@ for i = 1:colData % channel
         if isequal(type,'TKEO')
             thresholdValue = sign * baseline{i,1}.mean + TKEOStdMult * baseline{i,1}.std;
         else
-            thresholdValue = sign * baseline{i,1}.mean + (maxPeak - sign * baseline{i,1}.mean(i,1)) *3/4;
+            thresholdValue = sign * baseline{i,1}.mean + (maxPeak - sign * baseline{i,1}.mean) *3/4;
         end 
     else
         thresholdValue = threshold;
@@ -44,6 +44,7 @@ for i = 1:colData % channel
             [spikePeaksValue{i,1},spikeLocs{i,1}] = triggerSpikeDetection(data(:,i),thresholdValue,minDistance);
         case 'TKEO'
             [spikePeaksValue{i,1},spikeLocs{i,1}] = triggerSpikeDetection(data(:,i),thresholdValue,minDistance,25); % the last value is the number of consecutive point that needs to exceed threshold to be detected as spikes
+            [spikePeaksValue{i,2},spikeLocs{i,2}] = findEndPoint(data(:,i), thresholdValue, spikeLocs{i,1}, 25);
         otherwise
     end
     
