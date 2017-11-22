@@ -1,16 +1,16 @@
 function output = findFirstPeaks(extractedData, reconstructedSignal, deletePairs)
 %findFirstPeaks
 %   certain signs and minPeaks might need to change according to the signal
-close all
-
-samplingFreq = 1800;
+samplingFreq = 1777;
 
 %% User Input
-channel = 5;
+channel = 4;
 threshold = 4.3e-4;
-sign = 1; % reverse signal to find peaks or not, input 1 or -1
-skipWindow = samplingFreq * 0.07; % s
-skipWindowEnd = samplingFreq * 0.08
+sign = 1; % input 1 to find peaks upwards, input -1 to find peaks downwards
+skipWindow = samplingFreq * 0.03; % skip a certain distance before starting to find the first peak
+
+%% Find Peaks
+numData = length(extractedData.data(:,11));
 
 [syncPulses,syncPulsesLocs] = findpeaks(extractedData.data(1:end,11)); % peaks and locs of sync pulses
 
@@ -30,15 +30,22 @@ syncPulsesLocs(deletePairs) = [];
 
 %% Plotting 
 figure
-plot(sign * reconstructedSignal.yValues(channel,:)); % one channel that contains pulses
+plot(1/samplingFreq:1/samplingFreq:numData/samplingFreq,sign * reconstructedSignal.yValues(channel,:)); % one channel that contains pulses
 hold on
 
-plot(firstPeakLocs,firstPeak,'ro') % circle the first peaks on the spikes figure
-plot(syncPulsesLocs,.5e-3*extractedData.data(syncPulsesLocs,11)/255,'kx') % cross with the pulses timing, plot on the spike figure
-plot(.5e-3*extractedData.data(:,11)/255) % plot sync pulse on the same plots
+plot(firstPeakLocs/samplingFreq,firstPeak,'ro') % circle the first peaks on the spikes figure
+plot(syncPulsesLocs/samplingFreq,.5e-3*extractedData.data(syncPulsesLocs,11)/255,'kx') % cross with the pulses timing, plot on the spike figure
+plot(1/samplingFreq:1/samplingFreq:numData/samplingFreq,.5e-3*extractedData.data(:,11)/255) % plot sync pulse on the same plots
+for i = 1:length(syncPulsesLocs)
+    text(syncPulsesLocs(i)/samplingFreq,0,num2str(i)); % label number of sync pulse
+    t = text(firstPeakLocs(i)/samplingFreq,-1e-4,num2str(i)); % label number of first peak
+    t.Color = [1 0 0]; % change the color into red corlor
+end
 
 legend('signal','first peak','sync pulse')
-
+title(['Channel ',num2str(channel)]);
+xlabel('Time(s)');
+ylabel('Amplitude(V)');
 %% counter
 counter = extractedData.data(1:end,12);
 counterDiff = diff(counter);
@@ -51,12 +58,12 @@ distance = (firstPeakLocs-syncPulsesLocs)/samplingFreq; % distance between first
 output.syncPulsesLocs = syncPulsesLocs;
 output.distance = distance;
 output.firstPeakLocs = firstPeakLocs;
-output.s = std(distance); % standard deviation
-output.m = mean(distance); % mean
-output.minimum = min(distance); % min
-output.maximum = max(distance); % max
+output.standardDeviationValue = std(distance); % standard deviation
+output.meanDelay = mean(distance); % mean in seconds
+output.minimumDelay = min(distance); % min in seconds
+output.maximumDelay = max(distance); % max in seconds
 output.counterSkipLocs = counterSkipLocs; % location of skipping points
-output.counterSkipNum = counterSkipNum; % number of skiiping points
+output.counterSkipNum = counterSkipNum; % number of skiping points
 output.counterSkipPerc = counterSkipPerc; % percentage of skipping points over the entire trial
 
 end
