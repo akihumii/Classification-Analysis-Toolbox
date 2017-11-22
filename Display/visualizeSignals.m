@@ -1,4 +1,4 @@
-function [] = visualizeSignals(signal, signalClassification, selectedWindow, windowSize, saveRaw, showRaw, saveDelta, showDelta, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT)
+function [] = visualizeSignals(signal, signalClassification, selectedWindow, windowSize, spikeDetectionType, saveRaw, showRaw, saveDelta, showDelta, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT)
 %visualizeSignal Visualize needed signals. Raw, filtered, differential,
 %overlapping windows, average windows, and overall signal with indicated
 %spikes can be plotted.
@@ -124,8 +124,12 @@ else
             hold on
             for j = 1:numChannel
                 axes(overallP(j,1))
-                notNanSpikeLocs = ~isnan(signalClassification(i,1).burstDetection.spikeLocs(:,j)); % get locs that are non nan
+                notNanSpikeLocs = ~isnan(signalClassification(i,1).burstDetection.spikeLocs(:,j)); % get start locs that are non nan
                 plot(signalClassification(i,1).burstDetection.spikeLocs(notNanSpikeLocs,j)/samplingFreq,dataValues(signalClassification(i,1).burstDetection.spikeLocs(notNanSpikeLocs,j),j),'ro')
+                if isequal(spikeDetectionType,'TKEO')
+                    notNanEndLocs = ~isnan(signalClassification(i,1).burstDetection.burstEndLocs(:,j)); % get end locs that are
+                    plot(signalClassification(i,1).burstDetection.burstEndLocs(notNanEndLocs,j)/samplingFreq,dataValues(signalClassification(i,1).burstDetection.burstEndLocs(notNanEndLocs,j),j),'rx')
+                end
                 clear notNanSpikeLocs
             end
         end

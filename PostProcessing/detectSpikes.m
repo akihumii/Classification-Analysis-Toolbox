@@ -31,11 +31,11 @@ for i = 1:colData % channel
             thresholdValue = sign * baseline{i,1}.mean + TKEOStdMult * baseline{i,1}.std;
         else
             thresholdValue = sign * baseline{i,1}.mean + (maxPeak - sign * baseline{i,1}.mean) *3/4;
-        end 
+        end
     else
         thresholdValue = threshold;
     end
-        
+    
     switch type
         case 'threshold'
             [spikePeaksValue{i,1}, spikeLocs{i,1}] = findpeaks(data(:,i),'minPeakHeight',...
@@ -44,7 +44,9 @@ for i = 1:colData % channel
             [spikePeaksValue{i,1},spikeLocs{i,1}] = triggerSpikeDetection(data(:,i),thresholdValue,minDistance);
         case 'TKEO'
             [spikePeaksValue{i,1},spikeLocs{i,1}] = triggerSpikeDetection(data(:,i),thresholdValue,minDistance,25); % the last value is the number of consecutive point that needs to exceed threshold to be detected as spikes
-            [spikePeaksValue{i,2},spikeLocs{i,2}] = findEndPoint(data(:,i), thresholdValue, spikeLocs{i,1}, 25);
+            [burstEndValue{i,1},burstEndLocs{i,1}] = findEndPoint(data(:,i), thresholdValue, spikeLocs{i,1}, 25);
+            [spikePeaksValue{i,1},spikeLocs{i,1},burstEndValue{i,1},burstEndLocs{i,1}] =...
+                trimBurstLocations(spikePeaksValue{i,1},spikeLocs{i,1},burstEndValue{i,1},burstEndLocs{i,1});
         otherwise
     end
     
@@ -58,11 +60,16 @@ end
 
 spikePeaksValue = cell2nanMat(spikePeaksValue);
 spikeLocs = cell2nanMat(spikeLocs);
+burstEndValue = cell2nanMat(burstEndValue);
+burstEndLocs = cell2nanMat(burstEndLocs);
 
 output.spikePeaksValue = sign * spikePeaksValue;
 output.spikeLocs = spikeLocs;
 output.threshold = sign * thresholdAll;
 output.baseline = baseline;
-
+if isequal(type,'TKEO')
+    output.burstEndValue = burstEndValue;
+    output.burstEndLocs = burstEndLocs;
+end
 end
 

@@ -65,7 +65,7 @@ disp([num2str(toc),' seconds is used for classification preparation...'])
 close all
 
 tic
-visualizeSignals(signal, signalClassification, overlappedWindow, windowSize, saveRaw, showRaw, saveDelta, showDelta, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT);
+visualizeSignals(signal, signalClassification, overlappedWindow, windowSize, spikeDetectionType, saveRaw, showRaw, saveDelta, showDelta, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT);
 disp ([num2str(toc), ' seconds is used for visualizing signals...'])
 
 %% Run Classification
