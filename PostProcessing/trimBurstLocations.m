@@ -1,6 +1,7 @@
 function [newStartValue,newStartLocs,newEndValue,newEndLocs] = ...
     trimBurstLocations(startValue,startLocs,endValues,endLocs)
-%trimBurstLocations Summary of this function goes here
+%trimBurstLocations Trim the extra starting points lying within a single
+%burst
 %   [newStartValue,newStartLocs,newEndValue,newEndLocs] = trimBurstLocations(startValue,startLocs,endValue,endLocs)
 
 [newEndLocs,uniqueLocs] = unique(endLocs); % get new end values and locations by finding the unique numbers

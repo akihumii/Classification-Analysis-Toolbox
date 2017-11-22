@@ -40,8 +40,10 @@ for i = 1:colData % channel
         case 'threshold'
             [spikePeaksValue{i,1}, spikeLocs{i,1}] = findpeaks(data(:,i),'minPeakHeight',...
                 thresholdValue,'minPeakDistance',minDistance);
+            [burstEndValue{i,1},burstEndLocs{i,1}] = pointAfterAWindow(data(:,i),minDistance,spikeLocs{i,1});
         case 'trigger'
             [spikePeaksValue{i,1},spikeLocs{i,1}] = triggerSpikeDetection(data(:,i),thresholdValue,minDistance);
+            [burstEndValue{i,1},burstEndLocs{i,1}] = pointAfterAWindow(data(:,i),minDistance,spikeLocs{i,1});
         case 'TKEO'
             [spikePeaksValue{i,1},spikeLocs{i,1}] = triggerSpikeDetection(data(:,i),thresholdValue,minDistance,25); % the last value is the number of consecutive point that needs to exceed threshold to be detected as spikes
             [burstEndValue{i,1},burstEndLocs{i,1}] = findEndPoint(data(:,i), thresholdValue, spikeLocs{i,1}, 25);
@@ -67,9 +69,7 @@ output.spikePeaksValue = sign * spikePeaksValue;
 output.spikeLocs = spikeLocs;
 output.threshold = sign * thresholdAll;
 output.baseline = baseline;
-if isequal(type,'TKEO')
-    output.burstEndValue = burstEndValue;
-    output.burstEndLocs = burstEndLocs;
-end
+output.burstEndValue = burstEndValue;
+output.burstEndLocs = burstEndLocs;
 end
 

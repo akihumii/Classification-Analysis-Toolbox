@@ -103,6 +103,7 @@ else
             windowSize,...
             samplingFreq);
         
+        % Plot overlapping windows
         plotFig(windowsValues.xAxisValues/samplingFreq,windowsValues.windowFollowing,signal(i,1).fileName,['Windows Following Artefacts ( ', signalClassification(i,1).selectedWindows.dataProcessed, ' )'],'Time(s)','Amplitude(V)',...
             saveOverlap,... % save
             showOverlap,... % show
@@ -126,10 +127,10 @@ else
                 axes(overallP(j,1))
                 notNanSpikeLocs = ~isnan(signalClassification(i,1).burstDetection.spikeLocs(:,j)); % get start locs that are non nan
                 plot(signalClassification(i,1).burstDetection.spikeLocs(notNanSpikeLocs,j)/samplingFreq,dataValues(signalClassification(i,1).burstDetection.spikeLocs(notNanSpikeLocs,j),j),'ro')
-                if isequal(spikeDetectionType,'TKEO')
+%                 if isequal(spikeDetectionType,'TKEO')
                     notNanEndLocs = ~isnan(signalClassification(i,1).burstDetection.burstEndLocs(:,j)); % get end locs that are
                     plot(signalClassification(i,1).burstDetection.burstEndLocs(notNanEndLocs,j)/samplingFreq,dataValues(signalClassification(i,1).burstDetection.burstEndLocs(notNanEndLocs,j),j),'rx')
-                end
+%                 end
                 clear notNanSpikeLocs
             end
         end

@@ -1,6 +1,7 @@
 function [endPointValue, endPointLocs] = findEndPoint(data, threshold, startPointLocs, numConsecutivePoint)
-%findEndPoint Summary of this function goes here
-%   Detailed explanation goes here
+%findEndPoint Get the end point after the signal drops below the threshold
+%for a chunk of consecutive points
+%   [endPointValue, endPointLocs] = findEndPoint(data, threshold, startPointLocs, numConsecutivePoint)
 
 numsStartPointLocs = length(startPointLocs);
 lengthData = length(data);

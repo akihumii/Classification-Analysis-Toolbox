@@ -79,6 +79,7 @@ for i = 1:numData
     set(gcf, 'Position', get(0,'Screensize'),'DefaultAxesFontSize',textSize,...
         'PaperPositionMode', 'auto');
     for j = 1:numPlot
+        % Titling
         if isequal(type, 'subplot')
             p(j,1) = subplot(numPlot,1,j);
             if numData > 1
@@ -90,6 +91,8 @@ for i = 1:numData
             end
             hold on
         end
+        
+        % Plotting
         plot(x,y(:,j,i));
         ylabel(yScale, 'FontSize', textSize);
         axis tight;

@@ -29,7 +29,7 @@ dataToBeFFT = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataFiltered' fo
 % Peak Detection Parameters
 dataToBeDetectedSpike = 'dataRaw'; % data for spike detecting
 overlappedWindow = 'dataRaw'; % Select window for overlapping. Input 'dataRaw' for raw data, 'dataFiltered' for filtered data, 'dataDelta' for differential data
-spikeDetectionType = 'TKEO'; % input 'threshold' for local maxima, input 'trigger for first point exceeding threshold, input 'TKEO' for taking following consecutive points into account (default is 25)
+spikeDetectionType = 'trigger'; % input 'threshold' for local maxima, input 'trigger for first point exceeding threshold, input 'TKEO' for taking following consecutive points into account (default is 25)
 threshold = 0; % specified threshold for spikes detection, otehrwise input 0 for default value (3/4 of the maximum value of the signal)
 sign = 1; % input 1 for threhoslding upwards, input -1 for thresholding downwards
 windowSize = [0.00, 0.02]; % range of window starting from the detected peaks(in seconds)
