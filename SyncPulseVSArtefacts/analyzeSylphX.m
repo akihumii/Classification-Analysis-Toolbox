@@ -1,4 +1,4 @@
-%% analyzeSylphX
+%% Elaine
 
 clear 
 close all
@@ -6,17 +6,17 @@ clc
 
 %% Variable to be changed
 % Hardware variable
-samplingFreq = 1800;        % Sampling Frequency
-voltageStep = 0.000000195;  % Sylph's voltage step
+samplingFreq = 128;        % Sampling Frequency
+voltageStep = 0;  % Sylph's voltage step
 
 period = 1/samplingFreq;
 
 extractedData = loadData();
 
-reconstructedSignal.yValues = zeros(10, size(extractedData.data(1:end,1), 1));
+reconstructedSignal.yValues = zeros(3, size(extractedData.data(1:end,1), 1));
 
-for i = 1:10
-    reconstructedSignal.yValues(i,:) = reconstructSignal(extractedData.data(1:end,i), voltageStep);
+for i = 1:3
+    reconstructedSignal.yValues(i,:) = transpose(extractedData.data(:,i));
 end
 
 reconstructedSignal.xValues = 0:size(extractedData.data(1:end,1), 1)-1;
@@ -24,25 +24,18 @@ reconstructedSignal.xValues = reconstructedSignal.xValues/samplingFreq;
 
 %% Plotting
 figure;
-ax = zeros(12);
-for i = 1:10
-    ax(i) = subplot(12,1,i);
+ax = zeros(3);
+for i = 1:3
+    ax(i) = subplot(3,1,i);
     plot(reconstructedSignal.xValues, reconstructedSignal.yValues(i,1:end));
     hold on;
 end
 
-ax(11) = subplot(12,1,11);
-plot(reconstructedSignal.xValues, extractedData.data(1:end,11));
-ylim([0 255]);
-hold on;
-
-ax(12) = subplot(12,1,12);
-plot(reconstructedSignal.xValues, extractedData.data(1:end,12));
-ylim([0 250]);
-hold on;
-linkaxes(ax, 'x');
-
 %% Distance between sync pulses and peaks
-deletePairs = [1,28,29,32,33,40,41,53,54];
-distance = findFirstPeaks(extractedData, reconstructedSignal, deletePairs);
+deletePairs = [];
+info = findFirstPeaks(extractedData, reconstructedSignal, deletePairs);
+
+disp('Finished...')
+
+
 
