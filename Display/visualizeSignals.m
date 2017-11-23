@@ -131,10 +131,9 @@ else
                 axes(overallP(j,1))
                 notNanSpikeLocs = ~isnan(signalClassification(i,1).burstDetection.spikeLocs(:,j)); % get start locs that are non nan
                 plot(signalClassification(i,1).burstDetection.spikeLocs(notNanSpikeLocs,j)/samplingFreq,dataValues(signalClassification(i,1).burstDetection.spikeLocs(notNanSpikeLocs,j),j),'ro')
-%                 if isequal(spikeDetectionType,'TKEO')
-                    notNanEndLocs = ~isnan(signalClassification(i,1).burstDetection.burstEndLocs(:,j)); % get end locs that are
-                    plot(signalClassification(i,1).burstDetection.burstEndLocs(notNanEndLocs,j)/samplingFreq,dataValues(signalClassification(i,1).burstDetection.burstEndLocs(notNanEndLocs,j),j),'rx')
-%                 end
+                notNanEndLocs = ~isnan(signalClassification(i,1).burstDetection.burstEndLocs(:,j)); % get end locs that are
+                plot(signalClassification(i,1).burstDetection.burstEndLocs(notNanEndLocs,j)/samplingFreq,dataValues(signalClassification(i,1).burstDetection.burstEndLocs(notNanEndLocs,j),j),'rx')
+                plot(xlim,[signalClassification.burstDetection.threshold,signalClassification.burstDetection.threshold],'k') % threshold line
                 clear notNanSpikeLocs
             end
         end

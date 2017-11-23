@@ -1,6 +1,6 @@
 function [data, time] = reconstructData(files, path, fileType, neutrinoInputRefer)
 %reconstructData Summary of this function goes here
-%   Detailed explanation goes here
+%   [data, time] = reconstructData(files, path, fileType, neutrinoInputRefer)
 res = 0.000000195; %uV/unit
 
 switch lower(fileType)
@@ -45,6 +45,11 @@ switch lower(fileType)
             data = gain * data; % change output refer data into input refer data
         end
         time = 1:size(data,1);
+    case 'odin'
+        %% For Odin
+        data = csvread([path,files]); % read the csv file into variable data
+        data(:,2) = -data(:,2);
+        time = data(:,3);        
         
 end
 end
