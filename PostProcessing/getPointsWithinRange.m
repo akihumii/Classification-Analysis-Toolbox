@@ -5,7 +5,7 @@ function output = getPointsWithinRange(data,startLocs,endLocs)
 [numRow,numColumn] = size(data);
 
 for i = 1:numColumn
-    numLocs = length(~isnan(startLocs(:,i)));
+    numLocs(i,1) = length(~isnan(startLocs(:,i)));
     for j = 1:numLocs
         burst{j,1} = data(transpose(startLocs(j,i):endLocs(j,i)));
         xAxisValues{j,1} = transpose(1:(endLocs(j,i)-startLocs(j,i)+1)); % create an array of x axis values for burst plotting
@@ -19,6 +19,6 @@ xAxisValuesAll = cell2nanMat(xAxisValuesAll);
 
 output.burst = burstAll;
 output.xAxisValues = xAxisValuesAll;
-output.numBursts = num
+output.numBursts = numLocs;
 end
 
