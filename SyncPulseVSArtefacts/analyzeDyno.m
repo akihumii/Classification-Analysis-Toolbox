@@ -1,4 +1,4 @@
-%% analyzeSylphX - Dyno Version
+%% analyzeDyno
 % Plot the figures and mark the maximum points. Basleline is taken into
 % account in the final maximum points values.
 % 
@@ -37,7 +37,7 @@ end
 
 %% Distance between sync pulses and peaks
 deletePairs = [];
-info = findFirstPeaks(extractedData, reconstructedSignal, deletePairs);
+info = findMaxPeaks(extractedData, reconstructedSignal, deletePairs);
 
 disp('Finished...')
 

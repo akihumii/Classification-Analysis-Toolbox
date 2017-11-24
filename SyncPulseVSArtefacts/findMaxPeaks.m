@@ -1,4 +1,4 @@
-function output = findFirstPeaks(extractedData, reconstructedSignal, deletePairs)
+function output = findMaxPeaks(extractedData, reconstructedSignal, deletePairs)
 %findFirstPeaks Plot the maximum point in the window in between two sync
 %pulses
 % Certain signs and minPeaks might need to change according to the signal
@@ -16,7 +16,7 @@ numData = length(extractedData.data(:,2));
 [syncPulses,syncPulsesLocs] = findpeaks(-extractedData.data(:,2),'minPeakHeight',-2.5,'minPeakDistance',minSyncPulseDistance); % peaks and locs of sync pulses
 
 [maxForcePoints,maxForcePointsPlotting,maxForcePointsLocs,baseline] =...
-    sortLJ(syncPulsesLocs,reconstructedSignal.yValues(channel,:));
+    sortMaxPeaks(syncPulsesLocs,reconstructedSignal.yValues(channel,:));
 
 %% delete unwanted burst
 syncPulsesLocs(deletePairs) = [];

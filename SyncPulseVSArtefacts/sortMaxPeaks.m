@@ -1,5 +1,5 @@
-function [maxPoint,maxPointPlotting,maxPointLocs,baseline] = sortLJ(locs,data)
-%sortLJ Find the maximum points in between two locations
+function [maxPoint,maxPointPlotting,maxPointLocs,baseline] = sortMaxPeaks(locs,data)
+%sortMaxPeaks Find the maximum points in between two locations
 %   [maxPoint,maxPointPlotting,maxPointLocs,baseline] = sortLJ(locs,data)
 
 numPeaks = length(locs); % number of peaks
