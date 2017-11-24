@@ -36,13 +36,14 @@ plot(reconstructedSignal.yValues(3,:),sign * reconstructedSignal.yValues(channel
 hold on
 grid on
 
-plot(reconstructedSignal.yValues(3,maxForcePointsLocs),maxForcePointsPlotting,'ro') % circle the first peaks on the spikes figure
-plot(reconstructedSignal.yValues(3,maxForcePointsLocs),maxForcePoints,'g*') % force point after minusing baseline
+rr = plot(reconstructedSignal.yValues(3,maxForcePointsLocs),maxForcePointsPlotting,'ro'); % circle the first peaks on the spikes figure
+gg = plot(reconstructedSignal.yValues(3,maxForcePointsLocs),maxForcePoints,'g*'); % force point after minusing baseline
 % plot(reconstructedSignal.yValues(3,:),.5e-3*extractedData.data(:,2)/255) % plot sync pulse on the same plots
 
 title('Grip Force')
 xlabel('Time(ms)')
 ylabel('Force(N)')
+legend([rr,gg],'ro','g*')
 
 linkaxes(ax,'x');
 

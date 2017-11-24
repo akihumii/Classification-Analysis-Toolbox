@@ -19,7 +19,7 @@ maxPointLocs(i,1) = locs(i)+maxPointLocsTemp-1;
 
 % Compute Baseline
 for i = 2:numPeaks
-    newBaseline(i,1) = mean(baseline(i) + baseline(i-1));
+    newBaseline(i,1) = (baseline(i) + baseline(i-1))/2;
 end
 baseline = newBaseline;
 
