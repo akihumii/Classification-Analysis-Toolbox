@@ -1,4 +1,8 @@
-%% Elaine
+%% analyzeSylphX - Dyno Version
+% Plot the figures and mark the maximum points. Basleline is taken into
+% account in the final maximum points values.
+% 
+% coded by Liu Shih-Chiang & Tsai Chne Wuen
 
 clear 
 close all

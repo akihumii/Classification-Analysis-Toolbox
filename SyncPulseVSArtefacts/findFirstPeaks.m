@@ -1,6 +1,8 @@
 function output = findFirstPeaks(extractedData, reconstructedSignal, deletePairs)
-%findFirstPeaks
-%   certain signs and minPeaks might need to change according to the signal
+%findFirstPeaks Plot the maximum point in the window in between two sync
+%pulses
+% Certain signs and minPeaks might need to change according to the signal
+% output = findFirstPeaks(extractedData, reconstructedSignal, deletePairs)
 samplingFreq = 128;
 
 %% User Input
