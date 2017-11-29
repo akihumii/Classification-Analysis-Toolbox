@@ -14,7 +14,7 @@ function p = plotFig(varargin)
 
 %% fill unset parameters
 if nargin == 1
-    x = 1:size(varargin{1},1);
+    x = transpose(1:size(varargin{1},1));
     y = varargin{1};
 else
     x = varargin{1};
@@ -79,6 +79,7 @@ for i = 1:numData
     set(gcf, 'Position', get(0,'Screensize'),'DefaultAxesFontSize',textSize,...
         'PaperPositionMode', 'auto');
     for j = 1:numPlot
+        % Titling
         if isequal(type, 'subplot')
             p(j,1) = subplot(numPlot,1,j);
             if numData > 1
@@ -90,7 +91,13 @@ for i = 1:numData
             end
             hold on
         end
-        plot(x,y(:,j,i));
+        
+        % Plotting
+        if any(size(x)==1)
+            plot(x,y(:,j,i));
+        else
+            plot(x(:,j),y(:,j,i));
+        end
         ylabel(yScale, 'FontSize', textSize);
         axis tight;
     end

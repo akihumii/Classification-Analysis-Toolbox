@@ -85,9 +85,7 @@ end
 
 %% Plot windows following stimulation artefacts
 if ~saveOverlap && ~showOverlap
-else
-    windowSize(1) = -windowSize(1); 
-    
+else    
     for i = 1:length(signalClassification)
         samplingFreq = signal(i,1).dataFiltered.samplingFreq;
         
@@ -97,19 +95,20 @@ else
         
         [dataValues, dataName] = loadMultiLayerStruct(signal(i,1),selectedWindow); % get the values and the name of the selected window
         
-        windowsValues =...
-            classificationWindowSelection(dataValues,...
+        windowsValues = getPointsWithinRange(...
+            dataValues,...
             signalClassification(i,1).burstDetection.spikeLocs,...
-            windowSize,...
-            samplingFreq);
+            signalClassification(i,1).burstDetection.burstEndLocs,...
+            windowSize, samplingFreq);
         
-        plotFig(windowsValues.xAxisValues/samplingFreq,windowsValues.windowFollowing,signal(i,1).fileName,['Windows Following Artefacts ( ', signalClassification(i,1).selectedWindows.dataProcessed, ' )'],'Time(s)','Amplitude(V)',...
+        % Plot overlapping windows
+        plotFig(windowsValues.xAxisValues,windowsValues.burst,signal(i,1).fileName,['Windows Following Artefacts ( ', signalClassification(i,1).selectedWindows.dataProcessed, ' )'],'Time(s)','Amplitude(V)',...
             saveOverlap,... % save
             showOverlap,... % show
             signal(i,1).path,'overlap', signal.channel);
         
         % plot averaging overlapping windows
-        plotFig(windowsValues.xAxisValues/samplingFreq,nanmean(windowsValues.windowFollowing,2),signal(i,1).fileName,['Average Windows Following Artefacts ( ', signalClassification(i,1).selectedWindows.dataProcessed, ' )'],'Time(s)','Amplitude(V)',...
+        plotFig(windowsValues.xAxisValues,nanmean(windowsValues.burst,2),signal(i,1).fileName,['Average Windows Following Artefacts ( ', signalClassification(i,1).selectedWindows.dataProcessed, ' )'],'Time(s)','Amplitude(V)',...
             saveOverlap,... % save
             showOverlap,... % show
             signal(i,1).path,'overlap', signal.channel);
@@ -122,10 +121,14 @@ else
                 1,... % show
                 signal(i,1).path,'subplot', signal.channel);
             hold on
+            
+            % Plot the markings
             for j = 1:numChannel
                 axes(overallP(j,1))
-                notNanSpikeLocs = ~isnan(signalClassification(i,1).burstDetection.spikeLocs(:,j)); % get locs that are non nan
+                notNanSpikeLocs = ~isnan(signalClassification(i,1).burstDetection.spikeLocs(:,j)); % get start locs that are non nan
                 plot(signalClassification(i,1).burstDetection.spikeLocs(notNanSpikeLocs,j)/samplingFreq,dataValues(signalClassification(i,1).burstDetection.spikeLocs(notNanSpikeLocs,j),j),'ro')
+                notNanEndLocs = ~isnan(signalClassification(i,1).burstDetection.burstEndLocs(:,j)); % get end locs that are
+                plot(signalClassification(i,1).burstDetection.burstEndLocs(notNanEndLocs,j)/samplingFreq,dataValues(signalClassification(i,1).burstDetection.burstEndLocs(notNanEndLocs,j),j),'rx')
                 clear notNanSpikeLocs
             end
         end

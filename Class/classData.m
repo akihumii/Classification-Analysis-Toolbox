@@ -61,6 +61,9 @@ classdef classData
                 [data.dataAll, data.time] = reconstructData(file, path, fileType, neutrinoInputRefer);
                 data.fileName = naming(data.file);
                 data.channel = channel;
+                if channel > size(data.dataAll,2)
+                    error('Error found in User Input: Selected channel is not existed')
+                end
                 data.dataRaw = data.dataAll(:,data.channel);
                 % for trimming
                 if ~isempty(dataSelection)
