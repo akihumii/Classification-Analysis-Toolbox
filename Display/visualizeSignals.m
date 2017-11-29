@@ -1,4 +1,4 @@
-function [] = visualizeSignals(signal, signalClassification, selectedWindow, windowSize, spikeDetectionType, saveRaw, showRaw, saveDelta, showDelta, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT)
+function [] = visualizeSignals(signal, signalClassification, selectedWindow, windowSize, saveRaw, showRaw, saveDelta, showDelta, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT)
 %visualizeSignal Visualize needed signals. Raw, filtered, differential,
 %overlapping windows, average windows, and overall signal with indicated
 %spikes can be plotted.
@@ -85,9 +85,7 @@ end
 
 %% Plot windows following stimulation artefacts
 if ~saveOverlap && ~showOverlap
-else
-    windowSize(1) = -windowSize(1); 
-    
+else    
     for i = 1:length(signalClassification)
         samplingFreq = signal(i,1).dataFiltered.samplingFreq;
         
@@ -97,24 +95,20 @@ else
         
         [dataValues, dataName] = loadMultiLayerStruct(signal(i,1),selectedWindow); % get the values and the name of the selected window
         
-%         windowsValues =...
-%             classificationWindowSelection(dataValues,...
-%             signalClassification(i,1).burstDetection.spikeLocs,...
-%             windowSize,...
-%             samplingFreq);
         windowsValues = getPointsWithinRange(...
             dataValues,...
             signalClassification(i,1).burstDetection.spikeLocs,...
-            signalClassification(i,1).burstDetection.burstEndLocs);
+            signalClassification(i,1).burstDetection.burstEndLocs,...
+            windowSize, samplingFreq);
         
         % Plot overlapping windows
-        plotFig(windowsValues.xAxisValues/samplingFreq,windowsValues.burst,signal(i,1).fileName,['Windows Following Artefacts ( ', signalClassification(i,1).selectedWindows.dataProcessed, ' )'],'Time(s)','Amplitude(V)',...
+        plotFig(windowsValues.xAxisValues,windowsValues.burst,signal(i,1).fileName,['Windows Following Artefacts ( ', signalClassification(i,1).selectedWindows.dataProcessed, ' )'],'Time(s)','Amplitude(V)',...
             saveOverlap,... % save
             showOverlap,... % show
             signal(i,1).path,'overlap', signal.channel);
         
         % plot averaging overlapping windows
-        plotFig(windowsValues.xAxisValues/samplingFreq,nanmean(windowsValues.burst,2),signal(i,1).fileName,['Average Windows Following Artefacts ( ', signalClassification(i,1).selectedWindows.dataProcessed, ' )'],'Time(s)','Amplitude(V)',...
+        plotFig(windowsValues.xAxisValues,nanmean(windowsValues.burst,2),signal(i,1).fileName,['Average Windows Following Artefacts ( ', signalClassification(i,1).selectedWindows.dataProcessed, ' )'],'Time(s)','Amplitude(V)',...
             saveOverlap,... % save
             showOverlap,... % show
             signal(i,1).path,'overlap', signal.channel);
@@ -127,14 +121,14 @@ else
                 1,... % show
                 signal(i,1).path,'subplot', signal.channel);
             hold on
+            
+            % Plot the markings
             for j = 1:numChannel
                 axes(overallP(j,1))
                 notNanSpikeLocs = ~isnan(signalClassification(i,1).burstDetection.spikeLocs(:,j)); % get start locs that are non nan
                 plot(signalClassification(i,1).burstDetection.spikeLocs(notNanSpikeLocs,j)/samplingFreq,dataValues(signalClassification(i,1).burstDetection.spikeLocs(notNanSpikeLocs,j),j),'ro')
-%                 if isequal(spikeDetectionType,'TKEO')
-                    notNanEndLocs = ~isnan(signalClassification(i,1).burstDetection.burstEndLocs(:,j)); % get end locs that are
-                    plot(signalClassification(i,1).burstDetection.burstEndLocs(notNanEndLocs,j)/samplingFreq,dataValues(signalClassification(i,1).burstDetection.burstEndLocs(notNanEndLocs,j),j),'rx')
-%                 end
+                notNanEndLocs = ~isnan(signalClassification(i,1).burstDetection.burstEndLocs(:,j)); % get end locs that are
+                plot(signalClassification(i,1).burstDetection.burstEndLocs(notNanEndLocs,j)/samplingFreq,dataValues(signalClassification(i,1).burstDetection.burstEndLocs(notNanEndLocs,j),j),'rx')
                 clear notNanSpikeLocs
             end
         end

@@ -29,10 +29,10 @@ dataToBeFFT = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataFiltered' fo
 % Peak Detection Parameters
 dataToBeDetectedSpike = 'dataRaw'; % data for spike detecting
 overlappedWindow = 'dataRaw'; % Select window for overlapping. Input 'dataRaw' for raw data, 'dataFiltered' for filtered data, 'dataDelta' for differential data
-spikeDetectionType = 'trigger'; % input 'threshold' for local maxima, input 'trigger for first point exceeding threshold, input 'TKEO' for taking following consecutive points into account (default is 25)
+spikeDetectionType = 'TKEO'; % input 'threshold' for local maxima, input 'trigger for first point exceeding threshold, input 'TKEO' for taking following consecutive points into account (default is 25)
 threshold = 0; % specified threshold for spikes detection, otehrwise input 0 for default value (3/4 of the maximum value of the signal)
 sign = 1; % input 1 for threhoslding upwards, input -1 for thresholding downwards
-windowSize = [0.00, 0.02]; % range of window starting from the detected peaks(in seconds)
+windowSize = [0.01, 0.02]; % range of window starting from the detected peaks(in seconds)
 
 % Show & Save Plots Parameters. Input 1 to save/show, otherwise input 0.
 % Plots will be saved in the folder 'Figures' at the same path with the processed data 
@@ -65,7 +65,7 @@ disp([num2str(toc),' seconds is used for classification preparation...'])
 close all
 
 tic
-visualizeSignals(signal, signalClassification, overlappedWindow, windowSize, spikeDetectionType, saveRaw, showRaw, saveDelta, showDelta, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT);
+visualizeSignals(signal, signalClassification, overlappedWindow, windowSize, saveRaw, showRaw, saveDelta, showDelta, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT);
 disp ([num2str(toc), ' seconds is used for visualizing signals...'])
 
 %% Run Classification
