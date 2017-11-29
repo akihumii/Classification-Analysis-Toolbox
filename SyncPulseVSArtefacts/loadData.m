@@ -1,7 +1,7 @@
 function [ extractedData ] = loadData()
 %LOADSYLPHX Summary of this function goes here
 %   Detailed explanation goes here
-[fullFileName, pathname] = uigetfile('*.xls','select excel file','MultiSelect','on');
+[fullFileName, pathname] = uigetfile('*.*','select data file','MultiSelect','on');
 if iscell(fullFileName)
     iter = length(fullFileName);
 else
