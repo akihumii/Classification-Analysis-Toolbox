@@ -4,9 +4,9 @@ function [] = visualizeSignals(signal, signalClassification, selectedWindow, win
 %spikes can be plotted.
 % Average window will be show/save according to the input of
 % 'showOverlap/saveOverlap'.
-% Overall signal with indicated spikes will be show only when the input 
+% Overall signal with spikes indicated will be show only when the input 
 % 'showOverlap' is 1 and will not be saved.
-%   function [] = visualizeSignal(signal, signalClassification)
+%   [] = visualizeSignals(signal, signalClassification, selectedWindow, windowSize, saveRaw, showRaw, saveDelta, showDelta, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT)
 
 %% Plot raw signal
 if ~saveRaw && ~showRaw
@@ -114,9 +114,9 @@ else
             signal(i,1).path,'overlap', signal.channel);
         
         % plot overall signal with spikes indicated
-        if showOverlap
+        if showOverlap || saveOverlap
             numChannel = size(signalClassification(i,1).burstDetection.spikeLocs,2);
-            overallP = plotFig((1:size(dataValues,1))/samplingFreq,dataValues,signal(i,1).fileName,['Overall Signal with Indicated Spikes ( ', dataName, ')'],'Time(s)','Amplitude(V)',...
+            overallP = plotFig((1:size(dataValues,1))/samplingFreq,dataValues,signal(i,1).fileName,['Overall Signal with Spikes Indicated (', dataName, ')'],'Time(s)','Amplitude(V)',...
                 0,... % save
                 1,... % show
                 signal(i,1).path,'subplot', signal.channel);
@@ -124,12 +124,15 @@ else
             
             % Plot the markings
             for j = 1:numChannel
-                plotMarkings(overallP(j,1),...
-                    dataValues(:,j),...
-                    samplingFreq,...
-                    signalClassification(i,1).burstDetection.spikeLocs(:,j),...
-                    signalClassification(i,1).burstDetection.burstEndLocs(:,j),...
-                    signalClassification(i,1).burstDetection.baseline{j,1}.mean)                
+                plotMarkings(overallP(j,1), dataValues(:,j), samplingFreq, signalClassification(i,1).burstDetection.spikeLocs(:,j), signalClassification(i,1).burstDetection.burstEndLocs(:,j), signalClassification(i,1).burstDetection.baseline{j,1}.mean)                
+            end
+            
+            % Save
+            if saveOverlap
+                savePlot(signal(i,1).path,['Overall Signal with Spikes Indicated (', dataName, ')'],signal(i,1).fileName)
+            end
+            if ~showOverlap
+                close gcf
             end
         end
         

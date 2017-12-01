@@ -29,12 +29,12 @@ dataToBeFFT = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataFiltered' fo
 
 % Peak Detection Parameters
 dataToBeDetectedSpike = 'dataTKEO'; % data for spike detecting
-overlappedWindow = 'dataTKEO'; % Select window for overlapping. Input 'dataRaw' for raw data, 'dataFiltered' for filtered data, 'dataDelta' for differential data
+overlappedWindow = 'dataRaw'; % Select window for overlapping. Input 'dataRaw' for raw data, 'dataFiltered' for filtered data, 'dataDelta' for differential data
 spikeDetectionType = 'TKEO'; % input 'threshold' for local maxima, input 'trigger for first point exceeding threshold, input 'TKEO' for taking following consecutive points into account (default is 25)
 threshold = 0; % specified threshold for spikes detection, otehrwise input 0 for default value (3/4 of the maximum value of the signal)
 sign = 1; % input 1 for threhoslding upwards, input -1 for thresholding downwards
 windowSize = [0.01, 0.02]; % range of window starting from the detected peaks(in seconds)
-TKEOStdMult = 20; % multiples of standard deviation above the baseline as the threshold for TKEO detection
+TKEOStdMult = 15; % multiples of standard deviation above the baseline as the threshold for TKEO detection
 TKEOStartConsecutivePoints = 25; % number of consecutive points over the threshold to be detected as burst
 TKEOEndConsecutivePoints = 25; % number of consecutive points below the threshold to be detected as end of burst
 

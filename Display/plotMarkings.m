@@ -19,11 +19,11 @@ notNanEndLocs = ~isnan(endLocs); % get end locs that are not nan
 endingX = plot(endLocs(notNanEndLocs)/samplingFreq,dataValues(endLocs(notNanEndLocs)),'rx');
 
 %% Baseline
-baselineL = plot(xlim,[baseline,baseline],'k-'); % plot the baseline
+% baselineL = plot(xlim,[baseline,baseline],'k-'); % plot the baseline
 
 %% Legend
-legend([startingO,endingX,baselineL],'starting point','end point','baseline')
-% legend([startingO,endingX],'starting point','end point')
+% legend([startingO,endingX,baselineL],'starting point','end point','baseline')
+legend([startingO,endingX],'starting point','end point')
 clear notNanSpikeLocs baseline
 
 hold off
