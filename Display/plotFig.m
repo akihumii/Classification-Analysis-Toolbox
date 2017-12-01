@@ -98,10 +98,10 @@ for i = 1:numData
         else
             plot(x(:,j),y(:,j,i));
         end
-        ylabel(yScale, 'FontSize', textSize);
         axis tight;
     end
-    
+    ylabel(yScale, 'FontSize', textSize);
+
     xlabel(xScale, 'FontSize', textSize);
     
     if isequal(type, 'subplot')

@@ -89,8 +89,8 @@ else
     for i = 1:length(signalClassification)
         samplingFreq = signal(i,1).dataFiltered.samplingFreq;
         
-        if isequal(selectedWindow, 'dataFiltered')
-            selectedWindow = [{'dataFiltered'};{'values'}]; % reconstruct filtered vales, because the values lies in the field 'values' in the structure 'dataFiltered'
+        if isequal(selectedWindow, 'dataFiltered') || isequal(selectedWindow, 'dataTKEO')
+            selectedWindow = [{selectedWindow};{'values'}]; % reconstruct filtered vales, because the values lies in the field 'values' in the structure 'dataFiltered'
         end
         
         [dataValues, dataName] = loadMultiLayerStruct(signal(i,1),selectedWindow); % get the values and the name of the selected window

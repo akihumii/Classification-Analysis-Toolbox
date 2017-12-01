@@ -55,6 +55,11 @@ for i = 1:colData % channel
             [burstEndValue{i,1},burstEndLocs{i,1}] = findEndPoint(data(:,i), thresholdValue, spikeLocs{i,1}, TKEOEndConsecutivePoints);
             [spikePeaksValue{i,1},spikeLocs{i,1},burstEndValue{i,1},burstEndLocs{i,1}] =...
                 trimBurstLocations(spikePeaksValue{i,1},spikeLocs{i,1},burstEndValue{i,1},burstEndLocs{i,1});
+            % another way to detect TKEO bursts
+%             [spikePeaksValue{i,1},spikeLocs{i,1},burstEndValue{i,1},burstEndLocs{i,1}] = ...
+%                 TKEOSpikeDetection(data(skipWindow:end-skipWindow,i),thresholdValue,TKEOStartConsecutivePoints,TKEOEndConsecutivePoints); % the last value is the number of consecutive point that needs to exceed threshold to be detected as spikes
+%             spikeLocs{i,1} = spikeLocs{i,1} + skipWindow - 1; % compensate the skipped window
+%             burstEndLocs{i,1} = burstEndLocs{i,1} + skipWindow -1; % compensate the skipped window
         otherwise
     end
     

@@ -35,7 +35,7 @@ classdef classData
     
     %% Methods
     methods
-        function data = classData(file,path,fileType,channel,samplingFreq,dataSelection,neutrinoInputRefer)
+        function data = classData(file,path,fileType,channel,samplingFreq,dataSelection,neutrinoInputRefer,decimateFactor)
             if nargin > 0
                 data.file = file;
                 data.path = path;
@@ -58,7 +58,10 @@ classdef classData
                 else
                     data.samplingFreq = samplingFreq;
                 end
+                data.samplingFreq = data.samplingFreq / decimateFactor; % down sampling
                 [data.dataAll, data.time] = reconstructData(file, path, fileType, neutrinoInputRefer);
+                data.dataAll = decimateData(data.dataAll,decimateFactor);
+                data.time = decimateData(data.time,decimateFactor);
                 data.fileName = naming(data.file);
                 data.channel = channel;
                 if channel > size(data.dataAll,2)

@@ -11,9 +11,9 @@ classdef classClassificationPreparation
     %
     % clfp = classificationWindowSelection(clfp, targetClassData, targetFieldName)
     %   'targetClassData' is the class that contains the data that is to be
-    %   processed. 
+    %   processed.
     %   'targetFieldName' is the field name of the data that is to be
-    %   processed. If it is a structure, present it as a tall matrix. 
+    %   processed. If it is a structure, present it as a tall matrix.
     %   Note that filtered data is stored in the structure 'dataFiltered',
     %   in the field 'values'. Thus, ['dataFiltered';'values'] will be the
     %   input here.
@@ -61,18 +61,21 @@ classdef classClassificationPreparation
             clfp.burstDetection.detectionMethod = type;
         end
         
-        function clfp = classificationWindowSelection(clfp, targetClassData, targetFieldName)
-            [dataValues, dataName] = loadMultiLayerStruct(targetClassData,targetFieldName);
+        function clfp = classificationWindowSelection(clfp, targetClassData, targetName)
+            if isequal(targetName,'dataFiltered') || isequal(targetName,'dataTKEO')
+                targetName = [{targetName};{'values'}];
+            end
+            [dataValue, dataName] = loadMultiLayerStruct(targetClassData,targetName);
             clfp.selectedWindows = classificationWindowSelection(...
-                dataValues,...
+                dataValue,...
                 clfp.burstDetection.spikeLocs,...
                 clfp.window,...
                 targetClassData.samplingFreq);
-            if iscell(targetFieldName)
-                clfp.selectedWindows.dataProcessed = targetFieldName{1};
-            else
-                clfp.selectedWindows.dataProcessed = targetFieldName;
-            end
+%             if iscell(targetName)
+%                 clfp.selectedWindows.dataProcessed = dataName{1};
+%             else
+            clfp.selectedWindows.dataProcessed = dataName;
+%             end
         end
         
         function clfp = featureExtraction(clfp,targetField)
