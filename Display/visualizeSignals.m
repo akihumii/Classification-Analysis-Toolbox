@@ -124,12 +124,12 @@ else
             
             % Plot the markings
             for j = 1:numChannel
-                axes(overallP(j,1))
-                notNanSpikeLocs = ~isnan(signalClassification(i,1).burstDetection.spikeLocs(:,j)); % get start locs that are non nan
-                plot(signalClassification(i,1).burstDetection.spikeLocs(notNanSpikeLocs,j)/samplingFreq,dataValues(signalClassification(i,1).burstDetection.spikeLocs(notNanSpikeLocs,j),j),'ro')
-                notNanEndLocs = ~isnan(signalClassification(i,1).burstDetection.burstEndLocs(:,j)); % get end locs that are
-                plot(signalClassification(i,1).burstDetection.burstEndLocs(notNanEndLocs,j)/samplingFreq,dataValues(signalClassification(i,1).burstDetection.burstEndLocs(notNanEndLocs,j),j),'rx')
-                clear notNanSpikeLocs
+                plotMarkings(overallP(j,1),...
+                    dataValues(:,j),...
+                    samplingFreq,...
+                    signalClassification(i,1).burstDetection.spikeLocs(:,j),...
+                    signalClassification(i,1).burstDetection.burstEndLocs(:,j),...
+                    signalClassification(i,1).burstDetection.baseline{j,1}.mean)                
             end
         end
         
