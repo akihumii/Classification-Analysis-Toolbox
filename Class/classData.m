@@ -17,6 +17,7 @@ classdef classData
         fileName
         time
         samplingFreq
+        decimateFactor
         channel
         channelRef % reference channel for differential data
         noiseData
@@ -93,7 +94,6 @@ classdef classData
             data.dataFiltered.highPassCutoffFreq = highPassCutoffFreq;
             data.dataFiltered.lowPassCutoffFreq = lowPassCutoffFreq;
             data.dataFiltered.notchFreq = notchFreq;
-            data.dataFiltered.samplingFreq = samplingFreq;
             data.dataFiltered.dataBeingProcessed = targetName;
             errorShow(targetName, 'targetName', 'char');
         end
@@ -127,6 +127,7 @@ classdef classData
         end
         
         function data = decimateData(data,decimateFactor,targetName) % downsampling the targetName's values and the samplingFreq
+            data.decimateFactor = decimateFactor;
             numField = length(targetName);
             for i = 1:numField
                 if isequal(targetName{i,1},'dataFiltered') || isequal(targetName{i,1},'dataTKEO')

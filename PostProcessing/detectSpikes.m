@@ -1,15 +1,15 @@
-function output = detectSpikes(data, minDistance, threshold, sign, type, TKEOStdMult, TKEOStartConsecutivePoints, TKEOEndConsecutivePoints)
+function output = detectSpikes(data, minDistance, threshold, sign, type, threshStdMult, TKEOStartConsecutivePoints, TKEOEndConsecutivePoints)
 %detectSpikes After taking baseline into account, any sample point exceeds
 %3/5 of the maximum value of the signal will be considered as a spike. No 2
 %spikes will be detected in one window.
-%   output = detectSpikes(data, minDistance, threshold, sign, type, TKEOStartConsecutivePoints, TKEOEndConsecutivePoints)
+%   output = detectSpikes(data, minDistance, threshold, sign, type, threshStdMult, TKEOStartConsecutivePoints, TKEOEndConsecutivePoints)
 
 if nargin < 2
     minDistance = 1;
     threshold = 0;
     sign = 1;
     type = 'threshold';
-    TKEOStdMult = 1;
+    threshStdMult = 1;
     TKEOStartConsecutivePoints = 1;
     TKEOEndConsecutivePoints = 1;
 end
@@ -30,11 +30,11 @@ for i = 1:colData % channel
     maxPeak = max(data(:,i));
     baseline{i,1} = baselineDetection(sign * data(:,i));
     if threshold == 0 % if no user input, 3/4 of maximum value will be used as threshold value
-        if isequal(type,'TKEO')
-            thresholdValue = sign * baseline{i,1}.mean + TKEOStdMult * baseline{i,1}.std;
-        else
-            thresholdValue = sign * baseline{i,1}.mean + (maxPeak - sign * baseline{i,1}.mean) *3/4;
-        end
+%         if isequal(type,'TKEO')
+            thresholdValue = sign * baseline{i,1}.mean + threshStdMult * baseline{i,1}.std;
+%         else
+%             thresholdValue = sign * baseline{i,1}.mean + (maxPeak - sign * baseline{i,1}.mean) *3/4;
+%         end
     else
         thresholdValue = threshold;
     end
