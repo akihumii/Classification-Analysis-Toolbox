@@ -58,6 +58,7 @@ classdef classData
                 else
                     data.samplingFreq = samplingFreq;
                 end
+                data.samplingFreq = data.samplingFreq; % down sampling
                 [data.dataAll, data.time] = reconstructData(file, path, fileType, neutrinoInputRefer);
                 data.fileName = naming(data.file);
                 data.channel = channel;
@@ -114,9 +115,6 @@ classdef classData
         end
         
         function data = TKEO(data,targetName,samplingFreq)
-            if isequal(targetName,'dataFiltered')
-                targetName = [{'dataFiltered'};{'values'}];
-            end
             [dataValue, dataName] = loadMultiLayerStruct(data,targetName);
             data.dataTKEO.values = TKEO(dataValue, samplingFreq);
             data.dataTKEO.dataBeingProcessed = dataName;
@@ -126,6 +124,23 @@ classdef classData
             data.dataPCA.values = pcaConverter(targetValue);
             data.dataPCA.dataBeingProcessed = targetName;
             errorShow(targetName, 'targetName', 'char');
+        end
+        
+        function data = decimateData(data,decimateFactor,targetName) % downsampling the targetName's values and the samplingFreq
+            numField = length(targetName);
+            for i = 1:numField
+                if isequal(targetName{i,1},'dataFiltered') || isequal(targetName{i,1},'dataTKEO')
+                    targetNameTemp = [targetName(i,1);{'values'}];
+                    [dataValue, dataName] = loadMultiLayerStruct(data,targetNameTemp);
+                    data.(targetName{i,1}).values = decimateData(dataValue,decimateFactor);
+                else
+                    targetNameTemp = targetName{i,1};
+                    [dataValue, dataName] = loadMultiLayerStruct(data,targetNameTemp);
+                    data.(targetName{i,1}) = decimateData(dataValue,decimateFactor);
+                end
+            end
+            data.time = decimateData(data.time,decimateFactor);
+            data.samplingFreq = data.samplingFreq / decimateFactor;
         end
     end
 end

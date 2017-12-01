@@ -98,10 +98,10 @@ for i = 1:numData
         else
             plot(x(:,j),y(:,j,i));
         end
-        ylabel(yScale, 'FontSize', textSize);
         axis tight;
     end
-    
+    ylabel(yScale, 'FontSize', textSize);
+
     xlabel(xScale, 'FontSize', textSize);
     
     if isequal(type, 'subplot')
@@ -115,13 +115,7 @@ for i = 1:numData
     
     %% Save & Show
     if answerSave
-        saveLocation = [path,'Figures\',titleName];
-        if ~exist(saveLocation,'file')
-            mkdir(saveLocation);
-        end
-        saveas(gcf,[saveLocation,'\',saveName,'.fig']);
-        saveas(gcf,[saveLocation,'\',saveName,'.jpg']);
-        disp([titleName,' ',fileName, ' is saved...'])
+        savePlot(path,titleName,fileName)
     end
     
     if ~answerShow

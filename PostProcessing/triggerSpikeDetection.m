@@ -12,7 +12,7 @@ if nargin < 4
 end
 
 %% find the first peak
-[values, locs] = findpeaks(data,'minPeakHeight',threshold);
+[values, locs] = findpeaks(data(1:end-numConsecutivePoint),'minPeakHeight',threshold);
 
 numPeaks = length(locs);
 selectedPeaks = zeros(0,1);

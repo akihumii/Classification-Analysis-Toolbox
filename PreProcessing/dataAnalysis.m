@@ -1,4 +1,4 @@
-function [data, dataName, iter] = dataAnalysis(dataType,dataToBeFiltered,dataToBeFFT,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,channel,channelRef,samplingFreq,dataSelection,neutrinoInputRefer)
+function [data, dataName, iter] = dataAnalysis(dataType,dataToBeFiltered,dataToBeFFT,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,channel,channelRef,samplingFreq,dataSelection,neutrinoInputRefer,decimateFactor)
 %dataAnalysis Generate objects that describes each processed data
 %   [data, dataName, iter] = dataAnalysis(dataType,dataToBeFiltered,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,channel,channelRef,samplingFreq)
 close all
@@ -17,8 +17,9 @@ for i = 1:iter
     end
     data(i,1) = rectifyData(data(i,1),'dataRaw');
     data(i,1) = filterData(data(i,1),dataToBeFiltered, data(i,1).samplingFreq, highPassCutoffFreq,lowPassCutoffFreq, notchFreq);
-    data(i,1) = TKEO(data(i,1),'dataFiltered',data(i,1).samplingFreq);
+    data(i,1) = TKEO(data(i,1),'dataRaw',data(i,1).samplingFreq);
     data(i,1) = fftDataConvert(data(i,1),dataToBeFFT,data(i,1).samplingFreq);
+    data(i,1) = decimateData(data(i,1),decimateFactor,[{'dataRaw'};{'dataFiltered'};{'dataTKEO'}]);
     dataName{i,1} = data(i,1).file;
     disp([data(i,1).file, ' has been analysed... '])
 end

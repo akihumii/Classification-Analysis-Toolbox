@@ -4,11 +4,21 @@ function dataFilt = filterData(data, samplingFreq, highPassCutoffFreq, lowPassCu
 %frequency if a bandpass filter is being selected.
 %   dataFilt = filterData(data, samplingFreq, highPassCutoffFreq, lowPassCutoffFreq, notchFreq)
 
+if nargin < 5
+    notchFreq = 0;
+end
+
 %% Built Filter
 if highPassCutoffFreq ~= 0
+    if highPassCutoffFreq/(samplingFreq/2) > 1
+        error('samplingFreq is too lower than the high pass filter cutoff frequency')
+    end
     [bHigh,aHigh] = butter(4,highPassCutoffFreq/(samplingFreq/2),'high'); % high pass filter
 end
 if lowPassCutoffFreq ~= 0
+    if lowPassCutoffFreq/(samplingFreq/2) > 1
+        error('samplingFreq is too lower than the low pass filter cutoff frequency')
+    end
     [bLow,aLow] = butter(4,lowPassCutoffFreq/(samplingFreq/2),'low'); % low pass filter
 end
 if notchFreq ~= 0
