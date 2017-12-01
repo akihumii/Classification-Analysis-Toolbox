@@ -20,21 +20,21 @@ dataSelection = []; % specified window (in seconds) to be read for ALL the selec
 % Filtering Parameters
 dataToBeFiltered = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataDelta' for differential data; input 'dataRectified' for rectified data
 highPassCutoffFreq = 0; % high pass cutoff frequency, input 0 if not applied
-lowPassCutoffFreq = 20; % low pass cutoff frequency, input 0 if not applied
+lowPassCutoffFreq = 10; % low pass cutoff frequency, input 0 if not applied
 notchFreq = 50; % notch frequency, input 0 if not applied
-decimateFactor = 50; % down sampling the data by a factor 'decimateFactor'
+decimateFactor = 1; % down sampling the data by a factor 'decimateFactor'
 
 % FFT parameters
 dataToBeFFT = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataFiltered' for filtered data; input 'dataRectified' for rectified data
 
 % Peak Detection Parameters
-dataToBeDetectedSpike = 'dataTKEO'; % data for spike detecting
+dataToBeDetectedSpike = 'dataRaw'; % data for spike detecting
 overlappedWindow = 'dataRaw'; % Select window for overlapping. Input 'dataRaw' for raw data, 'dataFiltered' for filtered data, 'dataDelta' for differential data
-spikeDetectionType = 'TKEO'; % input 'threshold' for local maxima, input 'trigger for first point exceeding threshold, input 'TKEO' for taking following consecutive points into account (default is 25)
+spikeDetectionType = 'TKEO'; % input 'threshold' for local maxima, input 'trigger for first point exceeding threshold, input 'TKEO' for taking following consecutive points into account
 threshold = 0; % specified threshold for spikes detection, otehrwise input 0 for default value (3/4 of the maximum value of the signal)
+threshStdMult = 15; % multiples of standard deviation above the baseline as the threshold for TKEO detection
 sign = 1; % input 1 for threhoslding upwards, input -1 for thresholding downwards
 windowSize = [0.01, 0.02]; % range of window starting from the detected peaks(in seconds)
-TKEOStdMult = 15; % multiples of standard deviation above the baseline as the threshold for TKEO detection
 TKEOStartConsecutivePoints = 25; % number of consecutive points over the threshold to be detected as burst
 TKEOEndConsecutivePoints = 25; % number of consecutive points below the threshold to be detected as end of burst
 
@@ -54,6 +54,8 @@ saveFilt = 0;
 saveOverlap = 0;
 saveFFT = 0;
 
+saveUserInput = 0;
+
 %% Main
 ticDataAnalysis = tic;
 [signal, signalName, iter] = dataAnalysis(dataType,dataToBeFiltered,dataToBeFFT,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,channel,channelRef,samplingFreq,dataSelection,neutrinoInputRefer,decimateFactor);
@@ -62,7 +64,7 @@ disp([num2str(toc(ticDataAnalysis)), ' seconds is used for loading and processin
 
 %% Locate bursts and select windows around them
 tic
-signalClassification = dataClassificationPreparation(signal, iter, overlappedWindow, windowSize,dataToBeDetectedSpike, spikeDetectionType, threshold, sign, TKEOStdMult, TKEOStartConsecutivePoints, TKEOEndConsecutivePoints)
+signalClassification = dataClassificationPreparation(signal, iter, overlappedWindow, windowSize,dataToBeDetectedSpike, spikeDetectionType, threshold, sign, threshStdMult, TKEOStartConsecutivePoints, TKEOEndConsecutivePoints)
 disp([num2str(toc),' seconds is used for classification preparation...'])
 
 %% Plot selected windows
@@ -90,6 +92,14 @@ disp ([num2str(toc), ' seconds is used for visualizing signals...'])
 % saveText(accuracy,const,linear,classificationOutput.channelPair, spikeTiming.threshold, windowSize);
 
 % clear
+
+%% Ending
+if saveUserInput
+    for i = 1:length(signal)
+        save([signal(i,1).path,signal(i,1).fileName,' signal'],'signal');
+        save([signal(i,1).path,signal(i,1).fileName,' signalClassification'],'signalClassification');
+    end
+end
 
 finishMsg = msgbox('Finished all prcoesses...');
 pause(2)
