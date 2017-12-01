@@ -71,11 +71,7 @@ classdef classClassificationPreparation
                 clfp.burstDetection.spikeLocs,...
                 clfp.window,...
                 targetClassData.samplingFreq);
-%             if iscell(targetName)
-%                 clfp.selectedWindows.dataProcessed = dataName{1};
-%             else
             clfp.selectedWindows.dataProcessed = dataName;
-%             end
         end
         
         function clfp = featureExtraction(clfp,targetField)

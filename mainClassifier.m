@@ -20,9 +20,9 @@ dataSelection = []; % specified window (in seconds) to be read for ALL the selec
 % Filtering Parameters
 dataToBeFiltered = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataDelta' for differential data; input 'dataRectified' for rectified data
 highPassCutoffFreq = 0; % high pass cutoff frequency, input 0 if not applied
-lowPassCutoffFreq = 20; % low pass cutoff frequency, input 0 if not applied
+lowPassCutoffFreq = 10; % low pass cutoff frequency, input 0 if not applied
 notchFreq = 50; % notch frequency, input 0 if not applied
-decimateFactor = 50; % down sampling the data by a factor 'decimateFactor'
+decimateFactor = 1; % down sampling the data by a factor 'decimateFactor'
 
 % FFT parameters
 dataToBeFFT = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataFiltered' for filtered data; input 'dataRectified' for rectified data
@@ -30,7 +30,7 @@ dataToBeFFT = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataFiltered' fo
 % Peak Detection Parameters
 dataToBeDetectedSpike = 'dataRaw'; % data for spike detecting
 overlappedWindow = 'dataRaw'; % Select window for overlapping. Input 'dataRaw' for raw data, 'dataFiltered' for filtered data, 'dataDelta' for differential data
-spikeDetectionType = 'trigger'; % input 'threshold' for local maxima, input 'trigger for first point exceeding threshold, input 'TKEO' for taking following consecutive points into account (default is 25)
+spikeDetectionType = 'TKEO'; % input 'threshold' for local maxima, input 'trigger for first point exceeding threshold, input 'TKEO' for taking following consecutive points into account
 threshold = 0; % specified threshold for spikes detection, otehrwise input 0 for default value (3/4 of the maximum value of the signal)
 threshStdMult = 15; % multiples of standard deviation above the baseline as the threshold for TKEO detection
 sign = 1; % input 1 for threhoslding upwards, input -1 for thresholding downwards

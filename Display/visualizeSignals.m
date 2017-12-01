@@ -96,6 +96,7 @@ else
         [dataValues, dataName] = loadMultiLayerStruct(signal(i,1),selectedWindow); % get the values and the name of the selected window
         
         windowsValues = getPointsWithinRange(...
+            signal(i,1).time/samplingFreq,...
             dataValues,...
             signalClassification(i,1).burstDetection.spikeLocs,...
             signalClassification(i,1).burstDetection.burstEndLocs,...
@@ -124,7 +125,7 @@ else
             
             % Plot the markings
             for j = 1:numChannel
-                plotMarkings(overallP(j,1), dataValues(:,j), samplingFreq, signalClassification(i,1).burstDetection.spikeLocs(:,j), signalClassification(i,1).burstDetection.burstEndLocs(:,j), signalClassification(i,1).burstDetection.baseline{j,1}.mean)                
+                plotMarkings(overallP(j,1), signal(i,1).time/samplingFreq, dataValues(:,j), samplingFreq, signalClassification(i,1).burstDetection.spikeLocs(:,j), signalClassification(i,1).burstDetection.burstEndLocs(:,j), signalClassification(i,1).burstDetection.baseline{j,1}.mean)                
             end
             
             % Save

@@ -141,7 +141,6 @@ classdef classData
                 end
             end
             data.time = decimateData(data.time,decimateFactor);
-            data.samplingFreq = data.samplingFreq / decimateFactor;
         end
     end
 end

@@ -30,11 +30,7 @@ for i = 1:colData % channel
     maxPeak = max(data(:,i));
     baseline{i,1} = baselineDetection(sign * data(:,i));
     if threshold == 0 % if no user input, 3/4 of maximum value will be used as threshold value
-%         if isequal(type,'TKEO')
             thresholdValue = sign * baseline{i,1}.mean + threshStdMult * baseline{i,1}.std;
-%         else
-%             thresholdValue = sign * baseline{i,1}.mean + (maxPeak - sign * baseline{i,1}.mean) *3/4;
-%         end
     else
         thresholdValue = threshold;
     end
