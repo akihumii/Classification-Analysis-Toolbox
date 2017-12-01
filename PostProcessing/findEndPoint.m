@@ -11,8 +11,7 @@ endPointLocs = zeros(0,1);
 
 for i = 1:numsStartPointLocs 
     for j = startPointLocs(i):lengthData-numConsecutivePoint
-        dataTemp = data(j : (j+numConsecutivePoint));
-        if  dataTemp < threshold
+        if data(j : (j+numConsecutivePoint)) < threshold
             endPointValue = [endPointValue; data(j)];
             endPointLocs = [endPointLocs; j];
             break
