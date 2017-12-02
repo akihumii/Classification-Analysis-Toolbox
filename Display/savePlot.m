@@ -1,7 +1,6 @@
-function [] = savePlot(path,titleName,fileName)
+function [] = savePlot(path,titleName,fileName,saveName)
 %savePlot Save the current plots
 %   [] = savePlot(path,titleName,fileName)
-saveName = [titleName, ' ', fileName];
 
 saveLocation = [path,'Figures\',titleName];
 

@@ -15,24 +15,23 @@ channel = [4,5]; % channels to be processed. Consecutive channels can be exrpess
 channelRef = 0; % input 0 if no differential data is needed.
 samplingFreq = 0; % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 16671, sylphII: 16671)
 neutrinoInputRefer = 1; % input 1 to check input refer, otherwise input 0
-% dataSelection = []; % specified window (in seconds) to be read for ALL the selected file, leaving empty for default value(read the whole recording). eg. input [5:20] to read data from 5th second to 20th second; input [] for default
 partialDataSelection = 1; % input 1 to select partial data to analyse, otherwise input 0
 
 % Filtering Parameters
 dataToBeFiltered = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataDelta' for differential data; input 'dataRectified' for rectified data
-highPassCutoffFreq = 0; % high pass cutoff frequency, input 0 if not applied
-lowPassCutoffFreq = 10; % low pass cutoff frequency, input 0 if not applied
+highPassCutoffFreq = 10; % high pass cutoff frequency, input 0 if not applied
+lowPassCutoffFreq = 3500; % low pass cutoff frequency, input 0 if not applied
 notchFreq = 50; % notch frequency, input 0 if not applied
 decimateFactor = 100; % down sampling the data by a factor 'decimateFactor'
 
 % FFT parameters
-dataToBeFFT = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataFiltered' for filtered data; input 'dataRectified' for rectified data
+dataToBeFFT = 'dataFiltered'; % input 'dataRaw' for raw data; input 'dataFiltered' for filtered data; input 'dataRectified' for rectified data
 
 % Peak Detection Parameters
-dataToBeDetectedSpike = 'dataRectified'; % data for spike detecting
+dataToBeDetectedSpike = 'dataRaw'; % data for spike detecting
 overlappedWindow = 'dataRaw'; % Select window for overlapping. Input 'dataRaw' for raw data, 'dataFiltered' for filtered data, 'dataDelta' for differential data
-spikeDetectionType = 'TKEO'; % input 'threshold' for local maxima, input 'trigger for first point exceeding threshold, input 'TKEO' for taking following consecutive points into account
-threshold = 0; % specified threshold for spikes detection, otehrwise input 0 for default value (baseline + threshMult * baselineStandardDeviation) (baseline is obtained by calculating the mean of the data points spanned between 1/4 to 3/4 of the data array sorted by amplitudes)
+spikeDetectionType = 'threshold'; % input 'threshold' for local maxima, input 'trigger for first point exceeding threshold, input 'TKEO' for taking following consecutive points into account
+threshold = 1e-10; % specified threshold for spikes detection, otehrwise input 0 for default value (baseline + threshMult * baselineStandardDeviation) (baseline is obtained by calculating the mean of the data points spanned between 1/4 to 3/4 of the data array sorted by amplitudes)
 threshStdMult = 15; % multiples of standard deviation above the baseline as the threshold for TKEO detection
 sign = 1; % input 1 for threhoslding upwards, input -1 for thresholding downwards
 windowSize = [0.01, 0.02]; % range of window starting from the detected peaks(in seconds)
@@ -44,16 +43,16 @@ TKEOEndConsecutivePoints = 25; % number of consecutive points below the threshol
 showRaw = 1;
 showDelta = 0;
 showRectified = 0;
-showFilt = 0;
-showOverlap = 1;
-showFFT = 0;
+showFilt = 1;
+showOverlap = 0;
+showFFT = 1;
 
-saveRaw = 0;
+saveRaw = 1;
 saveDelta = 0;
 saveRectified = 0;
-saveFilt = 0;
+saveFilt = 1;
 saveOverlap = 0;
-saveFFT = 0;
+saveFFT = 1;
 
 saveUserInput = 0;
 
@@ -72,7 +71,7 @@ disp([num2str(toc),' seconds is used for classification preparation...'])
 close all
 
 tic
-visualizeSignals(signal, signalClassification, overlappedWindow, windowSize, saveRaw, showRaw, saveDelta, showDelta, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT);
+visualizeSignals(signal, signalClassification, overlappedWindow, windowSize, partialDataSelection, saveRaw, showRaw, saveDelta, showDelta, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT);
 disp ([num2str(toc), ' seconds is used for visualizing signals...'])
 
 %% Run Classification

@@ -74,13 +74,6 @@ classdef classData
                     data.dataRaw = partialDataInfo.partialData;
                     data.time = data.time(partialDataInfo.startLocs:partialDataInfo.endLocs);
                 end
-%                 if ~isempty(dataSelection)
-%                     locsStart = dataSelection(1) * data.samplingFreq;
-%                     locsEnd = dataSelection(2) * data.samplingFreq;
-%                     data.dataRaw = data.dataRaw(locsStart:locsEnd,:);
-%                     data.time = data.time(locsStart:locsEnd);
-%                     data.time = data.time - data.time(1) + 1;
-%                 end
             end
         end
         

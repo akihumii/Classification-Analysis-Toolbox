@@ -117,7 +117,7 @@ for i = 1:numData
     
     %% Save & Show
     if answerSave
-        savePlot(path,titleName,fileName)
+        savePlot(path,titleName,fileName,saveName)
     end
     
     if ~answerShow
