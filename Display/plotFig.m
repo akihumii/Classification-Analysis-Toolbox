@@ -10,7 +10,7 @@ function p = plotFig(varargin)
 % 
 % Variable 'channel' is for the title purpose, default value is 1.
 % 
-%   p = plotFig(x, y, fileName, titleName, xScale, yScale, answerSave, answerShow, path, type, channel, continuePlotting)
+%   p = plotFig(x, y, fileName, titleName, xScale, yScale, answerSave, answerShow, path, type, channel)
 
 %% fill unset parameters
 if nargin == 1
@@ -22,7 +22,7 @@ else
 end
 
 if nargin < 11;
-    channel = 1;
+    channel = 1:size(y,2);
 else
     channel = varargin{11};
 end
@@ -90,6 +90,8 @@ for i = 1:numData
                 saveName = [titleName, ' ', fileName, ' ch ', num2str(channel)];
             end
             hold on
+        else
+            p = gca;
         end
         
         % Plotting

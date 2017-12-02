@@ -36,7 +36,7 @@ classdef classData
     
     %% Methods
     methods
-        function data = classData(file,path,fileType,channel,samplingFreq,dataSelection,neutrinoInputRefer)
+        function data = classData(file,path,fileType,channel,samplingFreq,partialDataSelection,neutrinoInputRefer)
             if nargin > 0
                 data.file = file;
                 data.path = path;
@@ -67,14 +67,20 @@ classdef classData
                     error('Error found in User Input: Selected channel is not existed')
                 end
                 data.dataRaw = data.dataAll(:,data.channel);
+                
                 % for trimming
-                if ~isempty(dataSelection)
-                    locsStart = dataSelection(1) * data.samplingFreq;
-                    locsEnd = dataSelection(2) * data.samplingFreq;
-                    data.dataRaw = data.dataRaw(locsStart:locsEnd,:);
-                    data.time = data.time(locsStart:locsEnd);
-                    data.time = data.time - data.time(1) + 1;
+                if partialDataSelection
+                    partialDataInfo = selectPartialData(data.dataRaw,data.fileName,data.path);
+                    data.dataRaw = partialDataInfo.partialData;
+                    data.time = data.time(partialDataInfo.startLocs:partialDataInfo.endLocs);
                 end
+%                 if ~isempty(dataSelection)
+%                     locsStart = dataSelection(1) * data.samplingFreq;
+%                     locsEnd = dataSelection(2) * data.samplingFreq;
+%                     data.dataRaw = data.dataRaw(locsStart:locsEnd,:);
+%                     data.time = data.time(locsStart:locsEnd);
+%                     data.time = data.time - data.time(1) + 1;
+%                 end
             end
         end
         

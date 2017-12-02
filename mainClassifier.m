@@ -1,6 +1,6 @@
 %% Main code for Signal analysis
-% Include data filtering, peak detecting, windows overlapping, 
-% figures displaying and saving.
+% Features data filtering, burst detecting, windows overlapping, 
+% figures displaying and saving, bursts classification
 % 
 % Coded by Tsai Chne Wuen
 
@@ -15,27 +15,28 @@ channel = [4,5]; % channels to be processed. Consecutive channels can be exrpess
 channelRef = 0; % input 0 if no differential data is needed.
 samplingFreq = 0; % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 16671, sylphII: 16671)
 neutrinoInputRefer = 1; % input 1 to check input refer, otherwise input 0
-dataSelection = []; % specified window (in seconds) to be read for ALL the selected file, leaving empty for default value(read the whole signal). eg. input [5:20] to read data from 5th second to 20th second; input [] for default
+% dataSelection = []; % specified window (in seconds) to be read for ALL the selected file, leaving empty for default value(read the whole recording). eg. input [5:20] to read data from 5th second to 20th second; input [] for default
+partialDataSelection = 1; % input 1 to select partial data to analyse, otherwise input 0
 
 % Filtering Parameters
 dataToBeFiltered = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataDelta' for differential data; input 'dataRectified' for rectified data
 highPassCutoffFreq = 0; % high pass cutoff frequency, input 0 if not applied
 lowPassCutoffFreq = 10; % low pass cutoff frequency, input 0 if not applied
 notchFreq = 50; % notch frequency, input 0 if not applied
-decimateFactor = 1; % down sampling the data by a factor 'decimateFactor'
+decimateFactor = 100; % down sampling the data by a factor 'decimateFactor'
 
 % FFT parameters
 dataToBeFFT = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataFiltered' for filtered data; input 'dataRectified' for rectified data
 
 % Peak Detection Parameters
-dataToBeDetectedSpike = 'dataRaw'; % data for spike detecting
+dataToBeDetectedSpike = 'dataRectified'; % data for spike detecting
 overlappedWindow = 'dataRaw'; % Select window for overlapping. Input 'dataRaw' for raw data, 'dataFiltered' for filtered data, 'dataDelta' for differential data
 spikeDetectionType = 'TKEO'; % input 'threshold' for local maxima, input 'trigger for first point exceeding threshold, input 'TKEO' for taking following consecutive points into account
-threshold = 0; % specified threshold for spikes detection, otehrwise input 0 for default value (3/4 of the maximum value of the signal)
+threshold = 0; % specified threshold for spikes detection, otehrwise input 0 for default value (baseline + threshMult * baselineStandardDeviation) (baseline is obtained by calculating the mean of the data points spanned between 1/4 to 3/4 of the data array sorted by amplitudes)
 threshStdMult = 15; % multiples of standard deviation above the baseline as the threshold for TKEO detection
 sign = 1; % input 1 for threhoslding upwards, input -1 for thresholding downwards
 windowSize = [0.01, 0.02]; % range of window starting from the detected peaks(in seconds)
-TKEOStartConsecutivePoints = 25; % number of consecutive points over the threshold to be detected as burst
+TKEOStartConsecutivePoints = 0; % number of consecutive points over the threshold to be detected as burst
 TKEOEndConsecutivePoints = 25; % number of consecutive points below the threshold to be detected as end of burst
 
 % Show & Save Plots Parameters. Input 1 to save/show, otherwise input 0.
@@ -58,7 +59,7 @@ saveUserInput = 0;
 
 %% Main
 ticDataAnalysis = tic;
-[signal, signalName, iter] = dataAnalysis(dataType,dataToBeFiltered,dataToBeFFT,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,channel,channelRef,samplingFreq,dataSelection,neutrinoInputRefer,decimateFactor);
+[signal, signalName, iter] = dataAnalysis(dataType,dataToBeFiltered,dataToBeFFT,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,channel,channelRef,samplingFreq,partialDataSelection,neutrinoInputRefer,decimateFactor);
 signal
 disp([num2str(toc(ticDataAnalysis)), ' seconds is used for loading and processing data...'])
 

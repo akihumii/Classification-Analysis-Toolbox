@@ -103,13 +103,13 @@ else
             windowSize, samplingFreq);
         
         % Plot overlapping windows
-        plotFig(windowsValues.xAxisValues,windowsValues.burst,signal(i,1).fileName,['Windows Following Artefacts ( ', signalClassification(i,1).selectedWindows.dataProcessed, ' )'],'Time(s)','Amplitude(V)',...
+        plotFig(windowsValues.xAxisValues,windowsValues.burst,signal(i,1).fileName,['Windows Following Artefacts ( ', dataName, ' )'],'Time(s)','Amplitude(V)',...
             saveOverlap,... % save
             showOverlap,... % show
             signal(i,1).path,'overlap', signal.channel);
         
         % plot averaging overlapping windows
-        plotFig(windowsValues.xAxisValues,nanmean(windowsValues.burst,2),signal(i,1).fileName,['Average Windows Following Artefacts ( ', signalClassification(i,1).selectedWindows.dataProcessed, ' )'],'Time(s)','Amplitude(V)',...
+        plotFig(windowsValues.xAxisValues,nanmean(windowsValues.burst,2),signal(i,1).fileName,['Average Windows Following Artefacts ( ', dataName, ' )'],'Time(s)','Amplitude(V)',...
             saveOverlap,... % save
             showOverlap,... % show
             signal(i,1).path,'overlap', signal.channel);

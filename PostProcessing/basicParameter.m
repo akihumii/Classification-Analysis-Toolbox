@@ -1,4 +1,4 @@
-function output = basicParam(data)
+function output = basicParameter(data)
 %basicParam Summary of this function goes here
 %   Detailed explanation goes here
 data_mean = mean(data);
