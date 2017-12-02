@@ -16,6 +16,7 @@ classdef classData
         fileType
         fileName
         time
+        analysedDataTiming
         samplingFreq
         decimateFactor
         channel
@@ -74,6 +75,7 @@ classdef classData
                     data.dataRaw = partialDataInfo.partialData;
                     data.time = data.time(partialDataInfo.startLocs:partialDataInfo.endLocs);
                 end
+                data.analysedDataTiming = [data.time(1)/data.samplingFreq,data.time(end)/data.samplingFreq]; % starting time and end time of the data that is being analysed
             end
         end
         

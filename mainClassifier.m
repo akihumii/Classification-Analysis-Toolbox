@@ -40,12 +40,12 @@ TKEOEndConsecutivePoints = 25; % number of consecutive points below the threshol
 
 % Show & Save Plots Parameters. Input 1 to save/show, otherwise input 0.
 % Plots will be saved in the folder 'Figures' at the same path with the processed data 
-showRaw = 1;
+showRaw = 0;
 showDelta = 0;
 showRectified = 0;
-showFilt = 1;
+showFilt = 0;
 showOverlap = 0;
-showFFT = 1;
+showFFT = 0;
 
 saveRaw = 1;
 saveDelta = 0;
@@ -54,7 +54,7 @@ saveFilt = 1;
 saveOverlap = 0;
 saveFFT = 1;
 
-saveUserInput = 0;
+saveUserInput = 1;
 
 %% Main
 ticDataAnalysis = tic;
@@ -94,12 +94,13 @@ disp ([num2str(toc), ' seconds is used for visualizing signals...'])
 % clear
 
 %% Ending
+tic
 if saveUserInput
     for i = 1:length(signal)
-        save([signal(i,1).path,signal(i,1).fileName,' signal'],'signal');
-        save([signal(i,1).path,signal(i,1).fileName,' signalClassification'],'signalClassification');
+        saveVar(signal(i,1).path,signal(i,1).fileName,signal,signalClassification)
     end
 end
+disp ([num2str(toc), ' seconds is used for saving info...'])
 
 finishMsg = msgbox('Finished all prcoesses...');
 pause(2)

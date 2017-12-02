@@ -1,6 +1,6 @@
 function [] = savePlot(path,titleName,fileName,saveName)
 %savePlot Save the current plots
-%   [] = savePlot(path,titleName,fileName)
+%   [] = savePlot(path,titleName,fileName,saveName)
 
 saveLocation = [path,'Figures\',titleName];
 
