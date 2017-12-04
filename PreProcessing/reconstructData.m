@@ -17,7 +17,7 @@ switch lower(fileType)
     case 'sylphx'
         %% For EMG Wireless Newest Format
         data = csvread([path,files]);
-        data = data*res; % convert to Voltage
+        data(:,1:10) = data(:,1:10)*res; % convert data to Voltage, keep the counter and sync pulse unchanged
         
         time = 1:size(data,1);
         

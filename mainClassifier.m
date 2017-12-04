@@ -5,7 +5,7 @@
 % Coded by Tsai Chne Wuen
 
 clear
-close all
+% close all
 clc
 
 %% User's Input
@@ -14,15 +14,15 @@ dataType = 'sylphx'; % configurable types: ,'neutrino2','neutirno', 'intan', 'sy
 channel = [4,5]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
 channelRef = 0; % input 0 if no differential data is needed.
 samplingFreq = 0; % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 16671, sylphII: 16671)
-neutrinoInputRefer = 1; % input 1 to check input refer, otherwise input 0
+neutrinoInputRefer = 0; % input 1 to check input refer, otherwise input 0
 partialDataSelection = 1; % input 1 to select partial data to analyse, otherwise input 0
 
 % Filtering Parameters
 dataToBeFiltered = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataDelta' for differential data; input 'dataRectified' for rectified data
-highPassCutoffFreq = 10; % high pass cutoff frequency, input 0 if not applied
-lowPassCutoffFreq = 3500; % low pass cutoff frequency, input 0 if not applied
-notchFreq = 50; % notch frequency, input 0 if not applied
-decimateFactor = 100; % down sampling the data by a factor 'decimateFactor'
+highPassCutoffFreq = 0; % high pass cutoff frequency, input 0 if not applied
+lowPassCutoffFreq = 0; % low pass cutoff frequency, input 0 if not applied
+notchFreq = 0; % notch frequency, input 0 if not applied
+decimateFactor = 1; % down sampling the data by a factor 'decimateFactor'
 
 % FFT parameters
 dataToBeFFT = 'dataFiltered'; % input 'dataRaw' for raw data; input 'dataFiltered' for filtered data; input 'dataRectified' for rectified data
@@ -36,7 +36,7 @@ threshStdMult = 15; % multiples of standard deviation above the baseline as the 
 sign = 1; % input 1 for threhoslding upwards, input -1 for thresholding downwards
 windowSize = [0.01, 0.02]; % range of window starting from the detected peaks(in seconds)
 TKEOStartConsecutivePoints = 0; % number of consecutive points over the threshold to be detected as burst
-TKEOEndConsecutivePoints = 25; % number of consecutive points below the threshold to be detected as end of burst
+TKEOEndConsecutivePoints = 1; % number of consecutive points below the threshold to be detected as end of burst
 
 % Show & Save Plots Parameters. Input 1 to save/show, otherwise input 0.
 % Plots will be saved in the folder 'Figures' at the same path with the processed data 
@@ -50,7 +50,7 @@ showFFT = 0;
 saveRaw = 1;
 saveDelta = 0;
 saveRectified = 0;
-saveFilt = 1;
+saveFilt = 0;
 saveOverlap = 0;
 saveFFT = 1;
 
@@ -63,12 +63,13 @@ signal
 disp([num2str(toc(ticDataAnalysis)), ' seconds is used for loading and processing data...'])
 
 %% Locate bursts and select windows around them
-tic
-signalClassification = dataClassificationPreparation(signal, iter, overlappedWindow, windowSize,dataToBeDetectedSpike, spikeDetectionType, threshold, sign, threshStdMult, TKEOStartConsecutivePoints, TKEOEndConsecutivePoints)
-disp([num2str(toc),' seconds is used for classification preparation...'])
+% tic
+% signalClassification = dataClassificationPreparation(signal, iter, overlappedWindow, windowSize,dataToBeDetectedSpike, spikeDetectionType, threshold, sign, threshStdMult, TKEOStartConsecutivePoints, TKEOEndConsecutivePoints)
+% disp([num2str(toc),' seconds is used for classification preparation...'])
+signalClassification = 1;
 
 %% Plot selected windows
-close all
+% close all
 
 tic
 visualizeSignals(signal, signalClassification, overlappedWindow, windowSize, partialDataSelection, saveRaw, showRaw, saveDelta, showDelta, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT);

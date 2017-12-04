@@ -47,9 +47,9 @@ classdef classData
                         case 'intan'
                             data.samplingFreq = 20000;
                         case 'sylphx'
-                            data.samplingFreq = 16671;
+                            data.samplingFreq = 1798.2;
                         case 'sylphii'
-                            data.samplingFreq = 16671;
+                            data.samplingFreq = 1798.2;
                         case 'neutrino'
                             data.samplingFreq = 3e6/14/12;
                         case 'neutrino2'
