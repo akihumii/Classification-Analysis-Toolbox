@@ -1,6 +1,7 @@
 function [selectedPeaks,selectedLocs] = triggerSpikeDetection(data,threshold,minDistance,numConsecutivePoint)
 %triggerSpikeDetection Find the values exceeding threshold then skip for a
-%window with the size of minDistance. 
+%window with the size of minDistance. Distance between two consecutive
+%starting points will not less than minDistance.
 
 % numConsecutivePoint is the minimum number of the consecutive pionts 
 % following the peaks that need to exceed the threshold. Default value is 0.
@@ -12,32 +13,30 @@ if nargin < 4
 end
 
 %% find the first peak
-[values, locs] = findpeaks(data(1:end-numConsecutivePoint),'minPeakHeight',threshold);
-
-numPeaks = length(locs);
+numDataPoints = length(data);
 selectedPeaks = zeros(0,1);
 selectedLocs = zeros(0,1);
 
-for i = 1:numPeaks
-    if data(locs(i) : locs(i)+numConsecutivePoint) > threshold
-        selectedPeaks = [selectedPeaks; values(i)];
-        selectedLocs = [selectedLocs; locs(i)];
+for i = 1:numDataPoints
+    if data(i : i+numConsecutivePoint) > threshold
+        selectedPeaks = [selectedPeaks; data(i)];
+        selectedLocs = [selectedLocs; i];
         break
     end
 end
 
-if length(selectedPeaks) == 0
+if isempty(selectedPeaks)
     error('No peak is found...')
 end
 
 %% find the remaining peaks
-if i < numPeaks
-    for i = 2:numPeaks
-        distance = locs(i) - selectedLocs(end);
-        if data(locs(i) : locs(i)+numConsecutivePoint) > threshold & ...
+if i < numDataPoints
+    for i = 2:numDataPoints-numConsecutivePoint
+        distance = i - selectedLocs(end);
+        if data(i : i+numConsecutivePoint) > threshold & ...
                 distance > minDistance
-            selectedPeaks = [selectedPeaks; values(i)];
-            selectedLocs = [selectedLocs; locs(i)];
+            selectedPeaks = [selectedPeaks; data(i)];
+            selectedLocs = [selectedLocs; i];
         end
     end
 end

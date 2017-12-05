@@ -1,6 +1,8 @@
 function output = getPointsWithinRange(timeAxis,data,startLocs,endLocs,windowSize,samplingFreq)
 %getPointsWithinRange Get the points within the range
-%   function output = getPointsWithinRange(timeAxis,data,startLocs,endLocs,windowSize)
+%   function output = getPointsWithinRange(timeAxis,data,startLocs,endLocs,windowSize,samplingFreq)
+% 
+% output: burst, xAxisValues,numBursts
 
 [numRow,numColumn] = size(data);
 

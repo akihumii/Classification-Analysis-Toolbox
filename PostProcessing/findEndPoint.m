@@ -1,6 +1,7 @@
-function [endPointValue, endPointLocs] = findEndPoint(data, threshold, startPointLocs, numConsecutivePoint)
+function [endPointValue, endPointLocs] = findEndPoint(data, threshold, startPointLocs, numConsecutivePoint, minDistance)
 %findEndPoint Get the end point after the signal drops below the threshold
-%for a chunk of consecutive points
+%for a chunk of consecutive points.
+%points will not be less than minDistance.
 %   [endPointValue, endPointLocs] = findEndPoint(data, threshold, startPointLocs, numConsecutivePoint)
 
 numsStartPointLocs = length(startPointLocs);

@@ -1,12 +1,13 @@
-function output = selectPartialData(data, fileName, path)
+function output = selectPartialData(data, fileName, path, windowSize)
 %selectPartialSignals Select baseline signal portion and decoding burst
-%signal portion
+%signal portion. Type can be 'line' or 'box'.
 %   output = selectPartialSignals(data, fileName, path)
-% 
+%
 % output.partialData = partial data value
 % output.startLocs = starting locations of the partial data
 % output.endLocs = end location of the partial data
 
+%% Main
 plotFig(1:size(data,1),data,fileName,'Select Partial Signal (press any key to continue...)','Time(unit)','Amplitude(V)',0,1,path,'subplot');
 
 hold all
@@ -14,28 +15,19 @@ hold all
 xLimit = get(gca,'xLim');
 yLimit = get(gca,'yLim');
 
-h1Temp = plot(gca,[1,1],yLimit,'r-'); % starting line legend
-h1 = imline(gca,[1 1],yLimit); % starting line
-setColor(h1,'r');
-fcn1 = makeConstrainToRectFcn('imline',xLimit,yLimit);
-setPositionConstraintFcn(h1,fcn1);
+if windowSize == 0
+    windowSize = diff(xLimit);
+end
 
-h2Temp = plot(gca,[xLimit(2),xLimit(2)],yLimit,'g-'); % end line legend
-h2 = imline(gca,[xLimit(2),xLimit(2)],yLimit); % end line
-setColor(h2,'g');
-fcn2 = makeConstrainToRectFcn('imline',xLimit,yLimit);
-setPositionConstraintFcn(h2,fcn2);
+h = imrect(gca,[xLimit(1),yLimit(1),windowSize,diff(yLimit)/2]);
+fcn = makeConstrainToRectFcn('imrect',xLimit,yLimit);
+setPositionConstraintFcn(h,fcn);
 
-legend([h1Temp,h2Temp],'starting point','end point')
-pause(0.1)
-delete([h1Temp,h2Temp])
+pause;
 
-pause; % press any key to continue
-
-startLocs = h1.getPosition();
-endLocs = h2.getPosition();
-startLocs = floor(startLocs(1,1));
-endLocs = floor(endLocs(1,1));
+locs = h.getPosition;
+startLocs = floor(locs(1,1));
+endLocs = startLocs + floor(locs(3));
 
 close
 
