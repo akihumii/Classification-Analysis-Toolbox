@@ -17,7 +17,7 @@ samplingFreq = 0; % specified sampling frequency, otherwise input 0 for default 
 neutrinoInputRefer = 0; % input 1 to check input refer, otherwise input 0
 
 partialDataSelection = 1; % input 1 to select partial data to analyse, otherwise input 0
-constraintSize = 0; % size of the constraint box, unit is in sample point
+constraintWindow = [107106,155225]; % starting point and end point of constraint window, unit is in sample point
 
 % Filtering Parameters
 dataToBeFiltered = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataDelta' for differential data; input 'dataRectified' for rectified data
@@ -34,7 +34,7 @@ dataToBeDetectedSpike = 'dataTKEO'; % data for spike detecting
 overlappedWindow = 'dataFiltered'; % Select window for overlapping. Input 'dataRaw' for raw data, 'dataFiltered' for filtered data, 'dataDelta' for differential data
 spikeDetectionType = 'TKEO'; % input 'threshold' for local maxima, input 'trigger for first point exceeding threshold, input 'TKEO' for taking following consecutive points into account
 threshold = 0; % specified threshold for spikes detection, otehrwise input 0 for default value (baseline + threshMult * baselineStandardDeviation) (baseline is obtained by calculating the mean of the data points spanned between 1/4 to 3/4 of the data array sorted by amplitudes)
-threshStdMult = 100; % multiples of standard deviation above the baseline as the threshold for TKEO detection
+threshStdMult = 60; % multiples of standard deviation above the baseline as the threshold for TKEO detection
 sign = 1; % input 1 for threhoslding upwards, input -1 for thresholding downwards
 windowSize = [0.01, 0.02]; % range of window starting from the detected peaks(in seconds)
 TKEOStartConsecutivePoints = 100; % number of consecutive points over the threshold to be detected as burst
@@ -49,18 +49,18 @@ showFilt = 1;
 showOverlap = 1;
 showFFT = 1;
 
-saveRaw = 1;
+saveRaw = 0;
 saveDelta = 0;
 saveRectified = 0;
-saveFilt = 1;
-saveOverlap = 1;
-saveFFT = 1;
+saveFilt = 0;
+saveOverlap = 0;
+saveFFT = 0;
 
-saveUserInput = 1;
+saveUserInput = 0;
 
 %% Main
 ticDataAnalysis = tic;
-[signal, signalName, iter] = dataAnalysis(dataType,dataToBeFiltered,dataToBeFFT,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,channel,channelRef,samplingFreq,partialDataSelection,constraintSize,neutrinoInputRefer,decimateFactor);
+[signal, signalName, iter] = dataAnalysis(dataType,dataToBeFiltered,dataToBeFFT,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,channel,channelRef,samplingFreq,partialDataSelection,constraintWindow,neutrinoInputRefer,decimateFactor);
 signal
 disp([num2str(toc(ticDataAnalysis)), ' seconds is used for loading and processing data...'])
 

@@ -1,4 +1,4 @@
-function output = selectPartialData(data, fileName, path, windowSize)
+function output = selectPartialData(data, fileName, path, window)
 %selectPartialSignals Select baseline signal portion and decoding burst
 %signal portion. Type can be 'line' or 'box'.
 %   output = selectPartialSignals(data, fileName, path)
@@ -15,11 +15,11 @@ hold all
 xLimit = get(gca,'xLim');
 yLimit = get(gca,'yLim');
 
-if windowSize == 0
-    windowSize = diff(xLimit);
+if window == 0
+    window = xLimit;
 end
 
-h = imrect(gca,[xLimit(1),yLimit(1),windowSize,diff(yLimit)/2]);
+h = imrect(gca,[window(1),yLimit(1),diff(window),diff(yLimit)]);
 fcn = makeConstrainToRectFcn('imrect',xLimit,yLimit);
 setPositionConstraintFcn(h,fcn);
 
