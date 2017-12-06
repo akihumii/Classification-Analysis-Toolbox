@@ -24,13 +24,17 @@ if minDistance > rowData
     error('Error found in User Input: windowSize is too large, which exceeds overall recording time of signal')
 end
 
+if length(threshStdMult) == 1
+    repmat(threshStdMult,1,colData);
+end
+
 skipWindow = floor(minDistance);
 
 for i = 1:colData % channel
     maxPeak = max(data(:,i));
     baseline{i,1} = baselineDetection(sign * data(:,i)); % the mean of the data points spanned from 1/4 to 3/4 of the data sorted by amplitude is obtained as baseline
     if threshold == 0 % if no user input, baseline + threshStdMult * baselineStandardDeviation will be used as threshold value
-            thresholdValue = sign * baseline{i,1}.mean + threshStdMult * baseline{i,1}.std;
+            thresholdValue = sign * baseline{i,1}.mean + threshStdMult(1,i) * baseline{i,1}.std;
     else
         thresholdValue = threshold;
     end

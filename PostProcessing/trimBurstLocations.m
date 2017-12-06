@@ -29,6 +29,10 @@ for i = 1:numNewEndLocs
     end
 end
 
+if length(newStartLocs) ~= length(newEndLocs) % if no end point of last starting point is found
+    newStartLocs(end) = [];
+    newStartValue(end) = [];
+end
 
 end
 

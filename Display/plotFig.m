@@ -3,7 +3,7 @@ function p = plotFig(varargin)
 % Any number of input is possible, as long as they are in order:
 % (If there is only one input, it will be y value.)
 % 
-% Variable "type" could be 'subplot' or 'overlap', default type is 'subplot'.
+% Variable "type" could be 'subplot', 'overlap' or 'overlapAll', default type is 'subplot'.
 % 
 % Variable 'y' could be a matrix where the data in column will be plotted
 % as one signal trial; Different rows represent different trials that have been performed.

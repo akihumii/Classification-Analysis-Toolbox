@@ -14,7 +14,7 @@ for i = 1:numData
             
             minValue(j,i) = min(data(:,j,i));
             
-            absMaxValue(j,i) = max(dataRectified(:,j,i));
+            absMaxValue(j,i) = max(dataRectified(:,j));
             
             burstLength(j,i) = sum(~isnan(data(:,j,i)));
             

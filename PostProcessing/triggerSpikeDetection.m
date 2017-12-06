@@ -17,7 +17,7 @@ numDataPoints = length(data);
 selectedPeaks = zeros(0,1);
 selectedLocs = zeros(0,1);
 
-for i = 1:numDataPoints
+for i = 1:numDataPoints-numConsecutivePoint
     if data(i : i+numConsecutivePoint) > threshold
         selectedPeaks = [selectedPeaks; data(i)];
         selectedLocs = [selectedLocs; i];
