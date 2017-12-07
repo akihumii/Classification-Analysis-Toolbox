@@ -25,7 +25,7 @@ if minDistance > rowData
 end
 
 if length(threshStdMult) == 1
-    repmat(threshStdMult,1,colData);
+    threshStdMult = repmat(threshStdMult,1,colData);
 end
 
 skipWindow = floor(minDistance);
