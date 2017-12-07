@@ -82,5 +82,8 @@ output.threshold = sign * thresholdAll;
 output.baseline = baseline;
 output.burstEndValue = burstEndValue;
 output.burstEndLocs = burstEndLocs;
+output.threshStdMult = threshStdMult;
+output.TKEOStartConsecutivePoints = TKEOStartConsecutivePoints;
+output.TKEOEndConsecutivePoints = TKEOEndConsecutivePoints;
 end
 
