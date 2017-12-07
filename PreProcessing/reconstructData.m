@@ -43,7 +43,7 @@ switch lower(fileType)
         gain = inputReferMultiplier(bitInfo); % compute the gain
         data = data(3:end,1:end); % raw data before multiplication
         if neutrinoInputRefer == 1
-            data = gain * data; % change output refer data into input refer data
+            data = data / gain; % change output refer data into input refer data
         end
         time = 1:size(data,1);
         
