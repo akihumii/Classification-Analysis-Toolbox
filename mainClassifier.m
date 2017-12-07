@@ -15,6 +15,7 @@ channel = [14,16]; % channels to be processed. Consecutive channels can be exrpe
 channelRef = 0; % input 0 if no differential data is needed.
 samplingFreq = 0; % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 1798.2, sylphII: 1798.2)
 neutrinoInputReferred = 0; % input 1 to check input refer, otherwise input 0
+neutrinoBit = 1; % input 1 for 8 bit mode, input 0 for 10 bit mode
 
 partialDataSelection = 1; % input 1 to select partial data to analyse, otherwise input 0
 constraintWindow = [43710,107997]; % starting point and end point of constraint window, unit is in sample points. Input 0 for default (pre-select the whole signal). It can be found in signal.analysedDataTiming(2,:), the first row is the timing in seconds
@@ -63,7 +64,7 @@ saveUserInput = 1;
 
 %% Main
 ticDataAnalysis = tic;
-[signal, signalName, iter] = dataAnalysis(dataType,dataToBeFiltered,dataToBeFFT,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,channel,channelRef,samplingFreq,partialDataSelection,constraintWindow,neutrinoInputReferred,decimateFactor);
+[signal, signalName, iter] = dataAnalysis(dataType,neutrinoBit,dataToBeFiltered,dataToBeFFT,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,channel,channelRef,samplingFreq,partialDataSelection,constraintWindow,neutrinoInputReferred,decimateFactor);
 signal
 disp([num2str(toc(ticDataAnalysis)), ' seconds is used for loading and processing data...'])
 

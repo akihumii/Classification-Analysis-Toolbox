@@ -37,7 +37,7 @@ classdef classData
     
     %% Methods
     methods
-        function data = classData(file,path,fileType,channel,samplingFreq,neutrinoInputReferred,partialDataSelection,constraintWindow)
+        function data = classData(file,path,fileType,neutrinoBit,channel,samplingFreq,neutrinoInputReferred,partialDataSelection,constraintWindow)
             if nargin > 0
                 data.file = file;
                 data.path = path;
@@ -61,7 +61,7 @@ classdef classData
                     data.samplingFreq = samplingFreq;
                 end
                 data.samplingFreq = data.samplingFreq; % down sampling
-                [data.dataAll, data.time] = reconstructData(file, path, fileType, neutrinoInputReferred);
+                [data.dataAll, data.time] = reconstructData(file, path, fileType, neutrinoBit, neutrinoInputReferred);
                 data.fileName = naming(data.file);
                 data.channel = channel;
                 if channel > size(data.dataAll,2)
