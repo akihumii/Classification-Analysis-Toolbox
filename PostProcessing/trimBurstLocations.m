@@ -4,6 +4,12 @@ function [newStartValue,newStartLocs,newEndValue,newEndLocs] = ...
 %burst
 %   [newStartValue,newStartLocs,newEndValue,newEndLocs] = trimBurstLocations(startValue,startLocs,endValue,endLocs)
 
+%% Delete extra startingPoint
+if length(startLocs) ~= length(endLocs)
+    startLocs(end) = [];
+end
+
+%% Trim repeated Locations
 [newEndLocs,uniqueLocs] = unique(endLocs); % get new end values and locations by finding the unique numbers
 newEndValue = endValues(uniqueLocs);
 
@@ -23,6 +29,10 @@ for i = 1:numNewEndLocs
     end
 end
 
+if length(newStartLocs) ~= length(newEndLocs) % if no end point of last starting point is found
+    newStartLocs(end) = [];
+    newStartValue(end) = [];
+end
 
 end
 

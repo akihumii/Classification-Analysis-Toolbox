@@ -1,4 +1,4 @@
-function [] = visualizeSignals(signal, signalClassification, selectedWindow, windowSize, partialDataSelection, saveRaw, showRaw, saveDelta, showDelta, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT)
+function [] = visualizeSignals(signal, signalClassification, selectedWindow, windowSize, partialDataSelection, channelExtractStartingLocs, saveRaw, showRaw, saveDelta, showDelta, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT)
 %visualizeSignal Visualize needed signals. Raw, filtered, differential,
 %overlapping windows, average windows, and overall signal with indicated
 %spikes can be plotted.
@@ -97,7 +97,11 @@ else
             dataValues,...
             signalClassification(i,1).burstDetection.spikeLocs,...
             signalClassification(i,1).burstDetection.burstEndLocs,...
-            windowSize, signal(i,1).samplingFreq);
+            windowSize, signal(i,1).samplingFreq, channelExtractStartingLocs);
+        
+        % Get all windows in same plots
+%         windowsValues.xAxisValues = reshape(windowsValues.xAxisValues,[],2*size(windowsValues.xAxisValues,2));
+%         windowsValues.burst = reshape(windowsValues.burst,[],2*size(windowsValues.burst,2));
         
         % Plot overlapping windows
         plotFig(windowsValues.xAxisValues,windowsValues.burst,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],['Windows Following Artefacts ( ', dataName, ' )'],'Time(s)','Amplitude(V)',...
@@ -109,7 +113,7 @@ else
         plotFig(windowsValues.xAxisValues,nanmean(windowsValues.burst,2),[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],['Average Windows Following Artefacts ( ', dataName, ' )'],'Time(s)','Amplitude(V)',...
             saveOverlap,... % save
             showOverlap,... % show
-            signal(i,1).path,'overlap', signal.channel);
+            signal(i,1).path,'subplot', signal.channel);
         
         % plot overall signal with spikes indicated
         if showOverlap || saveOverlap
@@ -127,7 +131,7 @@ else
             
             % Save
             if saveOverlap
-                savePlot(signal(i,1).path,['Overall Signal with Spikes Indicated (', dataName, ')'],[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}])
+                savePlot(signal(i,1).path,['Overall Signal with Spikes Indicated (', dataName, ')'],[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}])
             end
             if ~showOverlap
                 close gcf

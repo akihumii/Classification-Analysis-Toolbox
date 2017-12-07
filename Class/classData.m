@@ -37,7 +37,7 @@ classdef classData
     
     %% Methods
     methods
-        function data = classData(file,path,fileType,channel,samplingFreq,partialDataSelection,neutrinoInputRefer)
+        function data = classData(file,path,fileType,channel,samplingFreq,neutrinoInputReferred,partialDataSelection,constraintWindow)
             if nargin > 0
                 data.file = file;
                 data.path = path;
@@ -61,7 +61,7 @@ classdef classData
                     data.samplingFreq = samplingFreq;
                 end
                 data.samplingFreq = data.samplingFreq; % down sampling
-                [data.dataAll, data.time] = reconstructData(file, path, fileType, neutrinoInputRefer);
+                [data.dataAll, data.time] = reconstructData(file, path, fileType, neutrinoInputReferred);
                 data.fileName = naming(data.file);
                 data.channel = channel;
                 if channel > size(data.dataAll,2)
@@ -71,11 +71,11 @@ classdef classData
                 
                 % for trimming
                 if partialDataSelection
-                    partialDataInfo = selectPartialData(data.dataRaw,data.fileName,data.path);
+                    partialDataInfo = selectPartialData(data.dataRaw,data.fileName,data.path,constraintWindow);
                     data.dataRaw = partialDataInfo.partialData;
                     data.time = data.time(partialDataInfo.startLocs:partialDataInfo.endLocs);
+                    data.analysedDataTiming = [data.time(1)/data.samplingFreq,data.time(end)/data.samplingFreq;partialDataInfo.startLocs,partialDataInfo.endLocs]; % starting time and end time of the data that is being analysed
                 end
-                data.analysedDataTiming = [data.time(1)/data.samplingFreq,data.time(end)/data.samplingFreq]; % starting time and end time of the data that is being analysed
             end
         end
         
@@ -100,13 +100,17 @@ classdef classData
         end
         
         function data = fftDataConvert(data,targetName,samplingFreq)
-            if isequal(targetName,'dataFiltered')
-                targetName = [{'dataFiltered'};{'values'}];
+            if isequal(targetName,'dataFiltered') || isequal(tartgetName,'dataTKEO')
+                targetName = [{targetName};{'values'}];
             end
             [dataValue, dataName] = loadMultiLayerStruct(data,targetName);
             [data.dataFFT.values, data.dataFFT.freqDomain] = ...
                 fftDataConvert(dataValue, samplingFreq);
-            data.dataFFT.dataBeingProcessed = dataName;
+            if isequal(dataName,'dataFilteredvalues')
+                data.dataFFT.dataBeingProcessed = [dataName,' (',num2str(data.dataFiltered.highPassCutoffFreq),'-',num2str(data.dataFiltered.lowPassCutoffFreq),')'];
+            else
+                data.dataFFT.dataBeingProcessed = dataName;
+            end
         end
         
         function data = noiseLevelDetection(data,targetValue,targetName)

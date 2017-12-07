@@ -509,6 +509,10 @@ fprintf(1, '\n');
 if nargout == 2
     varargout{1} = amplifier_data;
     varargout{2} = t_amplifier;
+elseif nargout == 3
+    varargout{1} = amplifier_data;
+    varargout{2} = t_amplifier;
+    varargout{3} = sample_rate;
 end
 
 return

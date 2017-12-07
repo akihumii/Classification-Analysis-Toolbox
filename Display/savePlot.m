@@ -12,6 +12,7 @@ saveas(gcf,[saveLocation,'\',saveName,'.fig']);
 saveas(gcf,[saveLocation,'\',saveName,'.jpg']);
 
 disp([titleName,' ',fileName, ' is saved...'])
+disp(' ')
 
 end
 
