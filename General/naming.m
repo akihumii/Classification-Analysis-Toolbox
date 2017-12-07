@@ -5,7 +5,7 @@ function titleName = naming(files)
 disp('Loading...')
 titleName = files(1:end-4);
 
-titleName = strrep(titleName,'_','.');
+titleName = strrep(titleName,'_',' ');
 
 end
 

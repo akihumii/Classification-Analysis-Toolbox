@@ -3,18 +3,18 @@ function p = plotFig(varargin)
 % Any number of input is possible, as long as they are in order:
 % (If there is only one input, it will be y value.)
 % 
-% Variable "type" could be 'subplot' or 'overlap', default type is 'subplot'.
+% Variable "type" could be 'subplot', 'overlap' or 'overlapAll', default type is 'subplot'.
 % 
 % Variable 'y' could be a matrix where the data in column will be plotted
 % as one signal trial; Different rows represent different trials that have been performed.
 % 
 % Variable 'channel' is for the title purpose, default value is 1.
 % 
-%   p = plotFig(x, y, fileName, titleName, xScale, yScale, answerSave, answerShow, path, type, channel, continuePlotting)
+%   p = plotFig(x, y, fileName, titleName, xScale, yScale, answerSave, answerShow, path, type, channel)
 
 %% fill unset parameters
 if nargin == 1
-    x = 1:size(varargin{1},1);
+    x = transpose(1:size(varargin{1},1));
     y = varargin{1};
 else
     x = varargin{1};
@@ -22,7 +22,7 @@ else
 end
 
 if nargin < 11;
-    channel = 1;
+    channel = 1:size(y,2);
 else
     channel = varargin{11};
 end
@@ -79,6 +79,7 @@ for i = 1:numData
     set(gcf, 'Position', get(0,'Screensize'),'DefaultAxesFontSize',textSize,...
         'PaperPositionMode', 'auto');
     for j = 1:numPlot
+        % Titling
         if isequal(type, 'subplot')
             p(j,1) = subplot(numPlot,1,j);
             if numData > 1
@@ -89,12 +90,20 @@ for i = 1:numData
                 saveName = [titleName, ' ', fileName, ' ch ', num2str(channel)];
             end
             hold on
+        else
+            p = gca;
         end
-        plot(x,y(:,j,i));
-        ylabel(yScale, 'FontSize', textSize);
+        
+        % Plotting
+        if any(size(x)==1)
+            plot(x,y(:,j,i));
+        else
+            plot(x(:,j),y(:,j,i));
+        end
         axis tight;
     end
-    
+    ylabel(yScale, 'FontSize', textSize);
+
     xlabel(xScale, 'FontSize', textSize);
     
     if isequal(type, 'subplot')
@@ -108,13 +117,7 @@ for i = 1:numData
     
     %% Save & Show
     if answerSave
-        saveLocation = [path,'Figures\',titleName];
-        if ~exist(saveLocation,'file')
-            mkdir(saveLocation);
-        end
-        saveas(gcf,[saveLocation,'\',saveName,'.fig']);
-        saveas(gcf,[saveLocation,'\',saveName,'.jpg']);
-        disp([titleName,' ',fileName, ' is saved...'])
+        savePlot(path,titleName,fileName,saveName)
     end
     
     if ~answerShow

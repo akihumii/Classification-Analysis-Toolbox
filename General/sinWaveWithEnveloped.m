@@ -8,10 +8,11 @@ totalDuration = 2; % second
 numPulse = 1; % number of sin wave pulses
 pulseFrequency = 10; % Hz
 pulseDuration = 5; % second
+amplitude = 5; % sinwave amplitude
 
 %% Process
 x = 1/samplingFreq:1/samplingFreq:totalDuration; % array of timestamps 
-y = sin(2*pi*frequency*x); % array of sin wave
+y = amplitude * sin(2*pi*frequency*x); % array of sin wave
 
 envelopLocs = zeros(1,length(x));
 
