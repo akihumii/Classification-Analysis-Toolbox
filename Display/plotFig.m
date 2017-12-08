@@ -37,7 +37,7 @@ else
     path = varargin{9};
 end
 if nargin < 8
-    answerShow = 0;
+    answerShow = 1;
 else
     answerShow = varargin{8};
 end

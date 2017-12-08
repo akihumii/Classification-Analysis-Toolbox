@@ -52,14 +52,14 @@ showFilt = 1;
 showOverlap = 1;
 showFFT = 1;
 
-saveRaw = 1;
+saveRaw = 0;
 saveDelta = 0;
 saveRectified = 0;
-saveFilt = 1;
-saveOverlap = 1;
-saveFFT = 1;
+saveFilt = 0;
+saveOverlap = 0;
+saveFFT = 0;
 
-saveUserInput = 1;
+saveUserInput = 0;
 
 %% Main
 ticDataAnalysis = tic;
