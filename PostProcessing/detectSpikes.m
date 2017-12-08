@@ -2,6 +2,9 @@ function output = detectSpikes(data, minDistance, threshold, sign, type, threshS
 %detectSpikes After taking baseline into account, any sample point exceeds
 %3/5 of the maximum value of the signal will be considered as a spike. No 2
 %spikes will be detected in one window.
+% 
+% type: can be 'local maxima', 'trigger', 'TKEO'
+% 
 %   output = detectSpikes(data, minDistance, threshold, sign, type, threshStdMult, TKEOStartConsecutivePoints, TKEOEndConsecutivePoints)
 
 if nargin < 2
@@ -36,11 +39,11 @@ for i = 1:colData % channel
     if threshold == 0 % if no user input, baseline + threshStdMult * baselineStandardDeviation will be used as threshold value
             thresholdValue = sign * baseline{i,1}.mean + threshStdMult(1,i) * baseline{i,1}.std;
     else
-        thresholdValue = threshold;
+        thresholdValue = sign * threshold;
     end
     
     switch type
-        case 'threshold'
+        case 'local maxima'
             [spikePeaksValue{i,1}, spikeLocs{i,1}] = findpeaks(data(skipWindow:end-skipWindow,i),'minPeakHeight',... % find peaks starting from minDistance of the data onwards
                 thresholdValue,'minPeakDistance',minDistance);
             spikeLocs{i,1} = spikeLocs{i,1} + skipWindow - 1; % compensate the skipped window
@@ -61,6 +64,7 @@ for i = 1:colData % channel
 %             spikeLocs{i,1} = spikeLocs{i,1} + skipWindow - 1; % compensate the skipped window
 %             burstEndLocs{i,1} = burstEndLocs{i,1} + skipWindow -1; % compensate the skipped window
         otherwise
+            error('Invalid spike detection type')
     end
     
     thresholdAll(i,1) = thresholdValue;
