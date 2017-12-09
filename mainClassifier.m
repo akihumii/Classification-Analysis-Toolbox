@@ -17,7 +17,7 @@ samplingFreq = 0; % specified sampling frequency, otherwise input 0 for default 
 neutrinoInputReferred = 0; % input 1 to check input refer, otherwise input 0
 
 partialDataSelection = 1; % input 1 to select partial data to analyse, otherwise input 0
-constraintWindow = [76773,127814]; % starting point and end point of constraint window, unit is in sample points. Input 0 for default (pre-select the whole signal). It can be found in signal.analysedDataTiming(2,:), the first row is the timing in seconds
+constraintWindow = [32211,93710]; % starting point and end point of constraint window, unit is in sample points. Input 0 for default (pre-select the whole signal). It can be found in signal.analysedDataTiming(2,:), the first row is the timing in seconds
 
 % Filtering Parameters
 dataToBeFiltered = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataDelta' for differential data; input 'dataRectified' for rectified data
@@ -29,7 +29,7 @@ decimateFactor = 1; % down sampling the data by a factor 'decimateFactor'
 % FFT parameters
 dataToBeFFT = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataFiltered' for filtered data; input 'dataRectified' for rectified data
 
-saveOption = 1;
+saveOption = 0;
 if saveOption
     windowType = 'dataFiltered';
 else
@@ -41,12 +41,12 @@ dataToBeDetectedSpike = 'dataTKEO'; % data for spike detecting
 overlappedWindow = windowType; % Select window for overlapping. Input 'dataRaw' for raw data, 'dataFiltered' for filtered data, 'dataDelta' for differential data
 spikeDetectionType = 'TKEO'; % input 'threshold' for local maxima, input 'trigger for first point exceeding threshold, input 'TKEO' for taking following consecutive points into account
 threshold = 0; % specified threshold for spikes detection, otehrwise input 0 for default value (baseline + threshMult * baselineStandardDeviation) (baseline is obtained by calculating the mean of the data points spanned between 1/4 to 3/4 of the data array sorted by amplitudes)
-threshStdMult = [30,3]; % multiples of standard deviation above the baseline as the threshold for TKEO detection. All channels will use the same value if there is only one value existed
+threshStdMult = [60,3]; % multiples of standard deviation above the baseline as the threshold for TKEO detection. All channels will use the same value if there is only one value existed
 sign = 1; % input 1 for threhoslding upwards, input -1 for thresholding downwards
 windowSize = [0.03, 0.07]; % range of window starting from the detected peaks(in seconds)
 channelExtractStartingLocs = 1; % input channel index (start from 1, then 2, 3...) to fix the locs for all the channels, windows between 2 consecutive starting points of the bursts will be extracted and overlapped. Input 0 to deactivate this function
 TKEOStartConsecutivePoints = 100; % number of consecutive points over the threshold to be detected as burst
-TKEOEndConsecutivePoints = 3500; % number of consecutive points below the threshold to be detected as end of burst
+TKEOEndConsecutivePoints = 1500; % number of consecutive points below the threshold to be detected as end of burst
 
 
 
@@ -70,7 +70,7 @@ saveUserInput = saveOption;
 
 %% Main
 ticDataAnalysis = tic;
-[signal, signalName, iter] = dataAnalysis(dataType,dataToBeFiltered,dataToBeFFT,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,channel,channelRef,samplingFreq,partialDataSelection,constraintWindow,neutrinoInputReferred,decimateFactor);
+[signal, signalName, iter] = dataAnalysis(dataType,dataToBeFiltered,dataToBeFFT,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,channel,channelRef,samplingFreq,partialDataSelection,constraintWindow,neutrinoInputReferred,decimateFactor,saveOverlap,showOverlap,saveFFT,showFFT);
 signal
 disp([num2str(toc(ticDataAnalysis)), ' seconds is used for loading and processing data...'])
 
@@ -118,9 +118,6 @@ if saveUserInput
 end
 disp ([num2str(toc), ' seconds is used for saving info...'])
 
-finishMsg = msgbox('Finished all prcoesses...');
-pause(2)
-delete(finishMsg)
-display('Finished all processes...')
+finishMsg()
 
 

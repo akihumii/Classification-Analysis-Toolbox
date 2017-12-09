@@ -16,7 +16,4 @@ display(' ')
 
 plotGait(gaitLocs,saveFigure,showFigure,gaitFilePath);
 
-finishMsg = msgbox('Finished all prcoesses...');
-pause(2)
-delete(finishMsg)
-display('Finished all processes...')
+finishMsg()
