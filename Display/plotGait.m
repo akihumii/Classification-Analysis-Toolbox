@@ -1,8 +1,13 @@
-function [] = plotGait(gaitLocs)
+function [] = plotGait(gaitLocs,saveFigure,showFigure,gaitFilePath)
 %plotGait Plot the starting and end location of gaits in current axes
 %   [] = plotGait(gaitLocs)
 
 % Get all axes in current figure
+[files,path] = selectFiles('select figure that is going to be used for plotting');
+
+open([path,files{1}])
+fileName = files{1}(1:end-4);
+
 p = gcf;
 
 numGraphics = length(p.Children);
@@ -28,13 +33,24 @@ for i = 1:numAxes
     legend([startingPoint,endPoint,startStance(1),endStance(1)],'starting point','end point','starting stance','end stance');
     hold off
     
-    [reconstructedData{i,1},reconstructedTime{i,1}] = reconstructGait(gaitLocs,allAxes(i,1).Children(end).XData,allAxes(i,1).Children(end).YData);
+    [reconstructedData{numAxes-(i-1),1},reconstructedTime{numAxes-(i-1),1}] =... % the data is in reversed sequence, so reconstructedData will sort in reverse sequence
+        reconstructGait(gaitLocs,allAxes(i,1).Children(end).XData,allAxes(i,1).Children(end).YData);
 end
 
+if saveFigure
+    savePlot(gaitFilePath,'Overall Signal with Gaits Indicated',fileName,['Gaits ',files{1}(1:end-4)]);
+end
+
+if ~showFigure
+    close
+end
 %% plot overlapping windows according to the starting stance line
 overallData = cell2nanMat(reconstructedData);
 overallTime = cell2nanMat(reconstructedTime);
-plotFig(overallTime,overallData,'','Overlapped Stance Windows','Time (s)','Amplitude (V)',0,1,'','overlap')
+plotFig(overallTime,overallData,fileName,'Overlapped Stance Windows','Time (s)','Amplitude (V)',...
+    saveFigure,... % save
+    showFigure,... % show
+    gaitFilePath,'overlap');
 
 end
 

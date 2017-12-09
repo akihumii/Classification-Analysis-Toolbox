@@ -1,8 +1,8 @@
-function gaitLocs = readGait()
+function [gaitLocs,path] = readGait()
 %readGait Read the gait and output the location in sample points
-%   [] = readGait()
+%   [gaitLocs,path] = readGait()
 
-[files,path] = selectFiles;
+[files,path] = selectFiles('select gait data excel file');
 
 [num, txt, raw] = xlsread([path,files{1}],'List');
 

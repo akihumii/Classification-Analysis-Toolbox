@@ -100,7 +100,7 @@ classdef classData
         end
         
         function data = fftDataConvert(data,targetName,samplingFreq)
-            if isequal(targetName,'dataFiltered') || isequal(tartgetName,'dataTKEO')
+            if isequal(targetName,'dataFiltered') || isequal(targetName,'dataTKEO')
                 targetName = [{targetName};{'values'}];
             end
             [dataValue, dataName] = loadMultiLayerStruct(data,targetName);
