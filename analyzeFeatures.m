@@ -52,7 +52,7 @@ xScale = 'Speed(cm/s)';
 
 for i = 1:numFeatures
     for j = 1:numChannel
-        plotFig(speed,transpose(featureMean(i,:,j)),plotFileName,[featuresNames{i,1},' of ',titleName],xScale,'',...
+        [p(i,j),f(i,j)] = plotFig(speed,transpose(featureMean(i,:,j)),plotFileName,[featuresNames{i,1},' of ',titleName],xScale,'',...
             0,... % save
             1,... % show
             path, 'subPlot',channel(1,j),'barPlot');
@@ -64,11 +64,24 @@ for i = 1:numFeatures
             savePlot(dataPath,['Features sorted in ',titleName,],plotFileName,[featuresNames{i,1},' with ',titleName,' of ch ',num2str(channel(1,j)),' in ',plotFileName])
         end
         
-        if ~showFigures
-            close
-        end
     end
 end
+
+%% Plot all the features
+for i = 1:numChannel
+    plots2Subplots(p(:,i),2,4)
+end
+
+if saveFigures
+    savePlot(dataPath,['Features sorted in ',titleName,],plotFileName,['All the Features with ',titleName,' of ch ',num2str(channel(1,j)),' in ',plotFileName])
+end
+
+if ~showFigures
+    close all
+end
+
+
+clear i j k
 
 finishMsg()
 

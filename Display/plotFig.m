@@ -1,4 +1,4 @@
-function p = plotFig(varargin)
+function varargout = plotFig(varargin)
 %plotFig Plot data into figure.
 % Any number of input is possible, as long as they are in order:
 % (If there is only one input, it will be y value.)
@@ -81,7 +81,7 @@ textSize = 8;
 saveName = [titleName, ' ', fileName];
 
 for i = 1:numData
-    figure
+    f(i,1) = figure;
     hold on;
     set(gcf, 'Position', get(0,'Screensize'),'DefaultAxesFontSize',textSize,...
         'PaperPositionMode', 'auto');
@@ -142,5 +142,12 @@ for i = 1:numData
     end
 
 end
+
+%% Output
+varargout{1} = p;
+if nargout == 2
+    varargout{2} = f;
+end
+
 end
 
