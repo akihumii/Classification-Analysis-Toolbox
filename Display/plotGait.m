@@ -47,10 +47,23 @@ end
 %% plot overlapping windows according to the starting stance line
 overallData = cell2nanMat(reconstructedData);
 overallTime = cell2nanMat(reconstructedTime);
-plotFig(overallTime,overallData,fileName,'Overlapped Stance Windows','Time (s)','Amplitude (V)',...
-    saveFigure,... % save
-    showFigure,... % show
+titleName = 'Overlapped Stance Windows';
+p = plotFig(overallTime,overallData,fileName,titleName,'Time (s)','Amplitude (V)',...
+    0,... % save
+    1,... % show
     gaitFilePath,'overlap');
+
+% plot subplots
+plots2subplots(p,2,1);
+
+if saveFigure
+    savePlot(gaitFilePath,titleName,fileName,[titleName,' Subplots']);
+end
+
+if ~showFigure
+    close all
+end
+    
 
 end
 

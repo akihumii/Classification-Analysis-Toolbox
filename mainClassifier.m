@@ -12,12 +12,12 @@ clc
 % General Parameters
 dataType = 'intan'; % configurable types: ,'neutrino2','neutrino', 'intan', 'sylphx', 'sylphii'
 channel = [14,16]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
-channelRef = 0; % input 0 if no differential data is needed.
+channelRef = 16; % input 0 if no differential data is needed.
 samplingFreq = 0; % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 1798.2, sylphII: 1798.2)
 neutrinoInputReferred = 0; % input 1 to check input refer, otherwise input 0
 
 partialDataSelection = 1; % input 1 to select partial data to analyse, otherwise input 0
-constraintWindow = [32211,93710]; % starting point and end point of constraint window, unit is in sample points. Input 0 for default (pre-select the whole signal). It can be found in signal.analysedDataTiming(2,:), the first row is the timing in seconds
+constraintWindow = [32211,97194]; % starting point and end point of constraint window, unit is in sample points. Input 0 for default (pre-select the whole signal). It can be found in signal.analysedDataTiming(2,:), the first row is the timing in seconds
 
 % Filtering Parameters
 dataToBeFiltered = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataDelta' for differential data; input 'dataRectified' for rectified data
@@ -43,8 +43,8 @@ spikeDetectionType = 'TKEO'; % input 'threshold' for local maxima, input 'trigge
 threshold = 0; % specified threshold for spikes detection, otehrwise input 0 for default value (baseline + threshMult * baselineStandardDeviation) (baseline is obtained by calculating the mean of the data points spanned between 1/4 to 3/4 of the data array sorted by amplitudes)
 threshStdMult = [60,3]; % multiples of standard deviation above the baseline as the threshold for TKEO detection. All channels will use the same value if there is only one value existed
 sign = 1; % input 1 for threhoslding upwards, input -1 for thresholding downwards
-windowSize = [0.03, 0.07]; % range of window starting from the detected peaks(in seconds)
-channelExtractStartingLocs = 1; % input channel index (start from 1, then 2, 3...) to fix the locs for all the channels, windows between 2 consecutive starting points of the bursts will be extracted and overlapped. Input 0 to deactivate this function
+windowSize = [0.003, 0.035]; % range of window starting from the detected peaks(in seconds)
+channelExtractStartingLocs = 0; % input channel index (start from 1, then 2, 3...) to fix the locs for all the channels, windows between 2 consecutive starting points of the bursts will be extracted and overlapped. Input 0 to deactivate this function
 TKEOStartConsecutivePoints = 100; % number of consecutive points over the threshold to be detected as burst
 TKEOEndConsecutivePoints = 1500; % number of consecutive points below the threshold to be detected as end of burst
 

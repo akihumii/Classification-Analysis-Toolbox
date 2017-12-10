@@ -1,18 +1,26 @@
-function p = plots2Subplots(plots,rowSubplot,colSubplot)
-%plots2Subplots Plot the plots into subplot
-%   p = plots2Subplots(plots,dimSubplot,answerSave,answerShow,path)
+function f = plots2subplots(plots,rowSubplot,colSubplot,titleName)
+%plots2subplots Plot the plots into subplot
+% 
+% input: titleName is optional
+% 
+%   p = plots2subplots(plots,rowSubplot,colSubplot,titleName)
 
+if nargin < 4
+    titleName = repmat({''},rowSubplot*colSubplot,1);
+end
+    
 textSize = 1;
 
-figure
+f = figure;
 hold on;
 
-plots = reshape(plots,rowSubplot,colSubplot);
+newPlots = reshape(plots,rowSubplot,colSubplot);
+titleName = reshape(titleName,rowSubplot,colSubplot);
 
 for i = 1:rowSubplot
     for j = 1:colSubplot
         sp = subplot(rowSubplot,colSubplot,(i-1)*colSubplot+j);        
-        copyAxes(plots(i,j), sp);
+        copyAxes(newPlots(i,j), sp, titleName{i,j});
     end
 end
 

@@ -3,9 +3,10 @@
 % Open the figure that have the bursts plotted before running this script.
 clear
 close all
+clc
 
 %% User Input
-saveFigure = 1;
+saveFigure = 0;
 showFigure = 1;
 
 %% Main

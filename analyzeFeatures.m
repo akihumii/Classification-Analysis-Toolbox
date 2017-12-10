@@ -3,6 +3,7 @@
 
 clear
 close all
+clc
 
 %% User Input
 showFigures = 1;
@@ -69,7 +70,7 @@ end
 
 %% Plot all the features
 for i = 1:numChannel
-    plots2Subplots(p(:,i),2,4)
+    plots2subplots(p(:,i),2,4)
 end
 
 if saveFigures

@@ -55,7 +55,7 @@ classdef classClassificationPreparation
                 targetName = [{targetName};{'values'}];
             end
             [dataValue, dataName] = loadMultiLayerStruct(targetClassData,targetName);
-            minDistance = floor(clfp.window(2)*targetClassData.samplingFreq);
+            minDistance = floor(clfp.window * targetClassData.samplingFreq);
             clfp.burstDetection = detectSpikes(dataValue,minDistance,threshold,sign,type,threshStdMult,TKEOStartConsecutivePoints,TKEOEndConsecutivePoints);
             clfp.burstDetection.dataAnalysed = [targetClassData.file,' -> ',dataName];
             clfp.burstDetection.detectionMethod = type;

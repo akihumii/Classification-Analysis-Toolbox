@@ -88,7 +88,7 @@ for i = 1:numData
     for j = 1:numPlot
         % Titling
         if isequal(type, 'subplot')
-            p(j,1) = subplot(numPlot,1,j);
+            p(j,i) = subplot(numPlot,1,j);
             if numData > 1
                 title([titleName, ' ', fileName, ' set ', num2str(j), ' ch ', num2str(channel(i))])
                 saveName = [titleName, ' ', fileName, ' ch ', num2str(channel(i))];
@@ -98,7 +98,7 @@ for i = 1:numData
             end
             hold on
         else
-            p = gca;
+            p(i,1) = gca;
         end
         
         % Plotting
