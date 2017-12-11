@@ -11,17 +11,17 @@ clc
 %% User's Input
 % General Parameters
 dataType = 'sylphx'; % configurable types: ,'neutrino2','neutrino', 'intan', 'sylphx', 'sylphii'
-channel = [4,5]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
+channel = [5,6,11,12]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
 channelRef = 0; % input 0 if no differential data is needed.
 samplingFreq = 0; % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 1798.2, sylphII: 1798.2)
 neutrinoInputReferred = 0; % input 1 to check input refer, otherwise input 0
 
-partialDataSelection = 1; % input 1 to select partial data to analyse, otherwise input 0
+partialDataSelection = 0; % input 1 to select partial data to analyse, otherwise input 0
 constraintWindow = [86086,718927]; % starting point and end point of constraint window, unit is in sample points. Input 0 for default (pre-select the whole signal). It can be found in signal.analysedDataTiming(2,:), the first row is the timing in seconds
 
 % Filtering Parameters
 dataToBeFiltered = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataDelta' for differential data; input 'dataRectified' for rectified data
-highPassCutoffFreq = 0; % high pass cutoff frequency, input 0 if not applied
+highPassCutoffFreq = 10; % high pass cutoff frequency, input 0 if not applied
 lowPassCutoffFreq = 0; % low pass cutoff frequency, input 0 if not applied
 notchFreq = 0; % notch frequency, input 0 if not applied
 decimateFactor = 1; % down sampling the data by a factor 'decimateFactor'
@@ -55,18 +55,18 @@ TKEOEndConsecutivePoints = 1500; % number of consecutive points below the thresh
 showRaw = 1;
 showDelta = 0;
 showRectified = 0;
-showFilt = 0;
+showFilt = 1;
 showOverlap = 0;
 showFFT = 1;
 
-saveRaw = 1;
+saveRaw = saveOption;
 saveDelta = 0;
 saveRectified = 0;
 saveFilt = saveOption;
 saveOverlap = saveOption;
-saveFFT = 1;
+saveFFT = saveOption;
 
-saveUserInput = 1;
+saveUserInput = saveOption;
 
 %% Main
 ticDataAnalysis = tic;
