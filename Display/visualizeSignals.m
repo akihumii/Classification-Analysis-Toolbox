@@ -11,8 +11,8 @@ function [] = visualizeSignals(signal, signalClassification, selectedWindow, win
 %% Partial Data Selectiom
 for i = 1:length(signal)
     if partialDataSelection
-        partialDataStartingTime{i,1} = [' (',num2str(signal(i,1).time(1,1) / signal(i,1).samplingFreq)];
-        partialDataEndTime{i,1} = [' - ', num2str(signal(i,1).time(end,1) / signal(i,1).samplingFreq), ' s) '];
+        partialDataStartingTime{i,1} = [' (',num2str(signal(i,1).time(1) / signal(i,1).samplingFreq)];
+        partialDataEndTime{i,1} = [' - ', num2str(signal(i,1).time(end) / signal(i,1).samplingFreq), ' s) '];
     else
         partialDataStartingTime{i,1} = '';
         partialDataEndTime{i,1} = '';
