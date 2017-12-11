@@ -28,9 +28,6 @@ numData = length(syncPulseData);
 [stimulatePeak{1,1},stimulatePeakLocs{1,1},triggerPeak{1,1},triggerPeakLocs{1,1}] =...
     triggerLocalSpikeDetection(syncPulseData,stimulationData,4.3e-4,thresholdStimulation,minDistance,skipWindow);
 
-% [stimulatePeak{2,1},stimulatePeakLocs{2,1},triggerPeak{2,1},triggerPeakLocs{2,1}] =...
-%     triggerLocalSpikeDetection(-stimulationData,syncPulseData,thresholdSyncPulse,thresholdStimulation,minDistance,skipWindow);
-
 stimulatePeak = vertcat(stimulatePeak{:});
 stimulatePeakLocs = vertcat(stimulatePeakLocs{:});
 triggerPeak = vertcat(triggerPeak{:});
