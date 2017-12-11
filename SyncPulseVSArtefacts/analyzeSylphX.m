@@ -13,9 +13,9 @@ numChannel = 2; % number of channel
 
 period = 1/samplingFreq;
 
-extractedData = loadData('tdms'); % input 'tdms' or 'csv' for different type of files
+extractedData = loadData('csv'); % input 'tdms' or 'csv' for different type of files
 
-reconstructedSignal.yValues = zeros(numChannel, size(extractedData.data(1:end,1)));
+reconstructedSignal.yValues = zeros(numChannel, size(extractedData.data,1));
 
 for i = 1:10
     reconstructedSignal.yValues(i,:) = reconstructSignal(extractedData.data(1:end,i), voltageStep);
