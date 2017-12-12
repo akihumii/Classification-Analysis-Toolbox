@@ -7,7 +7,7 @@ clc
 
 %% User Input
 showFigures = 1;
-saveFigures = 1;
+saveFigures = 0;
 
 [files, path, iter] = selectFiles();
 
