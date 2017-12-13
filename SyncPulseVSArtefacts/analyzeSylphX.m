@@ -9,11 +9,13 @@ clc
 samplingFreq = 1800;        % Sampling Frequency
 voltageStep = 0.000000195;  % Sylph's voltage step
 
+numChannel = 2; % number of channel
+
 period = 1/samplingFreq;
 
-extractedData = loadData();
+extractedData = loadData('csv'); % input 'tdms' or 'csv' for different type of files
 
-reconstructedSignal.yValues = zeros(10, size(extractedData.data(1:end,1), 1));
+reconstructedSignal.yValues = zeros(numChannel, size(extractedData.data,1));
 
 for i = 1:10
     reconstructedSignal.yValues(i,:) = reconstructSignal(extractedData.data(1:end,i), voltageStep);
@@ -43,5 +45,5 @@ hold on;
 linkaxes(ax, 'x');
 
 %% Distance between sync pulses and peaks
-deletePairs = [1,28,29,32,33,40,41,53,54];
+deletePairs = [];
 distance = findFirstPeaks(extractedData, reconstructedSignal, deletePairs);

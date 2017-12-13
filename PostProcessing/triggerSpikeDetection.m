@@ -2,7 +2,7 @@ function [selectedPeaks,selectedLocs] = triggerSpikeDetection(data,threshold,min
 %triggerSpikeDetection Find the values exceeding threshold then skip for a
 %window with the size of minDistance. Distance between two consecutive
 %starting points will not less than minDistance.
-
+% 
 % numConsecutivePoint is the minimum number of the consecutive pionts 
 % following the peaks that need to exceed the threshold. Default value is 0.
 % 

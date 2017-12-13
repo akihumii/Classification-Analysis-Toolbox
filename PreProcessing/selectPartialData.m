@@ -1,7 +1,7 @@
 function output = selectPartialData(data, fileName, path, window)
 %selectPartialSignals Select baseline signal portion and decoding burst
 %signal portion. Type can be 'line' or 'box'.
-%   output = selectPartialSignals(data, fileName, path)
+%   output = selectPartialSignals(data, fileName, path, window)
 %
 % output.partialData = partial data value
 % output.startLocs = starting locations of the partial data
@@ -15,7 +15,7 @@ hold all
 xLimit = get(gca,'xLim');
 yLimit = get(gca,'yLim');
 
-if window == 0
+if nargin < 4
     window = xLimit;
 end
 
