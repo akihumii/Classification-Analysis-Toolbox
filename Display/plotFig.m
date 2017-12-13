@@ -97,6 +97,7 @@ for i = 1:numData
                 saveName = [titleName, ' ', fileName, ' ch ', num2str(channel)];
             end
             hold on
+            ylabel(yScale, 'FontSize', textSize);
         else
             p(i,1) = gca;
         end

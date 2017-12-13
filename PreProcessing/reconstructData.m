@@ -1,6 +1,12 @@
 function [data, time] = reconstructData(files, path, fileType, neutrinoBit, neutrinoInputRefer)
-%reconstructData Summary of this function goes here
-%   Detailed explanation goes here
+%reconstructData Reconstruct different formats of data
+% 
+% fileType: 'sylphii' 'sylphx' 'intan' 'neutrino' 'neutrino2'
+% neutrinoBit: 1 for 8 bit mode, 0 for 10 bit mode
+% neutrinoInputRefer: 1 for checking input refer, 0 for checking output
+% 
+%   [data, time] = reconstructData(files, path, fileType, neutrinoBit, neutrinoInputRefer)
+
 res = 0.000000195; %uV/unit
 
 if nargin < 4

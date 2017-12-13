@@ -1,49 +1,48 @@
 %% analyzeSylphX
+% Read, plot and calculate standard deviation of delay between sync pulse
+% and stimulated pulses.
+% 
+% Counter will be analysed for error occurrence
+% 
+% Coded by Tsai Chne Wuen
 
 clear 
 close all
 clc
 
-%% Variable to be changed
-% Hardware variable
+%% User Input
+channel = [4,5,11,12]; % input channel for decoding
+saveRaw = 0; % save raw signal plot
+showRaw = 1; % show raw signal plot
+
+%% Read data cnd Reconstruct
 samplingFreq = 1800;        % Sampling Frequency
-voltageStep = 0.000000195;  % Sylph's voltage step
 
-numChannel = 2; % number of channel
+[files,path] = selectFiles(); % select file for decoding
 
-period = 1/samplingFreq;
+[dataAll,time] = reconstructData(files{1},path,'sylphx'); % read and reconstruct data
+time = time/samplingFreq; % convert into seconds
 
-extractedData = loadData('csv'); % input 'tdms' or 'csv' for different type of files
+%% Plot 
+fileName = files{1}(1:end-4); % get a file name
 
-reconstructedSignal.yValues = zeros(numChannel, size(extractedData.data,1));
-
-for i = 1:10
-    reconstructedSignal.yValues(i,:) = reconstructSignal(extractedData.data(1:end,i), voltageStep);
-end
-
-reconstructedSignal.xValues = 0:size(extractedData.data(1:end,1), 1)-1;
-reconstructedSignal.xValues = reconstructedSignal.xValues/samplingFreq;
-
-%% Plotting
-figure;
-ax = zeros(12);
-for i = 1:10
-    ax(i) = subplot(12,1,i);
-    plot(reconstructedSignal.xValues, reconstructedSignal.yValues(i,1:end));
-    hold on;
-end
-
-ax(11) = subplot(12,1,11);
-plot(reconstructedSignal.xValues, extractedData.data(1:end,11));
-ylim([0 255]);
-hold on;
-
-ax(12) = subplot(12,1,12);
-plot(reconstructedSignal.xValues, extractedData.data(1:end,12));
-ylim([0 250]);
-hold on;
-linkaxes(ax, 'x');
+plotFig(time,dataAll(:,channel),fileName,'Raw Signal','Time(s)','Amplidute(V)',saveRaw,showRaw,path,'subplot',channel); % plot raw signals
 
 %% Distance between sync pulses and peaks
-deletePairs = [];
-distance = findFirstPeaks(extractedData, reconstructedSignal, deletePairs);
+% deletePairs = [];
+% distance = findFirstPeaks(data, reconstructedSignal, deletePairs);
+
+%% Delay Analysis
+channelRectify = [4,5]; % to rectify signal
+channelCounter = 11; % counter channel
+
+dataRectified = dataAll;
+dataRectified(:,channelRectify) = filterData(dataRectified(:,channelRectify),samplingFreq,10,0,0); % pass through a high pass filter for specified channels
+dataRectified(:,channelRectify) = abs(dataAll(:,channelRectify)); % rectify the specified channels
+dataRectified(:,channelRectify) = pulse2spike(dataRectified(:,channelRectify)); % convert pusle into spike
+
+% delayAnalysis = pulse2spike(); % analyse cross correlation between two signals
+
+
+%% End
+finishMsg; % pop a message box to show the end of code
