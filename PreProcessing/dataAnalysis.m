@@ -10,8 +10,7 @@ dataName = cell(iter,1);
 
 %% Analyse Data
 for i = 1:iter
-    data(i,1) = classData(files{i},path,dataType,channel,samplingFreq,neutrinoInputReferred,partialDataSelection,constraintWindow);
-    
+    data(i,1) = classData(files{i},path,dataType,neutrinoBit,channel,samplingFreq,neutrinoInputReferred,partialDataSelection,constraintWindow);
     if channelRef ~= 0
         data(i,1) = dataDifferentialSubtraction(data(i,1),'dataRaw',channelRef);
     end
