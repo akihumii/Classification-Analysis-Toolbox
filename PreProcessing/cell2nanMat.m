@@ -8,6 +8,10 @@ numCell = length(data);
 
 for i = 1:numCell
     [numElement(i,1),numSet(i,1)] = size(data{i});
+    if numElement(i,1) == 1 && numSet(i,1) ~= 1
+        numElement(i,1) = numSet(i,1);
+        numSet(i,1) = 1;
+    end
 end
 
 maxElementLength = max(numElement);

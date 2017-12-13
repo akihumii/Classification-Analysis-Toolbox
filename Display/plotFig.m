@@ -1,16 +1,17 @@
-function p = plotFig(varargin)
+function varargout = plotFig(varargin)
 %plotFig Plot data into figure.
 % Any number of input is possible, as long as they are in order:
 % (If there is only one input, it will be y value.)
 % 
-% Variable "type" could be 'subplot', 'overlap' or 'overlapAll', default type is 'subplot'.
+% input:    "type" could be 'subplot', 'overlap' or 'overlapAll', default type is 'subplot'
+%           'y' could be a matrix where the data in column will be plotted as one signal trial; Different rows represent different trials that have been performed.
+%           'plotWay' could be 'linePlot' or 'barPlot', default way is 'linePlot'% 
+%           'channel' is for the title purpose, default value is 1.
 % 
-% Variable 'y' could be a matrix where the data in column will be plotted
-% as one signal trial; Different rows represent different trials that have been performed.
+% saveName = subplot: [titleName, ' ', fileName]
+%            overlap: [titleName, ' ', fileName, ' ch ', num2str(channel(i))]
 % 
-% Variable 'channel' is for the title purpose, default value is 1.
-% 
-%   p = plotFig(x, y, fileName, titleName, xScale, yScale, answerSave, answerShow, path, type, channel)
+%   p = plotFig(x, y, fileName, titleName, xScale, yScale, answerSave, answerShow, path, type, channel, plotWay)
 
 %% fill unset parameters
 if nargin == 1
@@ -19,6 +20,12 @@ if nargin == 1
 else
     x = varargin{1};
     y = varargin{2};
+end
+
+if nargin < 12;
+    plotWay = 'linePlot';
+else
+    plotWay = varargin{12};
 end
 
 if nargin < 11;
@@ -37,7 +44,7 @@ else
     path = varargin{9};
 end
 if nargin < 8
-    answerShow = 0;
+    answerShow = 1;
 else
     answerShow = varargin{8};
 end
@@ -74,14 +81,14 @@ textSize = 8;
 saveName = [titleName, ' ', fileName];
 
 for i = 1:numData
-    figure
+    f(i,1) = figure;
     hold on;
     set(gcf, 'Position', get(0,'Screensize'),'DefaultAxesFontSize',textSize,...
         'PaperPositionMode', 'auto');
     for j = 1:numPlot
         % Titling
         if isequal(type, 'subplot')
-            p(j,1) = subplot(numPlot,1,j);
+            p(j,i) = subplot(numPlot,1,j);
             if numData > 1
                 title([titleName, ' ', fileName, ' set ', num2str(j), ' ch ', num2str(channel(i))])
                 saveName = [titleName, ' ', fileName, ' ch ', num2str(channel(i))];
@@ -91,15 +98,25 @@ for i = 1:numData
             end
             hold on
         else
-            p = gca;
+            p(i,1) = gca;
         end
         
         % Plotting
-        if any(size(x)==1)
-            plot(x,y(:,j,i));
-        else
-            plot(x(:,j),y(:,j,i));
+        switch plotWay
+            case 'linePlot'
+                if any(size(x)==1)
+                    plot(x,y(:,j,i));
+                else
+                    plot(x(:,j),y(:,j,i));
+                end
+            case 'barPlot'
+                if any(size(x)==1)
+                    bar(x,y(:,j,i));
+                else
+                    bar(x(:,j),y(:,j,i));
+                end
         end
+                
         axis tight;
     end
     ylabel(yScale, 'FontSize', textSize);
@@ -125,5 +142,12 @@ for i = 1:numData
     end
 
 end
+
+%% Output
+varargout{1} = p;
+if nargout == 2
+    varargout{2} = f;
+end
+
 end
 

@@ -1,7 +1,12 @@
-function [data, time] = reconstructData(files, path, fileType, neutrinoInputRefer)
+function [data, time] = reconstructData(files, path, fileType, neutrinoBit, neutrinoInputRefer)
 %reconstructData Summary of this function goes here
 %   Detailed explanation goes here
 res = 0.000000195; %uV/unit
+
+if nargin < 4
+    neutrinoBit = 1;
+    neutrinoInputRefer = 1;
+end
 
 switch lower(fileType)
     case 'sylphii'
@@ -31,7 +36,12 @@ switch lower(fileType)
     case 'neutrino'
         %% For Neutrino
         data = csvread([path,files]); % read the csv file into variable data
-        data = 1.2*data/1024; % convert to Voltage
+        if neutrinoBit
+            convertVoltage = 1.2/256;
+        else
+            convertVoltage = 1.2/1024;
+        end
+        data = data * convertVoltage; % convert to Voltage
         time = 1:size(data,1); 
         
     case 'neutrino2'
@@ -45,6 +55,14 @@ switch lower(fileType)
         if neutrinoInputRefer == 1
             data = data / gain; % change output refer data into input refer data
         end
+        
+        if neutrinoBit
+            convertVoltage = 1.2/256;
+        else
+            convertVoltage = 1.2/1024;
+        end
+        data = data * convertVoltage; % convert to Voltage
+
         time = 1:size(data,1);
         
 end

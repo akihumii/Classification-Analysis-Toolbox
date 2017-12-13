@@ -50,15 +50,16 @@ classdef classClassificationPreparation
             end
         end
         
-        function clfp = detectSpikes(clfp,targetClassData,targetName,type,threshold,sign,threshStdMult,TKEOStartConsecutivePoints,TKEOEndConsecutivePoints)
+        function clfp = detectSpikes(clfp,targetClassData,targetName,type,threshold,sign,threshStdMult,TKEOStartConsecutivePoints,TKEOEndConsecutivePoints,channelExtractStartingLocs)
             if isequal(targetName,'dataFiltered') || isequal(targetName,'dataTKEO')
                 targetName = [{targetName};{'values'}];
             end
             [dataValue, dataName] = loadMultiLayerStruct(targetClassData,targetName);
-            minDistance = floor(clfp.window(2)*targetClassData.samplingFreq);
+            minDistance = floor(clfp.window * targetClassData.samplingFreq);
             clfp.burstDetection = detectSpikes(dataValue,minDistance,threshold,sign,type,threshStdMult,TKEOStartConsecutivePoints,TKEOEndConsecutivePoints);
             clfp.burstDetection.dataAnalysed = [targetClassData.file,' -> ',dataName];
             clfp.burstDetection.detectionMethod = type;
+            clfp.burstDetection.channelExtractStartingLocs = channelExtractStartingLocs;
         end
         
         function clfp = classificationWindowSelection(clfp, targetClassData, targetName)
