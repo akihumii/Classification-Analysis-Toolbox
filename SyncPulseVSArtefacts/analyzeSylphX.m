@@ -36,10 +36,6 @@ fileName = files{1}(1:end-4); % get a file name
 
 plotFig(time,dataAll(:,channel),fileName,'Raw Signal','Time(s)','Amplidute(V)',saveRaw,showRaw,path,'subplot',channel); % plot raw signals
 
-%% Distance between sync pulses and peaks
-% deletePairs = [];
-distance = findFirstPeaks(data, reconstructedSignal, deletePairs);
-
 %% Delay Analysis
 channelPlot = [channelData,channelSync];
 
@@ -66,6 +62,9 @@ for i = 1:numPlots
         text(spikeInfo.spikeLocs(j,i),0,num2str(j));
     end
 end
+
+%% Analyze counter
+counterInfo = analyseContValue(dataRectified(:,channelCounter),[1,-65535]);
 
 %% Result
 result = getBasicParameter(abs(spikeInfo.spikeLocs(:,1) - spikeInfo.spikeLocs(:,2)));
