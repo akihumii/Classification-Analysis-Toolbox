@@ -5,7 +5,7 @@ function varargout = plotFig(varargin)
 % 
 % input:    "type" could be 'subplot', 'overlap' or 'overlapAll', default type is 'subplot'
 %           'y' could be a matrix where the data in column will be plotted as one signal trial; Different rows represent different trials that have been performed.
-%           'plotWay' could be 'linePlot' or 'barPlot', default way is 'linePlot'% 
+%           'plotWay' could be 'linePlot', 'barPlot' or 'stemPlot', default way is 'linePlot' 
 %           'channel' is for the title purpose, default value is 1.
 % 
 % saveName = subplot: [titleName, ' ', fileName]
@@ -31,7 +31,11 @@ end
 if nargin < 11;
     channel = 1:size(y,2);
 else
+    if varargin{11} == 0
+            channel = 1:size(y,2);
+    else
     channel = varargin{11};
+    end
 end
 if nargin < 10
     type = 'subplot';
@@ -115,6 +119,12 @@ for i = 1:numData
                     bar(x,y(:,j,i));
                 else
                     bar(x(:,j),y(:,j,i));
+                end
+            case 'stemPlot'
+                if any(size(x)==1)
+                    stem(x,y(:,j,i));
+                else
+                    stem(x(:,j),y(:,j,i));
                 end
         end
                 

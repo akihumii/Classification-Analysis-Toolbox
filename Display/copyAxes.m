@@ -1,4 +1,4 @@
-function [] = copyAxes(oldAx, newAx, titleName)
+function newAx = copyAxes(oldAx, newAx, titleName)
 %copyAxes Copy the axes from oldAx to newAx
 %   [] = copyAxes(oldAx, newAx, titleName)
 copyobj(allchild(oldAx),newAx);
