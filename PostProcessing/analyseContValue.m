@@ -4,7 +4,7 @@ function output = analyseContValue(data,notDiffValue)
 % input:    notDiffValue: an array of values that are supposed to be the
 % differences 
 % 
-%   output = analyseContValue(data)
+%   output = analyseContValue(data,notDiffValue)
 
 diffData = diff(data);
 

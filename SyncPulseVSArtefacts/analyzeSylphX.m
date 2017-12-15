@@ -24,7 +24,7 @@ deleteBursts = []; % bursts index to delete
 deleteTolerance = 0.1; % maximum distance between one pair of corresponding spikes which are in a tirggering/triggered relationship (in seconds)
 
 %% Read data cnd Reconstruct
-samplingFreq = 1800;        % Sampling Frequency
+samplingFreq = 1000;        % Sampling Frequency
 
 [files,path] = selectFiles(); % select file for decoding
 

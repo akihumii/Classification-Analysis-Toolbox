@@ -1,7 +1,12 @@
-function box = popMsg(title, content)
-%popMsg Summary of this function goes here
-%   Detailed explanation goes here
-box = msgbox(content, title);
-set(box,'Units','Normalized','Position',[0.42, 0.47, 0.13, 0.08])
+function box = popMsg(content)
+%popMsg Pop the message box to show the popping content
+%   box = popMsg(content)
+
+box = msgbox(content);
+pause(2)
+delete(box)
+disp(content)
+disp(' ')
+
 end
 
