@@ -1,6 +1,9 @@
 function [] = padZero(file)
 %padZero Read the file and pad zeros at skipping point and save as csvfile at filePath
+%
 %   [] = padZero(file)
+
+%  Coded by Tsai Chne Wuen
 
 close all
 
@@ -20,8 +23,6 @@ data = reconstructData(file,'','sylphx'); % read and reconstruct the data
 counterInfo = analyseContValue(data(:,channelCounter),notDiffValue); % analyse counter
 
 %% Pad zero
-padLocs = zeros(0,1);
-
 newData = data(1:counterInfo.skipDataLocs(1),:); % pad data before the first skipping location
 newData = [newData;zeros(counterInfo.skipDataArray(1)-1,colData)]; % pad zero for first skipped value
 padLocs = transpose(counterInfo.skipDataLocs(1)+1 : counterInfo.skipDataArray(1)-1); % obtain the locations which are padded with zero
@@ -44,9 +45,6 @@ end
 newData = [newData;data(i:end,:)]; % pad remaining data
 
 %% Save new data padded with zeros
-filesepLocs = strfind(file,'\'); % locations of '\' in filename
-path = file(1:filesepLocs(end));
-
 newFileName = [file(1:end-4),' data padded with zeros.csv']; % file name of data padded with zeros
 csvwrite(newFileName,newData); % save new data
 
