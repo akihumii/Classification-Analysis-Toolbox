@@ -26,7 +26,10 @@ for i = 1:numDataPoints-numConsecutivePoint
 end
 
 if isempty(selectedPeaks)
-    error('No peak is found...')
+    warning('No peak is found...')
+    selectedPeaks = nan;
+    selectedLocs = nan;
+    return
 end
 
 %% find the remaining peaks

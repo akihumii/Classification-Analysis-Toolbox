@@ -16,6 +16,7 @@ for i = 1:numColumn
         % channel to extract the data and put into the matrix
         if channelExtractStartingLocs ~= 0
             ch = channelExtractStartingLocs;
+            j = 0;
             
             numLocs(i,1) = sum(~isnan(startLocs(:,ch))); % number of locations that is not NaN
             
@@ -45,7 +46,12 @@ for i = 1:numColumn
             
         end
         % for the last burst, in case the window size exceeds maximum number of sample points
-        j = j+1;
+        if isempty(j)
+            j = 1;
+        else
+            j = j+1;
+        end
+        
         if endLocs(j,ch)+windowSize(1,2)*samplingFreq <= numRow
             endPointTemp = endLocs(j,ch)+windowSize(1,2)*samplingFreq;
         else

@@ -39,7 +39,7 @@ for i = 1:colData % channel
     if threshold == 0 % if no user input, baseline + threshStdMult * baselineStandardDeviation will be used as threshold value
             thresholdValue = sign * baseline{i,1}.mean + threshStdMult(1,i) * baseline{i,1}.std;
     else
-        thresholdValue = sign * threshold;
+        thresholdValue = sign * threshold(1,i);
     end
     
     switch type
@@ -55,7 +55,7 @@ for i = 1:colData % channel
         case 'TKEO'
             [spikePeaksValue{i,1},spikeLocs{i,1}] = triggerSpikeDetection(data(minDistance(1):end-minDistance(2),i),thresholdValue,minDistance(2),TKEOStartConsecutivePoints); % the last value is the number of consecutive point that needs to exceed threshold to be detected as spikes
             spikeLocs{i,1} = spikeLocs{i,1} + minDistance(1); % compensate the skipped window
-            [burstEndValue{i,1},burstEndLocs{i,1}] = findEndPoint(data(:,i), thresholdValue, spikeLocs{i,1}, TKEOEndConsecutivePoints, minDistance(2));
+            [burstEndValue{i,1},burstEndLocs{i,1}] = findEndPoint(data(:,i), thresholdValue, spikeLocs{i,1}, TKEOEndConsecutivePoints);
             [spikePeaksValue{i,1},spikeLocs{i,1},burstEndValue{i,1},burstEndLocs{i,1}] =...
                 trimBurstLocations(spikePeaksValue{i,1},spikeLocs{i,1},burstEndValue{i,1},burstEndLocs{i,1});
             % another way to detect TKEO bursts

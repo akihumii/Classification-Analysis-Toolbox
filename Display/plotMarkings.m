@@ -1,4 +1,4 @@
-function [] = plotMarkings(handle,time,dataValues,samplingFreq,startingLocs,endLocs,baseline)
+function [] = plotMarkings(handle,time,dataValues,samplingFreq,startingLocs,endLocs,threshold)
 %plotMarkings Plot starting point, end point, baseline
 %   [] = plotMarkings(axes,time,dataValues,startingLocs,endLocs,baseline)
 axes(handle);
@@ -19,7 +19,7 @@ notNanEndLocs = ~isnan(endLocs); % get end locs that are not nan
 endingX = plot(time(endLocs(notNanEndLocs)),dataValues(endLocs(notNanEndLocs)),'rx');
 
 %% Baseline
-% baselineL = plot(xlim,[baseline,baseline],'k-'); % plot the baseline
+thresholdL = plot(xlim,[threshold,threshold],'k-'); % plot the threshold
 
 %% Legend
 % legend([startingO,endingX,baselineL],'starting point','end point','baseline')
