@@ -1,7 +1,6 @@
-function burstTiming = deleteBurst(burstTiming, p, signalOutput, burstSectionTiming)
+function burstTiming = deleteBurst(burstTiming, p, samplingFreq, burstSectionTiming)
 %deleteBurst Summary of this function goes here
 %   Detailed explanation goes here
-set(gcf,'units','points','position',[400,0,1050,800])
 
 for n = 1:length(p)
     %% plot the texts on axes
@@ -10,7 +9,7 @@ for n = 1:length(p)
     burstNum = size(burstTiming{n},2);
     hold on
     for i = 1:burstNum
-        text((burstSectionTiming.timeStart + burstTiming{n}(1,i))/signalOutput.Fs, yLimit(1)/1e4, num2str(i));
+        text((burstSectionTiming.timeStart + burstTiming{n}(1,i))/samplingFreq, yLimit(1)/1e4, num2str(i));
     end
     hold off
     
