@@ -72,7 +72,7 @@ end
 
 %% reconstruct spikePeaksValue and spikeLocs
 if isempty(spikePeaksValue{1,1})
-    error('No spikes detected, absolute threshold is higher than all the points...')
+    warning('No spikes detected, absolute threshold is higher than all the points...')
 end
 
 spikePeaksValue = cell2nanMat(spikePeaksValue);

@@ -23,7 +23,10 @@ endingX = plot(time(endLocs(notNanEndLocs)),dataValues(endLocs(notNanEndLocs)),'
 
 %% Legend
 % legend([startingO,endingX,baselineL],'starting point','end point','baseline')
-legend([startingO,endingX],'starting point','end point')
+try
+    legend([startingO,endingX],'starting point','end point')
+catch
+end    
 clear notNanSpikeLocs baseline
 
 hold off

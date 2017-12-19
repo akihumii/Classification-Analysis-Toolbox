@@ -4,9 +4,14 @@ function [newValues, newLocs] = pointAfterAWindow(data,window,locs)
 
 numLocs = length(locs);
 
-for i = 1:numLocs
-    newLocs(i,1) = locs(i) + window;
-    newValues(i,1) = data(locs(i) + window);
+if numLocs == 0
+    newLocs = nan;
+    newValues = nan;
+else
+    for i = 1:numLocs
+        newLocs(i,1) = locs(i) + window;
+        newValues(i,1) = data(locs(i) + window);
+    end
 end
 
 end

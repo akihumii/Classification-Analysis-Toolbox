@@ -13,12 +13,12 @@ clc
 dataType = 'sylphx'; % configurable types: ,'neutrino2','neutrino', 'intan', 'sylphx', 'sylphii'
 channel = [5,6,11,12]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
 channelRef = 0; % input 0 if no differential data is needed.
-samplingFreq = 1800; % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 1798.2, sylphII: 1798.2)
+samplingFreq = 0; % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 1798.2, sylphII: 1798.2)
 neutrinoInputReferred = 0; % input 1 to check input refer, otherwise input 0
 neutrinoBit = 1; % input 1 for 8 bit mode, input 0 for 10 bit mode
 
-partialDataSelection = 0; % input 1 to select partial data to analyse, otherwise input 0
-constraintWindow = [0]; % starting point and end point of constraint window, unit is in sample points. Input 0 for default (pre-select the whole signal). It can be found in signal.analysedDataTiming(2,:), the first row is the timing in seconds
+partialDataSelection = 1; % input 1 to select partial data to analyse, otherwise input 0
+constraintWindow = [100,500]; % starting point and end point of constraint window, unit is in seconds. Input 0 for default (pre-select the whole signal). It can be found in signal.analysedDataTiming(2,:), the first row is the timing in seconds
 
 % Filtering Parameters
 dataToBeFiltered = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataDelta' for differential data; input 'dataRectified' for rectified data
@@ -42,7 +42,7 @@ dataToBeDetectedSpike = 'dataFiltered'; % data for spike detecting
 overlappedWindow = 'dataFiltered'; % Select window for overlapping. Input 'dataRaw' for raw data, 'dataFiltered' for filtered data, 'dataDelta' for differential data
 spikeDetectionType = 'local maxima'; % input 'local maxima' for local maxima, input 'trigger for first point exceeding threshold, input 'TKEO' for taking following consecutive points into account
 threshold = 0; % specified threshold for spikes detection, otehrwise input 0 for default value (baseline + threshMult * baselineStandardDeviation) (baseline is obtained by calculating the mean of the data points spanned between 1/4 to 3/4 of the data array sorted by amplitudes)
-threshStdMult = [20,2]; % multiples of standard deviation above the baseline as the threshold for TKEO detection. All channels will use the same value if there is only one value existed
+threshStdMult = [1e9]; % multiples of standard deviation above the baseline as the threshold for TKEO detection. All channels will use the same value if there is only one value existed
 sign = 1; % input 1 for threhoslding upwards, input -1 for thresholding downwards
 windowSize = [0.005, 0.3]; % range of window starting from the detected peaks(in seconds)
 channelExtractStartingLocs = 0; % input channel index (start from 1, then 2, 3...) to fix the locs for all the channels, windows between 2 consecutive starting points of the bursts will be extracted and overlapped. Input 0 to deactivate this function
@@ -56,7 +56,7 @@ showRaw = 1;
 showDelta = 0;
 showRectified = 0;
 showFilt = 0;
-showOverlap = 0;
+showOverlap = 1;
 showFFT = 0;
 
 saveRaw = saveOption;
@@ -71,14 +71,13 @@ saveUserInput = saveOption;
 %% Main
 ticDataAnalysis = tic;
 [signal, signalName, iter] = dataAnalysis(dataType,dataToBeFiltered,dataToBeFFT,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,channel,channelRef,samplingFreq,partialDataSelection,constraintWindow,neutrinoInputReferred,neutrinoBit,decimateFactor,saveOverlap,showOverlap,saveFFT,showFFT);
-signal
 disp([num2str(toc(ticDataAnalysis)), ' seconds is used for loading and processing data...'])
 disp(' ')
 
 %% Locate bursts and select windows around them
 tic
-if showOverlap==1 || saveOverlap==1
-    signalClassification = dataClassificationPreparation(signal, iter, overlappedWindow, windowSize,dataToBeDetectedSpike, spikeDetectionType, threshold, sign, threshStdMult, TKEOStartConsecutivePoints, TKEOEndConsecutivePoints,channelExtractStartingLocs)
+if showOverlap==1 || saveOverlap==1 % peaks detection is only activated when either showOverlap or saveOverlap or both of them are TRUE
+    signalClassification = dataClassificationPreparation(signal, iter, overlappedWindow, windowSize,dataToBeDetectedSpike, spikeDetectionType, threshold, sign, threshStdMult, TKEOStartConsecutivePoints, TKEOEndConsecutivePoints,channelExtractStartingLocs);
 else
     signalClassification = 1;
 end
