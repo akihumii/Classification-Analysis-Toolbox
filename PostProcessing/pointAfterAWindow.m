@@ -4,7 +4,7 @@ function [newValues, newLocs] = pointAfterAWindow(data,window,locs)
 
 numLocs = length(locs);
 
-if numLocs == 0
+if numLocs == 0 || isnan(locs(1,1))
     newLocs = nan;
     newValues = nan;
 else

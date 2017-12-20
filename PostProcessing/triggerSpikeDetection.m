@@ -26,7 +26,7 @@ for i = 1:numDataPoints-numConsecutivePoint
 end
 
 if isempty(selectedPeaks)
-    warning('No peak is found...')
+    warning('No peak is found in a channel...')
     selectedPeaks = nan;
     selectedLocs = nan;
     return
