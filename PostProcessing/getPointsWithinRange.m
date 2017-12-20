@@ -71,6 +71,8 @@ for i = 1:numColumn
     end
     burstAll{i,1} = cell2nanMat(burst);
     xAxisValuesAll{i,1} = cell2nanMat(xAxisValues);
+    
+    clear burst xAxisValues
 end
 
 burstAll = cell2nanMat(burstAll);
