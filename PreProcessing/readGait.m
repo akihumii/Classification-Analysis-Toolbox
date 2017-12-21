@@ -4,6 +4,8 @@ function [gaitLocs,path] = readGait()
 
 [files,path] = selectFiles('select gait data excel file');
 
+popMsg('Processing gait data...');
+
 [num, txt, raw] = xlsread([path,files{1}],'List');
 
 numRow = size(raw(:,1));
