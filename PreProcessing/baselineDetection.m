@@ -1,6 +1,8 @@
 function baseline = baselineDetection(data)
 %baselineDetection To measure the baseline
 %   baseline = bselineDetection(data)
+% 
+% output = array, mean, std
 
 dataSorted = sort(data,1);
 

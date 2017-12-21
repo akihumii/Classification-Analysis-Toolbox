@@ -1,7 +1,18 @@
-function [data, time] = reconstructData(files, path, fileType, neutrinoInputRefer)
-%reconstructData Summary of this function goes here
-%   Detailed explanation goes here
+function [data, time] = reconstructData(files, path, fileType, neutrinoBit, neutrinoInputRefer)
+%reconstructData Reconstruct different formats of data
+% 
+% fileType: 'sylphii' 'sylphx' 'intan' 'neutrino' 'neutrino2'
+% neutrinoBit: 1 for 8 bit mode, 0 for 10 bit mode
+% neutrinoInputRefer: 1 for checking input refer, 0 for checking output
+% 
+%   [data, time] = reconstructData(files, path, fileType, neutrinoBit, neutrinoInputRefer)
+
 res = 0.000000195; %uV/unit
+
+if nargin < 4
+    neutrinoBit = 1;
+    neutrinoInputRefer = 1;
+end
 
 switch lower(fileType)
     case 'sylphii'
@@ -17,20 +28,26 @@ switch lower(fileType)
     case 'sylphx'
         %% For EMG Wireless Newest Format
         data = csvread([path,files]);
-        data = data*res; % convert to Voltage
+        data(:,1:10) = data(:,1:10)*res; % convert data to Voltage, keep the counter and sync pulse unchanged
         
         time = 1:size(data,1);
         
     case 'intan'
         %% For Intan
-        [data, time] = readIntan([path,files]);
+        [data, time, samplingFreq] = readIntan([path,files]);
         data = data*res;
         data = data'; % make it into structure of [samplePoint x channels]
+        time = time*samplingFreq;
         
     case 'neutrino'
         %% For Neutrino
         data = csvread([path,files]); % read the csv file into variable data
-        data = 1.2*data/1024; % convert to Voltage
+        if neutrinoBit
+            convertVoltage = 1.2/256;
+        else
+            convertVoltage = 1.2/1024;
+        end
+        data = data * convertVoltage; % convert to Voltage
         time = 1:size(data,1); 
         
     case 'neutrino2'
@@ -42,8 +59,16 @@ switch lower(fileType)
         gain = inputReferMultiplier(bitInfo); % compute the gain
         data = data(3:end,1:end); % raw data before multiplication
         if neutrinoInputRefer == 1
-            data = gain * data; % change output refer data into input refer data
+            data = data / gain; % change output refer data into input refer data
         end
+        
+        if neutrinoBit
+            convertVoltage = 1.2/256;
+        else
+            convertVoltage = 1.2/1024;
+        end
+        data = data * convertVoltage; % convert to Voltage
+
         time = 1:size(data,1);
         
 end

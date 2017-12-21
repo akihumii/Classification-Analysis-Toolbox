@@ -16,6 +16,7 @@ classdef classData
         fileType
         fileName
         time
+        analysedDataTiming
         samplingFreq
         decimateFactor
         channel
@@ -36,7 +37,7 @@ classdef classData
     
     %% Methods
     methods
-        function data = classData(file,path,fileType,channel,samplingFreq,dataSelection,neutrinoInputRefer)
+        function data = classData(file,path,fileType,neutrinoBit,channel,samplingFreq,neutrinoInputReferred,partialDataSelection,constraintWindow)
             if nargin > 0
                 data.file = file;
                 data.path = path;
@@ -46,9 +47,9 @@ classdef classData
                         case 'intan'
                             data.samplingFreq = 20000;
                         case 'sylphx'
-                            data.samplingFreq = 16671;
+                            data.samplingFreq = 1000;
                         case 'sylphii'
-                            data.samplingFreq = 16671;
+                            data.samplingFreq = 1798.2;
                         case 'neutrino'
                             data.samplingFreq = 3e6/14/12;
                         case 'neutrino2'
@@ -60,20 +61,20 @@ classdef classData
                     data.samplingFreq = samplingFreq;
                 end
                 data.samplingFreq = data.samplingFreq; % down sampling
-                [data.dataAll, data.time] = reconstructData(file, path, fileType, neutrinoInputRefer);
+                [data.dataAll, data.time] = reconstructData(file, path, fileType, neutrinoBit, neutrinoInputReferred);
                 data.fileName = naming(data.file);
                 data.channel = channel;
                 if channel > size(data.dataAll,2)
                     error('Error found in User Input: Selected channel is not existed')
                 end
                 data.dataRaw = data.dataAll(:,data.channel);
+                
                 % for trimming
-                if ~isempty(dataSelection)
-                    locsStart = dataSelection(1) * data.samplingFreq;
-                    locsEnd = dataSelection(2) * data.samplingFreq;
-                    data.dataRaw = data.dataRaw(locsStart:locsEnd,:);
-                    data.time = data.time(locsStart:locsEnd);
-                    data.time = data.time - data.time(1) + 1;
+                if partialDataSelection
+                    partialDataInfo = selectPartialData(data.time,data.dataRaw,data.fileName,data.path,constraintWindow,data.samplingFreq);
+                    data.dataRaw = partialDataInfo.partialData;
+                    data.time = data.time(partialDataInfo.startLocs:partialDataInfo.endLocs);
+                    data.analysedDataTiming = [data.time(1)/data.samplingFreq,data.time(end)/data.samplingFreq;partialDataInfo.startLocs,partialDataInfo.endLocs]; % starting time and end time of the data that is being analysed
                 end
             end
         end
@@ -99,13 +100,17 @@ classdef classData
         end
         
         function data = fftDataConvert(data,targetName,samplingFreq)
-            if isequal(targetName,'dataFiltered')
-                targetName = [{'dataFiltered'};{'values'}];
+            if isequal(targetName,'dataFiltered') || isequal(targetName,'dataTKEO')
+                targetName = [{targetName};{'values'}];
             end
             [dataValue, dataName] = loadMultiLayerStruct(data,targetName);
             [data.dataFFT.values, data.dataFFT.freqDomain] = ...
                 fftDataConvert(dataValue, samplingFreq);
-            data.dataFFT.dataBeingProcessed = dataName;
+            if isequal(dataName,'dataFilteredvalues')
+                data.dataFFT.dataBeingProcessed = [dataName,' (',num2str(data.dataFiltered.highPassCutoffFreq),'-',num2str(data.dataFiltered.lowPassCutoffFreq),')'];
+            else
+                data.dataFFT.dataBeingProcessed = dataName;
+            end
         end
         
         function data = noiseLevelDetection(data,targetValue,targetName)

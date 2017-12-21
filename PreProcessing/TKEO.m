@@ -9,6 +9,9 @@ data = filterData(data,samplingFreq,10,500);
 
 data = filterData(data,samplingFreq,30,300);
 
+dataTKEO = zeros(rowData,1);
+dataTKEO(end,1) = data(end,1);
+
 for n = 1:colData
     for i = 2:rowData-1
         dataTKEO(i,n) = data(i,n)^2 - data(i+1,n)*data(i-1,n);
