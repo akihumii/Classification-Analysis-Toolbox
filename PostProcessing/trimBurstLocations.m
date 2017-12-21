@@ -16,23 +16,28 @@ newEndValue = endValues(uniqueLocs);
 numNewEndLocs = length(newEndLocs); % number of new ending locations
 numStartLocs = length(startLocs); % number of original starting locations
 
-newStartLocs = startLocs(1); % initialize the first new starting location
-newStartValue = startValue(1); % initialize the first new start value
-
-for i = 1:numNewEndLocs
-    for j = 1:numStartLocs
-        if startLocs(j) > newEndLocs(i)
-            newStartLocs = [newStartLocs; startLocs(j)];
-            newStartValue = [newStartValue; startValue(j)];
-            break
+if numStartLocs == 0
+    newStartValue = zeros(0,1);
+    newStartLocs = zeros(0,1);
+else
+    newStartLocs = startLocs(1); % initialize the first new starting location
+    newStartValue = startValue(1); % initialize the first new start value
+    
+    for i = 1:numNewEndLocs
+        for j = 1:numStartLocs
+            if startLocs(j) > newEndLocs(i)
+                newStartLocs = [newStartLocs; startLocs(j)];
+                newStartValue = [newStartValue; startValue(j)];
+                break
+            end
         end
     end
+    
+    if length(newStartLocs) ~= length(newEndLocs) % if no end point of last starting point is found
+        newStartLocs(end) = [];
+        newStartValue(end) = [];
+    end
+    
 end
 
-if length(newStartLocs) ~= length(newEndLocs) % if no end point of last starting point is found
-    newStartLocs(end) = [];
-    newStartValue(end) = [];
 end
-
-end
-

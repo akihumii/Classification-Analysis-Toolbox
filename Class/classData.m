@@ -71,7 +71,7 @@ classdef classData
                 
                 % for trimming
                 if partialDataSelection
-                    partialDataInfo = selectPartialData(data.dataRaw,data.fileName,data.path,constraintWindow);
+                    partialDataInfo = selectPartialData(data.time,data.dataRaw,data.fileName,data.path,constraintWindow,data.samplingFreq);
                     data.dataRaw = partialDataInfo.partialData;
                     data.time = data.time(partialDataInfo.startLocs:partialDataInfo.endLocs);
                     data.analysedDataTiming = [data.time(1)/data.samplingFreq,data.time(end)/data.samplingFreq;partialDataInfo.startLocs,partialDataInfo.endLocs]; % starting time and end time of the data that is being analysed

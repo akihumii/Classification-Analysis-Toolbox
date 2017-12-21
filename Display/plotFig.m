@@ -84,6 +84,11 @@ textSize = 8;
 [numData, numPlot] = checkSize(y);
 saveName = [titleName, ' ', fileName];
 
+[numDataX, numPlotX] = checkSize(x);
+if numDataX == 1 && numData ~= 1
+    x = repmat(x,1,1,numData);
+end
+
 for i = 1:numData
     f(i,1) = figure;
     hold on;
@@ -112,19 +117,19 @@ for i = 1:numData
                 if any(size(x)==1)
                     plot(x,y(:,j,i));
                 else
-                    plot(x(:,j),y(:,j,i));
+                    plot(x(:,j,i),y(:,j,i));
                 end
             case 'barPlot'
                 if any(size(x)==1)
                     bar(x,y(:,j,i));
                 else
-                    bar(x(:,j),y(:,j,i));
+                    bar(x(:,j,i),y(:,j,i));
                 end
             case 'stemPlot'
                 if any(size(x)==1)
                     stem(x,y(:,j,i));
                 else
-                    stem(x(:,j),y(:,j,i));
+                    stem(x(:,j,i),y(:,j,i));
                 end
         end
                 
