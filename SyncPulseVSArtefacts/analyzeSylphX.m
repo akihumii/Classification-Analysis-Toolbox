@@ -1,8 +1,10 @@
 %% analyzeSylphX
 % Read, plot and calculate standard deviation of delay between sync pulse
 % and stimulated pulses.
-%
-% Counter will be analysed for error occurrence
+% 
+% output:   counterInfo: Counter will be analysed for error occurrence
+%           result:     delay between channelData and channelSync will be
+%                       analyzed
 %
 % Coded by Tsai Chne Wuen
 
@@ -11,15 +13,15 @@ close all
 clc
 
 %% User Input
-channel = [4,11,12]; % input channel for decoding
-channelData = 4; % to rectify signal
-channelSync = 11; % sync pulse
+channel = [4,11,12]; % the channel that will be plotted in the first figure
+channelData = 4; % the channel that will be analyzed together with channelSync, can only input one channel
+channelSync = 11; % sync pulses channel
 channelCounter = 12; % counter channel
 
 saveRaw = 0; % save raw signal plot
 showRaw = 1; % show raw signal plot
 minDistance = 1; % minimum distance between two spikes (in seconds)
-threshold = [1e-3,1e-4,200]; % threshlod to detect peaks
+threshold = [1e-3,1e-4,200]; % threshlod to detect peaks, input 0 for default (baseine + 5 * standard deviation of baseline)
 deleteBursts = []; % bursts index to delete
 deleteTolerance = 0.1; % maximum distance between one pair of corresponding spikes which are in a tirggering/triggered relationship (in seconds)
 
@@ -37,7 +39,7 @@ fileName = files{1}(1:end-4); % get a file name
 plotFig(time,dataAll(:,channel),fileName,'Raw Signal','Time(s)','Amplidute(V)',saveRaw,showRaw,path,'subplot',channel); % plot raw signals
 
 %% Delay Analysis
-channelPlot = [channelData,channelSync];
+channelPlot = [channelData,channelSync]; % channels to be analysed for their pulses
 
 dataRectified = dataAll;
 dataRectified(:,channelData) = filterData(dataRectified(:,channelData),samplingFreq,10,0,0); % pass through a high pass filter for specified channels
@@ -45,9 +47,10 @@ dataRectified(:,channelData) = abs(dataRectified(:,channelData)); % rectify the 
 spikeInfo = pulse2spike(dataRectified(:,channelPlot),samplingFreq,minDistance,threshold); % convert pusle into spike
 
 %% Trim bursts
-[spikeInfo.spikeLocs,spikeInfo.spikePeaks] = trimCorrespondingSpikes(spikeInfo.spikeLocs/samplingFreq,deleteTolerance,spikeInfo.spikePeaks);
+[spikeInfo.spikeLocs,spikeInfo.spikePeaks] = trimCorrespondingSpikes(spikeInfo.spikeLocs/samplingFreq,deleteTolerance,spikeInfo.spikePeaks); % remove the spikes that are apart from the 2 nearest corresponding spikes further than the distance of deleteTolerance
 
 %% Delete Bursts
+% to delete the pulses that are inappropriate
 spikeInfo.spikeLocs(deleteBursts,1) = [];
 spikeInfo.spikePeaks(deleteBursts,1) = [];
 
@@ -64,10 +67,10 @@ for i = 1:numPlots
 end
 
 %% Analyze counter
-counterInfo = analyseContValue(dataRectified(:,channelCounter),[1,-65535]);
+counterInfo = analyseContValue(dataRectified(:,channelCounter),[1,-65535]); % analyze the counter and output the histogram and the distribution of the skipping data
 
 %% Result
-result = getBasicParameter(abs(spikeInfo.spikeLocs(:,1) - spikeInfo.spikeLocs(:,2)));
+result = getBasicParameter(abs(spikeInfo.spikeLocs(:,1) - spikeInfo.spikeLocs(:,2))); % distance, standard deviation etc of the spikes
 
 % delayStdArray = xcorr(spikeInfo.spikeLocs(:,1),spikeInfo.spikeLocs(:,2));
 % delayStdMean = mean(delayStdArray);

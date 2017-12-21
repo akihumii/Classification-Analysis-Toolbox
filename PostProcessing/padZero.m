@@ -1,4 +1,4 @@
-function [] = padZero(file)
+function [] = padZero()
 %padZero Read the file and pad zeros at skipping point and save as csvfile at filePath
 % 
 % input: file: Input file name to run the specific file. Input empty string
