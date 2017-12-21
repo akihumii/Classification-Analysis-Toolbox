@@ -1,11 +1,14 @@
 function [] = padZero(file)
 %padZero Read the file and pad zeros at skipping point and save as csvfile at filePath
+% 
+% input: file: Input file name to run the specific file. Input empty string
+% to select a file from a window. Multiple files can be selected.
 %
 %   [] = padZero(file)
 
 %  Coded by Tsai Chne Wuen
 
-if nargin == 0 % if no file is input then user will need to select the files to be analyzed
+if isempty(file)% if no file is input then user will need to select the files to be analyzed
     [files,path,iter] = selectFiles();
 else
     iter = 1;
@@ -24,7 +27,7 @@ popMsg('Processing...'); % pop the message box to show processing...
 %% Read and analyze counter
 for i = 1:iter
     
-    if nargin == 0
+    if isempty(file)
         file = [path,files{i,1}];
     end
     
@@ -67,12 +70,14 @@ for i = 1:iter
     end
     newData = [newData;data(i:end,:)]; % pad remaining data
     
-    plot(newData(:,12))
+    plot(newData(:,12)) % plot the figure with zeros padded
     axis tight
     
     %% Save new data padded with zeros
     newFileName = [file(1:end-4),' data padded with zeros.csv']; % file name of data padded with zeros
     csvwrite(newFileName,newData); % save new data
+    
+    clear file
     
 end
 
