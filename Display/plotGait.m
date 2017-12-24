@@ -28,8 +28,8 @@ for i = 1:numAxes
     endPoint = allAxes(i,1).Children(1);
     hold on
     yLimit = allAxes(i,1).YLim;
-    startStance = plot(allAxes(i,1),repmat(startLocs,2,1),yLimit,'r-');
-    endStance = plot(allAxes(i,1),repmat(endLocs,2,1),yLimit,'g-');
+    startStance = plot(allAxes(i,1),repmat(startLocs,2,1)+allAxes(i,1).Children(end).XData(1),yLimit,'r-');
+    endStance = plot(allAxes(i,1),repmat(endLocs+allAxes(i,1).Children(end).XData(1),2,1),yLimit,'g-');
     legend([startingPoint,endPoint,startStance(1),endStance(1)],'starting point','end point','starting stance','end stance');
     hold off
     
