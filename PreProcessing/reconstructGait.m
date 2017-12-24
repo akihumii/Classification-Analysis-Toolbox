@@ -5,10 +5,14 @@ function [data,xAxisValues] = reconstructGait(gaitLocsRaw,timeRaw,dataRaw)
 
 samplingFreq = 1 / (timeRaw(1,2)-timeRaw(1,1));
 
+if timeRaw(1) > 0
+    time = timeRaw-timeRaw(1) + 1/samplingFreq; % initialize the time array
+end
+
 %% get useful gait locs
 gaitLocsRaw = gaitLocsRaw';
 
-gaitLocsTemp = gaitLocsRaw>timeRaw(1) & gaitLocsRaw<timeRaw(end); % trim by size
+gaitLocsTemp = gaitLocsRaw>time(1) & gaitLocsRaw<time(end); % trim by size
 
 gaitLocsTemp = and(gaitLocsTemp(:,1)==1 , gaitLocsTemp(:,2)); % trim by pair
 
@@ -16,10 +20,12 @@ gaitLocsTemp = gaitLocsRaw(repmat(gaitLocsTemp,1,2)); % get locs
 gaitLocs = reshape(gaitLocsTemp,[],2); % put into two columns
 
 gaitLocs =  floor(gaitLocs * samplingFreq);
-time = floor(timeRaw * samplingFreq);
+time = floor(time * samplingFreq);
 
-gaitLocs = gaitLocs - time(1,1) + 1; % initialize gait locations according to first timestamp
-time = time - time(1,1) + 1; % initialize time according to first timestamp
+if timeRaw(1) <= 0
+    gaitLocs = gaitLocs - time(1,1) + 1; % initialize gait locations according to first timestamp
+    time = time - time(1,1) + 1; % initialize time according to first timestamp
+end
 
 %% reconstruct data
 gaitLocs = [time(1,1),time(1,1);gaitLocs];
