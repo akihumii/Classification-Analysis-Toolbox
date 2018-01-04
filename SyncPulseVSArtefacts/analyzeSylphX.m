@@ -13,17 +13,17 @@ close all
 clc
 
 %% User Input
-channel = [4,11,12]; % the channel that will be plotted in the first figure
+channel = [4,5,11,12]; % the channel that will be plotted in the first figure
 channelData = 4; % the channel that will be analyzed together with channelSync, can only input one channel
 channelSync = 11; % sync pulses channel
 channelCounter = 12; % counter channel
 
 saveRaw = 0; % save raw signal plot
 showRaw = 1; % show raw signal plot
-minDistance = 1; % minimum distance between two spikes (in seconds)
-threshold = [1e-3,1e-4,200]; % threshlod to detect peaks, input 0 for default (baseine + 5 * standard deviation of baseline)
+minDistance = 5; % minimum distance between two spikes (in seconds)
+threshold = [4e-3,200]; % threshlod to detect peaks, input 0 for default (baseine + 5 * standard deviation of baseline)
 deleteBursts = []; % bursts index to delete
-deleteTolerance = 0.1; % maximum distance between one pair of corresponding spikes which are in a tirggering/triggered relationship (in seconds)
+deleteTolerance = 1; % maximum distance between one pair of corresponding spikes which are in a tirggering/triggered relationship (in seconds)
 
 %% Read data cnd Reconstruct
 samplingFreq = 1000;        % Sampling Frequency
@@ -47,14 +47,14 @@ dataRectified(:,channelData) = abs(dataRectified(:,channelData)); % rectify the 
 spikeInfo = pulse2spike(dataRectified(:,channelPlot),samplingFreq,minDistance,threshold); % convert pusle into spike
 
 %% Trim bursts
-[spikeInfo.spikeLocs,spikeInfo.spikePeaks] = trimCorrespondingSpikes(spikeInfo.spikeLocs/samplingFreq,deleteTolerance,spikeInfo.spikePeaks); % remove the spikes that are apart from the 2 nearest corresponding spikes further than the distance of deleteTolerance
+[spikeInfo.spikeLocs,spikeInfo.spikePeaks] = trimCorrespondingSpikes(spikeInfo.spikeLocs,deleteTolerance,spikeInfo.spikePeaks); % remove the spikes that are apart from the 2 nearest corresponding spikes further than the distance of deleteTolerance
 
 %% Delete Bursts
 % to delete the pulses that are inappropriate
 spikeInfo.spikeLocs(deleteBursts,1) = [];
 spikeInfo.spikePeaks(deleteBursts,1) = [];
 
-s = plotFig(spikeInfo.spikeLocs,spikeInfo.spikePeaks,'','','Time(s)','Amplitude(V)',0,1,'','subplot',0,'stemPlot');
+s = plotFig(spikeInfo.spikeLocs/samplingFreq,spikeInfo.spikePeaks,'','','Time(s)','Amplitude(V)',0,1,'','subplot',0,'stemPlot');
 numPlots = size(spikeInfo.spikePeaks,2);
 for i = 1:numPlots
     axes(s(i,1));

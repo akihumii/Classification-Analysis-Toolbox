@@ -11,7 +11,11 @@ function [newLocs,varargout] = trimCorrespondingSpikes(locs, tolerance,varargin)
 
 numRounding = decimal2roundingN(tolerance);
 
-locsRounded = round(locs,numRounding);
+if numRounding == 0
+    locsRounded = 10*numRounding * floor(locs / 10*numRounding); % if tolerance is larger than 1 second
+else
+    locsRounded = round(locs,numRounding); % if tolerance is shorter than 1 second
+end
 
 trimA = ismember(locsRounded(:,1),locsRounded(:,2));
 trimB = ismember(locsRounded(:,2),locsRounded(:,1));

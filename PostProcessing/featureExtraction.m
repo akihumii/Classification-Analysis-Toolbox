@@ -18,11 +18,11 @@ for i = 1:numData
             
             burstLength(j,i) = sum(~isnan(data(:,j,i)));
             
-            areaUnderCurve(j,i) = sum(dataRectified(:,j));
+            areaUnderCurve(j,i) = nansum(dataRectified(:,j));
             
-            meanValue(j,i) = mean(data(:,j,i));
+            meanValue(j,i) = nanmean(data(:,j,i));
             
-            sumDifferences(j,i) = sum(diff(dataRectified(:,j)));
+            sumDifferences(j,i) = nansum(diff(dataRectified(:,j)));
             
             stateZeroCrossings = diff(sign(data(:,j,i)));
             numZeroCrossings(j,i) = length(stateZeroCrossings(stateZeroCrossings~=0));
@@ -35,7 +35,7 @@ end
 output.maxValue = maxValue;
 output.minValue = minValue;
 output.absMaxValue = absMaxValue;
-output.absMaxValue = absMaxValue;
+output.burstLength = burstLength;
 output.areaUnderCurve = areaUnderCurve;
 output.meanValue = meanValue;
 output.sumDifferences = sumDifferences;

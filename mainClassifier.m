@@ -11,14 +11,14 @@ clc
 %% User's Input
 % General Parameters
 dataType = 'sylphx'; % configurable types: ,'neutrino2','neutrino', 'intan', 'sylphx', 'sylphii'
-channel = [5,6]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
+channel = [12]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
 channelRef = 0; % input 0 if no differential data is needed.
 samplingFreq = 1000; % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 1798.2, sylphII: 1798.2)
 neutrinoInputReferred = 0; % input 1 to check input refer, otherwise input 0
 neutrinoBit = 1; % input 1 for 8 bit mode, input 0 for 10 bit mode
 
 partialDataSelection = 1; % input 1 to select partial data to analyse, otherwise input 0
-constraintWindow = [43.477,79.477]; % starting point and end point of constraint window, unit is in seconds. Input 0 for default (pre-select the whole signal). It can be found in signal.analysedDataTiming(2,:), the first row is the timing in seconds
+constraintWindow = [0]; % starting point and end point of constraint window, unit is in seconds. Input 0 for default (pre-select the whole signal). It can be found in signal.analysedDataTiming(2,:), the first row is the timing in seconds
 
 % Filtering Parameters
 dataToBeFiltered = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataDelta' for differential data; input 'dataRectified' for rectified data
@@ -45,7 +45,7 @@ TKEOEndConsecutivePoints = 500; % number of consecutive points below the thresho
 
 % Show & Save Plots Parameters. Input 1 to save/show, otherwise input 0.
 % Plots will be saved in the folder 'Figures' at the same path with the processed data 
-saveOption = 1;
+saveOption = 0;
 
 showRaw = 1;
 showDelta = 0;
@@ -54,14 +54,14 @@ showFilt = saveOption;
 showOverlap = 1;
 showFFT = saveOption;
 
-saveRaw = saveOption;
+saveRaw = 1;
 saveDelta = 0;
 saveRectified = 0;
 saveFilt = saveOption;
 saveOverlap = saveOption;
 saveFFT = saveOption;
 
-saveUserInput = saveOption;
+saveUserInput = 1;
 
 %% Main
 ticDataAnalysis = tic;

@@ -24,6 +24,8 @@ notDiffValue = [1,-65535]; % correct counter difference
 
 popMsg('Processing...'); % pop the message box to show processing...
 
+tic
+
 %% Read and analyze counter
 for i = 1:iter
     
@@ -51,24 +53,24 @@ for i = 1:iter
     
     figure
     
-    for i = counterInfo.skipDataArray(1)+1:rowData
+    for j = counterInfo.skipDataArray(1)+1:rowData
         if count > counterInfo.numSkipData % exclude the last one in case the last one is also the glitch and it can't be detected in the following algorithm
             break
         else
-            if i == counterInfo.skipDataLocs(count)
+            if j == counterInfo.skipDataLocs(count)
                 if diff(counterInfo.skipDataLocs(count-1:count))==1 % if it's glitch, i.e. the diff between the previous one and this one is 1, pad one zero
                     newData = [newData;zeros(1,colData)];
-                    padLocs = [padLocs;i+1];
+                    padLocs = [padLocs;j+1];
                 else
-                    newData = [newData;data(counterInfo.skipDataLocs(count-1)+1:i,:)]; % if it's not a glitch, pad zero with the number of the distance between the previous skipped data location until this iteration
+                    newData = [newData;data(counterInfo.skipDataLocs(count-1)+1:j,:)]; % if it's not a glitch, pad zero with the number of the distance between the previous skipped data location until this iteration
                     newData = [newData;zeros(counterInfo.skipDataArray(count)-1,colData)];
-                    padLocs = [padLocs;transpose(i+1:i+counterInfo.skipDataArray(count)-1)];
+                    padLocs = [padLocs;transpose(j+1:j+counterInfo.skipDataArray(count)-1)];
                 end
                 count = count + 1;
             end
         end
     end
-    newData = [newData;data(i:end,:)]; % pad remaining data
+    newData = [newData;data(j:end,:)]; % pad remaining data
     
     plot(newData(:,12)) % plot the figure with zeros padded
     axis tight
@@ -80,6 +82,7 @@ for i = 1:iter
     clear file
     
 end
+display(['The process runs for ',num2str(toc),' seconds...'])
 
 popMsg('Finished all the process...'); % pop up a message box to show the end of the code
 
