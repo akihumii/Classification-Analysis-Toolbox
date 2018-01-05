@@ -20,7 +20,7 @@ classdef classData
         samplingFreq
         decimateFactor
         channel
-        channelRef % reference channel for differential data
+        channelPair % reference channel for differential data
         noiseData
         dataAll
         dataRaw
@@ -84,10 +84,10 @@ classdef classData
             data.dataRectified = abs(data.dataRectified);
         end
         
-        function data = dataDifferentialSubtraction(data, targetName, channelRef)
-            channelRefLocs = find(data.channel == channelRef);
-            data.dataDelta = dataDifferentialSubtraction(data.(targetName), channelRefLocs);
-            data.channelRef = channelRef;
+        function data = dataDifferentialSubtraction(data, targetName, channelPair)
+            [~,channelRefLocs] = ismember(data.channel,channelPair'); % get the locations of the channel pairs in all the channels
+            data.dataDelta = dataDifferentialSubtraction(data.(targetName), channelRefLocs); % subtract according to 1-2, 3-4, etc...
+            data.channelPair = channelPair;
         end
         
         function data = filterData(data, targetName, samplingFreq, highPassCutoffFreq, lowPassCutoffFreq, notchFreq)

@@ -45,12 +45,12 @@ end
 if ~saveDelta && ~showDelta
 else
     for i = 1:length(signal)
-        if isempty(signal(i,1).channelRef)
+        if isempty(signal(i,1).channelPair)
             if saveDelta == 1 || showDelta == 1
                 warning('ChannelRef is not keyed in...')
             end
         else
-            plotFig(signal(i,1).time/signal(i,1).samplingFreq,signal(i,1).dataDelta,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],'Differential Signal','Time(s)','Amplitude(V)',...
+            plotFig(signal(i,1).time/signal(i,1).samplingFreq,signal(i,1).dataDelta,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],'Differential Signal Channel','Time(s)','Amplitude(V)',...
                 saveDelta,... % save
                 showDelta,... % show
                 signal(i,1).path,'subplot', signal(i,1).channel);

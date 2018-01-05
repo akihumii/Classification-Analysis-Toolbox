@@ -1,13 +1,16 @@
-function dataDifferential = dataDifferentialSubtraction(data, channelRef)
-%channelDifferential Output the differential signal with respect to
-%reference channel
-%   data = dataDifferential(data, channelRef)
-numChannel = size(data,2);
+function dataDifferential = dataDifferentialSubtraction(data, channelPair)
+%channelDifferential Output the differential signal accroding to
+%channelPair
+%   data = dataDifferential(data, channelPair)
 
-for i = 1:numChannel
-    dataDifferential(:,i) = data(:,i) - data(:,channelRef);
+[rowData,colData] = size(data);
+
+dataDifferential = zeros(rowData,0); % initate dataDifferential
+
+dataTemp = data(:,channelPair); % rearrange the sequence according to channelPair, then first column  will minus second column etc
+
+for i = 1:2:colData
+    dataDifferential = [dataDifferential,dataTemp(:,i+1) - dataTemp(:,i)];
 end
-
-dataDifferential(:,channelRef) = data(:,channelRef); % for the sake of classification 
 
 end
