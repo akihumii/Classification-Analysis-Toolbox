@@ -103,7 +103,7 @@ for i = 1:numData
                 saveName = [titleName, ' ', fileName, ' ch ', num2str(channel(i))];
             else
                 title([titleName, ' ', fileName, ' ch ', num2str(channel(j))])
-                saveName = [titleName, ' ', fileName, ' ch ', num2str(channel)];
+                saveName = [titleName, ' ', fileName, ' ch ', num2str(channel(j))];
             end
             hold on
             ylabel(yScale, 'FontSize', textSize);

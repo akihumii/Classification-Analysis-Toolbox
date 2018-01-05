@@ -53,7 +53,7 @@ else
             plotFig(signal(i,1).time/signal(i,1).samplingFreq,signal(i,1).dataDelta,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],'Differential Signal Channel','Time(s)','Amplitude(V)',...
                 saveDelta,... % save
                 showDelta,... % show
-                signal(i,1).path,'subplot', signal(i,1).channel);
+                signal(i,1).path,'subplot', signal(i,1).channelPair(:,1));
         end
     end
 end
