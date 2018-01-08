@@ -1,4 +1,4 @@
-function [] = visualizeSignals(signal, signalClassification, selectedWindow, windowSize, partialDataSelection, channelExtractStartingLocs, dataToBeDetectedSpike, saveRaw, showRaw, saveDelta, showDelta, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT)
+function [] = visualizeSignals(signal, signalClassification, selectedWindow, windowSize, partialDataSelection, channelExtractStartingLocs, dataToBeDetectedSpike, saveRaw, showRaw, saveDifferential, showDifferential, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT)
 %visualizeSignal Visualize needed signals. Raw, filtered, differential,
 %overlapping windows, average windows, and overall signal with indicated
 %spikes can be plotted.
@@ -42,18 +42,18 @@ else
 end
 
 %% Plot differential signal
-if ~saveDelta && ~showDelta
+if ~saveDifferential && ~showDifferential
 else
     for i = 1:length(signal)
         if isempty(signal(i,1).channelPair)
-            if saveDelta == 1 || showDelta == 1
+            if saveDifferential == 1 || showDifferential == 1
                 warning('ChannelRef is not keyed in...')
             end
         else
-            plotFig(signal(i,1).time/signal(i,1).samplingFreq,signal(i,1).dataDelta,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],'Differential Signal Channel','Time(s)','Amplitude(V)',...
-                saveDelta,... % save
-                showDelta,... % show
-                signal(i,1).path,'subplot', signal(i,1).channelPair(:,1));
+            plotFig(signal(i,1).time/signal(i,1).samplingFreq,signal(i,1).dataDifferential,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],'Differential Signal Channel','Time(s)','Amplitude(V)',...
+                saveDifferential,... % save
+                showDifferential,... % show
+                signal(i,1).path,'subplot', signal(i,1).channel);
         end
     end
 end

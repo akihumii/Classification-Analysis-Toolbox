@@ -27,7 +27,7 @@ classdef classData
         dataRectified
         dataFiltered
         dataFFT
-        dataDelta
+        dataDifferential
         dataTKEO
         dataPCA
     end
@@ -86,7 +86,8 @@ classdef classData
         
         function data = dataDifferentialSubtraction(data, targetName, channelPair)
             [~,channelRefLocs] = ismember(data.channel,channelPair'); % get the locations of the channel pairs in all the channels
-            data.dataDelta = dataDifferentialSubtraction(data.(targetName), channelRefLocs); % subtract according to 1-2, 3-4, etc...
+            data.dataDifferential = dataDifferentialSubtraction(data.(targetName), channelRefLocs); % subtract according to 1-2, 3-4, etc...
+            data.channel = channelPair;
             data.channelPair = channelPair;
         end
         

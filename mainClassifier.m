@@ -12,7 +12,7 @@ clc
 % General Parameters
 dataType = 'intan'; % configurable types: ,'neutrino2','neutrino', 'intan', 'sylphx', 'sylphii'
 channel = [13,14,15,16]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
-channelPair = [13,15;14,16]; % input 0 if no differential data is needed.
+channelPair = [13,14;15,16]; % input the pairs seperated in rows, eg:[1,2;3,4] means 1 pairs with 2 and 3 pairs with 4; input 0 if no differential data is needed.
 samplingFreq = 0; % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 1798.2, sylphII: 1798.2)
 neutrinoInputReferred = 0; % input 1 to check input refer, otherwise input 0
 neutrinoBit = 1; % input 1 for 8 bit mode, input 0 for 10 bit mode
@@ -28,11 +28,11 @@ notchFreq = 50; % notch frequency, input 0 if not applied
 decimateFactor = 1; % down sampling the data by a factor 'decimateFactor'
 
 % FFT parameters
-dataToBeFFT = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataFiltered' for filtered data; input 'dataRectified' for rectified data
+dataToBeFFT = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataFiltered' for filtered data; input 'dataRectified' for rectified data; input 'dataDifferential' for differential data
 
 % Peak Detection Parameters
-dataToBeDetectedSpike = 'dataDelta'; % data for spike detecting
-overlappedWindow = 'dataDelta'; % Select window for overlapping. Input 'dataRaw' for raw data, 'dataFiltered' for filtered data, 'dataDelta' for differential data
+dataToBeDetectedSpike = 'dataDifferential'; % data for spike detecting
+overlappedWindow = 'dataDifferential'; % Select window for overlapping. Input 'dataRaw' for raw data, 'dataFiltered' for filtered data, 'dataDifferential' for differential data
 spikeDetectionType = 'local maxima'; % input 'local maxima' for local maxima, input 'trigger for first point exceeding threshold, input 'TKEO' for taking following consecutive points into account
 threshold = [0]; % specified one threshold for spikes detection in all the channels; multiple thresholds are allowed for different channels; input 0 for default value (baseline + threshMult * baselineStandardDeviation) (baseline is obtained by calculating the mean of the data points spanned between 1/4 to 3/4 of the data array sorted by amplitudes)
 threshStdMult = [0]; % multiples of standard deviation above the baseline as the threshold for TKEO detection. All channels will use the same value if there is only one value, multiple values are allowed for different channels
@@ -48,14 +48,14 @@ TKEOEndConsecutivePoints = 500; % number of consecutive points below the thresho
 saveOption = 0;
 
 showRaw = 1;
-showDelta = 1;
+showDifferential = 1;
 showRectified = 0;
 showFilt = 0;
 showOverlap = 1;
 showFFT = saveOption;
 
 saveRaw = 0;
-saveDelta = 0;
+saveDifferential = 0;
 saveRectified = 0;
 saveFilt = 0;
 saveOverlap = saveOption;
@@ -83,7 +83,7 @@ disp(' ')
 close all
 
 tic
-visualizeSignals(signal, signalClassification, overlappedWindow, windowSize, partialDataSelection, channelExtractStartingLocs, dataToBeDetectedSpike, saveRaw, showRaw, saveDelta, showDelta, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT);
+visualizeSignals(signal, signalClassification, overlappedWindow, windowSize, partialDataSelection, channelExtractStartingLocs, dataToBeDetectedSpike, saveRaw, showRaw, saveDifferential, showDifferential, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT);
 disp ([num2str(toc), ' seconds is used for visualizing signals...'])
 disp(' ')
 
