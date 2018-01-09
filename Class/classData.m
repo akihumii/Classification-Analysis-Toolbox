@@ -64,6 +64,7 @@ classdef classData
                 [data.dataAll, data.time] = reconstructData(file, path, fileType, neutrinoBit, neutrinoInputReferred);
                 data.fileName = naming(data.file);
                 data.channel = channel;
+                data.channelPair = channel';
                 if channel > size(data.dataAll,2)
                     error('Error found in User Input: Selected channel is not existed')
                 end
@@ -87,7 +88,6 @@ classdef classData
         function data = dataDifferentialSubtraction(data, targetName, channelPair)
             [~,channelRefLocs] = ismember(data.channel,channelPair'); % get the locations of the channel pairs in all the channels
             data.dataDifferential = dataDifferentialSubtraction(data.(targetName), channelRefLocs); % subtract according to 1-2, 3-4, etc...
-            data.channel = channelPair;
             data.channelPair = channelPair;
         end
         
