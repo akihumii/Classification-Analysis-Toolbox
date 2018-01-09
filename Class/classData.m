@@ -86,7 +86,7 @@ classdef classData
         end
         
         function data = dataDifferentialSubtraction(data, targetName, channelPair)
-            [~,channelRefLocs] = ismember(data.channel,channelPair'); % get the locations of the channel pairs in all the channels
+            [~,channelRefLocs] = ismember(channelPair',data.channel); % get the locations of the channel pairs in all the channels
             data.dataDifferential = dataDifferentialSubtraction(data.(targetName), channelRefLocs); % subtract according to 1-2, 3-4, etc...
             data.channelPair = channelPair;
         end

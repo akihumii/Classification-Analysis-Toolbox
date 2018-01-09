@@ -10,9 +10,9 @@ clc
 
 %% User's Input
 % General Parameters
-dataType = 'intan'; % configurable types: ,'neutrino2','neutrino', 'intan', 'sylphx', 'sylphii'
-channel = [13,14,15,16]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
-channelPair = [13,14;15,16]; % input the pairs seperated in rows, eg:[1,2;3,4] means 1 pairs with 2 and 3 pairs with 4; input 0 if no differential data is needed.
+dataType = 'neutrino2'; % configurable types: ,'neutrino2','neutrino', 'intan', 'sylphx', 'sylphii'
+channel = [1,2,3,4]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
+channelPair = [1,2;3,2;4,2]; % input the pairs seperated in rows, eg:[1,2;3,4] means 1 pairs with 2 and 3 pairs with 4; input 0 if no differential data is needed.
 samplingFreq = 0; % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 1798.2, sylphII: 1798.2)
 neutrinoInputReferred = 0; % input 1 to check input refer, otherwise input 0
 neutrinoBit = 1; % input 1 for 8 bit mode, input 0 for 10 bit mode
