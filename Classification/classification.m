@@ -1,29 +1,37 @@
-function output = classification(trials)
-%classification Perform lda classification
-%   output = classification(grouping)
+function output = classification(trials,featureIndex,trainingRatio)
+%classification Perform lda classification with trials that are in cells
+%   output = classification(trials,featureIndex)
 
-numClasses = length(trials);
-numChannels = size(trials(1).grouping.training,3);
+[numBursts,numClasses,~,numChannels] = size(trials);
 
 for i = 1:numChannels
-    training = zeros(0,0);
-    testing = zeros(0,0);
-    trainingClass = zeros(0,0);
-    testingClass = zeros(0,0);
+    training{i,1} = zeros(0,1);
+    testing{i,1} = zeros(0,1);
+    trainingClass{i,1} = zeros(0,1);
+    testingClass{i,1} = zeros(0,1);
     
     for j = 1:numClasses
-        training = [training; trials(j).grouping.training(:,:,i)];
-        testing = [testing; trials(j).grouping.testing(:,:,i)];
-        trainingClass = [trainingClass; trials(j).grouping.trainingClass(:,:,i)];
-        testingClass = [testingClass; trials(j).grouping.testingClass(:,:,i)];
+        notNanFeaturesLocs = ~isnan(trials(:,j,featureIndex,i)); % locations of the not nan values
+        trialsTemp = trials(:,j,featureIndex,i);
+        notNanFeatures = trialsTemp(notNanFeaturesLocs); % get not nan values in a row
+        notNanFeatures = reshape(notNanFeatures,length(notNanFeatures)/2,[]);
+        randFeatures = notNanFeatures(randperm(size(notNanFeatures,1)),:);
+        trainingSet{i,j} = randFeatures(1 : floor(trainingRatio * numBursts),j);
+        testingSet{i,j} = randFeatures(floor(trainingRatio * numBursts)+1 : end,j);
+        training{i,1} = [training{i,1}; trainingSet{i,j}];
+        testing{i,1} = [testing{i,1}; testingSet{i,j}];
+        trainingClass{i,1} = [trainingClass{i,1}; j*ones(length(trainingSet{i,j}),1)];
+        testingClass{i,1} = [testingClass{i,1}; j*ones(length(testingSet{i,j}),1)];
     end
     
+    
+
+    
     [class{i},error{i},posterior{i},logP{i},coefficient{i}] = ...
-        classify(testing,training,trainingClass);
+        classify(testing{i,1},training{i,1},trainingClass{i,1});
     
-    accuracy{i} = calculateAccuracy(class{i},testingClass,numClasses);
+    accuracy{i} = calculateAccuracy(class{i},testingClass{i,1},numClasses);
     
-    clear training testing trainingClass testingClass
 end
 
 output.class = class;
@@ -32,5 +40,11 @@ output.posterior = posterior;
 output.logP = logP;
 output.coefficient = coefficient;
 output.accuracy = accuracy;
+output.trainingSet = trainingSet;
+output.testingSet = testingSet;
+output.training = training;
+output.testing = testing;
+output.trainingClass = trainingClass;
+output.testingClass = testingClass;
 end
 

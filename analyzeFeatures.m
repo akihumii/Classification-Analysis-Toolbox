@@ -9,8 +9,8 @@ clc
 showSeparatedFigures = 0;
 showFigures = 1;
 
-saveSeparatedFigures = 1;
-saveFigures = 1;
+saveSeparatedFigures = 0;
+saveFigures = 0;
 
 [files, path, iter] = selectFiles();
 
@@ -38,9 +38,9 @@ for i = 1:numFeatures
     for j = 1:iter % different speed
         for k = 1:numChannel
             featureNameTemp = featuresNames{i,1};
-            featuresAll(:,j,i,k) = features{j,1}.(featureNameTemp)(:,k);
-            featureMean(i,j,k) = nanmean(featuresAll(:,j,i,k));
-            featureStd(i,j,k) = std(featuresAll(:,j,i,k));
+            featuresAll(:,j,i,k) = features{j,1}.(featureNameTemp)(:,k); % it is sorted in [bursts * classes * features * channels]
+            featureMean(i,j,k) = nanmean(featuresAll(:,j,i,k)); % it is sorted in [features * clases * channels]
+            featureStd(i,j,k) = std(featuresAll(:,j,i,k)); % it is sorted in [features * classes * channels]
         end
     end
 end
@@ -50,19 +50,20 @@ numBursts = size(featuresAll,1);
 %% Run Classification
 % classifier = runClassification('lda',signalClassification)
 
-% classificationOutput = classification(features);
-% 
-% for i = 1:length(classificationOutput.accuracy)
-%     accuracy(i,1) = classificationOutput.accuracy{1,i}.accuracy;
-%     const(i,1) = classificationOutput.coefficient{1,i}(1,2).const;
-%     linear(i,1) = classificationOutput.coefficient{1,i}(1,2).linear;
-% end
-% 
-% %% Run SVM
-% svmOuput = svmClassify(classificationOutput.grouping);
-% 
-% %% Save file as .txt
-% saveText(accuracy,const,linear,classificationOutput.channelPair, spikeTiming.threshold, windowSize);
+trainingRatio = 0.625;
+classificationOutput = classification(featuresAll,[1,2],trainingRatio);
+
+for i = 1:length(classificationOutput.accuracy)
+    accuracy(i,1) = classificationOutput.accuracy{1,i}.accuracy;
+    const(i,1) = classificationOutput.coefficient{1,i}(1,2).const;
+    linear(i,1) = classificationOutput.coefficient{1,i}(1,2).linear;
+end
+
+%% Run SVM
+svmOuput = svmClassify(classificationOutput.grouping);
+
+%% Save file as .txt
+saveText(accuracy,const,linear,classificationOutput.channelPair, spikeTiming.threshold, windowSize);
 
 
 %% Plot features
