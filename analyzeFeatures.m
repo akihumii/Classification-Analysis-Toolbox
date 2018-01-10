@@ -6,12 +6,15 @@ close all
 clc
 
 %% User Input
+showSeparatedFigures = 0;
 showFigures = 1;
-saveFigures = 0;
+
+saveSeparatedFigures = 1;
+saveFigures = 1;
 
 [files, path, iter] = selectFiles();
 
-%% Get features
+%% Get features info
 for i = 1:iter
     info(i,1) = load([path,files{i}]);
     signal(i,1) = info(i,1).varargin{1,1};
@@ -36,7 +39,7 @@ for i = 1:numFeatures
         for k = 1:numChannel
             featureNameTemp = featuresNames{i,1};
             featuresAll(:,j,i,k) = features{j,1}.(featureNameTemp)(:,k);
-            featureMean(i,j,k) = mean(featuresAll(:,j,i,k));
+            featureMean(i,j,k) = nanmean(featuresAll(:,j,i,k));
             featureStd(i,j,k) = std(featuresAll(:,j,i,k));
         end
     end
@@ -44,55 +47,28 @@ end
 
 numBursts = size(featuresAll,1);
 
+%% Run Classification
+% classifier = runClassification('lda',signalClassification)
+
+% classificationOutput = classification(features);
+% 
+% for i = 1:length(classificationOutput.accuracy)
+%     accuracy(i,1) = classificationOutput.accuracy{1,i}.accuracy;
+%     const(i,1) = classificationOutput.coefficient{1,i}(1,2).const;
+%     linear(i,1) = classificationOutput.coefficient{1,i}(1,2).linear;
+% end
+% 
+% %% Run SVM
+% svmOuput = svmClassify(classificationOutput.grouping);
+% 
+% %% Save file as .txt
+% saveText(accuracy,const,linear,classificationOutput.channelPair, spikeTiming.threshold, windowSize);
+
+
 %% Plot features
 close all
 
-dataPath = signal(1,1).path;
-titleName = 'Different Speed';
-switch titleName
-    case 'Different Speed'
-        plotFileName = [fileName{1,1}(1:6),fileName{1,1}(12:17)];
-        xScale = 'Speed(cm/s)';
-        xTickValue = fileSpeed;
-    case 'Different Day';
-        plotFileName = fileName{1,1}(1:8);
-        xScale = 'Date';
-        xTickValue = fileDate;
-end
-        
-
-for i = 1:numFeatures
-    for j = 1:numChannel
-        [p(i,j),f(i,j)] = plotFig(1:iter,transpose(featureMean(i,:,j)),plotFileName,[featuresNames{i,1},' of ',titleName],xScale,'',...
-            0,... % save
-            1,... % show
-            path, 'subPlot',channel(1,j),'barPlot');
-        p(i,j).XTick = 1:iter;
-        p(i,j).XTickLabel = xTickValue;
-        hold on
-        featureStde(i,:,j) = featureStd(i,:,j) / sqrt(numBursts);
-        errorbar(1:iter,transpose(featureMean(i,:,j)),featureStde(i,:,j),'r*');
-        
-        if saveFigures
-            savePlot(path,['Features sorted in ',titleName,],plotFileName,[featuresNames{i,1},' with ',titleName,' of ch ',num2str(channel(1,j)),' in ',plotFileName])
-        end
-        
-    end
-end
-
-%% Plot all the features
-for i = 1:numChannel
-    plots2subplots(p(:,i),2,4)
-end
-
-if saveFigures
-    savePlot(path,['Features sorted in ',titleName,],plotFileName,['All the Features with ',titleName,' of ch ',num2str(channel(1,j)),' in ',plotFileName])
-end
-
-if ~showFigures
-    close all
-end
-
+visualizeFeatures(iter, path, channel, featureStd, numBursts, 'Active EMG', fileName, fileSpeed, fileDate, numChannel, featureMean, featuresNames, numFeatures, saveFigures, showFigures, saveSeparatedFigures, showSeparatedFigures);
 
 clear i j k
 
