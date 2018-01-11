@@ -74,7 +74,7 @@ end
 windowSize = 0.5; % window size in seconds
 windowSkipSize = 0.05; % skipped window size in seconds
 for i = 1:iter
-    discreteClassification(dataTKEO{i,1},dataFiltered{i,1},samplingFreq(i,1),windowSize,windowSkipSize,detectionInfo{i,1},featureIndex,classificationOutput.coefficient{1,i},i);
+    predictedClass(:,i) = discreteClassification(dataTKEO{i,1},dataFiltered{i,1},samplingFreq(i,1),windowSize,windowSkipSize,detectionInfo{i,1},featureIndex,classificationOutput.coefficient{1,i},i);
 end
 
 

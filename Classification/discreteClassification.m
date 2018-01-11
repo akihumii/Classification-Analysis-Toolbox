@@ -1,10 +1,9 @@
-function [] = discreteClassification(dataTKEO,dataFiltered,samplingFreq,windowSize,windowSkipSize,detectionInfo,featureIndex,classifierParameters,correctClass)
+function predictedClass = discreteClassification(dataTKEO,dataFiltered,samplingFreq,windowSize,windowSkipSize,detectionInfo,featureIndex,classifierParameters,correctClass)
 %discreteClassification Run the entire signal and classfify the windows
 %with same sizes and separted with windowSkipSize
 %   Detailed explanation goes here
 
 [rowData, colData] = size(dataTKEO);
-count = 1;
 
 windowSize = windowSize * samplingFreq; % convert from seconds into sample points
 windowSkipSize = windowSkipSize * samplingFreq; % convert from seconds into sample points
@@ -12,6 +11,7 @@ windowSkipSize = windowSkipSize * samplingFreq; % convert from seconds into samp
 burstEndValue = 0;
 
 for i = 1:colData % channels
+    count = 1;
     
     startingPoint = windowSkipSize * (count-1);
     
@@ -25,7 +25,7 @@ for i = 1:colData % channels
             featuresTemp = struct2cell(featuresTemp);
             features = cell2mat(featuresTemp(featureIndex));
             
-            predictedClass = classifyData(features',classifierParameters);
+            predictedClass(i,1) = classifyData(features',classifierParameters);
             
             burstEndValue = outputTemp.burstEndValue;
             
