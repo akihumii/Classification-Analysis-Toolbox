@@ -3,7 +3,9 @@ function output = detectSpikes(data, minDistance, threshold, sign, type, threshS
 %3/5 of the maximum value of the signal will be considered as a spike. No 2
 %spikes will be detected in one window.
 % 
-% type: can be 'local maxima', 'trigger', 'TKEO'
+% input: type: can be 'local maxima', 'trigger', 'TKEO'
+% 
+% output: spikePeaksValue,spikeLocs,threshold,baseline,burstEndValue,burstEndLocs,threshStdMult,TKEOStartConsecutivePoints,TKEOEndConsecutivePoints,warningOn
 % 
 %   output = detectSpikes(data, minDistance, threshold, sign, type, threshStdMult, TKEOStartConsecutivePoints, TKEOEndConsecutivePoints)
 
@@ -15,8 +17,7 @@ if nargin < 2
     threshStdMult = 1;
     TKEOStartConsecutivePoints = 1;
     TKEOEndConsecutivePoints = 1;
-end
-
+end    
 
 %% Find Peaks
 data = sign*data;
@@ -53,8 +54,9 @@ for i = 1:colData % channel
             spikeLocs{i,1} = spikeLocs{i,1} + minDistance(1); % compensate the skipped window
             [burstEndValue{i,1},burstEndLocs{i,1}] = pointAfterAWindow(data(:,i),minDistance(2),spikeLocs{i,1});
         case 'TKEO'
-            [spikePeaksValue{i,1},spikeLocs{i,1}] = triggerSpikeDetection(data(minDistance(1):end-minDistance(2),i),thresholdValue,minDistance(2),TKEOStartConsecutivePoints); % the last value is the number of consecutive point that needs to exceed threshold to be detected as spikes
-            spikeLocs{i,1} = spikeLocs{i,1} + minDistance(1); % compensate the skipped window
+            [spikePeaksValue{i,1},spikeLocs{i,1}] = triggerSpikeDetection(data(1:end,i),thresholdValue,minDistance(2),TKEOStartConsecutivePoints); % the last value is the number of consecutive point that needs to exceed threshold to be detected as spikes
+%             [spikePeaksValue{i,1},spikeLocs{i,1}] = triggerSpikeDetection(data(minDistance(1):end-minDistance(2),i),thresholdValue,minDistance(2),TKEOStartConsecutivePoints); % the last value is the number of consecutive point that needs to exceed threshold to be detected as spikes
+%             spikeLocs{i,1} = spikeLocs{i,1} + minDistance(1); % compensate the skipped window
             [burstEndValue{i,1},burstEndLocs{i,1}] = findEndPoint(data(:,i), thresholdValue, spikeLocs{i,1}, TKEOEndConsecutivePoints);
             [spikePeaksValue{i,1},spikeLocs{i,1},burstEndValue{i,1},burstEndLocs{i,1}] =...
                 trimBurstLocations(spikePeaksValue{i,1},spikeLocs{i,1},burstEndValue{i,1},burstEndLocs{i,1});

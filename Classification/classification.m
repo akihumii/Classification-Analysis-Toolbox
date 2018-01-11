@@ -16,16 +16,13 @@ for i = 1:numChannels
         notNanFeatures = trialsTemp(notNanFeaturesLocs); % get not nan values in a row
         notNanFeatures = reshape(notNanFeatures,length(notNanFeatures)/2,[]);
         randFeatures = notNanFeatures(randperm(size(notNanFeatures,1)),:);
-        trainingSet{i,j} = randFeatures(1 : floor(trainingRatio * numBursts),j);
-        testingSet{i,j} = randFeatures(floor(trainingRatio * numBursts)+1 : end,j);
+        trainingSet{i,j} = randFeatures(1 : floor(trainingRatio * numBursts),:);
+        testingSet{i,j} = randFeatures(floor(trainingRatio * numBursts)+1 : end,:);
         training{i,1} = [training{i,1}; trainingSet{i,j}];
         testing{i,1} = [testing{i,1}; testingSet{i,j}];
         trainingClass{i,1} = [trainingClass{i,1}; j*ones(length(trainingSet{i,j}),1)];
         testingClass{i,1} = [testingClass{i,1}; j*ones(length(testingSet{i,j}),1)];
     end
-    
-    
-
     
     [class{i},error{i},posterior{i},logP{i},coefficient{i}] = ...
         classify(testing{i,1},training{i,1},trainingClass{i,1});

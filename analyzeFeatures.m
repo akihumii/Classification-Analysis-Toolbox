@@ -7,7 +7,7 @@ clc
 
 %% User Input
 showSeparatedFigures = 0;
-showFigures = 1;
+showFigures = 0;
 
 saveSeparatedFigures = 0;
 saveFigures = 0;
@@ -24,6 +24,11 @@ for i = 1:iter
     features{i,1} = signalClassification(i,1).features;
     fileSpeed{i,1} = fileName{i,1}(7:8);
     fileDate{i,1} = fileName{i,1}(12:17);
+    
+    dataFiltered{i,1} = signal(i,1).dataFiltered.values; 
+    dataTKEO{i,1} = signal(i,1).dataTKEO.values; % signals for discrete classifcation
+    samplingFreq(i,1) = signal(i,1).samplingFreq;
+    detectionInfo{i,1} = signalClassification(i,1).burstDetection;
 end
 
 channel = signal(1,1).channel;
@@ -48,22 +53,29 @@ end
 numBursts = size(featuresAll,1);
 
 %% Run Classification
-% classifier = runClassification('lda',signalClassification)
-
 trainingRatio = 0.625;
-classificationOutput = classification(featuresAll,[1,2],trainingRatio);
+featureIndex = [1,2];
+classificationOutput = classification(featuresAll,featureIndex,trainingRatio);
+
+linear = zeros(0,2);
 
 for i = 1:length(classificationOutput.accuracy)
     accuracy(i,1) = classificationOutput.accuracy{1,i}.accuracy;
-    const(i,1) = classificationOutput.coefficient{1,i}(1,2).const;
-    linear(i,1) = classificationOutput.coefficient{1,i}(1,2).linear;
 end
 
-%% Run SVM
-svmOuput = svmClassify(classificationOutput.grouping);
+% %% Run SVM
+% svmOuput = svmClassify(classificationOutput.grouping);
 
-%% Save file as .txt
-saveText(accuracy,const,linear,classificationOutput.channelPair, spikeTiming.threshold, windowSize);
+% %% Save file as .txt
+% saveText(accuracy,const,linear,classificationOutput.channelPair, spikeTiming.threshold, windowSize);
+% 
+
+%% Run through the entire signal and classify
+windowSize = 0.5; % window size in seconds
+windowSkipSize = 0.05; % skipped window size in seconds
+for i = 1:iter
+    discreteClassification(dataTKEO{i,1},dataFiltered{i,1},samplingFreq(i,1),windowSize,windowSkipSize,detectionInfo{i,1},featureIndex,classificationOutput.coefficient{1,i},i);
+end
 
 
 %% Plot features
