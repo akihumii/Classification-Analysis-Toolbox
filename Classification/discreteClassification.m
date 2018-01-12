@@ -1,7 +1,7 @@
-function predictedClass = discreteClassification(dataTKEO,dataFiltered,samplingFreq,windowSize,windowSkipSize,detectionInfo,featureIndex,classifierParameters,correctClass)
+function output = discreteClassification(dataTKEO,dataFiltered,samplingFreq,windowSize,windowSkipSize,detectionInfo,featureIndex,classifierParameters,correctClass)
 %discreteClassification Run the entire signal and classfify the windows
 %with same sizes and separted with windowSkipSize
-%   Detailed explanation goes here
+%   predictedClass = discreteClassification(dataTKEO,dataFiltered,samplingFreq,windowSize,windowSkipSize,detectionInfo,featureIndex,classifierParameters,correctClass)
 
 [rowData, colData] = size(dataTKEO);
 
@@ -12,6 +12,8 @@ burstEndValue = 0;
 
 for i = 1:colData % channels
     count = 1;
+    features{i,1} = zeros(0,1);
+    predictedClass{i,1} = zeros(0,1);
     
     startingPoint = windowSkipSize * (count-1);
     
@@ -22,10 +24,10 @@ for i = 1:colData % channels
         
         if length(outputTemp.spikePeaksValue)==1 && ~isnan(outputTemp.spikePeaksValue) && burstEndValue~=outputTemp.burstEndValue % check if it's an empty array / nan value / same burst
             featuresTemp = featureExtraction(dataFiltered(startingPoint+(outputTemp.spikeLocs:outputTemp.burstEndLocs),i),samplingFreq); % extract features from the detected bursts that exceeds the threshold
-            featuresTemp = struct2cell(featuresTemp);
-            features = cell2mat(featuresTemp(featureIndex));
+            featuresTemp = transpose(struct2cell(featuresTemp));
+            features{i,1} = [features{i,1};cell2mat(featuresTemp(featureIndex))];
             
-            predictedClass(i,1) = classifyData(features',classifierParameters);
+            predictedClass{i,1} = [predictedClass{i,1};classifyData(features{i,1}(end,:),classifierParameters{1,i})];
             
             burstEndValue = outputTemp.burstEndValue;
             
@@ -36,8 +38,13 @@ for i = 1:colData % channels
         
         
     end
-    
+    correctClassTemp = repmat(correctClass,length(predictedClass{i,1}),1);
+    accuracy(i,1) = calculateAccuracy(predictedClass{i,1}, correctClassTemp);
 end
+
+output.features = features;
+output.predictedClass = predictedClass;
+output.accuracy = accuracy;
 
 end
 

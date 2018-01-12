@@ -1,4 +1,4 @@
-function [] = visualizeFeatures(iter, path, channel, featureStd, numBursts, titleName, fileName, fileSpeed, fileDate, numChannel, featureMean, featuresNames, numFeatures, saveFigures, showFigures, saveSeparatedFigures, showSeparatedFigures)
+function [] = visualizeFeatures(iter, path, channel, featureStde, titleName, fileName, fileSpeed, fileDate, numChannel, featureMean, featuresNames, numFeatures, saveFigures, showFigures, saveSeparatedFigures, showSeparatedFigures)
 %visualizeFeatures Visualize the features
 %   Detailed explanation goes here
 
@@ -28,7 +28,6 @@ if showFigures==1 || saveFigures==1 || showSeparatedFigures==1 || saveSeparatedF
             p(i,j).XTick = 1:iter;
             p(i,j).XTickLabel = xTickValue;
             hold on
-            featureStde(i,:,j) = featureStd(i,:,j) / sqrt(numBursts);
             errorbar(1:iter,transpose(featureMean(i,:,j)),featureStde(i,:,j),'r*');
             
             if saveSeparatedFigures

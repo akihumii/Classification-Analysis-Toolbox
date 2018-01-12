@@ -11,7 +11,7 @@ for i = 2:numClass
     linear = parameters(1,i).linear;
     value = constant + features * linear;
     
-    if value < 0
+    if value > 0
         classTemp = [classTemp; parameters(1,i).name1];
     else
         classTemp = [classTemp; parameters(1,i).name2];

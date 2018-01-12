@@ -2,7 +2,7 @@ function output = classification(trials,featureIndex,trainingRatio)
 %classification Perform lda classification with trials that are in cells
 %   output = classification(trials,featureIndex)
 
-[numBursts,numClasses,~,numChannels] = size(trials);
+[numClasses,~,numChannels] = size(trials);
 
 for i = 1:numChannels
     training{i,1} = zeros(0,1);
@@ -11,13 +11,14 @@ for i = 1:numChannels
     testingClass{i,1} = zeros(0,1);
     
     for j = 1:numClasses
-        notNanFeaturesLocs = ~isnan(trials(:,j,featureIndex,i)); % locations of the not nan values
-        trialsTemp = trials(:,j,featureIndex,i);
+        notNanFeaturesLocs = ~isnan(trials{j,featureIndex,i}); % locations of the not nan values
+        trialsTemp = trials{j,featureIndex,i};
         notNanFeatures = trialsTemp(notNanFeaturesLocs); % get not nan values in a row
-        notNanFeatures = reshape(notNanFeatures,length(notNanFeatures)/2,[]);
+        notNanFeatures = reshape(notNanFeatures,length(notNanFeatures)/length(featureIndex),[]);
         randFeatures = notNanFeatures(randperm(size(notNanFeatures,1)),:);
-        trainingSet{i,j} = randFeatures(1 : floor(trainingRatio * numBursts),:);
-        testingSet{i,j} = randFeatures(floor(trainingRatio * numBursts)+1 : end,:);
+        numRandBursts = size(randFeatures,1); % number of bursts that are not nan
+        trainingSet{i,j} = randFeatures(1 : floor(trainingRatio * numRandBursts),:);
+        testingSet{i,j} = randFeatures(floor(trainingRatio * numRandBursts)+1 : end,:);
         training{i,1} = [training{i,1}; trainingSet{i,j}];
         testing{i,1} = [testing{i,1}; testingSet{i,j}];
         trainingClass{i,1} = [trainingClass{i,1}; j*ones(length(trainingSet{i,j}),1)];
@@ -27,7 +28,7 @@ for i = 1:numChannels
     [class{i},error{i},posterior{i},logP{i},coefficient{i}] = ...
         classify(testing{i,1},training{i,1},trainingClass{i,1});
     
-    accuracy{i} = calculateAccuracy(class{i},testingClass{i,1},numClasses);
+    accuracy{i} = calculateAccuracy(class{i},testingClass{i,1});
     
 end
 
