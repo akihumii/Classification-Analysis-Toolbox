@@ -6,13 +6,15 @@ close all
 clc
 
 %% User Input
+testClassifier = 1;
+
 showSeparatedFigures = 0;
 showFigures = 1;
 
 saveSeparatedFigures = 0;
 saveFigures = 0;
 
-[files, path, iter] = selectFiles();
+[files, path, iter] = selectFiles('select mat files for classifier''s training');
 
 %% Get features info
 for i = 1:iter
@@ -24,11 +26,6 @@ for i = 1:iter
     features(i,1) = signalClassification(i,1).features;
     fileSpeed{i,1} = fileName{i,1}(7:8);
     fileDate{i,1} = fileName{i,1}(12:17);
-    
-    dataFiltered{i,1} = signal(i,1).dataFiltered.values; 
-    dataTKEO{i,1} = signal(i,1).dataTKEO.values; % signals for discrete classifcation
-    samplingFreq(i,1) = signal(i,1).samplingFreq;
-    detectionInfo{i,1} = signalClassification(i,1).burstDetection;
 end
 
 channel = signal(1,1).channel;
@@ -54,7 +51,23 @@ end
 %% Run Classification
 trainingRatio = 0.625;
 featureIndex = [1];
-classificationOutput = classification(featuresAll,featureIndex,trainingRatio);
+
+classifierTitle = 'Different Speed'; % it can be 'Different Speed','Different Day','Active EMG'
+classifierFullTitle = [classifierTitle,' ('];
+switch classifierTitle
+    case 'Different Speed'
+        fileType = fileSpeed;
+    case 'Different Day'
+        fileType = fileData;
+    case 'Active EMG'
+        fileType = [{'Active'};{'Non Active'}];
+end
+for i = 1:length(fileType)
+    classifierFullTitle = [classifierFullTitle,' ',char(fileType{i,1})];
+end
+classifierFullTitle = [classifierFullTitle,' )'];
+
+classificationOutput = classification(featuresAll,featureIndex,trainingRatio,classifierFullTitle);
 
 linear = zeros(0,2);
 
@@ -69,20 +82,43 @@ end
 % saveText(accuracy,const,linear,classificationOutput.channelPair, spikeTiming.threshold, windowSize);
 % 
 
-%% Run through the entire signal and classify
-windowSize = 0.5; % window size in seconds
-windowSkipSize = 0.05; % skipped window size in seconds
-for i = 1:iter
-    predictionOutput(i,1) = discreteClassification(dataTKEO{i,1},dataFiltered{i,1},samplingFreq(i,1),windowSize,windowSkipSize,detectionInfo{i,1},featureIndex,classificationOutput.coefficient,i);
-end
-
-
 %% Plot features
 close all
 
 % type can be 'Active EMG', 'Different Speed', 'Different Day'
-visualizeFeatures(iter, path, channel, featureStde, 'Different Speed', fileName, fileSpeed, fileDate, numChannel, featureMean, featuresNames, numFeatures, saveFigures, showFigures, saveSeparatedFigures, showSeparatedFigures);
+visualizeFeatures(iter, path, channel, featureStde, classifierTitle, fileName, fileSpeed, fileDate, numChannel, featureMean, featuresNames, numFeatures, saveFigures, showFigures, saveSeparatedFigures, showSeparatedFigures);
 
+%% Run through the entire signal and classify
+if testClassifier
+    
+    
+    windowSize = 0.5; % window size in seconds
+    windowSkipSize = 0.05; % skipped window size in seconds
+    
+    [filesTest,pathTest,iterTest] = selectFiles('select mat files for continuous classifier''s testing');
+    
+    popMsg('Processing continuous classification...');
+
+    for i = 1:iterTest % test the classifier
+        infoTest(i,1) = load([pathTest,filesTest{i}]);
+        signalTest(i,1) = infoTest(i,1).varargin{1,1};
+        signalClassificationTest(i,1) = infoTest(i,1).varargin{1,2};
+        fileNameTest{i,1} = signalTest(i,1).fileName;
+
+        dataFilteredTest{i,1} = signalTest(i,1).dataFiltered.values;
+        dataTKEOTest{i,1} = signalTest(i,1).dataTKEO.values; % signals for discrete classifcation
+        samplingFreqTest(i,1) = signalTest(i,1).samplingFreq;
+        detectionInfoTest{i,1} = signalClassificationTest(i,1).burstDetection;
+
+        predictionOutput(i,1) = discreteClassification(dataTKEOTest{i,1},dataFilteredTest{i,1},samplingFreqTest(i,1),windowSize,windowSkipSize,detectionInfoTest{i,1},featureIndex,classificationOutput.coefficient,i);
+    end
+    
+    for i = 1:iterTest % visualize the classifier
+        visualizeDetectedPoints(dataFilteredTest{i,1},predictionOutput(i,1).startPointAll,predictionOutput(i,1).endPointAll,samplingFreqTest(1,1),fileNameTest{i,1},pathTest);
+    end
+end
+
+%% End
 clear i j k
 
 finishMsg()

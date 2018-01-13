@@ -14,6 +14,8 @@ for i = 1:colData % channels
     count = 1;
     features{i,1} = zeros(0,1);
     predictedClass{i,1} = zeros(0,1);
+    startingPointAll{i,1} = zeros(0,1);
+    endPointAll{i,1} = zeros(0,1);
     
     startingPoint = windowSkipSize * (count-1);
     
@@ -23,6 +25,8 @@ for i = 1:colData % channels
             repmat(windowSize,1,2),detectionInfo.threshold(i),1,detectionInfo.detectionMethod,detectionInfo.threshStdMult,detectionInfo.TKEOStartConsecutivePoints,detectionInfo.TKEOEndConsecutivePoints);
         
         if length(outputTemp.spikePeaksValue)==1 && ~isnan(outputTemp.spikePeaksValue) && burstEndValue~=outputTemp.burstEndValue % check if it's an empty array / nan value / same burst
+            startingPointAll{i,1} = [startingPointAll{i,1};startingPoint+outputTemp.spikeLocs]; % store the starting piont of the detected bursts
+            endPointAll{i,1} = [endPointAll{i,1};startingPoint+outputTemp.burstEndLocs]; % store the end point of the detected bursts
             featuresTemp = featureExtraction(dataFiltered(startingPoint+(outputTemp.spikeLocs:outputTemp.burstEndLocs),i),samplingFreq); % extract features from the detected bursts that exceeds the threshold
             featuresTemp = transpose(struct2cell(featuresTemp));
             features{i,1} = [features{i,1};cell2mat(featuresTemp(featureIndex))];
@@ -42,9 +46,14 @@ for i = 1:colData % channels
     accuracy(i,1) = calculateAccuracy(predictedClass{i,1}, correctClassTemp);
 end
 
+startingPointAll = cell2nanMat(startingPointAll);
+endPointAll = cell2nanMat(endPointAll);
+
 output.features = features;
 output.predictedClass = predictedClass;
 output.accuracy = accuracy;
+output.startPointAll = startingPointAll;
+output.endPointAll = endPointAll;
 
 end
 

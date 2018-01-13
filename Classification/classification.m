@@ -1,4 +1,4 @@
-function output = classification(trials,featureIndex,trainingRatio)
+function output = classification(trials,featureIndex,trainingRatio,classifierTitle)
 %classification Perform lda classification with trials that are in cells
 %   output = classification(trials,featureIndex)
 
@@ -32,6 +32,7 @@ for i = 1:numChannels
     
 end
 
+output.classifierTitle = classifierTitle;
 output.class = class;
 output.error = error;
 output.posterior = posterior;
