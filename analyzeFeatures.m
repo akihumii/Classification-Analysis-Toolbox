@@ -50,7 +50,7 @@ end
 
 %% Run Classification
 trainingRatio = 0.625;
-featureIndex = [1];
+featureIndex = [7,8];
 
 classifierTitle = 'Different Speed'; % it can be 'Different Speed','Different Day','Active EMG'
 classifierFullTitle = [classifierTitle,' ('];
@@ -68,8 +68,6 @@ end
 classifierFullTitle = [classifierFullTitle,' )'];
 
 classificationOutput = classification(featuresAll,featureIndex,trainingRatio,classifierFullTitle);
-
-linear = zeros(0,2);
 
 for i = 1:length(classificationOutput.accuracy)
     accuracy(i,1) = classificationOutput.accuracy{1,i}.accuracy;
@@ -91,7 +89,6 @@ visualizeFeatures(iter, path, channel, featureStde, classifierTitle, fileName, f
 %% Run through the entire signal and classify
 if testClassifier
     
-    
     windowSize = 0.5; % window size in seconds
     windowSkipSize = 0.05; % skipped window size in seconds
     
@@ -99,6 +96,8 @@ if testClassifier
     
     popMsg('Processing continuous classification...');
 
+    correctClass = 1; % real class of the signal bursts
+    
     for i = 1:iterTest % test the classifier
         infoTest(i,1) = load([pathTest,filesTest{i}]);
         signalTest(i,1) = infoTest(i,1).varargin{1,1};
@@ -110,7 +109,7 @@ if testClassifier
         samplingFreqTest(i,1) = signalTest(i,1).samplingFreq;
         detectionInfoTest{i,1} = signalClassificationTest(i,1).burstDetection;
 
-        predictionOutput(i,1) = discreteClassification(dataTKEOTest{i,1},dataFilteredTest{i,1},samplingFreqTest(i,1),windowSize,windowSkipSize,detectionInfoTest{i,1},featureIndex,classificationOutput.coefficient,i);
+        predictionOutput(i,1) = discreteClassification(dataTKEOTest{i,1},dataFilteredTest{i,1},samplingFreqTest(i,1),windowSize,windowSkipSize,detectionInfoTest{i,1},featureIndex,classificationOutput.coefficient,correctClass);
     end
     
     for i = 1:iterTest % visualize the classifier

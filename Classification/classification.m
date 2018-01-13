@@ -3,6 +3,7 @@ function output = classification(trials,featureIndex,trainingRatio,classifierTit
 %   output = classification(trials,featureIndex)
 
 [numClasses,~,numChannels] = size(trials);
+numSelectedFeatures = length(featureIndex);
 
 for i = 1:numChannels
     training{i,1} = zeros(0,1);
@@ -11,10 +12,15 @@ for i = 1:numChannels
     testingClass{i,1} = zeros(0,1);
     
     for j = 1:numClasses
-        notNanFeaturesLocs = ~isnan(trials{j,featureIndex,i}); % locations of the not nan values
-        trialsTemp = trials{j,featureIndex,i};
-        notNanFeatures = trialsTemp(notNanFeaturesLocs); % get not nan values in a row
-        notNanFeatures = reshape(notNanFeatures,length(notNanFeatures)/length(featureIndex),[]);
+        notNanFeaturesLocs = zeros(1,0);
+        trialsTemp = zeros(1,0);
+        notNanFeatures = zeros(1,0);
+    
+        for k = 1:numSelectedFeatures
+            notNanFeaturesLocs = [notNanFeaturesLocs,~isnan(trials{j,featureIndex(1,k),i})]; % locations of the not nan values
+            trialsTemp = [trialsTemp,trials{j,featureIndex(1,k),i}];
+            notNanFeatures = trialsTemp(logical(notNanFeaturesLocs)); % get not nan values in a row
+        end
         randFeatures = notNanFeatures(randperm(size(notNanFeatures,1)),:);
         numRandBursts = size(randFeatures,1); % number of bursts that are not nan
         trainingSet{i,j} = randFeatures(1 : floor(trainingRatio * numRandBursts),:);
