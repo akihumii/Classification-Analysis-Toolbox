@@ -14,9 +14,11 @@ showFigures = 1;
 saveSeparatedFigures = 0;
 saveFigures = 0;
 
+%% Get features info
 [files, path, iter] = selectFiles('select mat files for classifier''s training');
 
-%% Get features info
+popMsg('Training clssifier...');
+
 for i = 1:iter
     info(i,1) = load([path,files{i}]);
     signal(i,1) = info(i,1).varargin{1,1};
@@ -48,9 +50,9 @@ for i = 1:numFeatures
     end
 end
 
-%% Run Classification
+%% Train Classification
 trainingRatio = 0.625;
-featureIndex = [7,8];
+featureIndex = [1,2,5];
 
 classifierTitle = 'Different Speed'; % it can be 'Different Speed','Different Day','Active EMG'
 classifierFullTitle = [classifierTitle,' ('];
@@ -67,11 +69,9 @@ for i = 1:length(fileType)
 end
 classifierFullTitle = [classifierFullTitle,' )'];
 
-classificationOutput = classification(featuresAll,featureIndex,trainingRatio,classifierFullTitle);
+classificationOutput = classification(featuresAll,featureIndex,trainingRatio,classifierFullTitle,1000);
 
-for i = 1:length(classificationOutput.accuracy)
-    accuracy(i,1) = classificationOutput.accuracy{1,i}.accuracy;
-end
+accuracy = classificationOutput.accuracy; % mean accuracy after all the repetitions
 
 % %% Run SVM
 % svmOuput = svmClassify(classificationOutput.grouping);

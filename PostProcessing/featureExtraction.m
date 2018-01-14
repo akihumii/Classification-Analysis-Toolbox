@@ -32,10 +32,10 @@ for i = 1:numData
             end
             
             stateZeroCrossings = diff(sign(data(:,j,i)));
-            numZeroCrossings(j,i) = length(stateZeroCrossings(stateZeroCrossings~=0));
+            numZeroCrossings(j,i) = length(stateZeroCrossings(stateZeroCrossings~=0 & ~isnan(stateZeroCrossings)));
             
             stateSignChanges = diff(sign(diff(data(:,j,i))));
-            numSignChanges(j,i) = length(stateSignChanges(stateSignChanges~=0));
+            numSignChanges(j,i) = length(stateSignChanges(stateSignChanges~=0 & ~isnan(stateSignChanges)));
     end
 end
 
