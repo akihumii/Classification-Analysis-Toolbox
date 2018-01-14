@@ -18,10 +18,9 @@ if showFigures==1 || saveFigures==1 || showSeparatedFigures==1 || saveSeparatedF
             xTickValue = [{'non-activated EMG'};{'activated EMG'}];
     end
     
-    
     for i = 1:numFeatures
         for j = 1:numChannel
-            [p(i,j),f(i,j)] = plotFig(1:iter,transpose(featureMean(i,:,j)),plotFileName,[featuresNames{i,1},' of ',titleName],xScale,'',...
+            [p(i,j),f(i,j)] = plotFig(1:iter,transpose(featureMean(i,:,j)),plotFileName,featuresNames{i,1},xScale,'',...
                 0,... % save
                 1,... % show
                 path, 'subPlot',channel(1,j),'barPlot');
@@ -39,19 +38,18 @@ if showFigures==1 || saveFigures==1 || showSeparatedFigures==1 || saveSeparatedF
     
     %% Plot all the features
     for i = 1:numChannel
-        plots2subplots(p(:,i),2,4)
+        [~,fS(i,1)] = plots2subplots(p(:,i),2,4);
+        if saveFigures
+            savePlot(path,['Features sorted in ',titleName,],plotFileName,['All the Features with ',titleName,' of ch ',num2str(channel(1,i)),' in ',plotFileName])
+        end
     end
     
     if ~showSeparatedFigures
         delete(f)
     end
-        
-    if saveFigures
-        savePlot(path,['Features sorted in ',titleName,],plotFileName,['All the Features with ',titleName,' of ch ',num2str(channel(1,j)),' in ',plotFileName])
-    end
     
     if ~showFigures
-        close all
+        delete(fS(:,1))
     end
 end
 

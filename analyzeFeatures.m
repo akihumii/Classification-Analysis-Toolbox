@@ -6,13 +6,13 @@ close all
 clc
 
 %% User Input
-testClassifier = 1;
+testClassifier = 0;
 
 showSeparatedFigures = 0;
 showFigures = 1;
 
 saveSeparatedFigures = 0;
-saveFigures = 0;
+saveFigures = 1;
 
 %% Get features info
 [files, path, iter] = selectFiles('select mat files for classifier''s training');
@@ -43,16 +43,19 @@ for i = 1:numFeatures
         for j = 1:iter % different speed
             featureNameTemp = featuresNames{i,1};
             featuresAll{j,i,k} = features(j,1).(featureNameTemp)(:,k); % it is sorted in [bursts * classes * features * channels]
-            featureMean(i,j,k) = nanmean(featuresAll{j,i,k}); % it is sorted in [features * clases * channels]
-            featureStd(i,j,k) = std(featuresAll{j,i,k}); % it is sorted in [features * classes * channels]
-            featureStde(i,j,k) = featureStd(i,j,k) / sqrt(size(featuresAll{j,i,k},1)); % standard error of the feature
+            featuresTemp = featuresAll{j,i,k};
+            featureMean(i,j,k) = nanmean(featuresTemp); % it is sorted in [features * clases * channels]
+            featureStd(i,j,k) = nanstd(featuresTemp); % it is sorted in [features * classes * channels]
+            featureStde(i,j,k) = featureStd(i,j,k) / sqrt(length(featuresTemp(~isnan(featuresTemp)))); % standard error of the feature
         end
     end
 end
 
 %% Train Classification
+tTrain = tic;
+
 trainingRatio = 0.625;
-featureIndex = [1,2,5];
+featureIndex = [1,2,5,6];
 
 classifierTitle = 'Different Speed'; % it can be 'Different Speed','Different Day','Active EMG'
 classifierFullTitle = [classifierTitle,' ('];
@@ -80,11 +83,16 @@ accuracy = classificationOutput.accuracy; % mean accuracy after all the repetiti
 % saveText(accuracy,const,linear,classificationOutput.channelPair, spikeTiming.threshold, windowSize);
 % 
 
+display(['Training session takes ',num2str(toc(tTrain)),' seconds...']);
+
 %% Plot features
+tPlot = tic;
 close all
 
 % type can be 'Active EMG', 'Different Speed', 'Different Day'
 visualizeFeatures(iter, path, channel, featureStde, classifierTitle, fileName, fileSpeed, fileDate, numChannel, featureMean, featuresNames, numFeatures, saveFigures, showFigures, saveSeparatedFigures, showSeparatedFigures);
+
+display(['Plotting session takes ',num2str(toc(tTrain)),' seconds...']);
 
 %% Run through the entire signal and classify
 if testClassifier
@@ -93,6 +101,8 @@ if testClassifier
     windowSkipSize = 0.05; % skipped window size in seconds
     
     [filesTest,pathTest,iterTest] = selectFiles('select mat files for continuous classifier''s testing');
+   
+    tTest = tic;
     
     popMsg('Processing continuous classification...');
 
@@ -115,6 +125,8 @@ if testClassifier
     for i = 1:iterTest % visualize the classifier
         visualizeDetectedPoints(dataFilteredTest{i,1},predictionOutput(i,1).startPointAll,predictionOutput(i,1).endPointAll,samplingFreqTest(1,1),fileNameTest{i,1},pathTest);
     end
+    
+    display(['Continuous classification takes ',num2str(toc(tTrain)),' seconds...']);
 end
 
 %% End
