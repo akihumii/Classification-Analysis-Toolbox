@@ -29,12 +29,16 @@ else
 end
 
 if nargin < 11;
-    channel = 1:size(y,2);
+    channel = 1:size(y,2); % create a matrix
+    channel = mat2cell(channel',ones(1,size(channel,2)),size(channel,1)); % convert the matrix into cell
 else
     if varargin{11} == 0
-            channel = 1:size(y,2);
+        channel = 1:size(y,2); % create a matrix
+        channel = mat2cell(channel',ones(1,size(channel,2)),size(channel,1)); % convert the matrix into cell
     else
-    channel = varargin{11};
+        channel = varargin{11};
+        channel = checkSizeNTranspose(channel,2);
+        channel = mat2cell(channel,ones(1,size(channel,1)),size(channel,2)); % convert the matrix into cell
     end
 end
 if nargin < 10
@@ -99,11 +103,11 @@ for i = 1:numData
         if isequal(type, 'subplot')
             p(j,i) = subplot(numPlot,1,j);
             if numData > 1
-                title([titleName, ' ', fileName, ' set ', num2str(j), ' ch ', num2str(channel(i))])
-                saveName = [titleName, ' ', fileName, ' ch ', num2str(channel(i))];
+                title([titleName, ' ', fileName, ' set ', num2str(j), ' ch ', checkMatNAddStr(channel{i},' -')])
+                saveName = [titleName, ' ', fileName, ' ch ', checkMatNAddStr(channel{i},' -')];
             else
-                title([titleName, ' ', fileName, ' ch ', num2str(channel(j))])
-                saveName = [titleName, ' ', fileName, ' ch ', num2str(channel)];
+                title([titleName, ' ', fileName, ' ch ', checkMatNAddStr(channel{j},' -')])
+                saveName = [titleName, ' ', fileName, ' ch ', checkMatNAddStr(channel{j},' -')];
             end
             hold on
             ylabel(yScale, 'FontSize', textSize);
@@ -142,8 +146,8 @@ for i = 1:numData
     if isequal(type, 'subplot')
         linkaxes(p(:,1),'x');
     else
-        title([titleName, ' ', fileName, ' ch ', num2str(channel(i))])
-        saveName = [titleName, ' ', fileName, ' ch ', num2str(channel(i))];
+        title([titleName, ' ', fileName, ' ch ', checkMatNAddStr(channel{i},' -')])
+        saveName = [titleName, ' ', fileName, ' ch ', checkMatNAddStr(channel{i},' -')];
     end
     
     hold off

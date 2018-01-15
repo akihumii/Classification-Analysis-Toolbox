@@ -1,4 +1,4 @@
-function [] = visualizeSignals(signal, signalClassification, selectedWindow, windowSize, partialDataSelection, channelExtractStartingLocs, dataToBeDetectedSpike, saveRaw, showRaw, saveDelta, showDelta, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT)
+function [] = visualizeSignals(signal, signalClassification, selectedWindow, windowSize, partialDataSelection, channelExtractStartingLocs, dataToBeDetectedSpike, saveRaw, showRaw, saveDifferential, showDifferential, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT)
 %visualizeSignal Visualize needed signals. Raw, filtered, differential,
 %overlapping windows, average windows, and overall signal with indicated
 %spikes can be plotted.
@@ -37,23 +37,23 @@ else
         plotFig(signal(i,1).time/signal(i,1).samplingFreq,signal(i,1).dataRectified,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],'Rectified Signal (High Pass Filtered 1 Hz)','Time(s)','Amplitude(V)',...
             saveRectified,... % save
             showRectified,... % show
-            signal(i,1).path,'subplot', signal(i,1).channel);
+            signal(i,1).path,'subplot', signal(i,1).channelPair);
     end
 end
 
 %% Plot differential signal
-if ~saveDelta && ~showDelta
+if ~saveDifferential && ~showDifferential
 else
     for i = 1:length(signal)
-        if isempty(signal(i,1).channelRef)
-            if saveDelta == 1 || showDelta == 1
+        if isempty(signal(i,1).channelPair)
+            if saveDifferential == 1 || showDifferential == 1
                 warning('ChannelRef is not keyed in...')
             end
         else
-            plotFig(signal(i,1).time/signal(i,1).samplingFreq,signal(i,1).dataDelta,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],'Differential Signal','Time(s)','Amplitude(V)',...
-                saveDelta,... % save
-                showDelta,... % show
-                signal(i,1).path,'subplot', signal(i,1).channel);
+            plotFig(signal(i,1).time/signal(i,1).samplingFreq,signal(i,1).dataDifferential,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],'Differential Signal Channel','Time(s)','Amplitude(V)',...
+                saveDifferential,... % save
+                showDifferential,... % show
+                signal(i,1).path,'subplot', signal(i,1).channelPair);
         end
     end
 end
@@ -66,7 +66,7 @@ else
             plotFig(signal(i,1).time/signal(i,1).samplingFreq,signal(i,1).dataFiltered.values,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],['Filtered Signal (', num2str(signal(i,1).dataFiltered.highPassCutoffFreq),'-', num2str(signal(i,1).dataFiltered.lowPassCutoffFreq), ')'],'Time(s)','Amplitude(V)',...
                 saveFilt,... % save
                 showFilt,... % show
-                signal(i,1).path,'subplot', signal(i,1).channel);
+                signal(i,1).path,'subplot', signal(i,1).channelPair);
         end
     end
 end
@@ -78,7 +78,7 @@ else
         plotFig(signal(i,1).dataFFT.freqDomain,signal(i,1).dataFFT.values,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],[signal(i,1).dataFFT.dataBeingProcessed,' FFT Signal'],'Frequency(Hz)','Amplitude',...
             saveFFT,... % save
             showFFT,... % show
-            signal(i,1).path,'subplot', signal(i,1).channel);
+            signal(i,1).path,'subplot', signal(i,1).channelPair);
     end
 end
 
@@ -97,7 +97,7 @@ else
         overallP = plotFig(signal(i,1).time/signal(i,1).samplingFreq,dataValuesPeakDetection,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],['Signal used for Peak Detection (', dataNamePeakDetection, ')'],'Time(s)','Amplitude(V)',...
             0,... % save
             1,... % show
-            signal(i,1).path,'subplot', signal(i,1).channel);
+            signal(i,1).path,'subplot', signal(i,1).channelPair);
         hold on
         
         % Plot the markings
@@ -127,20 +127,20 @@ else
         plotFig(windowsValues.xAxisValues,windowsValues.burst,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],['Windows Following Artefacts ( ', dataName, ' )'],'Time(s)','Amplitude(V)',...
             saveOverlap,... % save
             showOverlap,... % show
-            signal(i,1).path,'overlap', signal(i,1).channel);
+            signal(i,1).path,'overlap', signal(i,1).channelPair);
         
         % plot averaging overlapping windows
         plotFig(windowsValues.xAxisValues,nanmean(windowsValues.burst,2),[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],['Average Windows Following Artefacts ( ', dataName, ' )'],'Time(s)','Amplitude(V)',...
             saveOverlap,... % save
             showOverlap,... % show
-            signal(i,1).path,'subplot', signal(i,1).channel);
+            signal(i,1).path,'subplot', signal(i,1).channelPair);
         
         % plot overall signal with spikes indicated
         if showOverlap || saveOverlap
             overallP = plotFig(signal(i,1).time/signal(i,1).samplingFreq,dataValues,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],['Overall Signal with Spikes Indicated (', dataName, ')'],'Time(s)','Amplitude(V)',...
                 0,... % save
                 1,... % show
-                signal(i,1).path,'subplot', signal(i,1).channel);
+                signal(i,1).path,'subplot', signal(i,1).channelPair);
             hold on
             
             % Plot the markings
