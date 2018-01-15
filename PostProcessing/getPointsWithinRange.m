@@ -21,13 +21,20 @@ for i = 1:numColumn
             numLocs(i,1) = sum(~isnan(startLocs(:,ch))); % number of locations that is not NaN
             
             for j = 1:numLocs(i,1)-1
-                burst{j,1} = data(transpose((floor(-windowSize(1,1)*samplingFreq)+startLocs(j,ch)):startLocs(j+1,ch)),i);
-                xAxisValuesTemp = transpose(1+floor(-windowSize(1,1)*samplingFreq):startLocs(j+1,ch)-startLocs(j,ch)+1); % create an array of x axis values for burst plotting
-                % get the correct time axis, because the xAxisValuesTemp might
-                % start from negative value, so need to compensate that part
-                minusLocation = 1-xAxisValuesTemp(1,1);
-                timeTemp = timeAxis-timeAxis(minusLocation);
-                xAxisValues{j,1} = timeTemp(1:length(xAxisValuesTemp));
+                startingPoint = floor(-windowSize(1,1)*samplingFreq)+startLocs(j,ch);
+                endPoint = startLocs(j+1,ch);
+                if startingPoint>0 && endPoint<=numRow
+                    burst{j,1} = data(transpose(startingPoint:endPoint),i);
+                    xAxisValuesTemp = transpose(1+floor(-windowSize(1,1)*samplingFreq):startLocs(j+1,ch)-startLocs(j,ch)+1); % create an array of x axis values for burst plotting
+                    % get the correct time axis, because the xAxisValuesTemp might
+                    % start from negative value, so need to compensate that part
+                    minusLocation = 1-xAxisValuesTemp(1,1);
+                    timeTemp = timeAxis-timeAxis(minusLocation);
+                    xAxisValues{j,1} = timeTemp(1:length(xAxisValuesTemp));
+                else
+                    burst{j,1} = nan;
+                    xAxisValues{j,1} = nan;
+                end
             end
             
         else
@@ -36,12 +43,19 @@ for i = 1:numColumn
             numLocs(i,1) = sum(~isnan(startLocs(:,ch))); % number of locations that is not NaN
             
             for j = 1:numLocs(i,1)-1
-                burst{j,1} = data(transpose((floor(-windowSize(1,1)*samplingFreq)+startLocs(j,ch)):endLocs(j,ch)+windowSize(1,2)*samplingFreq),i);
-                xAxisValuesTemp = transpose(1+floor(-windowSize(1,1)*samplingFreq):endLocs(j,ch)-startLocs(j,ch)+1+windowSize(1,2)*samplingFreq); % create an array of x axis values for burst plotting
-                % get the correct time axis, because the xAxisValuesTemp might start from negative value, so need to compensate that part
-                minusLocation = 1-xAxisValuesTemp(1,1);
-                timeTemp = timeAxis-timeAxis(minusLocation);
-                xAxisValues{j,1} = timeTemp(1:length(xAxisValuesTemp));
+                startingPoint = floor(-windowSize(1,1)*samplingFreq)+startLocs(j,ch);
+                endPoint = endLocs(j,ch)+windowSize(1,2)*samplingFreq;
+                if startingPoint>0 && endPoint<=numRow
+                    burst{j,1} = data(transpose(startingPoint:endPoint),i);
+                    xAxisValuesTemp = transpose(1+floor(-windowSize(1,1)*samplingFreq):endLocs(j,ch)-startLocs(j,ch)+1+windowSize(1,2)*samplingFreq); % create an array of x axis values for burst plotting
+                    % get the correct time axis, because the xAxisValuesTemp might start from negative value, so need to compensate that part
+                    minusLocation = 1-xAxisValuesTemp(1,1)+1;
+                    timeTemp = timeAxis-timeAxis(minusLocation);
+                    xAxisValues{j,1} = timeTemp(1:length(xAxisValuesTemp));
+                else
+                    burst{j,1} = nan;
+                    xAxisValues{j,1} = nan;
+                end
             end
             
         end
@@ -60,7 +74,7 @@ for i = 1:numColumn
         burst{j,1} = data(transpose((floor(-windowSize(1,1)*samplingFreq)+startLocs(j,ch)):endPointTemp),i);
         xAxisValuesTemp = transpose(1+floor(-windowSize(1,1)*samplingFreq):endPointTemp-startLocs(j,ch)+1); % create an array of x axis values for burst plotting
         % get the correct time axis, because the xAxisValuesTemp might start from negative value, so need to compensate that part
-        minusLocation = 1-xAxisValuesTemp(1,1);
+        minusLocation = 1-xAxisValuesTemp(1,1)+1;
         timeTemp = timeAxis-timeAxis(minusLocation);
         xAxisValues{j,1} = timeTemp(1:length(xAxisValuesTemp));
         

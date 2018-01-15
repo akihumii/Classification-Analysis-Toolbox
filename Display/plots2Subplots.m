@@ -1,4 +1,4 @@
-function varargin = plots2subplots(plots,rowSubplot,colSubplot,titleName)
+function varargout = plots2subplots(plots,rowSubplot,colSubplot,titleName)
 %plots2subplots Plot the plots into subplot
 % 
 % input:    titleName is optional
@@ -33,9 +33,9 @@ set(gcf, 'Position', get(0,'Screensize'),'DefaultAxesFontSize',textSize,...
     'PaperPositionMode', 'auto');
 
 %% output
-varargin{1,1} = newSp;
-if nargin == 2
-    varargin{2,1} = f;
+varargout{1,1} = newSp;
+if nargout == 2
+    varargout{2,1} = f;
 end
 
 end

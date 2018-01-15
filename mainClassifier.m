@@ -10,19 +10,19 @@ clc
 
 %% User's Input
 % General Parameters
-dataType = 'sylphx'; % configurable types: ,'neutrino2','neutrino', 'intan', 'sylphx', 'sylphii'
-channel = [12]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
+dataType = 'intan'; % configurable types: ,'neutrino2','neutrino', 'intan', 'sylphx', 'sylphii'
+channel = [14,16]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
 channelRef = 0; % input 0 if no differential data is needed.
-samplingFreq = 1000; % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 1798.2, sylphII: 1798.2)
+samplingFreq = 0; % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 1798.2, sylphII: 1798.2)
 neutrinoInputReferred = 0; % input 1 to check input refer, otherwise input 0
 neutrinoBit = 1; % input 1 for 8 bit mode, input 0 for 10 bit mode
 
 partialDataSelection = 1; % input 1 to select partial data to analyse, otherwise input 0
-constraintWindow = [0]; % starting point and end point of constraint window, unit is in seconds. Input 0 for default (pre-select the whole signal). It can be found in signal.analysedDataTiming(2,:), the first row is the timing in seconds
+constraintWindow = [-0.300750000000000,6.90490000000000]; % starting point and end point of constraint window, unit is in seconds. Input 0 for default (pre-select the whole signal). It can be found in signal.analysedDataTiming(2,:), the first row is the timing in seconds
 
 % Filtering Parameters
 dataToBeFiltered = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataDelta' for differential data; input 'dataRectified' for rectified data
-highPassCutoffFreq = 10; % high pass cutoff frequency, input 0 if not applied
+highPassCutoffFreq = 30; % high pass cutoff frequency, input 0 if not applied
 lowPassCutoffFreq = 500; % low pass cutoff frequency, input 0 if not applied
 notchFreq = 50; % notch frequency, input 0 if not applied
 decimateFactor = 1; % down sampling the data by a factor 'decimateFactor'
@@ -35,12 +35,12 @@ dataToBeDetectedSpike = 'dataTKEO'; % data for spike detecting
 overlappedWindow = 'dataFiltered'; % Select window for overlapping. Input 'dataRaw' for raw data, 'dataFiltered' for filtered data, 'dataDelta' for differential data
 spikeDetectionType = 'TKEO'; % input 'local maxima' for local maxima, input 'trigger for first point exceeding threshold, input 'TKEO' for taking following consecutive points into account
 threshold = [0]; % specified one threshold for spikes detection in all the channels; multiple thresholds are allowed for different channels; input 0 for default value (baseline + threshMult * baselineStandardDeviation) (baseline is obtained by calculating the mean of the data points spanned between 1/4 to 3/4 of the data array sorted by amplitudes)
-threshStdMult = [500,10,10,1e8]; % multiples of standard deviation above the baseline as the threshold for TKEO detection. All channels will use the same value if there is only one value, multiple values are allowed for different channels
+threshStdMult = [30,2]; % multiples of standard deviation above the baseline as the threshold for TKEO detection. All channels will use the same value if there is only one value, multiple values are allowed for different channels
 sign = 1; % input 1 for threhoslding upwards, input -1 for thresholding downwards
-windowSize = [0.05, 0.3]; % range of window starting from the detected peaks(in seconds)
+windowSize = [0.03, 0.07]; % range of window starting from the detected peaks(in seconds)
 channelExtractStartingLocs = 0; % input channel index (start from 1, then 2, 3...) to fix the locs for all the channels, windows between 2 consecutive starting points of the bursts will be extracted and overlapped. Input 0 to deactivate this function
-TKEOStartConsecutivePoints = 20; % number of consecutive points over the threshold to be detected as burst
-TKEOEndConsecutivePoints = 500; % number of consecutive points below the threshold to be detected as end of burst
+TKEOStartConsecutivePoints = 100; % number of consecutive points over the threshold to be detected as burst
+TKEOEndConsecutivePoints = 1500; % number of consecutive points below the threshold to be detected as end of burst
 
 
 % Show & Save Plots Parameters. Input 1 to save/show, otherwise input 0.
@@ -50,11 +50,11 @@ saveOption = 0;
 showRaw = 1;
 showDelta = 0;
 showRectified = 0;
-showFilt = saveOption;
+showFilt = 0;
 showOverlap = 1;
-showFFT = saveOption;
+showFFT = 0;
 
-saveRaw = 1;
+saveRaw = saveOption;
 saveDelta = 0;
 saveRectified = 0;
 saveFilt = saveOption;
@@ -86,23 +86,6 @@ tic
 visualizeSignals(signal, signalClassification, overlappedWindow, windowSize, partialDataSelection, channelExtractStartingLocs, dataToBeDetectedSpike, saveRaw, showRaw, saveDelta, showDelta, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT);
 disp ([num2str(toc), ' seconds is used for visualizing signals...'])
 disp(' ')
-
-%% Run Classification
-% classifier = runClassification('lda',signalClassification)
-
-% classificationOutput = classification(features);
-% 
-% for i = 1:length(classificationOutput.accuracy)
-%     accuracy(i,1) = classificationOutput.accuracy{1,i}.accuracy;
-%     const(i,1) = classificationOutput.coefficient{1,i}(1,2).const;
-%     linear(i,1) = classificationOutput.coefficient{1,i}(1,2).linear;
-% end
-% 
-% %% Run SVM
-% svmOuput = svmClassify(classificationOutput.grouping);
-% 
-% %% Save file as .txt
-% saveText(accuracy,const,linear,classificationOutput.channelPair, spikeTiming.threshold, windowSize);
 
 %% Ending
 tic
