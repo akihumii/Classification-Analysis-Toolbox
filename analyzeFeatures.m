@@ -56,6 +56,7 @@ tTrain = tic;
 
 trainingRatio = 0.625;
 featureIndex = [1,2,5,6];
+classificationRepetition = 1000; % number of repetition of the classification with randomly assigned training set and testing set 
 
 classifierTitle = 'Different Speed'; % it can be 'Different Speed','Different Day','Active EMG'
 classifierFullTitle = [classifierTitle,' ('];
@@ -72,7 +73,7 @@ for i = 1:length(fileType)
 end
 classifierFullTitle = [classifierFullTitle,' )'];
 
-classificationOutput = classification(featuresAll,featureIndex,trainingRatio,classifierFullTitle,1000);
+classificationOutput = classification(featuresAll,featureIndex,trainingRatio,classifierFullTitle,classificationRepetition);
 
 accuracy = classificationOutput.accuracy; % mean accuracy after all the repetitions
 
