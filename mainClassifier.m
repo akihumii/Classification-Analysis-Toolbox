@@ -17,8 +17,8 @@ samplingFreq = 0; % specified sampling frequency, otherwise input 0 for default 
 neutrinoInputReferred = 0; % input 1 to check input refer, otherwise input 0
 neutrinoBit = 1; % input 1 for 8 bit mode, input 0 for 10 bit mode
 
-partialDataSelection = 1; % input 1 to select partial data to analyse, otherwise input 0
-constraintWindow = [-0.300750000000000,6.90490000000000]; % starting point and end point of constraint window, unit is in seconds. Input 0 for default (pre-select the whole signal). It can be found in signal.analysedDataTiming(2,:), the first row is the timing in seconds
+partialDataSelection = 0; % input 1 to select partial data to analyse, otherwise input 0
+constraintWindow = [0]; % starting point and end point of constraint window, unit is in seconds. Input 0 for default (pre-select the whole signal). It can be found in signal.analysedDataTiming(2,:), the first row is the timing in seconds
 
 % Filtering Parameters
 dataToBeFiltered = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataDelta' for differential data; input 'dataRectified' for rectified data
@@ -44,10 +44,9 @@ TKEOEndConsecutivePoints = 1500; % number of consecutive points below the thresh
 burstTrimming = 1; % to exclude the bursts by inputting the bursts indexes
 burstTrimmingType = 2; % 1 to delete; 2 to pick
 
-
 % Show & Save Plots Parameters. Input 1 to save/show, otherwise input 0.
 % Plots will be saved in the folder 'Figures' at the same path with the processed data 
-saveOption = 0;
+saveOption = 1;
 
 showRaw = 1;
 showDifferential = 0;
@@ -63,7 +62,7 @@ saveFilt = 0;
 saveOverlap = saveOption;
 saveFFT = saveOption;
 
-saveUserInput = 0;
+saveUserInput = 1;
 
 %% Main
 ticDataAnalysis = tic;
