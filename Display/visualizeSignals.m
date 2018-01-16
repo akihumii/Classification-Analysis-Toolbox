@@ -133,7 +133,7 @@ else
         plotFig(windowsValues.xAxisValues,nanmean(windowsValues.burst,2),[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],['Average Windows Following Artefacts ( ', dataName, ' )'],'Time(s)','Amplitude(V)',...
             saveOverlap,... % save
             showOverlap,... % show
-            signal(i,1).path,'subplot', signal(i,1).channelPair);
+            signal(i,1).path,'overlap', signal(i,1).channelPair);
         
         % plot overall signal with spikes indicated
         if showOverlap || saveOverlap

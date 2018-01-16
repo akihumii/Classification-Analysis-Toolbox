@@ -6,7 +6,7 @@
 
 clear
 close all
-clc
+% clc
 
 %% User's Input
 % General Parameters
@@ -35,31 +35,31 @@ dataToBeDetectedSpike = 'dataTKEO'; % data for spike detecting
 overlappedWindow = 'dataFiltered'; % Select window for overlapping. Input 'dataRaw' for raw data, 'dataFiltered' for filtered data, 'dataDifferential' for differential data
 spikeDetectionType = 'TKEO'; % input 'local maxima' for local maxima, input 'trigger for first point exceeding threshold, input 'TKEO' for taking following consecutive points into account
 threshold = [0]; % specified one threshold for spikes detection in all the channels; multiple thresholds are allowed for different channels; input 0 for default value (baseline + threshMult * baselineStandardDeviation) (baseline is obtained by calculating the mean of the data points spanned between 1/4 to 3/4 of the data array sorted by amplitudes)
-threshStdMult = [30,2]; % multiples of standard deviation above the baseline as the threshold for TKEO detection. All channels will use the same value if there is only one value, multiple values are allowed for different channels
+threshStdMult = [30,4]; % multiples of standard deviation above the baseline as the threshold for TKEO detection. All channels will use the same value if there is only one value, multiple values are allowed for different channels
 sign = 1; % input 1 for threhoslding upwards, input -1 for thresholding downwards
 windowSize = [0.03, 0.07]; % range of window starting from the detected peaks(in seconds)
 channelExtractStartingLocs = 0; % input channel index (start from 1, then 2, 3...) to fix the locs for all the channels, windows between 2 consecutive starting points of the bursts will be extracted and overlapped. Input 0 to deactivate this function
-TKEOStartConsecutivePoints = 100; % number of consecutive points over the threshold to be detected as burst
+TKEOStartConsecutivePoints = 400; % number of consecutive points over the threshold to be detected as burst
 TKEOEndConsecutivePoints = 1500; % number of consecutive points below the threshold to be detected as end of burst
-burstTrimming = 1; % to exclude the bursts by inputting the bursts indexes
-burstTrimmingType = 2; % 1 to delete; 2 to pick
+burstTrimming = 0; % to exclude the bursts by inputting the bursts indexes
+burstTrimmingType = 1; % 1 to delete; 2 to pick
 
 % Show & Save Plots Parameters. Input 1 to save/show, otherwise input 0.
 % Plots will be saved in the folder 'Figures' at the same path with the processed data 
-saveOption = 1;
+saveOption = 0;
 
-showRaw = 1;
+showRaw = 0;
 showDifferential = 0;
 showRectified = 0;
 showFilt = 0;
-showOverlap = 1;
+showOverlap = 0;
 showFFT = 0;
 
 saveRaw = saveOption;
 saveDifferential = 0;
 saveRectified = 0;
 saveFilt = 0;
-saveOverlap = saveOption;
+saveOverlap = 0;
 saveFFT = saveOption;
 
 saveUserInput = 1;
