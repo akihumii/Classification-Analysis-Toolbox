@@ -55,7 +55,7 @@ end
 tTrain = tic;
 
 trainingRatio = 0.625;
-featureIndex = [1,2,5,6];
+featureIndex = [2,3,7];
 classificationRepetition = 1000; % number of repetition of the classification with randomly assigned training set and testing set 
 
 classifierTitle = 'Different Speed'; % it can be 'Different Speed','Different Day','Active EMG'

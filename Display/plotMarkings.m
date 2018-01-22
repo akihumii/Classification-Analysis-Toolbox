@@ -1,6 +1,6 @@
-function [] = plotMarkings(handle,time,dataValues,samplingFreq,startingLocs,endLocs,threshold)
+function [] = plotMarkings(handle,time,dataValues,startingLocs,endLocs,threshold)
 %plotMarkings Plot starting point, end point, baseline
-%   [] = plotMarkings(handle,time,dataValues,samplingFreq,startingLocs,endLocs,threshold)
+%   [] = plotMarkings(handle,time,dataValues,startingLocs,endLocs,threshold)
 axes(handle);
 
 hold on

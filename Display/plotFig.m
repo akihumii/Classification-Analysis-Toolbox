@@ -8,10 +8,13 @@ function varargout = plotFig(varargin)
 %           'plotWay' could be 'linePlot', 'barPlot' or 'stemPlot', default way is 'linePlot' 
 %           'channel' is for the title purpose, default value is 1.
 % 
+% output:   p: the axes
+%           f: the figure
+% 
 % saveName = subplot: [titleName, ' ', fileName]
 %            overlap: [titleName, ' ', fileName, ' ch ', num2str(channel(i))]
 % 
-%   p = plotFig(x, y, fileName, titleName, xScale, yScale, answerSave, answerShow, path, type, channel, plotWay)
+%   [p,f] = plotFig(x, y, fileName, titleName, xScale, yScale, answerSave, answerShow, path, type, channel, plotWay)
 
 %% fill unset parameters
 if nargin == 1
