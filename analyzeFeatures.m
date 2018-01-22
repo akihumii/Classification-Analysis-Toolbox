@@ -54,10 +54,6 @@ end
 %% Train Classification
 tTrain = tic;
 
-trainingRatio = 0.625;
-featureIndex = [2,3,7];
-classificationRepetition = 1000; % number of repetition of the classification with randomly assigned training set and testing set 
-
 classifierTitle = 'Different Speed'; % it can be 'Different Speed','Different Day','Active EMG'
 classifierFullTitle = [classifierTitle,' ('];
 switch classifierTitle
@@ -73,10 +69,22 @@ for i = 1:length(fileType)
 end
 classifierFullTitle = [classifierFullTitle,' )'];
 
-classificationOutput = classification(featuresAll,featureIndex,trainingRatio,classifierFullTitle,classificationRepetition);
+trainingRatio = 0.625;
+% featureIndex = [2,3,7]; % input the feature index for the feature combination
+numFeatures = 8;
+classificationRepetition = 1000; % number of repetition of the classification with randomly assigned training set and testing set 
 
-accuracy = classificationOutput.accuracy; % mean accuracy after all the repetitions
-
+for i = 1:4
+    featureIndex{i,1} = nchoosek(1:numFeatures,i); % n choose k
+    numCombination = size(featureIndex{i,1},1); % number of combination
+    for j = 1:numCombination
+        classificationOutput{i,1}(j,1) = classification(featuresAll,featureIndex{i,1}(j,:),trainingRatio,classifierFullTitle,classificationRepetition);
+        accuracy{i,1}(j,:) = classificationOutput{i,1}(j,1).accuracy; % mean accuracy after all the repetitions
+    end
+    [~,maxAccuracyLocs] = max(sum(accuracy{i,1},2));
+    accuracyMax(i,:) = accuracy{i,1}(maxAccuracyLocs,:);
+    maxFeatureCombo{i,1} = featureIndex{i,1}(maxAccuracyLocs,:);
+end
 % %% Run SVM
 % svmOuput = svmClassify(classificationOutput.grouping);
 
