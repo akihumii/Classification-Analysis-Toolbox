@@ -9,14 +9,14 @@ clc
 testClassifier = 0;
 
 showSeparatedFigures = 0;
-showFigures = 1;
+showFigures = 0;
 showHistFit = 1;
-showAccuracy = 1;
+showAccuracy = 0;
 
 saveSeparatedFigures = 0;
-saveFigures = 1;
+saveFigures = 0;
 saveHistFit = 1;
-saveAccuracy = 1;
+saveAccuracy = 0;
 
 %% Get features info
 [files, path, iter] = selectFiles('select mat files for classifier''s training');
@@ -76,9 +76,10 @@ classifierFullTitle = [classifierFullTitle,' )'];
 trainingRatio = 0.625;
 % featureIndex = [2,3,7]; % input the feature index for the feature combination
 numFeatures = 8;
+maxNumFeaturesInCombination = 2; % maximum nubmer of features used in combinations
 classificationRepetition = 1000; % number of repetition of the classification with randomly assigned training set and testing set 
 
-for i = 1:1
+for i = 1:maxNumFeaturesInCombination
     featureIndex{i,1} = nchoosek(1:numFeatures,i); % n choose k
     numCombination = size(featureIndex{i,1},1); % number of combination
     for j = 1:numCombination
@@ -105,7 +106,7 @@ tPlot = tic;
 close all
 
 % type can be 'Active EMG', 'Different Speed', 'Different Day'
-visualizeFeatures(iter, path, channel, featureIndex, accuracyBasicParameter, featuresAll, featureStde, classifierTitle, fileName, fileSpeed, fileDate, featureMean, featuresNames, saveFigures, showFigures, saveSeparatedFigures, showSeparatedFigures, saveHistFit, showHistFit, saveAccuracy, showAccuracy);
+visualizeFeatures(iter, path, channel, classificationOutput, featureIndex, accuracyBasicParameter, featuresAll, featureStde, classifierTitle, fileName, fileSpeed, fileDate, featureMean, featuresNames, saveFigures, showFigures, saveSeparatedFigures, showSeparatedFigures, saveHistFit, showHistFit, saveAccuracy, showAccuracy);
 
 display(['Plotting session takes ',num2str(toc(tTrain)),' seconds...']);
 

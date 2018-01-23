@@ -5,7 +5,7 @@ function varargout = plotFig(varargin)
 % 
 % input:    "type" could be 'subplot', 'overlap' or 'overlapAll', default type is 'subplot'
 %           'y' could be a matrix where the data in column will be plotted as one signal trial; Different rows represent different trials that have been performed.
-%           'plotWay' could be 'linePlot', 'barPlot', 'barStackedPlot', 'stemPlot', 'histFitPlot', default way is 'linePlot' 
+%           'plotWay' could be 'linePlot', 'barPlot', 'barStackedPlot', 'stemPlot', 'histFitPlot', 'scatterPlot', default way is 'linePlot' 
 %           'channel' is for the title purpose, default value is 1.
 % 
 % output:   p: the axes
@@ -94,7 +94,7 @@ if isequal(plotWay,'barStackedPlot')
 end
 saveName = [titleName, ' ', fileName];
 
-[numDataX, numPlotX] = checkSize(x);
+[numDataX, ~] = checkSize(x);
 if numDataX == 1 && numData ~= 1
     x = repmat(x,1,1,numData);
 end
@@ -151,6 +151,8 @@ for i = 1:numData
                 pTemp = histfit(y(:,j,i));    
                 delete(pTemp(1,1)); % delete the histogram part and remain the distribution line
                 l(j,i) = pTemp(2,1);
+            case 'scatterPlot'
+                l(j,i) = scatter(x(:,j,i),y(:,j,i),500,'.');
         end
                 
         axis tight;
