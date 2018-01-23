@@ -59,18 +59,18 @@ for i = 1:numChannels
     accuracy(1,i) = mean(accuracyAll{i,1});
 end
 
-% output.classifierTitle = classifierTitle;
-% output.class = class;
-% output.error = error;
-% output.posterior = posterior;
-% output.logP = logP;
-% output.coefficient = coefficient;
+output.classifierTitle = classifierTitle;
+output.class = class;
+output.error = error;
+output.posterior = posterior;
+output.logP = logP;
+output.coefficient = coefficient;
 output.accuracy = accuracy; % a matrix of numbers which are the mean accuracy after all the repeatations
-% output.accuracyAll = accuracyAll;
-% output.accuracyHighest = accuracyHighest; % a structure containing accuracy, true positive and false negative
-% output.training = training;
-% output.testing = testing;
-% output.trainingClass = trainingClass;
-% output.testingClass = testingClass;
+output.accuracyAll = accuracyAll;
+output.accuracyHighest = accuracyHighest; % a structure containing accuracy, true positive and false negative
+output.training = training;
+output.testing = testing;
+output.trainingClass = trainingClass;
+output.testingClass = testingClass;
 end
 

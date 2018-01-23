@@ -10,9 +10,13 @@ testClassifier = 0;
 
 showSeparatedFigures = 0;
 showFigures = 1;
+showHistFit = 1;
+showAccuracy = 1;
 
 saveSeparatedFigures = 0;
-saveFigures = 1;
+saveFigures = 0;
+saveHistFit = 1;
+saveAccuracy = 1;
 
 %% Get features info
 [files, path, iter] = selectFiles('select mat files for classifier''s training');
@@ -74,13 +78,15 @@ trainingRatio = 0.625;
 numFeatures = 8;
 classificationRepetition = 1000; % number of repetition of the classification with randomly assigned training set and testing set 
 
-for i = 1:4
+for i = 1:1
     featureIndex{i,1} = nchoosek(1:numFeatures,i); % n choose k
     numCombination = size(featureIndex{i,1},1); % number of combination
     for j = 1:numCombination
         classificationOutput{i,1}(j,1) = classification(featuresAll,featureIndex{i,1}(j,:),trainingRatio,classifierFullTitle,classificationRepetition);
-        accuracy{i,1}(j,:) = classificationOutput{i,1}(j,1).accuracy; % mean accuracy after all the repetitions
+        accuracyBasicParameter{i,1}(j,1) = getBasicParameter(horzcat(classificationOutput{i,1}(j,1).accuracyAll{:}));
     end
+    accuracy{i,1} = vertcat(accuracyBasicParameter{i,1}.mean);
+    accuracyStde{i,1} = vertcat(accuracyBasicParameter{i,1}.stde);
     [~,maxAccuracyLocs] = max(sum(accuracy{i,1},2));
     accuracyMax(i,:) = accuracy{i,1}(maxAccuracyLocs,:);
     maxFeatureCombo{i,1} = featureIndex{i,1}(maxAccuracyLocs,:);
@@ -99,7 +105,7 @@ tPlot = tic;
 close all
 
 % type can be 'Active EMG', 'Different Speed', 'Different Day'
-visualizeFeatures(iter, path, channel, featureStde, classifierTitle, fileName, fileSpeed, fileDate, numChannel, featureMean, featuresNames, numFeatures, saveFigures, showFigures, saveSeparatedFigures, showSeparatedFigures);
+visualizeFeatures(iter, path, channel, featureIndex, accuracyBasicParameter, featuresAll, featureStde, classifierTitle, fileName, fileSpeed, fileDate, featureMean, featuresNames, saveFigures, showFigures, saveSeparatedFigures, showSeparatedFigures, saveHistFit, showHistFit, saveAccuracy, showAccuracy);
 
 display(['Plotting session takes ',num2str(toc(tTrain)),' seconds...']);
 

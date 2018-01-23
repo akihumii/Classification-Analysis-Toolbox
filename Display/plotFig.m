@@ -5,7 +5,7 @@ function varargout = plotFig(varargin)
 % 
 % input:    "type" could be 'subplot', 'overlap' or 'overlapAll', default type is 'subplot'
 %           'y' could be a matrix where the data in column will be plotted as one signal trial; Different rows represent different trials that have been performed.
-%           'plotWay' could be 'linePlot', 'barPlot' or 'stemPlot', default way is 'linePlot' 
+%           'plotWay' could be 'linePlot', 'barPlot', 'barStackedPlot', 'stemPlot', 'histFitPlot', default way is 'linePlot' 
 %           'channel' is for the title purpose, default value is 1.
 % 
 % output:   p: the axes
@@ -89,6 +89,9 @@ end
 textSize = 8;
 
 [numData, numPlot] = checkSize(y);
+if isequal(plotWay,'barStackedPlot')
+    numPlot = 1;
+end
 saveName = [titleName, ' ', fileName];
 
 [numDataX, numPlotX] = checkSize(x);
@@ -122,22 +125,32 @@ for i = 1:numData
         switch plotWay
             case 'linePlot'
                 if any(size(x)==1)
-                    plot(x,y(:,j,i));
+                    l(j,i) = plot(x,y(:,j,i));
                 else
-                    plot(x(:,j,i),y(:,j,i));
+                    l(j,i) = plot(x(:,j,i),y(:,j,i));
                 end
             case 'barPlot'
                 if any(size(x)==1)
-                    bar(x,y(:,j,i));
+                    l(j,i) = bar(x,y(:,j,i));
                 else
-                    bar(x(:,j,i),y(:,j,i));
+                    l(j,i) = bar(x(:,j,i),y(:,j,i));
+                end
+            case 'barStackedPlot'
+                if any(size(x)==1)
+                    l(i,:) = bar(x,y(:,:,i));
+                else
+                    l(i,:) = bar(x(:,j,i),y(:,:,i));
                 end
             case 'stemPlot'
                 if any(size(x)==1)
-                    stem(x,y(:,j,i));
+                    l(j,i) = stem(x,y(:,j,i));
                 else
-                    stem(x(:,j,i),y(:,j,i));
+                    l(j,i) = stem(x(:,j,i),y(:,j,i));
                 end
+            case 'histFitPlot'
+                pTemp = histfit(y(:,j,i));    
+                delete(pTemp(1,1)); % delete the histogram part and remain the distribution line
+                l(j,i) = pTemp(2,1);
         end
                 
         axis tight;
@@ -168,8 +181,11 @@ end
 
 %% Output
 varargout{1} = p;
-if nargout == 2
+if nargout > 1
     varargout{2} = f;
+end
+if nargout > 2
+    varargout{3} = l;
 end
 
 end

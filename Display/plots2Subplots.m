@@ -27,7 +27,7 @@ for i = 1:rowSubplot
     end
 end
 
-linkaxes(sp(:,:),'x');
+% linkaxes(sp(:,:),'x');
 
 set(gcf, 'Position', get(0,'Screensize'),'DefaultAxesFontSize',textSize,...
     'PaperPositionMode', 'auto');
