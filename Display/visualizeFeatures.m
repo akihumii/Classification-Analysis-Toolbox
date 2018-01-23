@@ -5,7 +5,7 @@ function [] = visualizeFeatures(iter, path, channel, featureIndex, accuracyBasic
 switch titleName
     case 'Different Speed'
         plotFileName = [fileName{1,1}(1:6),fileName{1,1}(12:17)];
-        xScale = 'Speed(cm/s)';
+        xScale = 'Speed';
         xTickValue = fileSpeed;
     case 'Different Day';
         plotFileName = fileName{1,1}(1:8);
@@ -34,7 +34,7 @@ if showFigures || saveFigures || showSeparatedFigures || saveSeperatedFigures
             errorbar(1:iter,transpose(featureMean(i,:,j)),featureStde(i,:,j),'r*');
             
             if saveSeparatedFigures
-                savePlot(path,['Features sorted in ',titleName,],plotFileName,[featuresNames{i,1},' with ',titleName,' of ch ',num2str(channel(1,j)),' in ',plotFileName])
+                savePlot(path,['Features sorted in ',titleName,],plotFileName,[featuresNames{i,1},' with ',titleName,' of ch ',num2str(channel(1,j)),' in ',plotFileName, ' with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
             end
             
         end
@@ -44,7 +44,7 @@ if showFigures || saveFigures || showSeparatedFigures || saveSeperatedFigures
     for i = 1:numChannel
         [~,fS(i,1)] = plots2subplots(p(:,i),2,4);
         if saveFigures
-            savePlot(path,['Features sorted in ',titleName,],plotFileName,['All the Features with ',titleName,' of ch ',num2str(channel(1,i)),' in ',plotFileName])
+            savePlot(path,['Features sorted in ',titleName,],plotFileName,['All the Features with ',titleName,' of ch ',num2str(channel(1,i)),' in ',plotFileName,' with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
         end
     end
     if ~showSeparatedFigures
@@ -71,7 +71,7 @@ if showAccuracy || saveAccuracy
         pA.XTick = featureIndexTemp;
         errorbar(getErrorBarXAxisValues(8,2),meanTemp,stdeTemp,'r*');
         if saveAccuracy
-            savePlot(path,'Accuracy of Features Combination',plotFileName,['Accuracy with ',num2str(i),' features in combinations'])
+            savePlot(path,'Accuracy of Features Combination',plotFileName,['Accuracy with ',num2str(i),' features in combinations with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
         end
         if ~showAccuracy
             close
@@ -97,7 +97,7 @@ if showHistFit || saveHistFit
         [~,fSHist(i,1)] = plots2subplots(pHist(:,i),2,4);
         legend(xTickValue);
         if saveHistFit
-            savePlot(path,'Distribution of Features',plotFileName,['Distribution of features of channel ',num2str(i)])
+            savePlot(path,'Distribution of Features',plotFileName,['Distribution of features of channel ',num2str(i),' with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
         end
         if ~showHistFit
             close

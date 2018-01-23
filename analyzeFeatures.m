@@ -14,7 +14,7 @@ showHistFit = 1;
 showAccuracy = 1;
 
 saveSeparatedFigures = 0;
-saveFigures = 0;
+saveFigures = 1;
 saveHistFit = 1;
 saveAccuracy = 1;
 

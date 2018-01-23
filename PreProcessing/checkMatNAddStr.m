@@ -4,11 +4,19 @@ function newStr = checkMatNAddStr(mat,str)
 %   newStr = checkMatNAddStr(mat,str)
 
 sizeMat = size(mat);
-
+numElement = sizeMat(sizeMat~=1);
 if any(sizeMat > 1)
-    firstNum = num2str(mat(1));
-    secondNum = num2str(mat(2));
-    newStr = [firstNum,str,secondNum];
+    if iscell(mat)
+        newStr = mat{1};
+        for i = 2:numElement
+            newStr = [newStr,str,mat{i}];
+        end
+    else
+        newStr = mat(1);
+        for i = 2:numElement
+            newStr = [newStr,str,num2str(mat(i))];
+        end
+    end
 else
     newStr = num2str(mat);
 end
