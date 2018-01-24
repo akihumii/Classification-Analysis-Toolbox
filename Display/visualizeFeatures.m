@@ -23,7 +23,7 @@ numRowSubplots = 2; % for the row of subplots in overall plots
 colorArray = [0,0.4470,0.7410;0.8500,0.3250,0.0980;0.9290,0.6940,0.1250;0.4940,0.1840,0.5560;0.4660,0.6740,0.1880;0.3010,0.7450,0.9330;0.6350,0.0780,0.1840];
 
 if numClass > 2
-    xTickValue{1,1} = 'Noise';
+    xTickValue{3,1} = 'Noise';
 end
 
 if showFigures || saveFigures || showSeparatedFigures || saveSeparatedFigures
@@ -107,7 +107,7 @@ if showHistFit || saveHistFit
     clear featuresTemp numFeatures
     
     %% for 2 features used in combinations
-    featureIndexTemp = [5,8;2,4]; % features used in combinations, channels are separated in rows
+    featureIndexTemp = [3,4;2,8]; % features used in combinations, channels are separated in rows
     for i = 1:numChannel
         for j = 1:2
         featuresTemp{j,1} = featuresAll(:,featureIndexTemp(i,j),i);

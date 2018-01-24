@@ -5,6 +5,7 @@ function varargout = deleteBurst(type, p, time, samplingFreq, varargin)
 %
 % intput & output: varargout & varargin = onsetValues, onsetLocs,
 % offsetValues, offsetLocs
+% output: varargout{1,5} = selectedBursts
 %
 %   varargout = deleteBurst(type, p, time, samplingFreq, varargin)
 
@@ -60,6 +61,7 @@ else
         clear outputTemp
     end
     close
+    varargout{1,5} = selectedBursts;
 end
 end
 
