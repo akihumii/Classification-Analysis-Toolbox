@@ -86,7 +86,7 @@ else
 end
 
 %% Plot
-textSize = 8;
+textSize = 12;
 
 [numData, numPlot] = checkSize(y);
 if isequal(plotWay,'barStackedPlot')
@@ -148,9 +148,9 @@ for i = 1:numData
                     l(j,i) = stem(x(:,j,i),y(:,j,i));
                 end
             case 'histFitPlot'
-                pTemp = histfit(y(:,j,i));    
-                delete(pTemp(1,1)); % delete the histogram part and remain the distribution line
-                l(j,i) = pTemp(2,1);
+                pTemp = histfit(y(:,j,i));
+                pTemp(1,1).FaceAlpha = 0.2;
+                l{j,i} = pTemp;
             case 'scatterPlot'
                 l(j,i) = scatter(x(:,j,i),y(:,j,i),500,'.');
         end

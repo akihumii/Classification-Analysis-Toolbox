@@ -30,6 +30,8 @@ if saveFile == 1
     combinedInfo.dataAnalysed = signalClassification(1,1).features.dataAnalysed;
     signalClassification(1,1).features = combinedInfo;
     saveVar(signal(1,1).path,horzcat(signal(:,1).fileName),signal(1,1),signalClassification(1,1))
+else
+    warning('No file is saved because input ''saveFle'' is not 1')
 end
 
 finishMsg; % pop up a msg box to show FININSH :D

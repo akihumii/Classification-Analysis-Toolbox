@@ -86,16 +86,19 @@ if showHistFit || saveHistFit
     for i = 1:numChannel
         for j = 1:numFeatures
             featuresTemp = cell2nanMat(featuresAll(:,j,i)); % reconstruct the same features from all classes into a matrix
-            [pHist(j,i),fHist(j,i),hHist] = plotFig(0,featuresTemp,plotFileName,['Distribution of ',featuresNames{j,1}],'','Amplitude',0,1,path,'overlap',channel(1,i),'histFitPlot'); % plot the histogram with fit distribution the feature of each class
+            [pHist(j,i),fHist(j,i),hHist] = plotFig(0,featuresTemp,plotFileName,['Distribution of ',featuresNames{j,1}],'','Amplitudes',0,1,path,'overlap',channel(1,i),'histFitPlot'); % plot the histogram with fit distribution the feature of each class
             for k = 1:numClass
-                hHist(k,1).Color = colorArray(k,:);
+                hHist{k,1}(1,1).FaceColor = colorArray(k,:);
+                hHist{k,1}(2,1).Color = colorArray(k,:);
+                hHistTemp(k,1) = hHist{k,1}(2,1);
             end
-            l(j,i) = legend(hHist,xTickValue);
+            l(j,i) = legend(hHistTemp,xTickValue);
         end
     end
     for i = 1:numChannel
         [~,fSHist(i,1)] = plots2subplots(pHist(:,i),numRowSubplots,numFeatures/numRowSubplots);
-        legend(xTickValue);
+        pHistTemp = gca;
+        legend(flipud(pHistTemp.Children(1:2:end,1)),xTickValue);
         if saveHistFit
             savePlot(path,'Distribution of Features',plotFileName,['Distribution of features of channel ',num2str(channel(1,i)),' with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
         end
@@ -107,14 +110,14 @@ if showHistFit || saveHistFit
     clear featuresTemp numFeatures
     
     %% for 2 features used in combinations
-    featureIndexTemp = [3,4;2,8]; % features used in combinations, channels are separated in rows
+    featureIndexTemp = [2,8;2,4]; % features used in combinations, channels are separated in rows
     for i = 1:numChannel
         for j = 1:2
         featuresTemp{j,1} = featuresAll(:,featureIndexTemp(i,j),i);
         featuresTemp{j,1} = cell2nanMat(featuresTemp{j,1});
         end
-        pScatter = plotFig(featuresTemp{1,1},featuresTemp{2,1},plotFileName,'Distribution of features','','Amplitude',0,1,path,'overlap',channel(1,i),'scatterPlot'); % plot the scattered points distribution of the feature of each class;
-        hold on
+        pScatter = plotFig(featuresTemp{1,1},featuresTemp{2,1},plotFileName,['Distribution of 2 Features ( ',checkMatNAddStr(featuresNames(featureIndexTemp(i,:)),' , '),' ) of ',plotFileName,' ch ',num2str(channel(1,i))],featuresNames(featureIndexTemp(i,1)),featuresNames(featureIndexTemp(i,2)),0,1,path,'overlap',channel(1,i),'scatterPlot'); % plot the scattered points distribution of the feature of each class;
+        hold all
         grid on
         
         numFeatures = size(featureIndex{2,1},1);
@@ -129,15 +132,18 @@ if showHistFit || saveHistFit
             constTemp(3,1) = classificationOutput{2,1}(featuresLocsTemp,1).coefficient{i,1}(1,3).const; % first and third class
             linearTemp(3,:) = classificationOutput{2,1}(featuresLocsTemp,1).coefficient{i,1}(1,3).linear; % first and third class
         end
-        pBoundary = plotBoundary(pScatter,constTemp,linearTemp);
-        title(['Distribution of 2 Features ( ',checkMatNAddStr(featuresNames(featureIndexTemp(i,:)),' , '),' ) of ',plotFileName,' ch ',num2str(channel(1,i))]);
+        plotBoundary(pScatter,constTemp,linearTemp);
+        
+        lineTemp = gca;
+        lineTemp = flipud(lineTemp.Children(1:(numClass*(numClass-1)/2)));
+        for j = 1:length(lineTemp)
+            lineTemp(j,1).Color = colorArray(j,:);
+        end
+        
         if numClass == 2
-            legend(xTickValue{:},checkMatNAddStr(xTickValue(:,1),' , '));
+            legend(flipud(pScatter.Children),xTickValue{:},checkMatNAddStr(xTickValue(:,1),' , '));
         elseif numClass == 3
-            for j = 1:numClass
-                pBoundary(j,1).Color = colorArray(j,:);
-            end
-        legend(xTickValue{:},checkMatNAddStr(xTickValue(1:2,1),' , '),checkMatNAddStr(xTickValue(2:3,1),' , '),checkMatNAddStr(xTickValue([1,3],1),' , '));
+            legend(flipud(pScatter.Children),xTickValue{:},checkMatNAddStr(xTickValue(1:2,1),' , '),checkMatNAddStr(xTickValue(2:3,1),' , '),checkMatNAddStr(xTickValue([1,3],1),' , '));
         end
         
         if saveHistFit

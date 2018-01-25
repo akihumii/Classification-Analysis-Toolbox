@@ -41,7 +41,7 @@ windowSize = [0.03, 0.07]; % range of window starting from the detected peaks(in
 channelExtractStartingLocs = 0; % input channel index (start from 1, then 2, 3...) to fix the locs for all the channels, windows between 2 consecutive starting points of the bursts will be extracted and overlapped. Input 0 to deactivate this function
 TKEOStartConsecutivePoints = 500; % number of consecutive points over the threshold to be detected as burst
 TKEOEndConsecutivePoints = 3000; % number of consecutive points below the threshold to be detected as end of burst
-burstTrimming = 0; % to exclude the bursts by inputting the bursts indexes
+burstTrimming = 1; % to exclude the bursts by inputting the bursts indexes
 burstTrimmingType = 2; % 1 to delete; 2 to pick
 
 % Show & Save Plots Parameters. Input 1 to save/show, otherwise input 0.
