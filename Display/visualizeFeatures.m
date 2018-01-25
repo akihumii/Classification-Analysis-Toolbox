@@ -60,18 +60,20 @@ end
 %% Plot Accuracy
 if showAccuracy || saveAccuracy
     for i = 1:numFeatureCombination
-        numCombination = length(accuracyBasicParameter{i,1}); % number of combination
+        numCombination(i,1) = length(accuracyBasicParameter{i,1}); % number of combination
         featureIndexTemp = featureIndex{i,1};
-        meanTemp = vertcat(accuracyBasicParameter{i,1}.mean);
+        meanTemp{i,1} = vertcat(accuracyBasicParameter{i,1}.mean);
         stdeTemp = vertcat(accuracyBasicParameter{i,1}.stde);
-        pA = plotFig(1:numCombination,meanTemp,plotFileName,['Accuracy with ',num2str(i),' features in combinations'],'Feature Combinations','Amplitude',0,1,path,'overlap',0,'barStackedPlot');
+        pA = plotFig(1:numCombination(i,1),meanTemp{i,1},plotFileName,['Accuracy with ',num2str(i),' features in combinations'],'Feature Combinations','Accuracies',0,1,path,'overlap',0,'barStackedPlot');
         hold on
-        legend('channel 14','channel 16');
-        pA.XTick = 1:numCombination;
+        pA.XTick = 1:numCombination(i,1);
         pA.XTickLabel = num2cell(num2str(featureIndexTemp),2);
+        xLimit = xlim;
         ylim([0,1]);
         grid on
-        errorbar(getErrorBarXAxisValues(numCombination,numChannel),meanTemp,stdeTemp,'r*');
+        cp = plot(xLimit,[1/numClass,1/numClass],'k--'); % plot chance performance
+        legend('channel 14','channel 16','chance performance');
+        errorbar(getErrorBarXAxisValues(numCombination(i,1),numChannel),meanTemp{i,1},stdeTemp,'r*'); % error bar
         if saveAccuracy
             savePlot(path,'Accuracy of Features Combination',plotFileName,['Accuracy with ',num2str(i),' features in combinations with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
         end
@@ -79,8 +81,27 @@ if showAccuracy || saveAccuracy
             close
         end
     end
+    
+    %% plot Synergy
+    for i = 1:numChannel
+        for j = 1:numCombination(end,1)
+            minusMean = sum(meanTemp{1,1}(featureIndex{2,1}(j,:),i)) / 2; % from the sum of two separated performances
+            synergy(j,i) = meanTemp{2,1}(j,i) - minusMean;
+        end
+        pS = plotFig(1:numCombination(end,1),synergy(:,i),plotFileName,['Synergy with ',num2str(numFeatureCombination),' features in combinations with ',xScale,' ',checkMatNAddStr(xTickValue,',')],'Features Combinations','Amplitudes',0,showAccuracy,path,'overlap',channel(1,i),'barPlot');
+        pS.XTick = 1:numCombination(end,1);
+        pS.XTickLabel = num2cell(num2str(featureIndex{2,1}),2);
+        grid on
+        if saveAccuracy
+            savePlot(path,'Synergy',plotFileName,['Synergy of channel ',num2str(channel(i)),'  with ',num2str(numFeatureCombination),' features in combinations with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
+        end
+        if ~showAccuracy
+            close
+        end
+    end
+    
 end
-%% Plot histogram and distribution 
+%% Plot histogram and distribution
 if showHistFit || saveHistFit
     %% (for single features in all classes)
     for i = 1:numChannel
@@ -113,8 +134,8 @@ if showHistFit || saveHistFit
     featureIndexTemp = [2,8;2,4]; % features used in combinations, channels are separated in rows
     for i = 1:numChannel
         for j = 1:2
-        featuresTemp{j,1} = featuresAll(:,featureIndexTemp(i,j),i);
-        featuresTemp{j,1} = cell2nanMat(featuresTemp{j,1});
+            featuresTemp{j,1} = featuresAll(:,featureIndexTemp(i,j),i);
+            featuresTemp{j,1} = cell2nanMat(featuresTemp{j,1});
         end
         pScatter = plotFig(featuresTemp{1,1},featuresTemp{2,1},plotFileName,['Distribution of 2 Features ( ',checkMatNAddStr(featuresNames(featureIndexTemp(i,:)),' , '),' ) of ',plotFileName,' ch ',num2str(channel(1,i))],featuresNames(featureIndexTemp(i,1)),featuresNames(featureIndexTemp(i,2)),0,1,path,'overlap',channel(1,i),'scatterPlot'); % plot the scattered points distribution of the feature of each class;
         hold all
@@ -125,7 +146,7 @@ if showHistFit || saveHistFit
         featuresLocsTemp = find(all(featuresLocsTemp,2));
         
         constTemp(1,1) = classificationOutput{2,1}(featuresLocsTemp,1).coefficient{i,1}(1,2).const; % first and second class
-        linearTemp(1,:) = classificationOutput{2,1}(featuresLocsTemp,1).coefficient{i,1}(1,2).linear; % first and second class 
+        linearTemp(1,:) = classificationOutput{2,1}(featuresLocsTemp,1).coefficient{i,1}(1,2).linear; % first and second class
         if numClass > 2
             constTemp(2,1) = classificationOutput{2,1}(featuresLocsTemp,1).coefficient{i,1}(2,3).const; % second and third class
             linearTemp(2,:) = classificationOutput{2,1}(featuresLocsTemp,1).coefficient{i,1}(2,3).linear; % second and third class
@@ -149,7 +170,7 @@ if showHistFit || saveHistFit
         if saveHistFit
             savePlot(path,'Distribution of 2 Features',plotFileName,['Distribution of features ( ',checkMatNAddStr(featuresNames(featureIndexTemp(i,:)),' , '),' )  of channel ',num2str(channel(1,i)),' with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
         end
-
+        
     end
 end
 

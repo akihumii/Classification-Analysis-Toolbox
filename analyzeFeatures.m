@@ -10,13 +10,13 @@ testClassifier = 0;
 
 showSeparatedFigures = 0;
 showFigures = 0;
-showHistFit = 1;
-showAccuracy = 0;
+showHistFit = 0;
+showAccuracy = 1;
 
 saveSeparatedFigures = 0;
 saveFigures = 0;
-saveHistFit = 1;
-saveAccuracy = 0;
+saveHistFit = 0;
+saveAccuracy = 1;
 
 %% Get features info
 [files, path, iter] = selectFiles('select mat files for classifier''s training');
