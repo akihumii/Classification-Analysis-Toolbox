@@ -42,7 +42,7 @@ channelExtractStartingLocs = 0; % input channel index (start from 1, then 2, 3..
 TKEOStartConsecutivePoints = [500,400]; % number of consecutive points over the threshold to be detected as burst
 TKEOEndConsecutivePoints = [500,2000]; % number of consecutive points below the threshold to be detected as end of burst
 burstTrimming = 1; % to exclude the bursts by inputting the bursts indexes
-burstTrimmingType = 2; % 1 to delete; 2 to pick
+burstTrimmingType = 1; % 1 to delete; 2 to pick
 
 % Show & Save Plots Parameters. Input 1 to save/show, otherwise input 0.
 % Plots will be saved in the folder 'Figures' at the same path with the processed data 

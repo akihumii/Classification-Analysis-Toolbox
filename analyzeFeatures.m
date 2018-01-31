@@ -3,14 +3,14 @@
 
 clear
 close all
-clc
+% clc
 
 %% User Input
 testClassifier = 0;
 
 showSeparatedFigures = 0;
-showFigures = 1;
-showHistFit = 1;
+showFigures = 0;
+showHistFit = 0;
 showAccuracy = 1;
 
 saveSeparatedFigures = 0;
@@ -21,7 +21,7 @@ saveAccuracy = 0;
 %% Get features info
 [files, path, iter] = selectFiles('select mat files for classifier''s training');
 
-popMsg('Training clssifier...');
+popMsg('Gathering features...');
 
 for i = 1:iter
     info(i,1) = load([path,files{i}]);
@@ -58,13 +58,13 @@ end
 %% Train Classification
 tTrain = tic;
 
-classifierTitle = 'Different Speed'; % it can be 'Different Speed','Different Day','Active EMG'
+classifierTitle = 'Different Day'; % it can be 'Different Speed','Different Day','Active EMG'
 classifierFullTitle = [classifierTitle,' ('];
 switch classifierTitle
     case 'Different Speed'
         fileType = fileSpeed;
     case 'Different Day'
-        fileType = fileData;
+        fileType = fileDate;
     case 'Active EMG'
         fileType = [{'Active'};{'Non Active'}];
 end
@@ -77,29 +77,38 @@ trainingRatio = 0.625;
 % featureIndex = [2,3,7]; % input the feature index for the feature combination
 numFeatures = 8;
 maxNumFeaturesInCombination = 2; % maximum nubmer of features used in combinations
-classificationRepetition = 1000; % number of repetition of the classification with randomly assigned training set and testing set 
+classificationRepetition = 1000; % number of repetition of the classification with randomly assigned training set and testing set
 
-for i = 1:maxNumFeaturesInCombination
-    featureIndex{i,1} = nchoosek(1:numFeatures,i); % n choose k
-    numCombination = size(featureIndex{i,1},1); % number of combination
-    for j = 1:numCombination
-        classificationOutput{i,1}(j,1) = classification(featuresAll,featureIndex{i,1}(j,:),trainingRatio,classifierFullTitle,classificationRepetition);
-        accuracyBasicParameter{i,1}(j,1) = getBasicParameter(horzcat(classificationOutput{i,1}(j,1).accuracyAll{:}));
+% Run Classification
+if showHistFit||saveHistFit||showAccuracy||saveAccuracy
+    popMsg('Training classifiers...');
+
+    for i = 1:maxNumFeaturesInCombination
+        featureIndex{i,1} = nchoosek(1:numFeatures,i); % n choose k
+        numCombination = size(featureIndex{i,1},1); % number of combination
+        for j = 1:numCombination
+            classificationOutput{i,1}(j,1) = classification(featuresAll,featureIndex{i,1}(j,:),trainingRatio,classifierFullTitle,classificationRepetition);
+            accuracyBasicParameter{i,1}(j,1) = getBasicParameter(horzcat(classificationOutput{i,1}(j,1).accuracyAll{:}));
+        end
+        accuracy{i,1} = vertcat(accuracyBasicParameter{i,1}.mean);
+        accuracyStde{i,1} = vertcat(accuracyBasicParameter{i,1}.stde);
+        [~,maxAccuracyLocs] = max(sum(accuracy{i,1},2));
+        accuracyMax(i,:) = accuracy{i,1}(maxAccuracyLocs,:);
+        maxFeatureCombo{i,1} = featureIndex{i,1}(maxAccuracyLocs,:);
     end
-    accuracy{i,1} = vertcat(accuracyBasicParameter{i,1}.mean);
-    accuracyStde{i,1} = vertcat(accuracyBasicParameter{i,1}.stde);
-    [~,maxAccuracyLocs] = max(sum(accuracy{i,1},2));
-    accuracyMax(i,:) = accuracy{i,1}(maxAccuracyLocs,:);
-    maxFeatureCombo{i,1} = featureIndex{i,1}(maxAccuracyLocs,:);
+    % %% Run SVM
+    % svmOuput = svmClassify(classificationOutput.grouping);
+    
+    % %% Save file as .txt
+    % saveText(accuracy,const,linear,classificationOutput.channelPair, spikeTiming.threshold, windowSize);
+    %
+    
+    display(['Training session takes ',num2str(toc(tTrain)),' seconds...']);
+else
+    classificationOutput = 0;
+    featureIndex = 0;
+    accuracyBasicParameter = 0;
 end
-% %% Run SVM
-% svmOuput = svmClassify(classificationOutput.grouping);
-
-% %% Save file as .txt
-% saveText(accuracy,const,linear,classificationOutput.channelPair, spikeTiming.threshold, windowSize);
-% 
-
-display(['Training session takes ',num2str(toc(tTrain)),' seconds...']);
 
 %% Plot features
 tPlot = tic;
@@ -117,11 +126,11 @@ if testClassifier
     windowSkipSize = 0.05; % skipped window size in seconds
     
     [filesTest,pathTest,iterTest] = selectFiles('select mat files for continuous classifier''s testing');
-   
+    
     tTest = tic;
     
     popMsg('Processing continuous classification...');
-
+    
     correctClass = 1; % real class of the signal bursts
     
     for i = 1:iterTest % test the classifier
@@ -129,12 +138,12 @@ if testClassifier
         signalTest(i,1) = infoTest(i,1).varargin{1,1};
         signalClassificationTest(i,1) = infoTest(i,1).varargin{1,2};
         fileNameTest{i,1} = signalTest(i,1).fileName;
-
+        
         dataFilteredTest{i,1} = signalTest(i,1).dataFiltered.values;
         dataTKEOTest{i,1} = signalTest(i,1).dataTKEO.values; % signals for discrete classifcation
         samplingFreqTest(i,1) = signalTest(i,1).samplingFreq;
         detectionInfoTest{i,1} = signalClassificationTest(i,1).burstDetection;
-
+        
         predictionOutput(i,1) = discreteClassification(dataTKEOTest{i,1},dataFilteredTest{i,1},samplingFreqTest(i,1),windowSize,windowSkipSize,detectionInfoTest{i,1},featureIndex,classificationOutput.coefficient,correctClass);
     end
     
@@ -144,7 +153,6 @@ if testClassifier
     
     display(['Continuous classification takes ',num2str(toc(tTrain)),' seconds...']);
 end
-
 %% End
 clear i j k
 

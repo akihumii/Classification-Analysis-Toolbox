@@ -9,7 +9,7 @@ switch titleName
         xTickValue = fileSpeed;
     case 'Different Day';
         plotFileName = fileName{1,1}(1:8);
-        xScale = 'Date';
+        xScale = 'Week';
         xTickValue = fileDate;
     case 'Active EMG'
         plotFileName = fileName{1,1};
@@ -21,9 +21,8 @@ end
 numFeatureCombination = length(accuracyBasicParameter);
 numRowSubplots = 2; % for the row of subplots in overall plots
 colorArray = [0,0.4470,0.7410;0.8500,0.3250,0.0980;0.9290,0.6940,0.1250;0.4940,0.1840,0.5560;0.4660,0.6740,0.1880;0.3010,0.7450,0.9330;0.6350,0.0780,0.1840];
-numRepetition = length(classificationOutput{1,1}(1,1).accuracyAll{1,1});
 
-if numClass > 2
+if numClass == 3
     xTickValue{3,1} = 'Noise';
 end
 
@@ -60,6 +59,8 @@ end
 
 %% Plot Accuracy
 if showAccuracy || saveAccuracy
+    numRepetition = length(classificationOutput{1,1}(1,1).accuracyAll{1,1});
+
     for i = 1:numFeatureCombination
         numCombination(i,1) = length(accuracyBasicParameter{i,1}); % number of combination
         featureIndexTemp = featureIndex{i,1};
@@ -86,12 +87,7 @@ if showAccuracy || saveAccuracy
     %% plot Synergy
     for i = 1:numChannel
         for j = 1:numCombination(end,1)
-            [singleFeatureMesh{1,1},singleFeatureMesh{2,1}] = meshgrid(classificationOutput{1,1}(featureIndex{2,1}(j,1)).accuracyAll{i,1},classificationOutput{2,1}(featureIndex{2,1}(j,2)).accuracyAll{i,1});
-            singleFeatureAverage = (singleFeatureMesh{1,1} + singleFeatureMesh{2,1})/2;
-            singleFeatureAverage = singleFeatureAverage(randperm(numRepetition^2,numRepetition)); % down size by randomly picking numRepetition from all the combinations of summation 
-            [twoFeatureMesh,singleFeatureAverageMesh] = meshgrid(classificationOutput{2,1}(j,1).accuracyAll{i,1},singleFeatureAverage(:));
-            synergyMesh = twoFeatureMesh - singleFeatureAverageMesh;
-            synergyParameters(j,i) = getBasicParameter(synergyMesh(:));
+            synergyParameters(j,i) = calculateSynergy([classificationOutput{1,1}(featureIndex{2,1}(j,1)).accuracyAll(i,1);classificationOutput{2,1}(featureIndex{2,1}(j,2)).accuracyAll(i,1)],classificationOutput{2,1}(j,1).accuracyAll{i,1},numRepetition);
         end
         pS = plotFig(1:numCombination(end,1),vertcat(synergyParameters(:,i).mean),plotFileName,['Synergy with ',num2str(numFeatureCombination),' features in combinations with ',xScale,' ',checkMatNAddStr(xTickValue,',')],'Features Combinations','Acurracy',0,showAccuracy,path,'overlap',channel(1,i),'barPlot');
         hold on
