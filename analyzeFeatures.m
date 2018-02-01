@@ -121,7 +121,6 @@ display(['Plotting session takes ',num2str(toc(tTrain)),' seconds...']);
 
 %% Run through the entire signal and classify
 if testClassifier
-    
     windowSize = 0.5; % window size in seconds
     windowSkipSize = 0.05; % skipped window size in seconds
     

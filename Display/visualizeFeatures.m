@@ -87,10 +87,11 @@ if showAccuracy || saveAccuracy
     %% plot Synergy
     for i = 1:numChannel
         for j = 1:numCombination(end,1)
-            synergyParameters(j,i) = calculateSynergy([classificationOutput{1,1}(featureIndex{2,1}(j,1)).accuracyAll(i,1);classificationOutput{2,1}(featureIndex{2,1}(j,2)).accuracyAll(i,1)],classificationOutput{2,1}(j,1).accuracyAll{i,1},numRepetition);
+            [synergyParameters(j,i),significance(j,i)] = calculateSynergy([classificationOutput{1,1}(featureIndex{2,1}(j,1)).accuracyAll(i,1);classificationOutput{2,1}(featureIndex{2,1}(j,2)).accuracyAll(i,1)],classificationOutput{2,1}(j,1).accuracyAll{i,1},numRepetition);
         end
         pS = plotFig(1:numCombination(end,1),vertcat(synergyParameters(:,i).mean),plotFileName,['Synergy with ',num2str(numFeatureCombination),' features in combinations with ',xScale,' ',checkMatNAddStr(xTickValue,',')],'Features Combinations','Acurracy',0,showAccuracy,path,'overlap',channel(1,i),'barPlot');
         hold on
+        labelPlot(pS,find(significance(:,i)==1),'r^'); % label asteric on the barchart if it is significantly difference
         errorbar(1:numCombination(end,1),vertcat(synergyParameters(:,i).mean),vertcat(synergyParameters(:,i).stde),'r*');
         pS.XTick = 1:numCombination(end,1);
         pS.XTickLabel = num2cell(num2str(featureIndex{2,1}),2);
