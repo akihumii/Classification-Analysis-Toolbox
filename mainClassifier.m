@@ -52,14 +52,14 @@ showRaw = 0;
 showDifferential = 0;
 showRectified = 0;
 showFilt = 0;
-showOverlap = 1;
+showOverlap = 0;
 showFFT = 0;
 
 saveRaw = saveOption;
 saveDifferential = 0;
 saveRectified = 0;
 saveFilt = 0;
-saveOverlap = 1;
+saveOverlap = 0;
 saveFFT = saveOption;
 
 saveUserInput = 1;
@@ -92,7 +92,7 @@ disp(' ')
 tic
 if saveUserInput
     for i = 1:length(signal)
-        saveVar(signal(i,1).path,signal(i,1).fileName,signal,signalClassification)
+        saveVar([signal(i,1).path,'\Info\'],signal(i,1).fileName,signal,signalClassification)
     end
 end
 disp ([num2str(toc), ' seconds is used for saving info...'])

@@ -29,7 +29,7 @@ if numMarkers ~= 0
     
     hM = plot(h,x,markerValues,marker);
     
-    legend(hM,'significantly different')    
+    legend(hM,'significantly different from the max performance by using each feature in the pair')    
 end
 
 end

@@ -7,11 +7,12 @@ close all
 
 %% User Input
 testClassifier = 0;
+saveOutput = 1;
 
 showSeparatedFigures = 0;
 showFigures = 0;
 showHistFit = 0;
-showAccuracy = 1;
+showAccuracy = 0;
 
 saveSeparatedFigures = 0;
 saveFigures = 0;
@@ -25,6 +26,7 @@ popMsg('Gathering features...');
 
 for i = 1:iter
     info(i,1) = load([path,files{i}]);
+    saveFileName{i,1} = files{i}(1:end-4);
     signal(i,1) = info(i,1).varargin{1,1};
     signalClassification(i,1) = info(i,1).varargin{1,2};
     
@@ -42,12 +44,18 @@ numFeatures = length(featuresNames);
 
 %% Reconstruct features
 % matrix of one feature = [bursts x speeds x features x channel]
+for i = 1:iter % different speed = different class
+    for j = 1:numChannel
+        featuresAllTemp{i,j} = zeros(0,1);
+    end
+end
 for i = 1:numFeatures
     for k = 1:numChannel
-        for j = 1:iter % different speed
+        for j = 1:iter % different speed = different class
             featureNameTemp = featuresNames{i,1};
             featuresAll{j,i,k} = features(j,1).(featureNameTemp)(:,k); % it is sorted in [bursts * classes * features * channels]
             featuresTemp = featuresAll{j,i,k};
+            featuresAllTemp{j,k} = [featuresAllTemp{j,k},featuresTemp];
             featureMean(i,j,k) = nanmean(featuresTemp); % it is sorted in [features * clases * channels]
             featureStd(i,j,k) = nanstd(featuresTemp); % it is sorted in [features * classes * channels]
             featureStde(i,j,k) = featureStd(i,j,k) / sqrt(length(featuresTemp(~isnan(featuresTemp)))); % standard error of the feature
@@ -96,12 +104,6 @@ if showHistFit||saveHistFit||showAccuracy||saveAccuracy
         accuracyMax(i,:) = accuracy{i,1}(maxAccuracyLocs,:);
         maxFeatureCombo{i,1} = featureIndex{i,1}(maxAccuracyLocs,:);
     end
-    % %% Run SVM
-    % svmOuput = svmClassify(classificationOutput.grouping);
-    
-    % %% Save file as .txt
-    % saveText(accuracy,const,linear,classificationOutput.channelPair, spikeTiming.threshold, windowSize);
-    %
     
     display(['Training session takes ',num2str(toc(tTrain)),' seconds...']);
 else
@@ -152,6 +154,12 @@ if testClassifier
     
     display(['Continuous classification takes ',num2str(toc(tTrain)),' seconds...']);
 end
+
+%% Save the classification output and accuracy output
+if saveOutput
+    saveVar([path,'\classificationInfo\'],horzcat(saveFileName{:}),classificationOutput,accuracyBasicParameter);
+end
+
 %% End
 clear i j k
 
