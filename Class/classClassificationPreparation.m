@@ -62,11 +62,18 @@ classdef classClassificationPreparation
             clfp.burstDetection.channelExtractStartingLocs = channelExtractStartingLocs;
         end
         
-        function clfp = classificationWindowSelection(clfp, targetClassData, targetName)
+        function clfp = classificationWindowSelection(clfp, targetClassData, targetName,burstTrimming,burstTrimmingType)
             if isequal(targetName,'dataFiltered') || isequal(targetName,'dataTKEO')
                 targetName = [{targetName};{'values'}];
             end
             [dataValue, dataName] = loadMultiLayerStruct(targetClassData,targetName);
+            
+            if burstTrimming % to trim the bursts
+                p = plotFig(targetClassData.time/targetClassData.samplingFreq,dataValue,'','','Time(s)','Amplitude(V)',0,1);
+                [clfp.burstDetection.spikePeaksValue,clfp.burstDetection.spikeLocs,clfp.burstDetection.burstEndValue,clfp.burstDetection.burstEndLocs,clfp.burstDetection.selectedBurstsIndex] =...
+                    deleteBurst(burstTrimmingType, p, targetClassData.time, targetClassData.samplingFreq, clfp.burstDetection.spikePeaksValue,clfp.burstDetection.spikeLocs,clfp.burstDetection.burstEndValue,clfp.burstDetection.burstEndLocs);
+            end
+            
             clfp.selectedWindows = getPointsWithinRange(...
                 targetClassData.time,...
                 dataValue,...
