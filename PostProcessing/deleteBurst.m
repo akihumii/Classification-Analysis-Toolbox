@@ -1,10 +1,11 @@
 function varargout = deleteBurst(type, p, time, samplingFreq, varargin)
-%deleteBurst Delete the unwanted bursts by inputting their indexes
+%deleteBurst Delete or choose bursts by inputting their indexes
 %
 % input: type: 1 for delete, 2 for choose
 %
 % intput & output: varargout & varargin = onsetValues, onsetLocs,
 % offsetValues, offsetLocs
+% output: varargout{1,5} = selectedBursts
 %
 %   varargout = deleteBurst(type, p, time, samplingFreq, varargin)
 
@@ -35,8 +36,8 @@ else
         end
         hold off
         
-        %% Input & Deleted unwanted bursts
-        disp('Input unwanted bursts:')
+        %% Input bursts index
+        disp('Input bursts index:')
         selectedBursts{n,1} = zeros(0,1);
         selectedBursts{n,1} = [selectedBursts{n,1};input('')];
         while selectedBursts{n,1}(end) ~= 0
@@ -60,6 +61,7 @@ else
         clear outputTemp
     end
     close
+    varargout{1,5} = selectedBursts;
 end
 end
 
