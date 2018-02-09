@@ -5,6 +5,7 @@ function output = dataClassificationPreparation(signal, iter, selectedWindow, wi
 
 % for the case of selected filtered data, because the values lies in the
 % field 'values' of the structure 'dataFiltered'.
+
 if isequal(selectedWindow, 'dataFiltered')
     selectedWindow = [{'dataFiltered'};{'values'}];
 end

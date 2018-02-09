@@ -9,10 +9,14 @@ clc
 testClassifier = 0;
 
 showSeparatedFigures = 0;
-showFigures = 1;
+showFigures = 0;
+showHistFit = 1;
+showAccuracy = 1;
 
 saveSeparatedFigures = 0;
-saveFigures = 1;
+saveFigures = 0;
+saveHistFit = 1;
+saveAccuracy = 0;
 
 %% Get features info
 [files, path, iter] = selectFiles('select mat files for classifier''s training');
@@ -53,10 +57,6 @@ end
 
 %% Train Classification
 tTrain = tic;
-
-trainingRatio = 0.625;
-featureIndex = [1,2,5,6];
-classificationRepetition = 1000; % number of repetition of the classification with randomly assigned training set and testing set 
 
 classifierTitle = 'Different Speed'; % it can be 'Different Speed','Different Day','Active EMG'
 classifierFullTitle = [classifierTitle,' ('];
