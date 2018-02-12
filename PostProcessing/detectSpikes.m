@@ -31,6 +31,12 @@ end
 if length(threshStdMult) == 1
     threshStdMult = repmat(threshStdMult,1,colData);
 end
+if length(TKEOStartConsecutivePoints) == 1
+    TKEOStartConsecutivePoints = repmat(TKEOStartConsecutivePoints,1,colData);
+end
+if length(TKEOEndConsecutivePoints) == 1
+    TKEOEndConsecutivePoints = repmat(TKEOEndConsecutivePoints,1,colData);
+end
 
 minDistance = floor(minDistance);
 
@@ -54,10 +60,10 @@ for i = 1:colData % channel
             spikeLocs{i,1} = spikeLocs{i,1} + minDistance(1); % compensate the skipped window
             [burstEndValue{i,1},burstEndLocs{i,1}] = pointAfterAWindow(data(:,i),minDistance(2),spikeLocs{i,1});
         case 'TKEO'
-            [spikePeaksValue{i,1},spikeLocs{i,1}] = triggerSpikeDetection(data(1:end,i),thresholdValue,minDistance(2),TKEOStartConsecutivePoints); % the last value is the number of consecutive point that needs to exceed threshold to be detected as spikes
+            [spikePeaksValue{i,1},spikeLocs{i,1}] = triggerSpikeDetection(data(minDistance(1):end-minDistance(2),i),thresholdValue,minDistance(2),TKEOStartConsecutivePoints(1,i)); % the last value is the number of consecutive point that needs to exceed threshold to be detected as spikes
 %             [spikePeaksValue{i,1},spikeLocs{i,1}] = triggerSpikeDetection(data(minDistance(1):end-minDistance(2),i),thresholdValue,minDistance(2),TKEOStartConsecutivePoints); % the last value is the number of consecutive point that needs to exceed threshold to be detected as spikes
-%             spikeLocs{i,1} = spikeLocs{i,1} + minDistance(1); % compensate the skipped window
-            [burstEndValue{i,1},burstEndLocs{i,1}] = findEndPoint(data(:,i), thresholdValue, spikeLocs{i,1}, TKEOEndConsecutivePoints);
+            spikeLocs{i,1} = spikeLocs{i,1} + minDistance(1); % compensate the skipped window
+            [burstEndValue{i,1},burstEndLocs{i,1}] = findEndPoint(data(:,i), thresholdValue, spikeLocs{i,1}, TKEOEndConsecutivePoints(1,i));
             [spikePeaksValue{i,1},spikeLocs{i,1},burstEndValue{i,1},burstEndLocs{i,1}] =...
                 trimBurstLocations(spikePeaksValue{i,1},spikeLocs{i,1},burstEndValue{i,1},burstEndLocs{i,1});
             % another way to detect TKEO bursts

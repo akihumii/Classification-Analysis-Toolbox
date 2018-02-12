@@ -5,13 +5,16 @@ function varargout = plotFig(varargin)
 % 
 % input:    "type" could be 'subplot', 'overlap' or 'overlapAll', default type is 'subplot'
 %           'y' could be a matrix where the data in column will be plotted as one signal trial; Different rows represent different trials that have been performed.
-%           'plotWay' could be 'linePlot', 'barPlot' or 'stemPlot', default way is 'linePlot' 
+%           'plotWay' could be 'linePlot', 'barPlot', 'barStackedPlot', 'stemPlot', 'histFitPlot', 'scatterPlot', default way is 'linePlot' 
 %           'channel' is for the title purpose, default value is 1.
+% 
+% output:   p: the axes
+%           f: the figure
 % 
 % saveName = subplot: [titleName, ' ', fileName]
 %            overlap: [titleName, ' ', fileName, ' ch ', num2str(channel(i))]
 % 
-%   p = plotFig(x, y, fileName, titleName, xScale, yScale, answerSave, answerShow, path, type, channel, plotWay)
+%   [p,f] = plotFig(x, y, fileName, titleName, xScale, yScale, answerSave, answerShow, path, type, channel, plotWay)
 
 %% fill unset parameters
 if nargin == 1
@@ -29,12 +32,16 @@ else
 end
 
 if nargin < 11;
-    channel = 1:size(y,2);
+    channel = 1:size(y,2); % create a matrix
+    channel = mat2cell(channel',ones(1,size(channel,2)),size(channel,1)); % convert the matrix into cell
 else
     if varargin{11} == 0
-            channel = 1:size(y,2);
+        channel = 1:size(y,2); % create a matrix
+        channel = mat2cell(channel',ones(1,size(channel,2)),size(channel,1)); % convert the matrix into cell
     else
-    channel = varargin{11};
+        channel = varargin{11};
+        channel = checkSizeNTranspose(channel,2);
+        channel = mat2cell(channel,ones(1,size(channel,1)),size(channel,2)); % convert the matrix into cell
     end
 end
 if nargin < 10
@@ -79,12 +86,15 @@ else
 end
 
 %% Plot
-textSize = 8;
+textSize = 12;
 
 [numData, numPlot] = checkSize(y);
+if isequal(plotWay,'barStackedPlot')
+    numPlot = 1;
+end
 saveName = [titleName, ' ', fileName];
 
-[numDataX, numPlotX] = checkSize(x);
+[numDataX, ~] = checkSize(x);
 if numDataX == 1 && numData ~= 1
     x = repmat(x,1,1,numData);
 end
@@ -99,11 +109,11 @@ for i = 1:numData
         if isequal(type, 'subplot')
             p(j,i) = subplot(numPlot,1,j);
             if numData > 1
-                title([titleName, ' ', fileName, ' set ', num2str(j), ' ch ', num2str(channel(i))])
-                saveName = [titleName, ' ', fileName, ' ch ', num2str(channel(i))];
+                title([titleName, ' ', fileName, ' set ', num2str(j), ' ch ', checkMatNAddStr(channel{i},' -')])
+                saveName = [titleName, ' ', fileName, ' ch ', checkMatNAddStr(channel{i},' -')];
             else
-                title([titleName, ' ', fileName, ' ch ', num2str(channel(j))])
-                saveName = [titleName, ' ', fileName, ' ch ', num2str(channel)];
+                title([titleName, ' ', fileName, ' ch ', checkMatNAddStr(channel{j},' -')])
+                saveName = [titleName, ' ', fileName, ' ch ', checkMatNAddStr(channel{j},' -')];
             end
             hold on
             ylabel(yScale, 'FontSize', textSize);
@@ -115,22 +125,34 @@ for i = 1:numData
         switch plotWay
             case 'linePlot'
                 if any(size(x)==1)
-                    plot(x,y(:,j,i));
+                    l(j,i) = plot(x,y(:,j,i));
                 else
-                    plot(x(:,j,i),y(:,j,i));
+                    l(j,i) = plot(x(:,j,i),y(:,j,i));
                 end
             case 'barPlot'
                 if any(size(x)==1)
-                    bar(x,y(:,j,i));
+                    l(j,i) = bar(x,y(:,j,i));
                 else
-                    bar(x(:,j,i),y(:,j,i));
+                    l(j,i) = bar(x(:,j,i),y(:,j,i));
+                end
+            case 'barStackedPlot'
+                if any(size(x)==1)
+                    l(i,:) = bar(x,y(:,:,i));
+                else
+                    l(i,:) = bar(x(:,j,i),y(:,:,i));
                 end
             case 'stemPlot'
                 if any(size(x)==1)
-                    stem(x,y(:,j,i));
+                    l(j,i) = stem(x,y(:,j,i));
                 else
-                    stem(x(:,j,i),y(:,j,i));
+                    l(j,i) = stem(x(:,j,i),y(:,j,i));
                 end
+            case 'histFitPlot'
+                pTemp = histfit(y(:,j,i));
+                pTemp(1,1).FaceAlpha = 0.2;
+                l{j,i} = pTemp;
+            case 'scatterPlot'
+                l(j,i) = scatter(x(:,j,i),y(:,j,i),500,'.');
         end
                 
         axis tight;
@@ -142,8 +164,8 @@ for i = 1:numData
     if isequal(type, 'subplot')
         linkaxes(p(:,1),'x');
     else
-        title([titleName, ' ', fileName, ' ch ', num2str(channel(i))])
-        saveName = [titleName, ' ', fileName, ' ch ', num2str(channel(i))];
+        title([titleName, ' ', fileName, ' ch ', checkMatNAddStr(channel{i},' -')])
+        saveName = [titleName, ' ', fileName, ' ch ', checkMatNAddStr(channel{i},' -')];
     end
     
     hold off
@@ -161,8 +183,11 @@ end
 
 %% Output
 varargout{1} = p;
-if nargout == 2
+if nargout > 1
     varargout{2} = f;
+end
+if nargout > 2
+    varargout{3} = l;
 end
 
 end

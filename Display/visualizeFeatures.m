@@ -26,21 +26,17 @@ if numClass == 3
     xTickValue{3,1} = 'Noise';
 end
 
-%% Plot Features
 if showFigures || saveFigures || showSeparatedFigures || saveSeparatedFigures
     for i = 1:numFeatures
         for j = 1:numChannel
-            [p(i,j),f(i,j)] = plotFig(1:iter,transpose(featureMean(i,:,j)),plotFileName,featuresNames{i,1},xScale,'',...
-                0,... % save
-                1,... % show
-                path, 'subPlot',channel(1,j),'barPlot');
+            [p(i,j),f(i,j)] = plotFig(1:iter,transpose(featureMean(i,:,j)),plotFileName,featuresNames{i,1},xScale,'',0,1,path, 'subPlot',channel(1,j),'barPlot');
             p(i,j).XTick = 1:iter;
             p(i,j).XTickLabel = xTickValue;
             hold on
             errorbar(1:iter,transpose(featureMean(i,:,j)),featureStde(i,:,j),'r*');
             
             if saveSeparatedFigures
-                savePlot(path,['Features sorted in ',titleName,],plotFileName,[featuresNames{i,1},' with ',titleName,' of ch ',num2str(channel(1,j)),' in ',plotFileName])
+                savePlot(path,['Features sorted in ',titleName,],plotFileName,[featuresNames{i,1},' with ',titleName,' of ch ',num2str(channel(1,j)),' in ',plotFileName, ' with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
             end
             
         end
@@ -48,16 +44,14 @@ if showFigures || saveFigures || showSeparatedFigures || saveSeparatedFigures
     
     %% Plot all the features
     for i = 1:numChannel
-        [~,fS(i,1)] = plots2subplots(p(:,i),2,4);
+        [~,fS(i,1)] = plots2subplots(p(:,i),numRowSubplots,numFeatures/numRowSubplots);
         if saveFigures
-            savePlot(path,['Features sorted in ',titleName,],plotFileName,['All the Features with ',titleName,' of ch ',num2str(channel(1,i)),' in ',plotFileName])
+            savePlot(path,['Features sorted in ',titleName,],plotFileName,['All the Features with ',titleName,' of ch ',num2str(channel(1,i)),' in ',plotFileName,' with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
         end
     end
-    
     if ~showSeparatedFigures
         delete(f)
     end
-    
     if ~showFigures
         delete(fS(:,1))
     end
@@ -142,7 +136,7 @@ if showHistFit || saveHistFit
     clear featuresTemp numFeatures
     
     %% for 2 features used in combinations
-    featureIndexTemp = [4,8;4,8]; % features used in combinations, channels are separated in rows
+    featureIndexTemp = [2,8;2,4]; % features used in combinations, channels are separated in rows
     for i = 1:numChannel
         for j = 1:2
             featuresTemp{j,1} = featuresAll(:,featureIndexTemp(i,j),i);

@@ -20,14 +20,14 @@ classdef classData
         samplingFreq
         decimateFactor
         channel
-        channelRef % reference channel for differential data
+        channelPair % reference channel for differential data
         noiseData
         dataAll
         dataRaw
         dataRectified
         dataFiltered
         dataFFT
-        dataDelta
+        dataDifferential
         dataTKEO
         dataPCA
     end
@@ -64,6 +64,7 @@ classdef classData
                 [data.dataAll, data.time] = reconstructData(file, path, fileType, neutrinoBit, neutrinoInputReferred);
                 data.fileName = naming(data.file);
                 data.channel = channel;
+                data.channelPair = channel';
                 if channel > size(data.dataAll,2)
                     error('Error found in User Input: Selected channel is not existed')
                 end
@@ -84,10 +85,10 @@ classdef classData
             data.dataRectified = abs(data.dataRectified);
         end
         
-        function data = dataDifferentialSubtraction(data, targetName, channelRef)
-            channelRefLocs = find(data.channel == channelRef);
-            data.dataDelta = dataDifferentialSubtraction(data.(targetName), channelRefLocs);
-            data.channelRef = channelRef;
+        function data = dataDifferentialSubtraction(data, targetName, channelPair)
+            [~,channelRefLocs] = ismember(channelPair',data.channel); % get the locations of the channel pairs in all the channels
+            data.dataDifferential = dataDifferentialSubtraction(data.(targetName), channelRefLocs); % subtract according to 1-2, 3-4, etc...
+            data.channelPair = channelPair;
         end
         
         function data = filterData(data, targetName, samplingFreq, highPassCutoffFreq, lowPassCutoffFreq, notchFreq)

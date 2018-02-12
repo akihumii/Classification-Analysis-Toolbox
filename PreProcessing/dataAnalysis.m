@@ -1,4 +1,4 @@
-function [data, dataName, iter] = dataAnalysis(dataType,dataToBeFiltered,dataToBeFFT,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,channel,channelRef,samplingFreq,partialDataSelection,constraintWindow,neutrinoInputReferred,neutrinoBit,decimateFactor,saveOverlap,showOverlap,saveFFT,showFFT)
+function [data, dataName, iter] = dataAnalysis(dataType,dataToBeFiltered,dataToBeFFT,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,channel,channelPair,samplingFreq,partialDataSelection,constraintWindow,neutrinoInputReferred,neutrinoBit,decimateFactor,saveOverlap,showOverlap,saveFFT,showFFT)
 %dataAnalysis Generate objects that describes each processed data
 %   [data, dataName, iter] = dataAnalysis(dataType,dataToBeFiltered,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,channel,channelRef,samplingFreq,,partialDataSelection,constraintWindow,neutrinoInputReferred,decimateFactor,saveOverlap,showOverlap,saveFFT,showFFT)
 
@@ -11,8 +11,8 @@ dataName = cell(iter,1);
 %% Analyse Data
 for i = 1:iter
     data(i,1) = classData(files{i},path,dataType,neutrinoBit,channel,samplingFreq,neutrinoInputReferred,partialDataSelection,constraintWindow);
-    if channelRef ~= 0
-        data(i,1) = dataDifferentialSubtraction(data(i,1),'dataRaw',channelRef);
+    if channelPair ~= 0
+        data(i,1) = dataDifferentialSubtraction(data(i,1),'dataRaw',channelPair);
     end
     
     data(i,1) = rectifyData(data(i,1),'dataRaw');
