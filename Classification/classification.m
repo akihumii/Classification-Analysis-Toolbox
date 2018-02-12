@@ -1,5 +1,7 @@
 function output = classification(trials,featureIndex,trainingRatio,classifierTitle,numRepeat)
-%classification Perform lda classification with trials that are in cells
+%classification Perform lda classification with trials that are in cells.
+% The structure is like: [channel * feature * class]
+% 
 %   output = classification(trials,featureIndex,trainingRatio,classifierTitle,numRepeat)
 
 [numClasses,~,numChannels] = size(trials);

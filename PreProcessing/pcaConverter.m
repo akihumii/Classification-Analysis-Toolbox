@@ -29,11 +29,11 @@ output.thresholdFinal = thresholdFinal;
 output.reconstructedData = reconstructedData;
 
 %% plotting
-figure
-plot(data)
-title('Raw data')
-figure
-plot(reconstructedData)
-title('Reconstructed Data')
+% figure
+% plot(data)
+% title('Raw data')
+% figure
+% plot(reconstructedData)
+% title('Reconstructed Data')
 end
 
