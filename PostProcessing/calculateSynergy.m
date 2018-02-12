@@ -38,7 +38,7 @@ end
 % [llNormalitySingle,llPValueSingle] = lillietest(singleFeatureMaxPartial);  % return 1 to reject the hypothesis that it is normally distributed
 % [llNormalityTwo,llPValueTwo] = lillietest(dataGroupPartial);
 % 
-% [ks2Normality,ks2PValue] = kstest2(singleFeatureMaxPartial,dataGroupPartial); % return 1 to reject the hypothesis that hte 2 samples are drawn from the same underlying continuousu population
+% [ks2Normality,ks2PValue] = kstest2(singleFeatureMaxPartial,dataGroupPartial); % return 1 to reject the hypothesis that the 2 samples are drawn from the same underlying continuousu population
 
 end
 

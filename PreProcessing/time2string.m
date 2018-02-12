@@ -1,4 +1,4 @@
-function timeString = time2string()
+function timeStringFinal = time2string()
 %time2string Generate a string of characters of current time.
 %   timeString = time2string()
 
@@ -12,9 +12,11 @@ for i = 1:6
     timeString = [timeString, timeElementTemp];
 end
 
-timeString = timeString(1:end-4); % omit the decimal places
+numDigits = length(timeString(1:end-4));
 
+timeStringFinal = '00000000000000'; % yyyymmddmmssss = 14 digits
 
+timeStringFinal(1:numDigits) = timeString(1:numDigits); % omit the decimal places
 
 end
 

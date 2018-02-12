@@ -1,14 +1,17 @@
 function output = pcaConverter(data)
 %pcaConverter Obtain PCA of the data
 % 
-% output:   coeff, score, latent, tsquare
+% output:   coeff: loadings/coefficients of each PC (variables x PC)
+%           score: (sample points x PC)
+%           thresholdFinal: coeff that contributes higher than 90 percentile
+%           reconstructedData: using thresholdFinal for reconstruction
+%           mu: mean of the variables deducted before running pca
 % 
 %   output = pcaConverter(data)
 close all
 
-[numRow,numCol] = size(data); % number of variables
+[~,numCol] = size(data); % number of variables
 
-thresholdFinal = 1; % number of eigenvectors used for reconstruction
 mu = mean(data); % mean that will be 
 
 [coeff,score] = pca(data); % rows of coeff represent different variables, while columns corresponds to the columns of score
@@ -19,14 +22,16 @@ thresholdLocs = coeff >= thresholdRep; % the column of score that is the thresho
 thresholdFinal = zeros(numCol,numCol); % initiate thresholdFinal filling with zeros
 thresholdFinal(thresholdLocs) = coeff(thresholdLocs); % the number eigenvectors used for reconstruction due to higher representativeness
 
+%% Reconstruction
 reconstructedData = score * thresholdFinal'; % only use numComp principle componenets for reconstruction
 reconstructedData = bsxfun(@plus, reconstructedData, mu); % add the mean back
 
 %% Output
-output.coeff= coeff; % loadings/coefficients of each PC (observation x variables)
-output.score = score; % representaion of X in PC space (observation x components)
-output.thresholdFinal = thresholdFinal;
+output.coeff= coeff; 
+output.score = score; 
+output.thresholdFinal = thresholdFinal; 
 output.reconstructedData = reconstructedData;
+output.mu = mu;
 
 %% plotting
 % figure

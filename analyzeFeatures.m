@@ -6,158 +6,65 @@ close all
 % clc
 
 %% User Input
-testClassifier = 0;
-saveOutput = 1;
+displayInfo.testClassifier = 0;
+displayInfo.saveOutput = 1;
 
-showSeparatedFigures = 0;
-showFigures = 0;
-showHistFit = 1;
-showAccuracy = 1;
+displayInfo.showSeparatedFigures = 0;
+displayInfo.showFigures = 0;
+displayInfo.showHistFit = 1;
+displayInfo.showAccuracy = 1;
 
-saveSeparatedFigures = 0;
-saveFigures = 0;
-saveHistFit = 0;
-saveAccuracy = 0;
+displayInfo.saveSeparatedFigures = 0;
+displayInfo.saveFigures = 0;
+displayInfo.saveHistFit = 0;
+displayInfo.saveAccuracy = 0;
 
 %% Get features info
 [files, path, iter] = selectFiles('select mat files for classifier''s training');
 
 popMsg('Gathering features...');
 
+%% Read and Reconstruct 
 for i = 1:iter
-    info(i,1) = load([path,files{i}]);
-    saveFileName{i,1} = files{i}(1:end-4);
-    signal(i,1) = info(i,1).varargin{1,1};
-    signalClassification(i,1) = info(i,1).varargin{1,2};
-    
-    fileName{i,1} = signal(i,1).fileName;
-    features(i,1) = signalClassification(i,1).features;
-    fileSpeed{i,1} = fileName{i,1}(7:8);
-    fileDate{i,1} = fileName{i,1}(12:17);
+    signalInfo(i,1) = getFeaturesInfo(path,files{1,i});    
 end
-
-channel = signal(1,1).channel;
-numChannel = length(channel);
-featuresNames = fieldnames(features(1,1));
-featuresNames(end) = []; % the field that containes analyzed data
-numFeatures = length(featuresNames);
 
 %% Reconstruct features
 % matrix of one feature = [bursts x speeds x features x channel]
-for i = 1:iter % different speed = different class
-    for j = 1:numChannel
-        featuresAllTemp{i,j} = zeros(0,1);
-    end
-end
-for i = 1:numFeatures
-    for k = 1:numChannel
-        for j = 1:iter % different speed = different class
-            featureNameTemp = featuresNames{i,1};
-            featuresAll{j,i,k} = features(j,1).(featureNameTemp)(:,k); % it is sorted in [bursts * classes * features * channels]
-            featuresTemp = featuresAll{j,i,k};
-            featuresAllTemp{j,k} = [featuresAllTemp{j,k},featuresTemp];
-            featureMean(i,j,k) = nanmean(featuresTemp); % it is sorted in [features * clases * channels]
-            featureStd(i,j,k) = nanstd(featuresTemp); % it is sorted in [features * classes * channels]
-            featureStde(i,j,k) = featureStd(i,j,k) / sqrt(length(featuresTemp(~isnan(featuresTemp)))); % standard error of the feature
-        end
-    end
-end
+featuresInfo = reconstructFeatures(signalInfo,iter);
+
+%% Reconstruct PCA
+pcaInfo = reconstructPCA(signalInfo,iter);
+
+%% Adding PCA info as one feature
+featureInfo = addPCAintoFeatures(featuresInfo,pcaInfo.pcUsageLocs);
 
 %% Train Classification
 tTrain = tic;
 
-classifierTitle = 'Different Day'; % it can be 'Different Speed','Different Day','Active EMG'
-classifierFullTitle = [classifierTitle,' ('];
-switch classifierTitle
-    case 'Different Speed'
-        fileType = fileSpeed;
-    case 'Different Day'
-        fileType = fileDate;
-    case 'Active EMG'
-        fileType = [{'Active'};{'Non Active'}];
-end
-for i = 1:length(fileType)
-    classifierFullTitle = [classifierFullTitle,' ',char(fileType{i,1})];
-end
-classifierFullTitle = [classifierFullTitle,' )'];
-
-trainingRatio = 0.625;
-% featureIndex = [2,3,7]; % input the feature index for the feature combination
-numFeatures = 8;
-maxNumFeaturesInCombination = 2; % maximum nubmer of features used in combinations
-classificationRepetition = 1000; % number of repetition of the classification with randomly assigned training set and testing set
-
-% Run Classification
-if showHistFit||saveHistFit||showAccuracy||saveAccuracy
-    popMsg('Training classifiers...');
-
-    for i = 1:maxNumFeaturesInCombination
-        featureIndex{i,1} = nchoosek(1:numFeatures,i); % n choose k
-        numCombination = size(featureIndex{i,1},1); % number of combination
-        for j = 1:numCombination
-            classificationOutput{i,1}(j,1) = classification(featuresAll,featureIndex{i,1}(j,:),trainingRatio,classifierFullTitle,classificationRepetition);
-            accuracyBasicParameter{i,1}(j,1) = getBasicParameter(horzcat(classificationOutput{i,1}(j,1).accuracyAll{:}));
-        end
-        accuracy{i,1} = vertcat(accuracyBasicParameter{i,1}.mean);
-        accuracyStde{i,1} = vertcat(accuracyBasicParameter{i,1}.stde);
-        [~,maxAccuracyLocs] = max(sum(accuracy{i,1},2));
-        accuracyMax(i,:) = accuracy{i,1}(maxAccuracyLocs,:);
-        maxFeatureCombo{i,1} = featureIndex{i,1}(maxAccuracyLocs,:);
-    end
-    
-    display(['Training session takes ',num2str(toc(tTrain)),' seconds...']);
-else
-    classificationOutput = 0;
-    featureIndex = 0;
-    accuracyBasicParameter = 0;
-end
+classifierOutput = trainClassifier(featuresInfo, signalInfo, displayInfo);
 
 %% Plot features
 tPlot = tic;
 close all
 
 % type can be 'Active EMG', 'Different Speed', 'Different Day'
-visualizeFeatures(iter, path, channel, classificationOutput, featureIndex, accuracyBasicParameter, featuresAll, featureStde, classifierTitle, fileName, fileSpeed, fileDate, featureMean, featuresNames, saveFigures, showFigures, saveSeparatedFigures, showSeparatedFigures, saveHistFit, showHistFit, saveAccuracy, showAccuracy);
+visualizeFeatures(iter, path, channel, classificationOutput, featureIndex, accuracyBasicParameter, featuresInfo, classifierTitle, fileName, signalInfo, displayInfo);
 
 display(['Plotting session takes ',num2str(toc(tTrain)),' seconds...']);
 
 %% Run through the entire signal and classify
-if testClassifier
-    windowSize = 0.5; % window size in seconds
-    windowSkipSize = 0.05; % skipped window size in seconds
-    
-    [filesTest,pathTest,iterTest] = selectFiles('select mat files for continuous classifier''s testing');
-    
+if displayInfo.testClassifier
     tTest = tic;
-    
-    popMsg('Processing continuous classification...');
-    
-    correctClass = 1; % real class of the signal bursts
-    
-    for i = 1:iterTest % test the classifier
-        infoTest(i,1) = load([pathTest,filesTest{i}]);
-        signalTest(i,1) = infoTest(i,1).varargin{1,1};
-        signalClassificationTest(i,1) = infoTest(i,1).varargin{1,2};
-        fileNameTest{i,1} = signalTest(i,1).fileName;
-        
-        dataFilteredTest{i,1} = signalTest(i,1).dataFiltered.values;
-        dataTKEOTest{i,1} = signalTest(i,1).dataTKEO.values; % signals for discrete classifcation
-        samplingFreqTest(i,1) = signalTest(i,1).samplingFreq;
-        detectionInfoTest{i,1} = signalClassificationTest(i,1).burstDetection;
-        
-        predictionOutput(i,1) = discreteClassification(dataTKEOTest{i,1},dataFilteredTest{i,1},samplingFreqTest(i,1),windowSize,windowSkipSize,detectionInfoTest{i,1},featureIndex,classificationOutput.coefficient,correctClass);
-    end
-    
-    for i = 1:iterTest % visualize the classifier
-        visualizeDetectedPoints(dataFilteredTest{i,1},predictionOutput(i,1).startPointAll,predictionOutput(i,1).endPointAll,samplingFreqTest(1,1),fileNameTest{i,1},pathTest);
-    end
-    
+
+    classificatioOutput = runClassifier(classifierOutput);
+
     display(['Continuous classification takes ',num2str(toc(tTrain)),' seconds...']);
 end
 
 %% Save the classification output and accuracy output
-if saveOutput
-    saveVar([path,'\classificationInfo\'],horzcat(saveFileName{:}),classificationOutput,accuracyBasicParameter);
+if displayInfo.saveOutput
+    saveVar([path,'\classificationInfo\'],horzcat(signalInfo(:,1).saveFileName),classificationOutput,accuracyBasicParameter);
 end
 
 %% End

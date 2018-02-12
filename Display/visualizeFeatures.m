@@ -1,23 +1,23 @@
-function [] = visualizeFeatures(iter, path, channel, classificationOutput, featureIndex, accuracyBasicParameter, featuresAll, featureStde, titleName, fileName, fileSpeed, fileDate, featureMean, featuresNames, saveFigures, showFigures, saveSeparatedFigures, showSeparatedFigures, saveHistFit, showHistFit, saveAccuracy, showAccuracy)
+function [] = visualizeFeatures(iter, path, channel, classificationOutput, featureIndex, accuracyBasicParameter, featuresInfo, titleName, fileName, signalInfo, displayInfo)
 %visualizeFeatures Visualize the features, accuracies, feature distribution
-%   [] = visualizeFeatures(iter, path, channel, featureIndex, accuracyBasicParameter, featuresAll, featureStde, titleName, fileName, fileSpeed, fileDate, featureMean, featuresNames, saveFigures, showFigures, saveSeparatedFigures, showSeparatedFigures, saveHistFit, showHistFit, saveAccuracy, showAccuracy)
+%    [] = visualizeFeatures(iter, path, channel, classificationOutput, featureIndex, accuracyBasicParameter, featuresInfo, titleName, fileName, signalInfo, saveFigures, showFigures, saveSeparatedFigures, showSeparatedFigures, saveHistFit, showHistFit, saveAccuracy, showAccuracy)
 
 switch titleName
     case 'Different Speed'
         plotFileName = [fileName{1,1}(1:6),fileName{1,1}(12:17)];
         xScale = 'Speed';
-        xTickValue = fileSpeed;
+        xTickValue = signalInfo.fileSpeed;
     case 'Different Day';
         plotFileName = fileName{1,1}(1:8);
         xScale = 'Week';
-        xTickValue = fileDate;
+        xTickValue = signalInfo.fileDate;
     case 'Active EMG'
         plotFileName = fileName{1,1};
         xScale = '';
         xTickValue = [{'non-activated EMG'};{'activated EMG'}];
 end
 
-[numClass, numFeatures, numChannel] = size(featuresAll); % the sizes of the features properties
+[numClass, numFeatures, numChannel] = size(featuresInfo.featuresAll); % the sizes of the features properties
 numFeatureCombination = length(accuracyBasicParameter);
 numRowSubplots = 2; % for the row of subplots in overall plots
 colorArray = [0,0.4470,0.7410;0.8500,0.3250,0.0980;0.9290,0.6940,0.1250;0.4940,0.1840,0.5560;0.4660,0.6740,0.1880;0.3010,0.7450,0.9330;0.6350,0.0780,0.1840];
@@ -26,17 +26,17 @@ if numClass == 3
     xTickValue{3,1} = 'Noise';
 end
 
-if showFigures || saveFigures || showSeparatedFigures || saveSeparatedFigures
+if displayInfo.showFigures || displayInfo.saveFigures || displayInfo.showSeparatedFigures || displayInfo.saveSeparatedFigures
     for i = 1:numFeatures
         for j = 1:numChannel
-            [p(i,j),f(i,j)] = plotFig(1:iter,transpose(featureMean(i,:,j)),plotFileName,featuresNames{i,1},xScale,'',0,1,path, 'subPlot',channel(1,j),'barPlot');
+            [p(i,j),f(i,j)] = plotFig(1:iter,transpose(featuresInfo.featureMean(i,:,j)),plotFileName,featuresInfo.featuresNames{i,1},xScale,'',0,1,path, 'subPlot',channel(1,j),'barPlot');
             p(i,j).XTick = 1:iter;
             p(i,j).XTickLabel = xTickValue;
             hold on
-            errorbar(1:iter,transpose(featureMean(i,:,j)),featureStde(i,:,j),'r*');
+            errorbar(1:iter,transpose(featuresInfo.featureMean(i,:,j)),featuresInfo.featureStde(i,:,j),'r*');
             
             if saveSeparatedFigures
-                savePlot(path,['Features sorted in ',titleName,],plotFileName,[featuresNames{i,1},' with ',titleName,' of ch ',num2str(channel(1,j)),' in ',plotFileName, ' with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
+                savePlot(path,['Features sorted in ',titleName,],plotFileName,[featuresInfo.featuresNames{i,1},' with ',titleName,' of ch ',num2str(channel(1,j)),' in ',plotFileName, ' with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
             end
             
         end
@@ -58,7 +58,7 @@ if showFigures || saveFigures || showSeparatedFigures || saveSeparatedFigures
 end
 
 %% Plot Accuracy
-if showAccuracy || saveAccuracy
+if displayInfo.showAccuracy || displayInfo.saveAccuracy
     numRepetition = length(classificationOutput{1,1}(1,1).accuracyAll{1,1});
 
     for i = 1:numFeatureCombination
@@ -107,12 +107,12 @@ if showAccuracy || saveAccuracy
 end
 
 %% Plot histogram and distribution
-if showHistFit || saveHistFit
+if displayInfo.showHistFit || displayInfo.saveHistFit
     %% (for single features in all classes)
     for i = 1:numChannel
         for j = 1:numFeatures
-            featuresTemp = cell2nanMat(featuresAll(:,j,i)); % reconstruct the same features from all classes into a matrix
-            [pHist(j,i),fHist(j,i),hHist] = plotFig(0,featuresTemp,plotFileName,['Distribution of ',featuresNames{j,1}],'','Amplitudes',0,1,path,'overlap',channel(1,i),'histFitPlot'); % plot the histogram with fit distribution the feature of each class
+            featuresTemp = cell2nanMat(featuresInfo.featuresAll(:,j,i)); % reconstruct the same features from all classes into a matrix
+            [pHist(j,i),fHist(j,i),hHist] = plotFig(0,featuresTemp,plotFileName,['Distribution of ',featuresInfo.featuresNames{j,1}],'','Amplitudes',0,1,path,'overlap',channel(1,i),'histFitPlot'); % plot the histogram with fit distribution the feature of each class
             for k = 1:numClass
                 hHist{k,1}(1,1).FaceColor = colorArray(k,:);
                 hHist{k,1}(2,1).Color = colorArray(k,:);
@@ -139,10 +139,10 @@ if showHistFit || saveHistFit
     featureIndexTemp = [2,8;2,4]; % features used in combinations, channels are separated in rows
     for i = 1:numChannel
         for j = 1:2
-            featuresTemp{j,1} = featuresAll(:,featureIndexTemp(i,j),i);
+            featuresTemp{j,1} = featuresInfo.featuresAll(:,featureIndexTemp(i,j),i);
             featuresTemp{j,1} = cell2nanMat(featuresTemp{j,1});
         end
-        pScatter = plotFig(featuresTemp{1,1},featuresTemp{2,1},plotFileName,['Distribution of 2 Features ( ',checkMatNAddStr(featuresNames(featureIndexTemp(i,:)),' , '),' ) of ',plotFileName,' ch ',num2str(channel(1,i))],featuresNames(featureIndexTemp(i,1)),featuresNames(featureIndexTemp(i,2)),0,1,path,'overlap',channel(1,i),'scatterPlot'); % plot the scattered points distribution of the feature of each class;
+        pScatter = plotFig(featuresTemp{1,1},featuresTemp{2,1},plotFileName,['Distribution of 2 Features ( ',checkMatNAddStr(featuresInfo.featuresNames(featureIndexTemp(i,:)),' , '),' ) of ',plotFileName,' ch ',num2str(channel(1,i))],featuresInfo.featuresNames(featureIndexTemp(i,1)),featuresInfo.featuresNames(featureIndexTemp(i,2)),0,1,path,'overlap',channel(1,i),'scatterPlot'); % plot the scattered points distribution of the feature of each class;
         hold all
         grid on
         
@@ -173,7 +173,7 @@ if showHistFit || saveHistFit
         end
         
         if saveHistFit
-            savePlot(path,'Distribution of 2 Features',plotFileName,['Distribution of features ( ',checkMatNAddStr(featuresNames(featureIndexTemp(i,:)),' , '),' )  of channel ',num2str(channel(1,i)),' with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
+            savePlot(path,'Distribution of 2 Features',plotFileName,['Distribution of features ( ',checkMatNAddStr(featuresInfo.featuresNames(featureIndexTemp(i,:)),' , '),' )  of channel ',num2str(channel(1,i)),' with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
         end
         
     end
