@@ -14,8 +14,8 @@ output.signalClassification = info.varargin{1,2};
 
 output.fileName = output.signal.fileName;
 output.features = output.signalClassification.features;
-output.fileSpeed = output.fileName(7:8);
-output.fileDate = output.fileName(12:17);
+output.fileSpeed{1,1} = output.fileName(7:8);
+output.fileDate{1,1} = output.fileName(12:17);
 
 output.dataFiltered = output.signal.dataFiltered.values;
 output.dataTKEO = output.signal.dataTKEO.values; % signals for discrete classifcation

@@ -1,21 +1,20 @@
 function output = trainClassifier(featuresInfo, signalInfo, displayInfo)
 %trainClassifier Train the classifier to use in analyzeFeatures
-% 
+%
 % output:   classificationOutput, accuracyBasicParameter, accuracy,
 % accurcyStde, accuracyMax, maxFeatureCombo, classifierTitle,
 % classifierFullTitle, featureIndex
-% 
+%
 %   output = trainClassifier(featuresInfo, signalInfo, displayInfo)
 
 %% Parameters
 trainingRatio = 0.625;
-% featureIndex = [2,3,7]; % input the feature index for the feature combination
-numFeatures = 8;
-maxNumFeaturesInCombination = 2; % maximum nubmer of features used in combinations
+numFeatures = length(featuresInfo.featuresNames);
+maxNumFeaturesInCombination = 1; % maximum nubmer of features used in combinations
 classificationRepetition = 1000; % number of repetition of the classification with randomly assigned training set and testing set
 
 %% Classification Settings
-classifierTitle = 'Different Day'; % it can be 'Different Speed','Different Day','Active EMG'
+classifierTitle = 'Different Speed'; % it can be 'Different Speed','Different Day','Active EMG'
 classifierFullTitle = [classifierTitle,' ('];
 for i = 1:length(signalInfo)
     switch classifierTitle
@@ -48,7 +47,6 @@ if displayInfo.showHistFit||displayInfo.saveHistFit||displayInfo.showAccuracy||d
         maxFeatureCombo{i,1} = featureIndex{i,1}(maxAccuracyLocs,:);
     end
     
-    display(['Training session takes ',num2str(toc(tTrain)),' seconds...']);
 else
     classificationOutput = 0;
     featureIndex = 0;

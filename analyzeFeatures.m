@@ -37,21 +37,23 @@ featuresInfo = reconstructFeatures(signalInfo,iter);
 pcaInfo = reconstructPCA(signalInfo,iter);
 
 %% Adding PCA info as one feature
-featureInfo = addPCAintoFeatures(featuresInfo,pcaInfo.pcUsageLocs);
+featuresInfo = addPCAintoFeatures(featuresInfo,pcaInfo.pcUsageLocs);
 
 %% Train Classification
 tTrain = tic;
 
 classifierOutput = trainClassifier(featuresInfo, signalInfo, displayInfo);
 
+display(['Training session takes ',num2str(toc(tTrain)),' seconds...']);
+
 %% Plot features
 tPlot = tic;
 close all
 
 % type can be 'Active EMG', 'Different Speed', 'Different Day'
-visualizeFeatures(iter, path, channel, classificationOutput, featureIndex, accuracyBasicParameter, featuresInfo, classifierTitle, fileName, signalInfo, displayInfo);
+visualizeFeatures(iter, path, classifierOutput, featuresInfo, signalInfo, displayInfo);
 
-display(['Plotting session takes ',num2str(toc(tTrain)),' seconds...']);
+display(['Plotting session takes ',num2str(toc(tPlot)),' seconds...']);
 
 %% Run through the entire signal and classify
 if displayInfo.testClassifier

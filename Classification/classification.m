@@ -63,9 +63,9 @@ end
 
 output.classifierTitle = classifierTitle;
 output.class = class;
-output.error = error;
-output.posterior = posterior;
-output.logP = logP;
+% output.error = error;
+% output.posterior = posterior;
+% output.logP = logP;
 output.coefficient = coefficient;
 output.accuracy = accuracy; % a matrix of numbers which are the mean accuracy after all the repeatations
 output.accuracyAll = accuracyAll;

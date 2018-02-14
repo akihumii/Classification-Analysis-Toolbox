@@ -14,7 +14,7 @@ close all
 
 mu = mean(data); % mean that will be 
 
-[coeff,score] = pca(data); % rows of coeff represent different variables, while columns corresponds to the columns of score
+[coeff,score,latent] = pca(data); % rows of coeff represent different variables, while columns corresponds to the columns of score
 
 threshold = prctile(abs(coeff),90,2); % get the first score that exceeds 90 percentile of the entire score
 thresholdRep = repmat(threshold,1,numCol); % replicate the threshold for comparison with the score matrix
@@ -32,6 +32,7 @@ output.score = score;
 output.thresholdFinal = thresholdFinal; 
 output.reconstructedData = reconstructedData;
 output.mu = mu;
+output.latent = latent;
 
 %% plotting
 % figure
