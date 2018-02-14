@@ -4,7 +4,7 @@ function varargout = checkSize(data)
 % 
 % output = [numLastDim, num2ndDim, numDim]
 % 
-%   [numData, numFeatures] = checkSize(data)
+%   [numData, numIteration, numDim] = checkSize(data)
 
 numData = ones(1,3); % initiate 1 by 3 array of ones
 sizeData = size(data); % check the dimensions of data

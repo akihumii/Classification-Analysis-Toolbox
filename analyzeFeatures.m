@@ -30,14 +30,14 @@ for i = 1:iter
 end
 
 %% Reconstruct features
-% matrix of one feature = [bursts x speeds x features x channel]
+% matrix of one feature = [bursts x class x features x channel]
 featuresInfo = reconstructFeatures(signalInfo,iter);
 
 %% Reconstruct PCA
 pcaInfo = reconstructPCA(signalInfo,iter);
 
 %% Adding PCA info as one feature
-featuresInfo = addPCAintoFeatures(featuresInfo,pcaInfo.pcUsageLocs);
+featuresInfo = addPCAintoFeatures(featuresInfo,pcaInfo.scoreIndividual);
 
 %% Train Classification
 tTrain = tic;

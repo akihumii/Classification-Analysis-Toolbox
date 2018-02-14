@@ -32,7 +32,10 @@ for i = 1:iter
     combinedBursts{i,1} = signalClassification(i,1).selectedWindows.burst;
 end
 
-combinedBursts = catNanMat(combinedBursts,2);
+for i = 1:numChannel
+    combinedBurstsTemp{i,1};
+end
+combinedBursts = catNanMat(combinedBursts,2,'all');
 combinedBurstsMean = mean(combinedBursts,2);
 
 %% Save it into one of the files, depending on saveFileIndex

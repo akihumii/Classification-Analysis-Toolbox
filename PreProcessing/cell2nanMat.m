@@ -1,7 +1,9 @@
 function output = cell2nanMat(data)
 %cell2nanMat Convert cell into matrix filled with NaN based on largest
 %column and row number. Input data must be in the form of cell array filled
-%with vector array
+%with vector array.
+% In 4D output, the first layer (:,:,:,1) will be the first cell, which is
+% a 3D matrix.
 % 
 %   output = cell2nanMat(data)
 
