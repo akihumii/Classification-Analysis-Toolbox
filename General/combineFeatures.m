@@ -28,13 +28,10 @@ end
 %% Combine bursts
 numChannel = size(signalClassification(1,1).selectedWindows.burst,3); % number of channel 
 
-for i = 1:iter
-    combinedBursts{i,1} = signalClassification(i,1).selectedWindows.burst;
+for i = 1:iter % different classes
+    combinedBursts{i,1} = signalClassification(i,1).selectedWindows.burst; % different classes 
 end
 
-for i = 1:numChannel
-    combinedBurstsTemp{i,1};
-end
 combinedBursts = catNanMat(combinedBursts,2,'all');
 combinedBurstsMean = mean(combinedBursts,2);
 
