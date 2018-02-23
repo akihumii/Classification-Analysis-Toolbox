@@ -1,13 +1,16 @@
 function output = cell2nanMat(data)
 %cell2nanMat Convert cell into matrix filled with NaN based on largest
 %column and row number. Input data must be in the form of cell array filled
-%with vector array
+%with vector array.
+% In 4D output, the first layer (:,:,:,1) will be the first cell, which is
+% a 3D matrix.
+% 
 %   output = cell2nanMat(data)
 
 numCell = length(data);
 
 for i = 1:numCell
-    [numElement(i,1),numSet(i,1)] = size(data{i});
+    [numElement(i,1),numSet(i,1),numLayer(i,1)] = size(data{i});
     if numElement(i,1) == 1 && numSet(i,1) ~= 1
         numElement(i,1) = numSet(i,1);
         numSet(i,1) = 1;
@@ -16,8 +19,17 @@ end
 
 maxElementLength = max(numElement);
 maxSetLength = max(numSet);
+maxLayer = max(numLayer);
 
-if any(numSet > 1)
+if any(numLayer > 1)
+    output = nan(maxElementLength, maxSetLength, maxLayer, numCell);
+    for i = 1:numCell
+        if numElement(i,1)~=0 && numSet(i,1)~=0 && numLayer(i,1)~=0
+            output(1:numElement(i,1),1:numSet(i,1),1:numLayer(i,1),i) = data{i,1};
+        end
+    end
+
+elseif any(numSet > 1)
     output = nan(maxElementLength, maxSetLength, numCell);
     for i = 1:numCell
         if numElement(i,1)~=0 && numSet(i,1)~=0
