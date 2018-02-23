@@ -1,4 +1,4 @@
-function output = pcaConverter(data)
+function output = pcaConverter(data,threshPercentile)
 %pcaConverter Obtain PCA of the data
 % 
 % output:   coeff: loadings/coefficients of each PC (variables x PC)
@@ -7,7 +7,7 @@ function output = pcaConverter(data)
 %           reconstructedData: using thresholdFinal for reconstruction
 %           mu: mean of the variables deducted before running pca
 % 
-%   output = pcaConverter(data)
+%   output = pcaConverter(data,threshPercentile)
 close all
 
 % [~,numCol] = size(data); % number of variables
@@ -16,7 +16,7 @@ mu = mean(data); % mean that will be deducted at the begining of function pca
 
 [coeff,score,latent] = pca(data); % rows of coeff represent different variables, while columns corresponds to the columns of score
 
-latentThreshLocs = getAccumulatePercentile(latent,75); % use 90 percentile of the latent (eigenvalues) to represent the observations
+latentThreshLocs = getAccumulatePercentile(latent,threshPercentile); % use 90 percentile of the latent (eigenvalues) to represent the observations
 
 scoreFinal = score(:,1:latentThreshLocs);
 coeffFinal = coeff(:,1:latentThreshLocs);

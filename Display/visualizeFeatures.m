@@ -8,7 +8,7 @@ accuracyBasicParameter = classifierOutput.accuracyBasicParameter;
 numFeatureCombination = length(accuracyBasicParameter);
 titleName = classifierOutput.classifierTitle;
 fileName = signalInfo(1,1).fileName;
-numRowSubplots = 3; % for the row of subplots in overall plots
+numRowSubplots = 4; % for the row of subplots in overall plots
 channel = signalInfo(1,1).signal.channel;
 featureIndex = classifierOutput.featureIndex;
 is2DClassification = length(featureIndex) == 2; % if 2 features are used in the combination to do the classification
@@ -44,7 +44,7 @@ if displayInfo.showFigures || displayInfo.saveFigures || displayInfo.showSeparat
             hold on
             errorbar(1:iter,transpose(featuresInfo.featureMean(i,:,j)),featuresInfo.featureStde(i,:,j),'r*');
             
-            if saveSeparatedFigures
+            if displayInfo.saveSeparatedFigures
                 savePlot(path,['Features sorted in ',titleName,],plotFileName,[featuresInfo.featuresNames{i,1},' with ',titleName,' of ch ',num2str(channel(1,j)),' in ',plotFileName, ' with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
             end
             
@@ -54,14 +54,14 @@ if displayInfo.showFigures || displayInfo.saveFigures || displayInfo.showSeparat
     %% Plot all the features
     for i = 1:numChannel
         [~,fS(i,1)] = plots2subplots(p(:,i),numRowSubplots,numFeatures/numRowSubplots);
-        if saveFigures
+        if displayInfo.saveFigures
             savePlot(path,['Features sorted in ',titleName,],plotFileName,['All the Features with ',titleName,' of ch ',num2str(channel(1,i)),' in ',plotFileName,' with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
         end
     end
-    if ~showSeparatedFigures
+    if ~displayInfo.showSeparatedFigures
         delete(f)
     end
-    if ~showFigures
+    if ~displayInfo.showFigures
         delete(fS(:,1))
     end
 end
