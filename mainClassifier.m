@@ -26,6 +26,7 @@ highPassCutoffFreq = 30; % high pass cutoff frequency, input 0 if not applied
 lowPassCutoffFreq = 500; % low pass cutoff frequency, input 0 if not applied
 notchFreq = 50; % notch frequency, input 0 if not applied
 decimateFactor = 1; % down sampling the data by a factor 'decimateFactor'
+pcaCleaning = 1; % run PCA to omit principle components that have very little latent (eigenvalues)
 
 % FFT parameters
 dataToBeFFT = 'dataFiltered'; % input 'dataRaw' for raw data; input 'dataFiltered' for filtered data; input 'dataRectified' for rectified data; input 'dataDifferential' for differential data
@@ -46,8 +47,6 @@ burstTrimmingType = 1; % 1 to delete; 2 to pick
 
 % Show & Save Plots Parameters. Input 1 to save/show, otherwise input 0.
 % Plots will be saved in the folder 'Figures' at the same path with the processed data 
-saveOption = 0;
-
 showRaw = 0;
 showDifferential = 0;
 showRectified = 0;
@@ -55,12 +54,12 @@ showFilt = 0;
 showOverlap = 0;
 showFFT = 0;
 
-saveRaw = saveOption;
+saveRaw = 0;
 saveDifferential = 0;
 saveRectified = 0;
 saveFilt = 0;
 saveOverlap = 0;
-saveFFT = saveOption;
+saveFFT = 0;
 
 saveUserInput = 1;
 

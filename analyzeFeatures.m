@@ -8,6 +8,8 @@ close all
 %% User Input
 numPrinComp = 8; % number of principle component to use as features
 threshPercentile = 50; % percentile to threshold the latent of principle component for data reconstruction
+
+% for display
 displayInfo.testClassifier = 0;
 displayInfo.saveOutput = 1;
 
