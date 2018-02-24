@@ -2,7 +2,7 @@ function output = reconstructPCA(signalInfo, numclass,threshPercentile)
 %reconstructPCA Reconstruct the bursts collected from analyzeFeatures and
 %compute the relative PCA
 %
-%   output = reconstructPCA(signalInfo,iter,thresPercentile)
+%   output = reconstructPCA(signalInfo,iter,threshPercentile)
 
 numChannel = size(signalInfo(1,1).signalClassification.selectedWindows.burst,3);
 

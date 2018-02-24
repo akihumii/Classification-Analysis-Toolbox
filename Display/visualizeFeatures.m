@@ -8,7 +8,7 @@ accuracyBasicParameter = classifierOutput.accuracyBasicParameter;
 numFeatureCombination = length(accuracyBasicParameter);
 titleName = classifierOutput.classifierTitle;
 fileName = signalInfo(1,1).fileName;
-numRowSubplots = 4; % for the row of subplots in overall plots
+numRowSubplots = 2; % for the row of subplots in overall plots
 channel = signalInfo(1,1).signal.channel;
 featureIndex = classifierOutput.featureIndex;
 is2DClassification = length(featureIndex) == 2; % if 2 features are used in the combination to do the classification
@@ -97,14 +97,13 @@ if displayInfo.showAccuracy || displayInfo.saveAccuracy
     if is2DClassification
         for i = 1:numChannel
             for j = 1:numCombination(end,1)
-                [synergyParameters(j,i),significance(j,i)] = calculateSynergy([classifierOutput{1,1}(featureIndex{2,1}(j,1)).accuracyAll(i,1);classifierOutput{2,1}(featureIndex{2,1}(j,2)).accuracyAll(i,1)],classifierOutput{2,1}(j,1).accuracyAll{i,1},numRepetition);
+                [synergyParameters(j,i),significance(j,i)] = calculateSynergy([classifierOutput.classificationOutput{1,1}(featureIndex{2,1}(j,1)).accuracyAll(i,1);classifierOutput.classificationOutput{1,1}(featureIndex{2,1}(j,2)).accuracyAll(i,1)],classifierOutput.classificationOutput{2,1}(j,1).accuracyAll{i,1},numRepetition);
             end
-            pS = plotFig(1:numCombination(end,1),vertcat(synergyParameters(:,i).mean),plotFileName,['Synergy with ',num2str(numFeatureCombination),' features in combinations with ',xScale,' ',checkMatNAddStr(xTickValue,',')],'Features Combinations','Acurracy',0,showAccuracy,path,'overlap',channel(1,i),'barPlot');
+            pS = plotFig(1:numCombination(end,1),vertcat(synergyParameters(:,i).mean),plotFileName,['Synergy with ',num2str(numFeatureCombination),' features in combinations with ',xScale,' ',checkMatNAddStr(xTickValue,',')],'Features Combinations','Acurracy',0,displayInfo.showAccuracy,path,'overlap',channel(1,i),'barPlot');
             hold on
             labelPlot(pS,find(significance(:,i)==1),'r^'); % label asteric on the barchart if it is significantly difference
             errorbar(1:numCombination(end,1),vertcat(synergyParameters(:,i).mean),vertcat(synergyParameters(:,i).stde),'r*');
-            pS.XTick = 1:numCombination(end,1);
-            pS.XTickLabel = num2cell(num2str(featureIndex{2,1}),2);
+            set(pS,'XTick',1:numCombination(end,1),'XTickLabel',num2cell(num2str(featureIndex{2,1}),2));
             grid on
             if displayInfo.saveAccuracy
                 savePlot(path,'Synergy',plotFileName,['Synergy of channel ',num2str(channel(i)),'  with ',num2str(numFeatureCombination),' features in combinations with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
@@ -125,18 +124,25 @@ if displayInfo.showHistFit || displayInfo.saveHistFit
         for j = 1:numFeatures
             featuresTemp = cell2nanMat(featuresInfo.featuresAll(:,j,i)); % reconstruct the same features from all classes into a matrix
             [pHist(j,i),fHist(j,i),hHist] = plotFig(0,featuresTemp,plotFileName,['Distribution of ',featuresInfo.featuresNames{j,1}],'','Amplitudes',0,1,path,'overlap',channel(1,i),'histFitPlot'); % plot the histogram with fit distribution the feature of each class
+            hold on
             for k = 1:numClass
                 hHist{k,1}(1,1).FaceColor = colorArray(k,:);
                 hHist{k,1}(2,1).Color = colorArray(k,:);
                 hHistTemp(k,1) = hHist{k,1}(2,1);
             end
             l(j,i) = legend(hHistTemp,xTickValue);
+            
+            % plot classifier's boundary
+            constTemp(1,1) = classifierOutput.classificationOutput{1,1}(j,1).coefficient{i,1}(1,2).const; % first and second class constant
+            linearTemp(1,:) = classifierOutput.classificationOutput{1,1}(j,1).coefficient{i,1}(1,2).linear; % first and second class linear
+            plotBoundary(pHist(j,i),constTemp,linearTemp);
         end
     end
+    % plot all the graphs in a same figure
     for i = 1:numChannel
         [~,fSHist(i,1)] = plots2subplots(pHist(:,i),numRowSubplots,numFeatures/numRowSubplots);
         pHistTemp = gca;
-        legend(flipud(pHistTemp.Children(1:2:end,1)),xTickValue);
+        legend(flipud(pHistTemp.Children(1:2:end,1)),[xTickValue;{'Classifier''s boudary'}]);
         if displayInfo.saveHistFit
             savePlot(path,'Distribution of Features',plotFileName,['Distribution of features of channel ',num2str(channel(1,i)),' with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
         end
@@ -145,11 +151,11 @@ if displayInfo.showHistFit || displayInfo.saveHistFit
         end
     end
     delete(fHist) % delete the separated plot
-    clear featuresTemp numFeatures
+    clear featuresTemp numFeatures constantTemp linearTemp
     
     %% for 2 features used in combinations
     if is2DClassification
-        featureIndexTemp = [2,8;2,4]; % features used in combinations, channels are separated in rows
+        featureIndexTemp = [3,8;2,8]; % features used in combinations, channels are separated in rows
         for i = 1:numChannel
             for j = 1:2
                 featuresTemp{j,1} = featuresInfo.featuresAll(:,featureIndexTemp(i,j),i);
@@ -163,13 +169,13 @@ if displayInfo.showHistFit || displayInfo.saveHistFit
             featuresLocsTemp = repmat(featureIndexTemp(i,:),numFeatures,1) == featureIndex{2,1};
             featuresLocsTemp = find(all(featuresLocsTemp,2));
             
-            constTemp(1,1) = classifierOutput{2,1}(featuresLocsTemp,1).coefficient{i,1}(1,2).const; % first and second class
-            linearTemp(1,:) = classifierOutput{2,1}(featuresLocsTemp,1).coefficient{i,1}(1,2).linear; % first and second class
+            constTemp(1,1) = classifierOutput.classificationOutput{2,1}(featuresLocsTemp,1).coefficient{i,1}(1,2).const; % first and second class constant
+            linearTemp(1,:) = classifierOutput.classificationOutput{2,1}(featuresLocsTemp,1).coefficient{i,1}(1,2).linear; % first and second class linear
             if numClass > 2
-                constTemp(2,1) = classifierOutput{2,1}(featuresLocsTemp,1).coefficient{i,1}(2,3).const; % second and third class
-                linearTemp(2,:) = classifierOutput{2,1}(featuresLocsTemp,1).coefficient{i,1}(2,3).linear; % second and third class
-                constTemp(3,1) = classifierOutput{2,1}(featuresLocsTemp,1).coefficient{i,1}(1,3).const; % first and third class
-                linearTemp(3,:) = classifierOutput{2,1}(featuresLocsTemp,1).coefficient{i,1}(1,3).linear; % first and third class
+                constTemp(2,1) = classifierOutput{2,1}(featuresLocsTemp,1).coefficient{i,1}(2,3).const; % second and third class constant
+                linearTemp(2,:) = classifierOutput{2,1}(featuresLocsTemp,1).coefficient{i,1}(2,3).linear; % second and third class linear
+                constTemp(3,1) = classifierOutput{2,1}(featuresLocsTemp,1).coefficient{i,1}(1,3).const; % first and third class constant 
+                linearTemp(3,:) = classifierOutput{2,1}(featuresLocsTemp,1).coefficient{i,1}(1,3).linear; % first and third class linear
             end
             plotBoundary(pScatter,constTemp,linearTemp);
             

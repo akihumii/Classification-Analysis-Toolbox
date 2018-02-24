@@ -10,6 +10,6 @@ output.std = std(data);
 output.stde = output.std/sqrt(length(data));
 output.max = max(data);
 output.min = min(data);
-
+output.raw = data;
 end
 

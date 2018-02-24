@@ -26,7 +26,7 @@ highPassCutoffFreq = 30; % high pass cutoff frequency, input 0 if not applied
 lowPassCutoffFreq = 500; % low pass cutoff frequency, input 0 if not applied
 notchFreq = 50; % notch frequency, input 0 if not applied
 decimateFactor = 1; % down sampling the data by a factor 'decimateFactor'
-pcaCleaning = 1; % run PCA to omit principle components that have very little latent (eigenvalues)
+pcaCleaning = 1; % run PCA to omit principle components that have very little latent (eigenvalues), default threshold is 50 percentile
 
 % FFT parameters
 dataToBeFFT = 'dataFiltered'; % input 'dataRaw' for raw data; input 'dataFiltered' for filtered data; input 'dataRectified' for rectified data; input 'dataDifferential' for differential data
@@ -51,7 +51,7 @@ showRaw = 0;
 showDifferential = 0;
 showRectified = 0;
 showFilt = 0;
-showOverlap = 0;
+showOverlap = 1;
 showFFT = 0;
 
 saveRaw = 0;
@@ -72,7 +72,7 @@ disp(' ')
 %% Locate bursts and select windows around them
 tic
 if showOverlap==1 || saveOverlap==1 % peaks detection is only activated when either showOverlap or saveOverlap or both of them are TRUE
-    signalClassification = dataClassificationPreparation(signal, iter, overlappedWindow, windowSize,dataToBeDetectedSpike, spikeDetectionType, threshold, sign, threshStdMult, TKEOStartConsecutivePoints, TKEOEndConsecutivePoints,channelExtractStartingLocs,burstTrimming,burstTrimmingType);
+    signalClassification = dataClassificationPreparation(signal, iter, pcaCleaning, overlappedWindow, windowSize,dataToBeDetectedSpike, spikeDetectionType, threshold, sign, threshStdMult, TKEOStartConsecutivePoints, TKEOEndConsecutivePoints,channelExtractStartingLocs,burstTrimming,burstTrimmingType);
 else
     signalClassification = 1;
 end

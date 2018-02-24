@@ -83,6 +83,13 @@ classdef classClassificationPreparation
                 targetClassData.samplingFreq, 0);
         end
         
+        function clfp = pcaCleanData(clfp)
+            clfp.selectedWindows.burst = pcaCleanData(clfp.selectedWindows.burst);
+            clfp.selectedWindows.burstMean = nanmean(clfp.selectedWindows.burst,2);
+            numSamplePoints = size(clfp.selectedWindows.burst,1);
+            clfp.selectedWindows.xAxisValues = clfp.selectedWindows.xAxisValues(1:numSamplePoints,:,:);
+        end
+
         function clfp = featureExtraction(clfp,samplingFreq,targetField)
             [dataValues, dataName] = loadMultiLayerStruct(clfp,targetField);
             clfp.features = featureExtraction(dataValues,samplingFreq);

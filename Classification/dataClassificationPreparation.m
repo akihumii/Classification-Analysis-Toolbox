@@ -21,6 +21,11 @@ output(i,1) = detectSpikes(output(i,1), signal(i,1), dataToBeDetectedSpike, spik
 % get windows around spikes
 output(i,1) = classificationWindowSelection(output(i,1), signal(i,1), selectedWindow,burstTrimming,burstTrimmingType);
 
+% clean the bursts by running PCA
+if pcaCleaning
+    output(i,1) = pcaCleanData(output(i,1));
+end
+
 % extract features
 output(i,1) = featureExtraction(output(i,1),signal(i,1).samplingFreq,[{'selectedWindows'};{'burst'}]); % [1 * number of windows * number of sets]
 

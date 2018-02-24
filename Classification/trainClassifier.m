@@ -10,7 +10,7 @@ function output = trainClassifier(featuresInfo, signalInfo, displayInfo)
 %% Parameters
 trainingRatio = 0.625;
 numFeatures = length(featuresInfo.featuresNames);
-maxNumFeaturesInCombination = 1; % maximum nubmer of features used in combinations
+maxNumFeaturesInCombination = 2; % maximum nubmer of features used in combinations
 classificationRepetition = 1000; % number of repetition of the classification with randomly assigned training set and testing set
 
 %% Classification Settings

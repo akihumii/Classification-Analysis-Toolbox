@@ -6,7 +6,7 @@ close all
 % clc
 
 %% User Input
-numPrinComp = 8; % number of principle component to use as features
+numPrinComp = 0; % number of principle component to use as features
 threshPercentile = 50; % percentile to threshold the latent of principle component for data reconstruction
 
 % for display
@@ -38,10 +38,14 @@ end
 featuresInfo = reconstructFeatures(signalInfo,iter);
 
 %% Reconstruct PCA
-pcaInfo = reconstructPCA(signalInfo,iter,threshPercentile); % matrix in [class x channel]
+if numPrinComp ~= 0
+    pcaInfo = reconstructPCA(signalInfo.signalClassification.selectedWindows.burst,iter,threshPercentile); % matrix in [class x channel]
+end
 
 %% Adding PCA info as one feature
-featuresInfo = addPCAintoFeatures(featuresInfo,pcaInfo.scoreIndividual,numPrinComp);
+if numPrinComp ~= 0
+    featuresInfo = addPCAintoFeatures(featuresInfo,pcaInfo.scoreIndividual,numPrinComp);
+end
 
 %% Train Classification
 tTrain = tic;
