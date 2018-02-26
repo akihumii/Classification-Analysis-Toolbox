@@ -8,7 +8,7 @@ function output = catNanMat(data,dim,type)
 %           type:   'all' to omit array when it fills only with Nan;
 %                   'any' to omit array when it contains even one Nan.
 %
-%   output = catNanMat(data,dim)
+%   output = catNanMat(data,dim,type)
 
 if ~isempty(data{1,1}) % run only when it's not empty cell
     output = cell2nanMat(data);

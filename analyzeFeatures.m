@@ -39,7 +39,7 @@ featuresInfo = reconstructFeatures(signalInfo,iter);
 
 %% Reconstruct PCA
 if numPrinComp ~= 0
-    pcaInfo = reconstructPCA(signalInfo.signalClassification.selectedWindows.burst,iter,threshPercentile); % matrix in [class x channel]
+    pcaInfo = reconstructPCA(signalInfo,iter,threshPercentile); % matrix in [class x channel]
 end
 
 %% Adding PCA info as one feature
@@ -74,7 +74,7 @@ end
 
 %% Save the classification output and accuracy output
 if displayInfo.saveOutput
-    saveVar([path,'\classificationInfo\'],horzcat(signalInfo(:,1).saveFileName),classificationOutput,accuracyBasicParameter);
+    saveVar([path,'\classificationInfo\'],horzcat(signalInfo(:,1).saveFileName),classifierOutput,featuresInfo,signalInfo);
 end
 
 %% End

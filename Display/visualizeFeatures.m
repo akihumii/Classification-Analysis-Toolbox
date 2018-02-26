@@ -8,7 +8,7 @@ accuracyBasicParameter = classifierOutput.accuracyBasicParameter;
 numFeatureCombination = length(accuracyBasicParameter);
 titleName = classifierOutput.classifierTitle;
 fileName = signalInfo(1,1).fileName;
-numRowSubplots = 2; % for the row of subplots in overall plots
+numRowSubplots = 4; % for the row of subplots in overall plots
 channel = signalInfo(1,1).signal.channel;
 featureIndex = classifierOutput.featureIndex;
 is2DClassification = length(featureIndex) == 2; % if 2 features are used in the combination to do the classification
@@ -155,7 +155,7 @@ if displayInfo.showHistFit || displayInfo.saveHistFit
     
     %% for 2 features used in combinations
     if is2DClassification
-        featureIndexTemp = [3,8;2,8]; % features used in combinations, channels are separated in rows
+        featureIndexTemp = [1,3;1,3]; % features used in combinations, channels are separated in rows
         for i = 1:numChannel
             for j = 1:2
                 featuresTemp{j,1} = featuresInfo.featuresAll(:,featureIndexTemp(i,j),i);

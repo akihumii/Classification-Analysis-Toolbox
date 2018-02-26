@@ -5,7 +5,7 @@ function output = omitNan(data,dim,type)
 %           type:   'all' for omitting only the arrays filled with only Nan;
 %                   'any' for omitting the arrays filled with even one Nan.
 % 
-%   output = omitNan(data,dim)
+%   output = omitNan(data,dim,type)
 
 nanLogic = isnan(data); % convert to logics, if Nan, then 1
 

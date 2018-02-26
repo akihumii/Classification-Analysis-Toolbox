@@ -11,19 +11,22 @@ output.featuresNames = fieldnames(signalInfo(1,1).features);
 output.featuresNames(end) = []; % the field that containes analyzed data
 numFeatures = length(output.featuresNames);
 
-for i = 1:iter % different speed = different class
-    for j = 1:numChannel
-        featuresAllTemp{i,j} = zeros(0,1);
-    end
-end
+% for i = 1:iter % different speed = different class
+%     for j = 1:numChannel
+%         featuresAllTemp{i,j} = zeros(0,1);
+%     end
+% end
 
 for i = 1:numFeatures
     for k = 1:numChannel
         for j = 1:iter % different speed = different class
             featureNameTemp = output.featuresNames{i,1};
+%             featuresTemp = signalInfo(j,1).features.(featureNameTemp)(:,k);
+%             featuresTemp = featuresTemp(~isnan(featuresTemp));
+%             output.featuresAll{j,i,k} = featuresTemp;
             output.featuresAll{j,i,k} = signalInfo(j,1).features.(featureNameTemp)(:,k); % it is sorted in [bursts * classes * features * channels]
             featuresTemp = output.featuresAll{j,i,k};
-            featuresAllTemp{j,k} = [featuresAllTemp{j,k},featuresTemp];
+%             featuresAllTemp{j,k} = [featuresAllTemp{j,k},featuresTemp];
             output.featureMean(i,j,k) = nanmean(featuresTemp); % it is sorted in [features * clases * channels]
             output.featureStd(i,j,k) = nanstd(featuresTemp); % it is sorted in [features * classes * channels]
             output.featureStde(i,j,k) = output.featureStd(i,j,k) / sqrt(length(featuresTemp(~isnan(featuresTemp)))); % standard error of the feature

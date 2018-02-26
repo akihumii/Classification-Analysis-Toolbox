@@ -21,12 +21,12 @@ for i = 1:numChannels
             trialsTemp = zeros(1,0);
             notNanFeatures = zeros(1,0);
             
-            for k = 1:numSelectedFeatures % concatanate the different classes into different columns including nan
-                trialsTemp = [trialsTemp,trials{j,featureIndex(1,k),i}];
-            end
-            [nanRow,nanCol] = find(isnan(trialsTemp)); % locations of the not nan values
-            notNanFeatures = trialsTemp; 
-            notNanFeatures(nanRow,:) = []; % get not nan values           
+            trialsTemp = catNanMat(trials(j,featureIndex(1,:),i)',2,'all');
+%             for k = 1:numSelectedFeatures % concatanate the different classes into different columns including nan
+%                 trialsTemp = [trialsTemp,trials{j,featureIndex(1,k),i}];
+%             end
+            
+            notNanFeatures = omitNan(trialsTemp,2,'any'); % get rid of rows containing Nan
             
             randFeatures = notNanFeatures(randperm(size(notNanFeatures,1)),:);
             numRandBursts = size(randFeatures,1); % number of bursts that are not nan
@@ -38,7 +38,7 @@ for i = 1:numChannels
             testingClassTemp = [testingClassTemp; j*ones(size(testingSetTemp,1),1)];
         end
         
-        [classTemp,errorTemp,posteriorTemp,logPTemp,coefficientTemp] = ...
+        [classTemp,errorTemp,posteriorTemp,logPTemp,coefficientTemp] = ... % run the classification
             classify(testingTemp,trainingTemp,trainingClassTemp);
         
         accuracyTemp = calculateAccuracy(classTemp,testingClassTemp);
