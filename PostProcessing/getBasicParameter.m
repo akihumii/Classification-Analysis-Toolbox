@@ -5,11 +5,11 @@ function output = getBasicParameter(data)
 % 
 %   output = getBasicParameter(data)
 
-output.mean = mean(data);
-output.std = std(data);
-output.stde = output.std/sqrt(length(data));
-output.max = max(data);
-output.min = min(data);
+output.mean = mean(data,1);
+output.std = std(data,1);
+output.stde = output.std/sqrt(size(data,1));
+output.max = max(data,1);
+output.min = min(data,1);
 output.raw = data;
 end
 

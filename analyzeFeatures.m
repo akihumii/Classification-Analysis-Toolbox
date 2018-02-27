@@ -6,8 +6,11 @@ close all
 % clc
 
 %% User Input
-numPrinComp = 0; % number of principle component to use as features
+runPCA = 0;
+numPrinComp = 4; % number of principle component to use as features
 threshPercentile = 50; % percentile to threshold the latent of principle component for data reconstruction
+classificationRepetition = 100; % number of repetition of the classification with randomly assigned training set and testing set
+maxNumFeaturesInCombination = 2; % maximum nubmer of features used in combinations
 
 % for display
 displayInfo.testClassifier = 0;
@@ -24,33 +27,49 @@ displayInfo.saveHistFit = 0;
 displayInfo.saveAccuracy = 0;
 
 %% Get features info
-[files, path, iter] = selectFiles('select mat files for classifier''s training');
+[files, path, numClass] = selectFiles('select mat files for classifier''s training');
 
 popMsg('Gathering features...');
 
-%% Read and Reconstruct 
-for i = 1:iter
-    signalInfo(i,1) = getFeaturesInfo(path,files{1,i});    
+%% Read and Reconstruct
+for i = 1:numClass
+    signalInfo(i,1) = getFeaturesInfo(path,files{1,i});
 end
-
-%% Reconstruct features
-% matrix of one feature = [bursts x class x features x channel]
-featuresInfo = reconstructFeatures(signalInfo,iter);
 
 %% Reconstruct PCA
-if numPrinComp ~= 0
-    pcaInfo = reconstructPCA(signalInfo,iter,threshPercentile); % matrix in [class x channel]
-end
+pcaInfo = reconstructPCA(signalInfo,threshPercentile); % matrix in [class x channel]
 
-%% Adding PCA info as one feature
-if numPrinComp ~= 0
-    featuresInfo = addPCAintoFeatures(featuresInfo,pcaInfo.scoreIndividual,numPrinComp);
+if runPCA
+    %% Extract features from reconstructed signals after running PCA
+    numChannel = length(signalInfo(1).signal.channel);
+    for i = 1:numChannel
+        features(i,1) = featureExtraction(pcaInfo.pcaInfo(i,1).reconstructedData',1); % different channels stored in different structures. The structures mimics the one in signalInfo
+    end
+    
+    features = rmfield(features,[{'burstLength'},{'sumDifferences'}]); % as the lengths have been trimmed, so this feature is no longer applicable
+    
+    %% Reconstruct features
+    % matrix of one feature = [bursts x class x features x channel]
+    featuresInfo = reconstructFeatures(features,numClass,pcaInfo.numBursts);
+    
+else
+    %% Reconstruct features in singal so that the structure is the same as the one in extracted Features.
+    features = reconstructSignalInfoFeatures(signalInfo);
+    
+    %% Reconstruct features
+    % matrix of one feature = [bursts x class x features x channel]
+    featuresInfo = reconstructFeatures(features,numClass,repmat(pcaInfo.numBursts(:,1),1,2)); % as the raw features still contains Nan, so number of bursts should not be trimmed too
+    
+    %% Adding PCA info as one feature
+    if numPrinComp ~= 0
+        featuresInfo = addPCAintoFeatures(featuresInfo,pcaInfo.scoreIndividual,numPrinComp);
+    end
 end
 
 %% Train Classification
 tTrain = tic;
 
-classifierOutput = trainClassifier(featuresInfo, signalInfo, displayInfo);
+classifierOutput = trainClassifier(featuresInfo, signalInfo, displayInfo, classificationRepetition, maxNumFeaturesInCombination);
 
 display(['Training session takes ',num2str(toc(tTrain)),' seconds...']);
 
@@ -59,16 +78,16 @@ tPlot = tic;
 close all
 
 % type can be 'Active EMG', 'Different Speed', 'Different Day'
-visualizeFeatures(iter, path, classifierOutput, featuresInfo, signalInfo, displayInfo);
+visualizeFeatures(numClass, path, classifierOutput, featuresInfo, signalInfo, displayInfo);
 
 display(['Plotting session takes ',num2str(toc(tPlot)),' seconds...']);
 
 %% Run through the entire signal and classify
 if displayInfo.testClassifier
     tTest = tic;
-
+    
     classificatioOutput = runClassifier(classifierOutput);
-
+    
     display(['Continuous classification takes ',num2str(toc(tTrain)),' seconds...']);
 end
 
