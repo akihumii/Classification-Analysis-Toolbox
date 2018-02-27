@@ -57,6 +57,7 @@ end
 
 %% Plot and compare before and after reconstruction
 if displayInfo.showReconstruction || displayInfo.saveReconstruction
+    plotReconstruction(signalInfo,pcaInfo,numChannel,displayInfo,fileName,path,channel,plotFileName,numClass)
 end
 
 %% Plot the Principle Component Coefficients
