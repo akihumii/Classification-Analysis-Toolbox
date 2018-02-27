@@ -1,4 +1,4 @@
-function [] = visualizeFeatures(iter, path, classifierOutput, featuresInfo, signalInfo, displayInfo)
+function [] = visualizeFeatures(iter, path, classifierOutput, featuresInfo, signalInfo, displayInfo, pcaInfo)
 %visualizeFeatures Visualize the features, accuracies, feature distribution
 %    [] = visualizeFeatures(iter, path, channel, classificationOutput, featureIndex, accuracyBasicParameter, featuresInfo, titleName, fileName, signalInfo, saveFigures, showFigures, saveSeparatedFigures, showSeparatedFigures, saveHistFit, showHistFit, saveAccuracy, showAccuracy)
  
@@ -54,7 +54,15 @@ if displayInfo.showHistFit || displayInfo.saveHistFit
         plotMultipleFeatureDistribution(numChannel,featuresInfo,plotFileName,channel,path,featureIndex,classifierOutput,xTickValue,displayInfo,numClass,colorArray);
     end
 end
+
+%% Plot and compare before and after reconstruction
+if displayInfo.showReconstruction || displayInfo.saveReconstruction
+end
+
+%% Plot the Principle Component Coefficients
+if displayInfo.showPrinComp || displayInfo.savePrinComp
+    plotPrinComp(signalInfo,pcaInfo,numChannel,displayInfo,fileName,path,channel,plotFileName)
+end
  
 end
  
-
