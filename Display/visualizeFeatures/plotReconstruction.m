@@ -2,7 +2,7 @@ function [] = plotReconstruction(signalInfo,pcaInfo,numChannel,displayInfo,fileN
 %plotReconstruction Plot the signals before and after reconstruction by PCA
 %   [] = plotReconstruction(signalInfo,pcaInfo,numChannel,displayInfo,fileName,path,channel,plotFileName,numClass)
 
-numPlot = 4; % number of reconstructed signals to be plotted
+numPlot = 6; % number of reconstructed signals to be plotted
 numBursts = [zeros(1,numChannel);pcaInfo.numBursts];
 samplingFreq = signalInfo(1,1).signal.samplingFreq;
 
