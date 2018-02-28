@@ -55,15 +55,15 @@ if displayInfo.showHistFit || displayInfo.saveHistFit
     end
 end
 
+%% Plot the Principle Component Coefficients
+if displayInfo.showPrinComp || displayInfo.savePrinComp
+    plotPrinComp(signalInfo,pcaInfo,numChannel,displayInfo,fileName,path,channel,plotFileName)
+end
+
 %% Plot and compare before and after reconstruction
 if displayInfo.showReconstruction || displayInfo.saveReconstruction
     plotReconstruction(signalInfo,pcaInfo,numChannel,displayInfo,fileName,path,channel,plotFileName,numClass)
 end
 
-%% Plot the Principle Component Coefficients
-if displayInfo.showPrinComp || displayInfo.savePrinComp
-    plotPrinComp(signalInfo,pcaInfo,numChannel,displayInfo,fileName,path,channel,plotFileName)
-end
- 
 end
  

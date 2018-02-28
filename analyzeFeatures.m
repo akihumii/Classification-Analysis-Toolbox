@@ -17,11 +17,11 @@ displayInfo.testClassifier = 0;
 displayInfo.saveOutput = 1;
 
 displayInfo.showSeparatedFigures = 0;
-displayInfo.showFigures = 0;
-displayInfo.showHistFit = 0;
-displayInfo.showAccuracy = 0;
+displayInfo.showFigures = 1;
+displayInfo.showHistFit = 1;
+displayInfo.showAccuracy = 1;
 displayInfo.showReconstruction = 1;
-displayInfo.showPrinComp = 0;
+displayInfo.showPrinComp = 1;
 
 displayInfo.saveSeparatedFigures = 0;
 displayInfo.saveFigures = 0;
