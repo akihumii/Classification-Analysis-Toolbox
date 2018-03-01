@@ -13,6 +13,7 @@ channel = signalInfo(1,1).signal.channel; % channel
 featureIndex = classifierOutput.featureIndex; % feature index
 is2DClassification = length(featureIndex) == 2; % if 2 features are used in the combination to do the classification
 colorArray = [0,0.4470,0.7410;0.8500,0.3250,0.0980;0.9290,0.6940,0.1250;0.4940,0.1840,0.5560;0.4660,0.6740,0.1880;0.3010,0.7450,0.9330;0.6350,0.0780,0.1840]; % for colormap
+numPrinComp = 4; % number of principle component to be plotted
  
 if numClass == 3
     xTickValue{3,1} = 'Noise';
@@ -51,13 +52,13 @@ if displayInfo.showHistFit || displayInfo.saveHistFit
     
     %% for 2 features used in combinations
     if is2DClassification
-        plotMultipleFeatureDistribution(numChannel,featuresInfo,plotFileName,channel,path,featureIndex,classifierOutput,xTickValue,displayInfo,numClass,colorArray);
+        plotMultipleFeatureDistribution(numChannel,featuresInfo,plotFileName,channel,path,featureIndex,classifierOutput,xTickValue,xScale,displayInfo,numClass,colorArray);
     end
 end
 
 %% Plot the Principle Component Coefficients
 if displayInfo.showPrinComp || displayInfo.savePrinComp
-    plotPrinComp(signalInfo,pcaInfo,numChannel,displayInfo,fileName,path,channel,plotFileName)
+    plotPrinComp(signalInfo,pcaInfo,numChannel,displayInfo,fileName,path,channel,plotFileName,numPrinComp)
 end
 
 %% Plot and compare before and after reconstruction

@@ -1,9 +1,9 @@
-function [] = plotPrinComp(signalInfo,pcaInfo,numChannel,displayInfo,fileName,path,channel,plotFileName)
+function [] = plotPrinComp(signalInfo,pcaInfo,numChannel,displayInfo,fileName,path,channel,plotFileName,numPrinComp)
 %plotPrinComp Plot principle components in visualizeFeatures
 %
-%   Detailed explanation goes here
+%   [] = plotPrinComp(signalInfo,pcaInfo,numChannel,displayInfo,fileName,path,channel,plotFileName,numPrinComp)
 
-numPrinComp = 4; % number of principle component to be plotted
+
 samplingFreq = signalInfo(1,1).signal.samplingFreq;
 
 for i = 1:numChannel

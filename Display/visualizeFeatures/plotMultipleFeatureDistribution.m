@@ -1,4 +1,4 @@
-function [] = plotMultipleFeatureDistribution(numChannel,featuresInfo,plotFileName,channel,path,featureIndex,classifierOutput,xTickValue,displayInfo,numClass,colorArray)
+function [] = plotMultipleFeatureDistribution(numChannel,featuresInfo,plotFileName,channel,path,featureIndex,classifierOutput,xTickValue,xScale,displayInfo,numClass,colorArray)
 %plotMultipleFeatureDistribution Plot multiple feature distribution in
 %visualizeFeatures
 % 
