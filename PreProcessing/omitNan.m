@@ -13,17 +13,17 @@ output = data; % initiate output
 
 if dim == 1
     if isequal(type,'all')
-        output(:,all(nanLogic,dim)) = [];
+        output(:,all(all(nanLogic,dim),3),:) = [];
     elseif isequal(type,'any')
-        output(:,any(isnan(data),dim)) = [];
+        output(:,all(any(nanLogic,dim),3),:) = [];
     else
         warning('Invalide input when omitting Nan...')
     end
 elseif dim == 2
     if isequal(type,'all')
-        output(all(nanLogic,dim),:) = [];
+        output(all(all(nanLogic,dim),3),:,:) = [];
     elseif isequal(type,'any')
-        output(any(nanLogic,dim),:) = [];
+        output(all(any(nanLogic,dim),3),:,:) = [];
     else
         warning('Invalid input when omitting Nan...')
     end

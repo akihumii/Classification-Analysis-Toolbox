@@ -14,7 +14,8 @@ for i = 1:numChannel
     for j = 1:numFeatures
         output(i,1).(featureNames{j,1}) = zeros(0,0);
         for k = 1:numClass
-            output(i,1).(featureNames{j,1}) = [output(i,1).(featureNames{j,1}) ; signalInfo(k,1).features.(featureNames{j,1})(:,i)];
+            locsTemp = ~isnan(signalInfo(k,1).features.(featureNames{j,1})(:,i)) & signalInfo(k,1).features.(featureNames{j,1})(:,i) ~= 0;
+            output(i,1).(featureNames{j,1}) = [output(i,1).(featureNames{j,1}) ; signalInfo(k,1).features.(featureNames{j,1})(locsTemp,i)];
         end
     end
 end

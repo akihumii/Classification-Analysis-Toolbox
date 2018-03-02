@@ -26,7 +26,7 @@ highPassCutoffFreq = 30; % high pass cutoff frequency, input 0 if not applied
 lowPassCutoffFreq = 500; % low pass cutoff frequency, input 0 if not applied
 notchFreq = 50; % notch frequency, input 0 if not applied
 decimateFactor = 1; % down sampling the data by a factor 'decimateFactor'
-pcaCleaning = 1; % run PCA to omit principle components that have very little latent (eigenvalues), default threshold is 50 percentile
+pcaCleaning = 0; % run PCA to omit principle components that have very little latent (eigenvalues), default threshold is 50 percentile
 
 % FFT parameters
 dataToBeFFT = 'dataFiltered'; % input 'dataRaw' for raw data; input 'dataFiltered' for filtered data; input 'dataRectified' for rectified data; input 'dataDifferential' for differential data

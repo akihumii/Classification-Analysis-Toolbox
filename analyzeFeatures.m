@@ -64,7 +64,7 @@ if runPCA
 else    
     %% Reconstruct features
     % matrix of one feature = [bursts x class x features x channel]
-    featuresInfo = reconstructFeatures(featuresRaw,numClass,repmat(pcaInfo.numBursts(:,1),1,2)); % as the raw features still contains Nan, so number of bursts should not be trimmed too
+    featuresInfo = reconstructFeatures(featuresRaw,numClass,pcaInfo.numBursts); % as the raw features still contains Nan, so number of bursts should not be trimmed too
     
     %% Adding PCA info as one feature
     if numPrinComp ~= 0

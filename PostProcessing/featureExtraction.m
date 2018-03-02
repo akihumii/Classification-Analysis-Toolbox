@@ -16,12 +16,12 @@ for i = 1:numData
             
             burstLength(j,i) = (sum(~isnan(data(:,j,i))))/samplingFreq;
             if burstLength(j,i) == 0
-                burstLength(j,1) = nan;
+                burstLength(j,i) = nan;
             end
             
             areaUnderCurve(j,i) = nansum(dataRectified(:,j));
             if areaUnderCurve(j,i) == 0
-                areaUnderCurve(j,1) = nan;
+                areaUnderCurve(j,i) = nan;
             end
             
             meanValue(j,i) = nanmean(data(:,j,i));
