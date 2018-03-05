@@ -4,8 +4,6 @@ function [] = visualizeFeatures(iter, path, classifierOutput, featuresInfo, sign
  
 %% Parameters
 [numClass, numFeatures, numChannel] = size(featuresInfo.featuresAll); % the sizes of the features properties
-accuracyBasicParameter = classifierOutput.accuracyBasicParameter; % accuracy
-numFeatureCombination = length(accuracyBasicParameter); % number of feature combinations
 titleName = classifierOutput.classifierTitle; % title name
 fileName = signalInfo(1,1).fileName; % file name
 numRowSubplots = getFactors(numFeatures); % for the row of subplots in overall plots
@@ -42,7 +40,8 @@ end
  
 %% Plot Accuracy and Synergy
 if displayInfo.showAccuracy || displayInfo.saveAccuracy
-    plotAccuracy(classifierOutput,numFeatureCombination,accuracyBasicParameter,featureIndex,plotFileName,path,numClass,xScale,xTickValue,displayInfo,numChannel,is2DClassification,channel);
+
+    plotAccuracy(classifierOutput,featureIndex,plotFileName,path,numClass,xScale,xTickValue,displayInfo,numChannel,is2DClassification,channel);
 end
  
 %% Plot histogram and distribution
@@ -64,6 +63,7 @@ end
 %% Plot and compare before and after reconstruction
 if displayInfo.showReconstruction || displayInfo.saveReconstruction
     plotReconstruction(signalInfo,pcaInfo,numChannel,displayInfo,fileName,path,channel,plotFileName,numClass)
+    plotAllSeparatedBursts(signalInfo,numClass,numChannel,featuresInfo,plotFileName,path);
 end
 
 end

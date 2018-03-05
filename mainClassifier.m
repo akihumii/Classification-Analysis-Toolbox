@@ -58,7 +58,7 @@ saveRaw = 0;
 saveDifferential = 0;
 saveRectified = 0;
 saveFilt = 0;
-saveOverlap = 0;
+saveOverlap = 1;
 saveFFT = 0;
 
 saveUserInput = 1;

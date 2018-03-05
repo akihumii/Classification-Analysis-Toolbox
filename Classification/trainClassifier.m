@@ -28,7 +28,7 @@ end
 classifierFullTitle = [classifierFullTitle,' )'];
 
 %% Run Classification
-if displayInfo.showHistFit||displayInfo.saveHistFit||displayInfo.showAccuracy||displayInfo.saveAccuracy
+if displayInfo.showHistFit||displayInfo.saveHistFit||displayInfo.showAccuracy||displayInfo.saveAccuracy||displayInfo.showReconstruction||displayInfo.saveReconstruction||displayInfo.showPrinComp||displayInfo.savePrinComp
     popMsg('Training classifiers...');
     
     for i = 1:maxNumFeaturesInCombination

@@ -25,15 +25,22 @@ for i = 1:numFeatures
     combinedFeatures.(featuresNames{i}) = vertcat(features(:).(featuresNames{i}));
 end
 
-%% Combine bursts
-numChannel = size(signalClassification(1,1).selectedWindows.burst,3); % number of channel 
+%% Combine bursts and starting points and end points
+combinedSpikeLocs = zeros(0,0);
+combinedEndLocs = zeros(0,0);
 
 for i = 1:iter % different classes
     combinedBursts{i,1} = signalClassification(i,1).selectedWindows.burst; % different classes 
+    combinedSpikeLocs = [combinedSpikeLocs; signalClassification(i,1).burstDetection.spikeLocs];
+    combinedEndLocs = [combinedEndLocs; signalClassification(i,1).burstDetection.burstEndLocs];
 end
 
+% trim those variables
 combinedBursts = catNanMat(combinedBursts,2,'all');
 combinedBurstsMean = mean(combinedBursts,2);
+
+combinedSpikeLocs = omitNan(combinedSpikeLocs,2,'all');
+combinedEndLocs = omitNan(combinedEndLocs,2,'all');
 
 %% Save it into one of the files, depending on saveFileIndex
 if saveFile == 1
@@ -41,6 +48,8 @@ if saveFile == 1
     signalClassification(1,1).features = combinedFeatures;
     signalClassification(1,1).selectedWindows.burst = combinedBursts;
     signalClassification(1,1).selectedWindows.burstMean = combinedBurstsMean;
+    signalClassification(1,1).burstDetection.spikeLocs = combinedSpikeLocs;
+    signalClassification(1,1).burstDetection.burstEndLocs = combinedEndLocs;
     saveVar(path,horzcat(signal(:,1).fileName),signal(1,1),signalClassification(1,1))
 else
     warning('No file is saved because input ''saveFle'' is not 1')

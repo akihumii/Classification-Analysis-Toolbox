@@ -1,7 +1,9 @@
-function [] = plotAccuracy(classifierOutput,numFeatureCombination,accuracyBasicParameter,featureIndex,plotFileName,path,numClass,xScale,xTickValue,displayInfo,numChannel,is2DClassification,channel)
+function [] = plotAccuracy(classifierOutput,featureIndex,plotFileName,path,numClass,xScale,xTickValue,displayInfo,numChannel,is2DClassification,channel)
 %plotAccuracy Plot accuracy in visualizeFeatures
 %   [] = plotAccuracy(classificationOutput,numFeatureCombination,accuracyBasicParameter,featureIndex,plotFileName,path,numClass,xScale,xTickValue,displayInfo,numChannel,is2DClassification,channel)
 
+accuracyBasicParameter = classifierOutput.accuracyBasicParameter; % accuracy
+numFeatureCombination = length(accuracyBasicParameter); % number of feature combinations
 numRepetition = length(classifierOutput.classificationOutput{1,1}(1,1).accuracyAll{1,1});
 
 for i = 1:numFeatureCombination

@@ -17,18 +17,18 @@ displayInfo.testClassifier = 0;
 displayInfo.saveOutput = 1;
 
 displayInfo.showSeparatedFigures = 0;
-displayInfo.showFigures = 1;
-displayInfo.showHistFit = 1;
-displayInfo.showAccuracy = 1;
+displayInfo.showFigures = 0;
+displayInfo.showHistFit = 0;
+displayInfo.showAccuracy = 0;
 displayInfo.showReconstruction = 1;
-displayInfo.showPrinComp = 1;
+displayInfo.showPrinComp = 0;
 
 displayInfo.saveSeparatedFigures = 0;
-displayInfo.saveFigures = 1;
-displayInfo.saveHistFit = 1;
-displayInfo.saveAccuracy = 1;
-displayInfo.saveReconstruction = 1;
-displayInfo.savePrinComp = 1;
+displayInfo.saveFigures = 0;
+displayInfo.saveHistFit = 0;
+displayInfo.saveAccuracy = 0;
+displayInfo.saveReconstruction = 0;
+displayInfo.savePrinComp = 0;
 
 %% Get features info
 [files, path, numClass] = selectFiles('select mat files for classifier''s training');

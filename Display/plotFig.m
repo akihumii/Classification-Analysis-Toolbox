@@ -87,7 +87,7 @@ else
 end
 
 %% Plot
-textSize = 8;
+textSize = 12;
 
 [numData, numPlot] = checkSize(y);
 if isequal(plotWay,'barStackedPlot')
