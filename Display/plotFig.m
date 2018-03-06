@@ -38,7 +38,7 @@ if nargin < 11;
 else
     channel = varargin{11};
     if channel == 0
-        channel = zeros(1:size(y,2)); % create a zeros matrix
+        channel = zeros(1,size(y,2)); % create a zeros matrix
         channel = mat2cell(channel',ones(1,size(channel,2)),size(channel,1)); % convert the matrix into cell
     else
         channel = checkSizeNTranspose(channel,2);
@@ -114,6 +114,12 @@ for i = 1:numData
 
     for j = 1:numPlot
         % Titling
+%         if channel{1,1} ~= 0
+%             titleTemp = [' ch ', checkMatNAddStr(channel{j},' -')];
+%         else
+%             titleTemp = '';
+%         end
+
         if isequal(type, 'subplot')
             p(j,i) = subplot(numPlot,1,j);            
             if numData > 1

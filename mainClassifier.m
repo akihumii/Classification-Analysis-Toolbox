@@ -58,7 +58,7 @@ saveRaw = 0;
 saveDifferential = 0;
 saveRectified = 0;
 saveFilt = 0;
-saveOverlap = 1;
+saveOverlap = 0;
 saveFFT = 0;
 
 saveUserInput = 1;
@@ -83,7 +83,7 @@ disp(' ')
 close all
 
 tic
-visualizeSignals(signal, signalClassification, overlappedWindow, windowSize, partialDataSelection, channelExtractStartingLocs, dataToBeDetectedSpike, saveRaw, showRaw, saveDifferential, showDifferential, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT);
+windowsValues = visualizeSignals(signal, signalClassification, overlappedWindow, windowSize, partialDataSelection, channelExtractStartingLocs, dataToBeDetectedSpike, saveRaw, showRaw, saveDifferential, showDifferential, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT);
 disp ([num2str(toc), ' seconds is used for visualizing signals...'])
 disp(' ')
 
@@ -91,7 +91,7 @@ disp(' ')
 tic
 if saveUserInput
     for i = 1:length(signal)
-        saveVar([signal(i,1).path,'\Info\'],signal(i,1).fileName,signal,signalClassification)
+        saveVar([signal(i,1).path,'\Info\'],signal(i,1).fileName,signal,signalClassification,windowsValues)
     end
 end
 disp ([num2str(toc), ' seconds is used for saving info...'])

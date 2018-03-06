@@ -63,7 +63,7 @@ end
 %% Plot and compare before and after reconstruction
 if displayInfo.showReconstruction || displayInfo.saveReconstruction
     plotReconstruction(signalInfo,pcaInfo,numChannel,displayInfo,fileName,path,channel,plotFileName,numClass)
-    plotAllSeparatedBursts(signalInfo,numClass,numChannel,featuresInfo,plotFileName,path);
+    plotAllSeparatedBursts(signalInfo,numClass,numChannel,featuresInfo,plotFileName,path,displayInfo);
 end
 
 end

@@ -7,7 +7,10 @@ function output = sort2cellFraction(data,numElement)
 % 
 %   output = sort2cellFraction(data,numElement)
 
-numCell = floor(length(data) / numElement) + 1;
+numCell = length(data) / numElement;
+if floor(numCell) ~= numCell % it's not a whole number
+    numCell = floor(numCell) + 1;
+end
 
 for i = 1:numCell
     if i*numElement <= length(data)
