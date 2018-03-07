@@ -1,29 +1,25 @@
-function output = reconstructFeatures(signalInfo,iter)
+function output = reconstructFeatures(features,numClass,numBursts)
 %reconstructFeatures Reconstruct features loaded from the created mat file
 %after running mainClasifier.m
-% 
+%
 % output: featuresNames, featuresAll, featuresMean, featuresStd, featuresStde
-% 
-%   output = reconstructFeatures()
-channel = signalInfo(1,1).signal.channel;
-numChannel = length(channel);
-output.featuresNames = fieldnames(signalInfo(1,1).features);
-output.featuresNames(end) = []; % the field that containes analyzed data
-numFeatures = length(output.featuresNames);
+%
+%   output = reconstructFeatures(features,numClass)
 
-for i = 1:iter % different speed = different class
-    for j = 1:numChannel
-        featuresAllTemp{i,j} = zeros(0,1);
-    end
-end
+numChannel = length(features);
+output.featuresNames = fieldnames(features(1,1));
+numFeatures = length(output.featuresNames);
 
 for i = 1:numFeatures
     for k = 1:numChannel
-        for j = 1:iter % different speed = different class
+        
+        arrayTemp = zeros(1,1); % initiate array for assigning features into different classes
+        
+        for j = 1:numClass % different speed = different class
             featureNameTemp = output.featuresNames{i,1};
-            output.featuresAll{j,i,k} = signalInfo(j,1).features.(featureNameTemp)(:,k); % it is sorted in [bursts * classes * features * channels]
+            arrayTemp = arrayTemp(end)+1 : (arrayTemp(end) + numBursts(j,k));
+            output.featuresAll{j,i,k} = features(k,1).(featureNameTemp)(arrayTemp,:); % it is sorted in [bursts * classes * features * channels]
             featuresTemp = output.featuresAll{j,i,k};
-            featuresAllTemp{j,k} = [featuresAllTemp{j,k},featuresTemp];
             output.featureMean(i,j,k) = nanmean(featuresTemp); % it is sorted in [features * clases * channels]
             output.featureStd(i,j,k) = nanstd(featuresTemp); % it is sorted in [features * classes * channels]
             output.featureStde(i,j,k) = output.featureStd(i,j,k) / sqrt(length(featuresTemp(~isnan(featuresTemp)))); % standard error of the feature
@@ -32,4 +28,3 @@ for i = 1:numFeatures
 end
 
 end
-

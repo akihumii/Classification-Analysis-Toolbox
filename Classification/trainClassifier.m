@@ -1,17 +1,15 @@
-function output = trainClassifier(featuresInfo, signalInfo, displayInfo)
+function output = trainClassifier(featuresInfo, signalInfo, displayInfo, classificationRepetition, maxNumFeaturesInCombination)
 %trainClassifier Train the classifier to use in analyzeFeatures
 %
 % output:   classificationOutput, accuracyBasicParameter, accuracy,
 % accurcyStde, accuracyMax, maxFeatureCombo, classifierTitle,
 % classifierFullTitle, featureIndex
 %
-%   output = trainClassifier(featuresInfo, signalInfo, displayInfo)
+%   output = trainClassifier(featuresInfo, signalInfo, displayInfo, classificationRepetition, maxNumFeaturesInCombination)
 
 %% Parameters
 trainingRatio = 0.625;
 numFeatures = length(featuresInfo.featuresNames);
-maxNumFeaturesInCombination = 2; % maximum nubmer of features used in combinations
-classificationRepetition = 1000; % number of repetition of the classification with randomly assigned training set and testing set
 
 %% Classification Settings
 classifierTitle = 'Different Speed'; % it can be 'Different Speed','Different Day','Active EMG'
@@ -30,7 +28,7 @@ end
 classifierFullTitle = [classifierFullTitle,' )'];
 
 %% Run Classification
-if displayInfo.showHistFit||displayInfo.saveHistFit||displayInfo.showAccuracy||displayInfo.saveAccuracy
+if displayInfo.showHistFit||displayInfo.saveHistFit||displayInfo.showAccuracy||displayInfo.saveAccuracy||displayInfo.showReconstruction||displayInfo.saveReconstruction||displayInfo.showPrinComp||displayInfo.savePrinComp
     popMsg('Training classifiers...');
     
     for i = 1:maxNumFeaturesInCombination
@@ -65,4 +63,3 @@ output.classifierFullTitle = classifierFullTitle;
 output.featureIndex = featureIndex;
 
 end
-

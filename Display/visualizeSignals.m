@@ -1,4 +1,4 @@
-function [] = visualizeSignals(signal, signalClassification, selectedWindow, windowSize, partialDataSelection, channelExtractStartingLocs, dataToBeDetectedSpike, saveRaw, showRaw, saveDifferential, showDifferential, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT)
+function windowsValues = visualizeSignals(signal, signalClassification, selectedWindow, windowSize, partialDataSelection, channelExtractStartingLocs, dataToBeDetectedSpike, saveRaw, showRaw, saveDifferential, showDifferential, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT)
 %visualizeSignal Visualize needed signals. Raw, filtered, differential,
 %overlapping windows, average windows, and overall signal with indicated
 %spikes can be plotted.
@@ -112,11 +112,13 @@ else
         
         [dataValues, dataName] = loadMultiLayerStruct(signal(i,1),selectedWindow); % get the values and the name of the selected window
         
+        maxBurstLength = max(signalClassification(i,1).burstDetection.burstEndLocs - signalClassification(i,1).burstDetection.spikeLocs,[],1);
+        
         windowsValues = getPointsWithinRange(...
             signal(i,1).time/signal(i,1).samplingFreq,...
             dataValues,...
             signalClassification(i,1).burstDetection.spikeLocs,...
-            signalClassification(i,1).burstDetection.burstEndLocs,...
+            signalClassification(i,1).burstDetection.spikeLocs + repmat(maxBurstLength,size(signalClassification(i,1).burstDetection.spikeLocs,1),1),...
             windowSize, signal(i,1).samplingFreq, channelExtractStartingLocs);
         
         % Get all windows in same plots

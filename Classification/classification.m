@@ -3,10 +3,10 @@ function output = classification(trials,featureIndex,trainingRatio,classifierTit
 % The structure is like: [channel * feature * class]
 % 
 %   output = classification(trials,featureIndex,trainingRatio,classifierTitle,numRepeat)
-
+ 
 [numClasses,~,numChannels] = size(trials);
 numSelectedFeatures = length(featureIndex);
-
+ 
 for i = 1:numChannels
     accuracyHighest(1,i) = 0; % initialize accuracy
     accuracyAll{i,1} = zeros(0,1); % store all the accuracy in this array
@@ -21,12 +21,9 @@ for i = 1:numChannels
             trialsTemp = zeros(1,0);
             notNanFeatures = zeros(1,0);
             
-            for k = 1:numSelectedFeatures % concatanate the different classes into different columns including nan
-                trialsTemp = [trialsTemp,trials{j,featureIndex(1,k),i}];
-            end
-            [nanRow,nanCol] = find(isnan(trialsTemp)); % locations of the not nan values
-            notNanFeatures = trialsTemp; 
-            notNanFeatures(nanRow,:) = []; % get not nan values           
+            trialsTemp = catNanMat(trials(j,featureIndex(1,:),i)',2,'all'); % concatanate the different classes into different columns including nan
+ 
+            notNanFeatures = omitNan(trialsTemp,2,'any'); % get rid of rows containing Nan
             
             randFeatures = notNanFeatures(randperm(size(notNanFeatures,1)),:);
             numRandBursts = size(randFeatures,1); % number of bursts that are not nan
@@ -38,7 +35,7 @@ for i = 1:numChannels
             testingClassTemp = [testingClassTemp; j*ones(size(testingSetTemp,1),1)];
         end
         
-        [classTemp,errorTemp,posteriorTemp,logPTemp,coefficientTemp] = ...
+        [classTemp,errorTemp,posteriorTemp,logPTemp,coefficientTemp] = ... % run the classification
             classify(testingTemp,trainingTemp,trainingClassTemp);
         
         accuracyTemp = calculateAccuracy(classTemp,testingClassTemp);
@@ -60,7 +57,7 @@ for i = 1:numChannels
     end
     accuracy(1,i) = mean(accuracyAll{i,1});
 end
-
+ 
 output.classifierTitle = classifierTitle;
 output.class = class;
 % output.error = error;
@@ -75,4 +72,5 @@ output.testing = testing;
 output.trainingClass = trainingClass;
 output.testingClass = testingClass;
 end
+ 
 

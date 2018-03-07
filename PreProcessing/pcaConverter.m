@@ -33,6 +33,7 @@ output.coeffFinal = coeffFinal;
 output.scoreFinal = scoreFinal;
 output.reconstructedData = reconstructedData;
 output.mu = mu;
+output.rawData = data;
 
 end
 

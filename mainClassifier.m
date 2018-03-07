@@ -26,7 +26,7 @@ highPassCutoffFreq = 30; % high pass cutoff frequency, input 0 if not applied
 lowPassCutoffFreq = 500; % low pass cutoff frequency, input 0 if not applied
 notchFreq = 50; % notch frequency, input 0 if not applied
 decimateFactor = 1; % down sampling the data by a factor 'decimateFactor'
-pcaCleaning = 1; % run PCA to omit principle components that have very little latent (eigenvalues), default threshold is 50 percentile
+pcaCleaning = 0; % run PCA to omit principle components that have very little latent (eigenvalues), default threshold is 50 percentile
 
 % FFT parameters
 dataToBeFFT = 'dataFiltered'; % input 'dataRaw' for raw data; input 'dataFiltered' for filtered data; input 'dataRectified' for rectified data; input 'dataDifferential' for differential data
@@ -83,7 +83,7 @@ disp(' ')
 close all
 
 tic
-visualizeSignals(signal, signalClassification, overlappedWindow, windowSize, partialDataSelection, channelExtractStartingLocs, dataToBeDetectedSpike, saveRaw, showRaw, saveDifferential, showDifferential, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT);
+windowsValues = visualizeSignals(signal, signalClassification, overlappedWindow, windowSize, partialDataSelection, channelExtractStartingLocs, dataToBeDetectedSpike, saveRaw, showRaw, saveDifferential, showDifferential, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT);
 disp ([num2str(toc), ' seconds is used for visualizing signals...'])
 disp(' ')
 
@@ -91,7 +91,7 @@ disp(' ')
 tic
 if saveUserInput
     for i = 1:length(signal)
-        saveVar([signal(i,1).path,'\Info\'],signal(i,1).fileName,signal,signalClassification)
+        saveVar([signal(i,1).path,'\Info\'],signal(i,1).fileName,signal,signalClassification,windowsValues)
     end
 end
 disp ([num2str(toc), ' seconds is used for saving info...'])
