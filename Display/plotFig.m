@@ -114,12 +114,10 @@ for i = 1:numData
 
     for j = 1:numPlot
         % Titling
-        if channel{1,1} ~= 0
+        if channel{1,1} ~= 0 && length(channel) >= numPlot
             titleTemp = [' burst ', checkMatNAddStr(channel{j},' -')];
-        else
-            titleTemp = '';
         end
-
+        
         if isequal(type, 'subplot')
             p(j,i) = subplot(numPlot,1,j);            
             if numData > 1

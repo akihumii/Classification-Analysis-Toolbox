@@ -8,7 +8,7 @@ close all
 %% User Input
 runPCA = 1;
 numPrinComp = 0; % number of principle component to use as features
-threshPercentile = 50; % percentile to threshold the latent of principle component for data reconstruction
+threshPercentile = 95; % percentile to threshold the latent of principle component for data reconstruction
 classificationRepetition = 1000; % number of repetition of the classification with randomly assigned training set and testing set
 maxNumFeaturesInCombination = 2; % maximum nubmer of features used in combinations
 
@@ -17,17 +17,17 @@ displayInfo.testClassifier = 0;
 displayInfo.saveOutput = 1;
 
 displayInfo.showSeparatedFigures = 0;
-displayInfo.showFigures = 0;
-displayInfo.showHistFit = 0;
-displayInfo.showAccuracy = 0;
+displayInfo.showFigures = 1;
+displayInfo.showHistFit = 1;
+displayInfo.showAccuracy = 1;
 displayInfo.showReconstruction = 1;
-displayInfo.showPrinComp = 0;
+displayInfo.showPrinComp = 1;
 
 displayInfo.saveSeparatedFigures = 0;
 displayInfo.saveFigures = 0;
 displayInfo.saveHistFit = 0;
 displayInfo.saveAccuracy = 0;
-displayInfo.saveReconstruction = 1;
+displayInfo.saveReconstruction = 0;
 displayInfo.savePrinComp = 0;
 
 %% Get features info

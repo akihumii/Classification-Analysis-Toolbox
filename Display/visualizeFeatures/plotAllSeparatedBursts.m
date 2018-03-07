@@ -47,6 +47,7 @@ end
 %% Plot Bursts with Starting Locs and End Locs
 for i = 1:numChannel
     numRowSubplots = 10; % number of subplots in row
+    numColSubplots = 2; % number of subplots in column
     flagPlotLessBurstsColumn = 0; % to plot the column of bursts subplot that does not have 10 subplots
     flagPlotSingleColumn = 0; % to plot the unpaired full bursts subplot column
     numBurstTemp = length(startingLocsSorted{1,i}); % number of total subpltos (bursts)
@@ -70,24 +71,21 @@ for i = 1:numChannel
     end
     
     % combined them into 2 columns
-    numFullBurstsPlots = length(pFullBursts); % number of figures
-    if length(pFullBursts{end,1}) ~= numRowSubplots % the number of subplots in last column is not equal to 10
-        arrayFullBursts = sort2cellFraction(1:numFullBurstsPlots-1,2); % array of figures to be plotted in a new combined figure
-        flagPlotLessBurstsColumn = 1;
-    else
-        arrayFullBursts = sort2cellFraction(1:numFullBurstsPlots,2);
+    numAxesInLastFig = length(pFullBursts{end,1}); % number of axes in the last figure of the subplot columns
+    numSubplotsFig = length(pFullBursts); % number of the figures containing subplots columns
+    if numAxesInLastFig ~= numRowSubplots % the number of subplots in last column is not equal to 10
+        pFullBursts{end,1} = [pFullBursts{end,1};repmat(axes,numRowSubplots-numAxesInLastFig,1)]; % add empty axes to fill up the space
     end
     
-    if length(arrayFullBursts{end,1}) ~= 2 % number of final pair is not equal to 2
-        numArrayFullBursts = length(arrayFullBursts)-1; % number of combined figures
-        flagPlotSingleColumn = 1;
-    else
-        numArrayFullBursts = length(arrayFullBursts);
+    if mod(numSubplotsFig,numColSubplots) ~= 0
+        pFullBursts = [pFullBursts;repmat({repmat(axes,numRowSubplots,1)},mod(numSubplotsFig,numColSubplots),1)]; % add cells containing empty axes
     end
+    
+    arrayFullBursts = sort2cellFraction(1:length(pFullBursts),numColSubplots); % array of figures to be plotted in a new combined figure
+    numArrayFullBursts = length(arrayFullBursts);
     
     for numSaveSubplot = 1:numArrayFullBursts
-        [pCombinedSubplots{numSaveSubplot,1},fCombinedSubplots(numSaveSubplot,1)] = plots2subplots(vertcat(pFullBursts{arrayFullBursts{numSaveSubplot,1}}),numRowSubplots,2);
-        delete(fFullBursts(arrayFullBursts{numSaveSubplot,1}));
+        [pCombinedSubplots{numSaveSubplot,1},fCombinedSubplots(numSaveSubplot,1)] = plots2subplots(vertcat(pFullBursts{arrayFullBursts{numSaveSubplot,1}}),numRowSubplots,numColSubplots);
         
         legend(pCombinedSubplots{1,1}(1,2).Children(1),'Burst offset point');
         
@@ -96,18 +94,9 @@ for i = 1:numChannel
         end
     end
     
-    if flagPlotSingleColumn && displayInfo.saveReconstruction
-        numSaveSubplot = numSaveSubplot + 1;
-        savePlot(path,'Combined Full Length Bursts Subplots',plotFileName,['Combined Full Length Bursts Ch ',num2str(i),' Suplots ',num2str(numSaveSubplot)],fFullBursts(arrayFullBursts{end,1}))
-    end
-    
-    if flagPlotLessBurstsColumn && displayInfo.saveReconstruction
-        numSaveSubplot = numSaveSubplot + 1;
-        savePlot(path,'Combined Full Length Bursts Subplots',plotFileName,['Combined Full Length Bursts Ch ',num2str(i),' Suplots ',num2str(numSaveSubplot)],fFullBursts(end,1))
-    end
+    delete(fFullBursts(:,1))
 
     if ~displayInfo.showReconstruction 
-        delete(fFullBursts(:,1))
         delete(fCombinedSubplots(:,1))
     end
     
