@@ -69,7 +69,7 @@ if saveFile == 1
     windowsValues.burstMean = combinedBurstMean;
     windowsValues.xAxisValues = combinedXAxisValues;
     windowsValues.numBursts = combinedNumBursts;
-    saveVar(path,horzcat(signal(:,1).fileName),signal(1,1),signalClassification(1,1))
+    saveVar(path,horzcat(signal(:,1).fileName),signal(1,1),signalClassification(1,1),windowsValues)
 else
     warning('No file is saved because input ''saveFle'' is not 1')
 end
