@@ -53,8 +53,8 @@ spikeInfo = pulse2spike(dataRectified(:,channelPlot),samplingFreq,minDistance,th
 
 %% Delete Bursts
 % to delete the pulses that are inappropriate
-spikeInfoTrimmed.spikeLocs(deleteBursts,1) = [];
-spikeInfoTrimmed.spikePeaks(deleteBursts,1) = [];
+spikeInfoTrimmed.spikeLocs(deleteBursts,:) = [];
+spikeInfoTrimmed.spikePeaks(deleteBursts,:) = [];
 
 s = plotFig(spikeInfoTrimmed.spikeLocs,spikeInfoTrimmed.spikePeaks,'','','Time(s)','Amplitude(V)',0,1,'','subplot',0,'stemPlot');
 numPlots = size(spikeInfoTrimmed.spikePeaks,2);
@@ -64,7 +64,7 @@ for i = 1:numPlots
     plot(time,dataRectified(:,channelPlot(i)))
     numSpike = sum(~isnan((spikeInfoTrimmed.spikePeaks(:,i))));
     for j = 1:numSpike
-%         text(spikeInfo.spikeLocs(j,i),0,num2str(j)); % input text under the spikes
+        text(spikeInfo.spikeLocs(j,i),0,num2str(j)); % input text under the spikes
     end
 end
 
@@ -72,7 +72,8 @@ end
 % counterInfo = analyseContValue(dataRectified(:,channelCounter),[1,-65535]); % analyze the counter and output the histogram and the distribution of the skipping data
 
 %% Result
-result = getBasicParameter(abs(spikeInfoTrimmed.spikeLocs(:,1) - spikeInfoTrimmed.spikeLocs(:,2))); % distance, standard deviation etc of the spikes
+spikeDiff = spikeInfoTrimmed.spikeLocs(:,1) - spikeInfoTrimmed.spikeLocs(:,2); % spike difference
+result = getBasicParameter(abs(spikeDiff)); % result info of distance, standard deviation etc of the spikes
 
 % delayStdArray = xcorr(spikeInfo.spikeLocs(:,1),spikeInfo.spikeLocs(:,2));
 % delayStdMean = mean(delayStdArray);
