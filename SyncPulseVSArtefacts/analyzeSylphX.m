@@ -61,10 +61,11 @@ numPlots = size(spikeInfoTrimmed.spikePeaks,2);
 for i = 1:numPlots
     axes(s(i,1));
     hold on
+    grid minor
     plot(time,dataRectified(:,channelPlot(i)))
     numSpike = sum(~isnan((spikeInfoTrimmed.spikePeaks(:,i))));
     for j = 1:numSpike
-        text(spikeInfo.spikeLocs(j,i),0,num2str(j)); % input text under the spikes
+        text(spikeInfoTrimmed.spikeLocs(j,i),0,num2str(j)); % input text under the spikes
     end
 end
 
@@ -74,7 +75,11 @@ end
 %% Result
 spikeDiff = spikeInfoTrimmed.spikeLocs(:,1) - spikeInfoTrimmed.spikeLocs(:,2); % spike difference
 result = getBasicParameter(abs(spikeDiff)); % result info of distance, standard deviation etc of the spikes
-
+numSpikeDiff = length(spikeDiff);
+sD = plotFig(1:numSpikeDiff,sort(spikeDiff),'','Spike Difference (Channel - Sync Pulse)','Index number of Difference','Time (s)',0,1,'','subplot',0,'stemPlot');
+hold on
+grid minor
+fivePerc = plot([numSpikeDiff*.05,numSpikeDiff*.05],ylim,'r--'); 
 % delayStdArray = xcorr(spikeInfo.spikeLocs(:,1),spikeInfo.spikeLocs(:,2));
 % delayStdMean = mean(delayStdArray);
 
