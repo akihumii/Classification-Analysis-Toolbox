@@ -1,4 +1,4 @@
-function output = dataClassificationPreparation(signal, iter, pcaCleaning, selectedWindow, windowSize, dataToBeDetectedSpike, spikeDetectionType, threshold, sign, threshStdMult, TKEOStartConsecutivePoints, TKEOEndConsecutivePoints,channelExtractStartingLocs,burstTrimming,burstTrimmingType)
+function output = dataClassificationPreparation(signal, pcaCleaning, selectedWindow, windowSize, dataToBeDetectedSpike, spikeDetectionType, threshold, sign, threshStdMult, TKEOStartConsecutivePoints, TKEOEndConsecutivePoints,channelExtractStartingLocs,burstTrimming,burstTrimmingType)
 %dataClassification Detect windows, extract features, execute
 %classification
 %   output = dataClassificationPreparation(signal, iter, selectedWindow, windowSize, dataToBeDetectedSpike, spikeDetectionType, threshold, sign, treshStdMult, TKEOStartConsecutivePoints, TKEOEndConsecutivePoints,channelExtractStartingLocs,burstTrimming,burstTrimmingType)
@@ -10,28 +10,26 @@ if isequal(selectedWindow, 'dataFiltered')
     selectedWindow = [{'dataFiltered'};{'values'}];
 end
 
-output(iter,1) = classClassificationPreparation; % pre-allocation
+output(1,1) = classClassificationPreparation; % pre-allocation
 
-for i = 1:iter
-output(i,1) = classClassificationPreparation(signal(i,1).file,signal(i,1).path,windowSize); % create object 'output'
+output = classClassificationPreparation(signal.file,signal.path,windowSize); % create object 'output'
 
 % detect spikes
-output(i,1) = detectSpikes(output(i,1), signal(i,1), dataToBeDetectedSpike, spikeDetectionType, threshold, sign, threshStdMult, TKEOStartConsecutivePoints, TKEOEndConsecutivePoints,channelExtractStartingLocs);
+output = detectSpikes(output, signal, dataToBeDetectedSpike, spikeDetectionType, threshold, sign, threshStdMult, TKEOStartConsecutivePoints, TKEOEndConsecutivePoints,channelExtractStartingLocs);
 
 % get windows around spikes
-output(i,1) = classificationWindowSelection(output(i,1), signal(i,1), selectedWindow,burstTrimming,burstTrimmingType);
+output = classificationWindowSelection(output, signal, selectedWindow,burstTrimming,burstTrimmingType);
 
 % clean the bursts by running PCA
 if pcaCleaning
-    output(i,1) = pcaCleanData(output(i,1));
+    output = pcaCleanData(output);
 end
 
 % extract features
-output(i,1) = featureExtraction(output(i,1),signal(i,1).samplingFreq,[{'selectedWindows'};{'burst'}]); % [1 * number of windows * number of sets]
+output = featureExtraction(output,signal.samplingFreq,[{'selectedWindows'};{'burst'}]); % [1 * number of windows * number of sets]
 
 % group features for classification
-output(i,1) = classificationGrouping(output(i,1),'maxValue',i);
-end
+output = classificationGrouping(output,'maxValue',1);
 
 end
 

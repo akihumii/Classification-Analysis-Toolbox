@@ -1,7 +1,7 @@
 %% Main code for Signal analysis
-% Features data filtering, burst detecting, windows overlapping, 
+% Features data filtering, burst detecting, windows overlapping,
 % figures displaying and saving, bursts classification
-% 
+%
 % Coded by Tsai Chne Wuen
 
 clear
@@ -46,7 +46,7 @@ burstTrimming = 1; % to exclude the bursts by inputting the bursts indexes
 burstTrimmingType = 1; % 1 to delete; 2 to pick
 
 % Show & Save Plots Parameters. Input 1 to save/show, otherwise input 0.
-% Plots will be saved in the folder 'Figures' at the same path with the processed data 
+% Plots will be saved in the folder 'Figures' at the same path with the processed data
 showRaw = 0;
 showDifferential = 0;
 showRectified = 0;
@@ -65,14 +65,14 @@ saveUserInput = 1;
 
 %% Main
 ticDataAnalysis = tic;
-[signal, signalName, iter] = dataAnalysis(dataType,dataToBeFiltered,dataToBeFFT,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,channel,channelPair,samplingFreq,partialDataSelection,constraintWindow,neutrinoInputReferred,neutrinoBit,decimateFactor,saveOverlap,showOverlap,saveFFT,showFFT);
+[signal, signalName] = dataAnalysis(dataType,dataToBeFiltered,dataToBeFFT,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,channel,channelPair,samplingFreq,partialDataSelection,constraintWindow,neutrinoInputReferred,neutrinoBit,decimateFactor,saveOverlap,showOverlap,saveFFT,showFFT);
 disp([num2str(toc(ticDataAnalysis)), ' seconds is used for loading and processing data...'])
 disp(' ')
 
 %% Locate bursts and select windows around them
 tic
 if showOverlap==1 || saveOverlap==1 % peaks detection is only activated when either showOverlap or saveOverlap or both of them are TRUE
-    signalClassification = dataClassificationPreparation(signal, iter, pcaCleaning, overlappedWindow, windowSize,dataToBeDetectedSpike, spikeDetectionType, threshold, sign, threshStdMult, TKEOStartConsecutivePoints, TKEOEndConsecutivePoints,channelExtractStartingLocs,burstTrimming,burstTrimmingType);
+    signalClassification = dataClassificationPreparation(signal, pcaCleaning, overlappedWindow, windowSize,dataToBeDetectedSpike, spikeDetectionType, threshold, sign, threshStdMult, TKEOStartConsecutivePoints, TKEOEndConsecutivePoints,channelExtractStartingLocs,burstTrimming,burstTrimmingType);
 else
     signalClassification = 1;
 end
@@ -90,9 +90,7 @@ disp(' ')
 %% Ending
 tic
 if saveUserInput
-    for i = 1:length(signal)
-        saveVar([signal(i,1).path,'\Info\'],signal(i,1).fileName,signal,signalClassification,windowsValues)
-    end
+    saveVar([signal.path,'\Info\'],signal.fileName,signal,signalClassification,windowsValues)
 end
 disp ([num2str(toc), ' seconds is used for saving info...'])
 disp(' ')
