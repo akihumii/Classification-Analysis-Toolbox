@@ -1,9 +1,10 @@
-function output = pulse2spike(data,samplingFreq,minDistance,threshold)
+function output = pulse2spike(data,samplingFreq,minDistance,threshold,type)
 %pulse2spike Convert the pulse into spike 
 % 
 % input:    samplingFreq(optional): default is 1
 %           minDistance(optional): default is 1
 %           threshold(optional): default is baselineInfo.mean + baselineStdMult * baselineInfo.std
+%           type: 'local maxima' or 'trigger'. 'trigger' will get the first point exceeding the threshold while 'local maxima' will get the maximum.
 % 
 %   newData = pulse2spike(data)
 
@@ -26,8 +27,16 @@ for i = 1:colData
         thresholdTemp(i,1) = threshold(1,i);
     end
 
-    [spikePeaks{i,1},spikeLocs{i,1}] = triggerSpikeDetection(dataTemp,thresholdTemp(i,1),minDistance*samplingFreq);
+    switch type
+        case 'trigger'
+            [spikePeaks{i,1},spikeLocs{i,1}] = triggerSpikeDetection(dataTemp,thresholdTemp(i,1),minDistance*samplingFreq);
+        case 'local maxima'
+            [spikePeaks{i,1},spikeLocs{i,1}] = findpeaks(dataTemp,'MinPeakHeight',thresholdTemp(i,1),'MinPeakDistance',minDistance*samplingFreq);
+        otherwise
+            error('No peak detection type is input...')
+    end
     
+    % Plotting
     s(i,1) = plotFig((1:rowData)/samplingFreq,dataTemp,'','Spike plots of first peak','Time(s)','Amplitude(V)',0,1,'','subplot',1); % plot the analysing data
     hold on
     f = stem(spikeLocs{i,1}/samplingFreq,spikePeaks{i,1},'x','lineWidth',2); % plot the first peak locations
