@@ -27,7 +27,7 @@ displayInfo.saveSeparatedFigures = 0;
 displayInfo.saveFigures = 0;
 displayInfo.saveHistFit = 0;
 displayInfo.saveAccuracy = 0;
-displayInfo.saveReconstruction = 1;
+displayInfo.saveReconstruction = 0;
 displayInfo.savePrinComp = 0;
 
 %% Get features info
