@@ -10,7 +10,7 @@ samplingFreq = signalInfo(1,1).signal.samplingFreq;
 
 for i = 1:numChannel
     for j = 1:numClass
-        burst{j,i} = signalInfo(j,1).signalClassification.selectedWindows.burst(:,:,i);
+        burst{j,i} = signalInfo(j,1).windowsValues.burst(:,:,i);
         burst{j,i} = omitNan(burst{j,i},1,'all');
         numBursts(j,i) = size(burst{j,i},2); % [class * channel]
         minBurstLength(j,i) = min(signalInfo(j,1).signalClassification.features.burstLength(:,i));

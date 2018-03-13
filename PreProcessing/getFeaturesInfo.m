@@ -22,8 +22,5 @@ output.dataFiltered = output.signal.dataFiltered.values;
 output.dataTKEO = output.signal.dataTKEO.values; % signals for discrete classifcation
 output.samplingFreq = output.signal.samplingFreq;
 output.detectionInfo = output.signalClassification.burstDetection;
-
-output.bursts = output.signalClassification.selectedWindows.burst;
-
 end
 
