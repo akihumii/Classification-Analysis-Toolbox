@@ -1,4 +1,4 @@
-function [] = plotReconstruction(signalInfo,pcaInfo,numChannel,displayInfo,fileName,path,channel,plotFileName,numClass)
+function [] = plotReconstruction(signalInfo,pcaInfo,numChannel,displayInfo,fileName,path,channel,plotFileName,numClass,titleName)
 %plotReconstruction Plot the signals before and after reconstruction by PCA
 %   [] = plotReconstruction(signalInfo,pcaInfo,numChannel,displayInfo,fileName,path,channel,plotFileName,numClass)
 
@@ -23,7 +23,7 @@ for i = 1:numChannel
     delete(fReconstructedSignal);
     
     if displayInfo.saveReconstruction
-        savePlot(path,'Reconstructed Signals',plotFileName,['Reconstructed Signals Ch ',num2str(channel(i))])
+        savePlot(path,'Reconstructed Signals',plotFileName,['Reconstructed Signals of ',titleName,' Ch ',num2str(channel(i))])
     end
     if ~displayInfo.showReconstruction
         close

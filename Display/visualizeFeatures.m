@@ -1,4 +1,4 @@
-function [] = visualizeFeatures(iter, path, classifierOutput, featuresInfo, signalInfo, displayInfo, pcaInfo)
+function [] = visualizeFeatures(iter, path, classifierOutput, featuresInfo, signalInfo, displayInfo, pcaInfo, runPCA)
 %visualizeFeatures Visualize the features, accuracies, feature distribution
 %    [] = visualizeFeatures(iter, path, channel, classificationOutput, featureIndex, accuracyBasicParameter, featuresInfo, titleName, fileName, signalInfo, saveFigures, showFigures, saveSeparatedFigures, showSeparatedFigures, saveHistFit, showHistFit, saveAccuracy, showAccuracy)
  
@@ -33,6 +33,10 @@ switch titleName
         xTickValue = [{'non-activated EMG'};{'activated EMG'}];
 end
  
+if runPCA
+    titleName = [titleName,' with PCA'];
+end
+
 %% Plot Features
 if displayInfo.showFigures || displayInfo.saveFigures || displayInfo.showSeparatedFigures || displayInfo.saveSeparatedFigures
     plotFeatures(numFeatures,numChannel,iter,featuresInfo,plotFileName,xScale,path,channel,xTickValue,displayInfo,titleName,numRowSubplots)
@@ -41,29 +45,29 @@ end
 %% Plot Accuracy and Synergy
 if displayInfo.showAccuracy || displayInfo.saveAccuracy
 
-    plotAccuracy(classifierOutput,featureIndex,plotFileName,path,numClass,xScale,xTickValue,displayInfo,numChannel,is2DClassification,channel);
+    plotAccuracy(classifierOutput,featureIndex,plotFileName,path,numClass,xScale,xTickValue,displayInfo,numChannel,is2DClassification,channel,titleName);
 end
  
 %% Plot histogram and distribution
 if displayInfo.showHistFit || displayInfo.saveHistFit
     %% (for single features in all classes)
-    plotSingleFeatureDistribution(numChannel,numFeatures,featuresInfo,plotFileName,path,channel,numClass,colorArray,classifierOutput,numRowSubplots,xTickValue,xScale,displayInfo)
+    plotSingleFeatureDistribution(numChannel,numFeatures,featuresInfo,plotFileName,path,channel,numClass,colorArray,classifierOutput,numRowSubplots,xTickValue,xScale,displayInfo,titleName)
     
     %% for 2 features used in combinations
     if is2DClassification
-        plotMultipleFeatureDistribution(numChannel,featuresInfo,plotFileName,channel,path,featureIndex,classifierOutput,xTickValue,xScale,displayInfo,numClass,colorArray);
+        plotMultipleFeatureDistribution(numChannel,featuresInfo,plotFileName,channel,path,featureIndex,classifierOutput,xTickValue,xScale,displayInfo,numClass,colorArray,titleName);
     end
 end
 
 %% Plot the Principle Component Coefficients
 if displayInfo.showPrinComp || displayInfo.savePrinComp
-    plotPrinComp(signalInfo,pcaInfo,numChannel,displayInfo,fileName,path,channel,plotFileName,numPrinComp)
+    plotPrinComp(signalInfo,pcaInfo,numChannel,displayInfo,fileName,path,channel,plotFileName,numPrinComp,titleName)
 end
 
 %% Plot and compare before and after reconstruction
 if displayInfo.showReconstruction || displayInfo.saveReconstruction
-    plotReconstruction(signalInfo,pcaInfo,numChannel,displayInfo,fileName,path,channel,plotFileName,numClass)
-    plotAllSeparatedBursts(signalInfo,numClass,numChannel,featuresInfo,plotFileName,path,displayInfo);
+    plotReconstruction(signalInfo,pcaInfo,numChannel,displayInfo,fileName,path,channel,plotFileName,numClass,titleName)
+    plotAllSeparatedBursts(signalInfo,pcaInfo,numClass,numChannel,featuresInfo,plotFileName,path,displayInfo,titleName); % plot original full length bursts
 end
 
 end

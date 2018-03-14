@@ -11,7 +11,7 @@ for i = 1:numFeatures
         errorbar(1:iter,transpose(featuresInfo.featureMean(i,:,j)),featuresInfo.featureStde(i,:,j),'r*');
         
         if displayInfo.saveSeparatedFigures
-            savePlot(path,['Features sorted in ',titleName,],plotFileName,[featuresInfo.featuresNames{i,1},' with ',titleName,' of ch ',num2str(channel(1,j)),' in ',plotFileName, ' with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
+            savePlot(path,'Features bar plot',plotFileName,[featuresInfo.featuresNames{i,1},' with ',titleName,' of ch ',num2str(channel(1,j)),' in ',plotFileName, ' with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
         end
         
     end
@@ -21,7 +21,7 @@ end
 for i = 1:numChannel
     [~,fS(i,1)] = plots2subplots(p(:,i),numRowSubplots,numFeatures/numRowSubplots);
     if displayInfo.saveFigures
-        savePlot(path,['Features sorted in ',titleName,],plotFileName,['All the Features with ',titleName,' of ch ',num2str(channel(1,i)),' in ',plotFileName,' with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
+        savePlot(path,'Features bar plot',plotFileName,['All the Features with ',titleName,' of ch ',num2str(channel(1,i)),' in ',plotFileName,' with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
     end
 end
 if ~displayInfo.showSeparatedFigures

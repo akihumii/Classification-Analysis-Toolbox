@@ -1,4 +1,4 @@
-function [] = plotAllSeparatedBursts(signalInfo,numClass,numChannel,featuresInfo,plotFileName,path,displayInfo)
+function [] = plotAllSeparatedBursts(signalInfo,pcaInfo,numClass,numChannel,featuresInfo,plotFileName,path,displayInfo,titleName)
 %plotAllSeparatedBursts Plot all the separated bursts arranged by bursts
 %length. This is used in visualizeFeatures.
 % 
@@ -65,9 +65,10 @@ for i = 1:numChannel
         numSubplots = length(pFullBursts{j,1});
         for k = 1:numSubplots
             endLocsTemp = endLocsSorted{1,i}(arrayTemp{j,1}(k)) - startingLocsSorted{1,i}(arrayTemp{j,1}(k)); % unit in sample points
-            endLocsMark = plot(pFullBursts{j,1}(k),endLocsTemp/samplingFreq,burstsSorted{1,i}(endLocsTemp,arrayTemp{j,1}(k)),'rx');
+            endLocsMark = plot(pFullBursts{j,1}(k),endLocsTemp/samplingFreq,burstsSorted{1,i}(endLocsTemp,arrayTemp{j,1}(k)),'rx'); % offset of bursts
+            cutoffPoint = plot(pFullBursts{j,1}(k),[pcaInfo.cutoffLocs(i,1)/samplingFreq,pcaInfo.cutoffLocs(i,1)/samplingFreq],ylim,'r-'); % cutoff point for PCA
         end
-        legend(endLocsMark,'Burst offset point')
+        legend([endLocsMark,cutoffPoint],'Burst offset point','cutoff point for PCA')
     end
     
     % combined them into 2 columns
@@ -87,10 +88,10 @@ for i = 1:numChannel
     for numSaveSubplot = 1:numArrayFullBursts
         [pCombinedSubplots{numSaveSubplot,1},fCombinedSubplots(numSaveSubplot,1)] = plots2subplots(vertcat(pFullBursts{arrayFullBursts{numSaveSubplot,1}}),numRowSubplots,numColSubplots);
         
-        legend(pCombinedSubplots{1,1}(1,2).Children(1),'Burst offset point');
+        legend(pCombinedSubplots{1,1}(1,2).Children(1:2),'cutoff point for PCA','Burst offset point');
         
         if displayInfo.saveReconstruction % save combined figures
-            savePlot(path,'Combined Full Length Bursts Subplots',plotFileName,['Combined Full Length Bursts Ch ',num2str(i),' Suplots ',num2str(numSaveSubplot)])
+            savePlot(path,'Combined Full Length Bursts Subplots',plotFileName,['Combined Full Length Bursts of ',titleName,' Ch ',num2str(i),' Suplots ',num2str(numSaveSubplot)])
         end
     end
     

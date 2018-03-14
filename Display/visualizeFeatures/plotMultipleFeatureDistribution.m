@@ -1,10 +1,11 @@
-function [] = plotMultipleFeatureDistribution(numChannel,featuresInfo,plotFileName,channel,path,featureIndex,classifierOutput,xTickValue,xScale,displayInfo,numClass,colorArray)
+function [] = plotMultipleFeatureDistribution(numChannel,featuresInfo,plotFileName,channel,path,featureIndex,classifierOutput,xTickValue,xScale,displayInfo,numClass,colorArray,titleName)
 %plotMultipleFeatureDistribution Plot multiple feature distribution in
 %visualizeFeatures
 % 
 %   [] = plotMultipleFeatureDistribution(numChannel,featuresInfo,plotFileName,channel,path,featureIndex,classifierOutput,xTickValue,displayInfo,numClass,colorArray)
 
-    featureIndexTemp = [1,3;1,3]; % features used in combinations, channels are separated in rows
+    featureIndexTemp = [3,4;3,4]; % features used in combinations, channels are separated in rows
+    
     for i = 1:numChannel
         for j = 1:2
             featuresTemp{j,1} = featuresInfo.featuresAll(:,featureIndexTemp(i,j),i);
@@ -41,7 +42,7 @@ function [] = plotMultipleFeatureDistribution(numChannel,featuresInfo,plotFileNa
         end
         
         if displayInfo.saveHistFit
-            savePlot(path,'Distribution of 2 Features',plotFileName,['Distribution of features ( ',checkMatNAddStr(featuresInfo.featuresNames(featureIndexTemp(i,:)),' , '),' )  of channel ',num2str(channel(1,i)),' with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
+            savePlot(path,'Distribution of 2 Features',plotFileName,['Distribution of ',titleName,' of features ( ',checkMatNAddStr(featuresInfo.featuresNames(featureIndexTemp(i,:)),' , '),' )  of channel ',num2str(channel(1,i)),' with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
         end
         
     end

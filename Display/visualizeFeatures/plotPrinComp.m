@@ -1,4 +1,4 @@
-function [] = plotPrinComp(signalInfo,pcaInfo,numChannel,displayInfo,fileName,path,channel,plotFileName,numPrinComp)
+function [] = plotPrinComp(signalInfo,pcaInfo,numChannel,displayInfo,fileName,path,channel,plotFileName,numPrinComp,titleName)
 %plotPrinComp Plot principle components in visualizeFeatures
 %
 %   [] = plotPrinComp(signalInfo,pcaInfo,numChannel,displayInfo,fileName,path,channel,plotFileName,numPrinComp)
@@ -12,7 +12,7 @@ for i = 1:numChannel
     plotFig(1/samplingFreq:1/samplingFreq:numPCPoints/samplingFreq, pcTemp, fileName, ['Principle Component Coefficients Ch ',num2str(channel(i))], 'Time (s)', 'Amplitude', 0, displayInfo.showPrinComp, path, 'subplot');
     
     if displayInfo.savePrinComp
-        savePlot(path,'Principle Component Coefficients',plotFileName,['Principle Component Coefficients Ch ',num2str(channel(i))])
+        savePlot(path,'Principle Component Coefficient',plotFileName,['Principle Component Coefficients of ',titleName,' Ch ',num2str(channel(i))])
     end
     if ~displayInfo.showPrinComp
         close

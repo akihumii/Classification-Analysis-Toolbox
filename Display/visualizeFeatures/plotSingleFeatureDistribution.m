@@ -1,4 +1,4 @@
-function [] = plotSingleFeatureDistribution(numChannel,numFeatures,featuresInfo,plotFileName,path,channel,numClass,colorArray,classifierOutput,numRowSubplots,xTickValue,xScale,displayInfo)
+function [] = plotSingleFeatureDistribution(numChannel,numFeatures,featuresInfo,plotFileName,path,channel,numClass,colorArray,classifierOutput,numRowSubplots,xTickValue,xScale,displayInfo,titleName)
 %plotSingleFeatureDistribution Plot distribution of single feature in
 %visualizeFeatures
 % 
@@ -28,7 +28,7 @@ function [] = plotSingleFeatureDistribution(numChannel,numFeatures,featuresInfo,
         pHistTemp = gca;
         legend(flipud(pHistTemp.Children(1:2:end,1)),[xTickValue;{'Classifier''s boudary'}]);
         if displayInfo.saveHistFit
-            savePlot(path,'Distribution of Features',plotFileName,['Distribution of features of channel ',num2str(channel(1,i)),' with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
+            savePlot(path,'Distribution of Features',plotFileName,['Distribution of ',titleName,' of features of channel ',num2str(channel(1,i)),' with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
         end
         if ~displayInfo.showHistFit
             close

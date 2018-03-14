@@ -1,4 +1,4 @@
-function [] = plotAccuracy(classifierOutput,featureIndex,plotFileName,path,numClass,xScale,xTickValue,displayInfo,numChannel,is2DClassification,channel)
+function [] = plotAccuracy(classifierOutput,featureIndex,plotFileName,path,numClass,xScale,xTickValue,displayInfo,numChannel,is2DClassification,channel,titleName)
 %plotAccuracy Plot accuracy in visualizeFeatures
 %   [] = plotAccuracy(classificationOutput,numFeatureCombination,accuracyBasicParameter,featureIndex,plotFileName,path,numClass,xScale,xTickValue,displayInfo,numChannel,is2DClassification,channel)
 
@@ -22,7 +22,7 @@ for i = 1:numFeatureCombination
     legend('channel 14','channel 16','chance performance');
     errorbar(getErrorBarXAxisValues(numCombination(i,1),numChannel),meanTemp{i,1},stdeTemp,'r*'); % error bar
     if displayInfo.saveAccuracy
-        savePlot(path,'Accuracy of Features Combination',plotFileName,['Accuracy with ',num2str(i),' features in combinations with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
+        savePlot(path,'Accuracy of Features Combination',plotFileName,['Accuracy of ',titleName,' with ',num2str(i),' features in combinations with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
     end
     if ~displayInfo.showAccuracy
         close
@@ -42,7 +42,7 @@ if is2DClassification
         set(pS,'XTick',1:numCombination(end,1),'XTickLabel',num2cell(num2str(featureIndex{2,1}),2));
         grid on
         if displayInfo.saveAccuracy
-            savePlot(path,'Synergy',plotFileName,['Synergy of channel ',num2str(channel(i)),'  with ',num2str(numFeatureCombination),' features in combinations with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
+            savePlot(path,'Synergy',plotFileName,['Synergy of ',titleName,' of channel ',num2str(channel(i)),'  with ',num2str(numFeatureCombination),' features in combinations with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
         end
         if ~displayInfo.showAccuracy
             close
