@@ -14,7 +14,8 @@ function varargout = plotFig(varargin)
 % saveName = subplot: [titleName, ' ', fileName]
 %            overlap: [titleName, ' ', fileName, ' ch ', num2str(channel(i))]
 %
-%   [p,f] = plotFig(x, y, fileName, titleName, xScale, yScale, answerSave, answerShow, path, type, channel, plotWay)
+%   [p,f] = plotFig(x, y, fileName, titleName, xScale, yScale, answerSave, 
+%                   answerShow, path, type, channel, plotWay)
 
 %% fill unset parameters
 if nargin == 1

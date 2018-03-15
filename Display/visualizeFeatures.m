@@ -67,6 +67,7 @@ end
 %% Plot and compare before and after reconstruction
 if displayInfo.showReconstruction || displayInfo.saveReconstruction
     plotReconstruction(signalInfo,pcaInfo,numChannel,displayInfo,fileName,path,channel,plotFileName,numClass,titleName)
+    plotMeanBurst(pcaInfo,fileName,path,titleName,numChannel,plotFileName,displayInfo);
     plotAllSeparatedBursts(signalInfo,pcaInfo,numClass,numChannel,featuresInfo,plotFileName,path,displayInfo,titleName); % plot original full length bursts
 end
 

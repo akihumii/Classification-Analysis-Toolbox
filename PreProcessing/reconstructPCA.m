@@ -51,6 +51,8 @@ output.burstPCA = burstPCA;
 output.pcaInfo = pcaInfo;
 output.scoreIndividual = scoreIndividual;
 output.cutoffLocs = cutoffLocs;
+output.burstPCAMean = burstPCAMean;
+output.burstPCAMeanEnvelop = burstPCAMeanEnvelop;
 
 end
 
