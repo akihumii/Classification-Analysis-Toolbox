@@ -19,22 +19,27 @@ function [] = plotMultipleFeatureDistribution(numChannel,featuresInfo,plotFileNa
         featuresLocsTemp = repmat(featureIndexTemp(i,:),numFeatures,1) == featureIndex{2,1};
         featuresLocsTemp = find(all(featuresLocsTemp,2));
         
-        constTemp(1,1) = classifierOutput.classificationOutput{2,1}(featuresLocsTemp,1).coefficient{i,1}(1,2).const; % first and second class constant
-        linearTemp(1,:) = classifierOutput.classificationOutput{2,1}(featuresLocsTemp,1).coefficient{i,1}(1,2).linear; % first and second class linear
-        if numClass > 2
-            constTemp(2,1) = classifierOutput{2,1}(featuresLocsTemp,1).coefficient{i,1}(2,3).const; % second and third class constant
-            linearTemp(2,:) = classifierOutput{2,1}(featuresLocsTemp,1).coefficient{i,1}(2,3).linear; % second and third class linear
-            constTemp(3,1) = classifierOutput{2,1}(featuresLocsTemp,1).coefficient{i,1}(1,3).const; % first and third class constant
-            linearTemp(3,:) = classifierOutput{2,1}(featuresLocsTemp,1).coefficient{i,1}(1,3).linear; % first and third class linear
+        try
+            constTemp(1,1) = classifierOutput.classificationOutput{2,1}(featuresLocsTemp,1).coefficient{i,1}(1,2).const; % first and second class constant
+            linearTemp(1,:) = classifierOutput.classificationOutput{2,1}(featuresLocsTemp,1).coefficient{i,1}(1,2).linear; % first and second class linear
+            if numClass > 2
+                constTemp(2,1) = classifierOutput{2,1}(featuresLocsTemp,1).coefficient{i,1}(2,3).const; % second and third class constant
+                linearTemp(2,:) = classifierOutput{2,1}(featuresLocsTemp,1).coefficient{i,1}(2,3).linear; % second and third class linear
+                constTemp(3,1) = classifierOutput{2,1}(featuresLocsTemp,1).coefficient{i,1}(1,3).const; % first and third class constant
+                linearTemp(3,:) = classifierOutput{2,1}(featuresLocsTemp,1).coefficient{i,1}(1,3).linear; % first and third class linear
+            end
+            plotBoundary(pScatter,constTemp,linearTemp);
+            
+            lineTemp = gca;
+            lineTemp = flipud(lineTemp.Children(1:(numClass*(numClass-1)/2)));
+            for j = 1:length(lineTemp)
+                lineTemp(j,1).Color = colorArray(j,:);
+            end
+            
+        catch
+            warning('No boundary is plotted...');
         end
-        plotBoundary(pScatter,constTemp,linearTemp);
-        
-        lineTemp = gca;
-        lineTemp = flipud(lineTemp.Children(1:(numClass*(numClass-1)/2)));
-        for j = 1:length(lineTemp)
-            lineTemp(j,1).Color = colorArray(j,:);
-        end
-        
+
         if numClass == 2
             legend(flipud(pScatter.Children),xTickValue{:},checkMatNAddStr(xTickValue(:,1),' , '));
         elseif numClass == 3

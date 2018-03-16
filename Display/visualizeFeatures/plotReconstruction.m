@@ -18,7 +18,7 @@ for i = 1:numChannel
         end
     end
     
-    plots2subplots(vertcat(pReconstructedSignal{:,:}),numPlot,2);
+    plots2subplots(vertcat(pReconstructedSignal{:,:}),numPlot,numClass);
     legend('Reconstructed burst','Raw burst')
     delete(fReconstructedSignal);
     
