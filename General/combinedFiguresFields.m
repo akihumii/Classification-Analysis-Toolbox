@@ -9,7 +9,7 @@ close all
 
 %% Select files and initialize
 showFigure = 1;
-saveFigure = 0;
+saveFigure = 1;
 
 [files, path, iter] = selectFiles();
 fileName = files{1,1}(1:end-11);
@@ -35,6 +35,8 @@ end
 
 numFeatures = size(dataX,2); 
 [numRowSubplot,numColSubplot] = getFactors(numFeatures);
+% numRowSubplot = 2;
+% numColSubplot = 6;
 
 close all
 
@@ -43,7 +45,7 @@ for i = 1:numChannel % to make it ascending again
     % Plot the barplots
     for j = 1:numFeatures
         [pS(j,i),fS(j,i)] = plotFig(1:iter,dataY(:,j,i),fileName,['Comparison of Features (ch ',num2str(i),')'],'Week','',0,1,path,'subplot',0,'barPlot');
-        hold on
+        hold on; ylim([0,1]); grid on
         errorbar(pS(j,i),getErrorBarXAxisValues(iter,1),dataEY(:,j,i),dataEL(:,j,i),'r*'); % plot errorbar
         titleName{j,1} = ['Accuracy across weeks of Features (ch ',num2str(i),')'];
     end
@@ -66,9 +68,8 @@ end
 %% plot the variance of features across weeks
 dataYInfo = getBasicParameter(dataY(:,:,:));
 [pF,fF] = plotFig(1:numFeatures,dataYInfo.mean,fileName,'Mean accuracy of features across weeks','Feature','',0,1,path,'subplot',0,'barStackedPlot');
-hold on
+hold on; ylim([0,1]); grid on
 errorbar(getErrorBarXAxisValues(numFeatures,2),dataYInfo.mean,dataYInfo.stde,'r*'); % plot errorbar
-ylim([0,1]); grid on
 legend('Channel 1','Channel 2')
 if saveFigure
     savePlot(path,'Mean accuracy of features across weeks',fileName,'Mean accuracy of features across weeks');
