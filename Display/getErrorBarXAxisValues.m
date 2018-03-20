@@ -4,7 +4,7 @@ function xAxis = getErrorBarXAxisValues(numBar,numClass)
 % input:    numBar: number of bar in total
 %           numClass: type of class (different colors ones)
 % 
-%   xAxis = errorBarXAxisValues(numBar,numClass)
+%   xAxis = getErrorBarXAxisValues(numBar,numClass)
 
 xAxis = transpose(1:numBar);
 

@@ -5,11 +5,15 @@ function output = getBasicParameter(data)
 % 
 %   output = getBasicParameter(data)
 
-output.mean = mean(data,1);
-output.std = std(data,0,1);
-output.stde = output.std/sqrt(size(data,1));
-[output.max,output.maxLoc] = max(data,[],1);
-[output.min,output.minLoc] = min(data,[],1);
+output.mean = squeeze(mean(data,1));
+output.std = squeeze(std(data,0,1));
+output.stde = squeeze(output.std/sqrt(size(data,1)));
+[maxValue,maxLoc] = max(data,[],1);
+output.max = squeeze(maxValue);
+output.Loc = squeeze(maxLoc);
+[minValue,minLoc] = min(data,[],1);
+output.min = squeeze(minValue);
+output.minLoc = squeeze(minLoc);
 output.raw = data;
 end
 
