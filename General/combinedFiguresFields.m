@@ -11,7 +11,7 @@ close all
 showFigure = 1;
 saveFigure = 1;
 
-[files, path, iter] = selectFiles();
+[files, path, iter] = selectFiles('Select matlab figures to combine');
 fileName = files{1,1}(1:end-11);
 
 figCheck = open([path,files{1,1}]);
@@ -35,6 +35,12 @@ end
 
 numFeatures = size(dataX,2); 
 [numRowSubplot,numColSubplot] = getFactors(numFeatures);
+featureNames = [{'maxValue'},{'minValue'},{'burstLength'},{'areaUnderCurve'},{'meanValue'},{'sumDifferences'},{'numZeroCrossings'},{'numSginChanges'}];
+if numFeatures > 8
+    for i = 1:numFeatures - 8
+        featureNames = [featureNames,{['PC',num2str(i)]}];
+    end
+end
 % numRowSubplot = 2;
 % numColSubplot = 6;
 
@@ -43,26 +49,20 @@ close all
 %% combine and plot the values in arranged figures
 for i = 1:numChannel % to make it ascending again
     % Plot the barplots
-    for j = 1:numFeatures
-        [pS(j,i),fS(j,i)] = plotFig(1:iter,dataY(:,j,i),fileName,['Comparison of Features (ch ',num2str(i),')'],'Week','',0,1,path,'subplot',0,'barPlot');
+        [pS(i,1),fS(i,1)] = plotFig(1:iter,dataY(:,:,i),fileName,['Comparison of Features (ch ',num2str(i),')'],'Week','',0,1,path,'overlap',0,'linePlot');
         hold on; ylim([0,1]); grid on
-        errorbar(pS(j,i),getErrorBarXAxisValues(iter,1),dataEY(:,j,i),dataEL(:,j,i),'r*'); % plot errorbar
-        titleName{j,1} = ['Accuracy across weeks of Features (ch ',num2str(i),')'];
-    end
+        errorbar(pS(i,1),repmat(getErrorBarXAxisValues(iter,1),1,numFeatures),dataEY(:,:,i),dataEL(:,:,i),'r*'); % plot errorbar
     
-    [pA{i,1},fA(i,1)] = plots2subplots(pS(:,i),numRowSubplot,numColSubplot,titleName);
-    
-    legend('Accuracy','Errorbar')
+    legend(featureNames)
 
     % save figures
     if saveFigure % save combined figures
-        savePlot(path,'Accuracy across weeks',fileName,['Accuracy across weeks of Feature ',num2str(j),' (ch ',num2str(i),')'])
+        savePlot(path,'Accuracy across weeks',fileName,['Accuracy across weeks of ',num2str(numFeatures),' features (ch ',num2str(i),')'])
     end
 end
 
-delete(fS)
 if ~showFigure
-    delete(fA)
+    delete(fS)
 end
 
 %% plot the variance of features across weeks
