@@ -1,4 +1,4 @@
-function output = classification(trials,featureIndex,trainingRatio,classifierTitle,numRepeat)
+function output = classification(trials,featureIndex,trainingRatio,classifierTitle,numRepeat,classNames)
 %classification Perform lda classification with trials that are in cells.
 % The structure is like: [channel * feature * class]
 % 
@@ -34,6 +34,8 @@ for i = 1:numChannels
             trainingClassTemp = [trainingClassTemp; j*ones(size(trainingSetTemp,1),1)];
             testingClassTemp = [testingClassTemp; j*ones(size(testingSetTemp,1),1)];
         end
+        
+        svmClassification(trainingTemp,trainingClassTemp,testingTemp,classNames);
         
         [classTemp,errorTemp,posteriorTemp,logPTemp,coefficientTemp] = ... % run the classification
             classify(testingTemp,trainingTemp,trainingClassTemp);
