@@ -12,7 +12,7 @@ if any(sizeMat > 1)
             newStr = [newStr,str,mat{i}];
         end
     else
-        newStr = mat(1);
+        newStr = num2str(mat(1));
         for i = 2:numElement
             newStr = [newStr,str,num2str(mat(i))];
         end

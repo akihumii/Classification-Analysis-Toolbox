@@ -1,7 +1,9 @@
-function [] = svmClassification(trainingGroup,trainingClassGroup,testingGroup,classNames)
+function output = svmClassification(trainingGroup,trainingClassGroup,testingGroup)
 %svmClassification Train the multi-class data with svm classifier by using error-correcting output codes.
 % 
-%   Detailed explanation goes here
+% output:   Mdl, CVMdl, oosLoss, predictClass
+% 
+%   output = svmClassification(trainingGroup,trainingClassGroup,testingGroup)
 
 template = templateSVM('Standardize',1,'KernelFunction','gaussian');
 
@@ -12,29 +14,15 @@ CVMdl = crossval(Mdl); % kFold = 10 for cross-validation
 oosLoss = kfoldLoss(CVMdl); % generalization error
 
 %% Prediction
-predictClass = predict(Mdl,trainingGroup); % predict
-oofLabel = kfoldPredict(CVMdl); % predicted class, similar as the output of the function predict
-isLabels = unique(trainingClassGroup);
-nLabels = numel(isLabels);
-[n,p] = size(trainingGroup);
+predictClass = predict(Mdl,testingGroup); % predict
 
-% Convert the integer label vector to a class-identifier matrix.
-[~,grpOOF] = ismember(oofLabel,isLabels); 
-oofLabelMat = zeros(nLabels,n); 
-idxLinear = sub2ind([nLabels n],grpOOF,(1:n)'); 
-oofLabelMat(idxLinear) = 1; % Flags the row corresponding to the class 
-[~,grpY] = ismember(trainingClassGroup,isLabels); 
-YMat = zeros(nLabels,n); 
-idxLinearY = sub2ind([nLabels n],grpY,(1:n)'); 
-YMat(idxLinearY) = 1; 
+% oofLabel = kfoldPredict(CVMdl); % predicted class, similar as the output of the function predict
 
-figure;
-plotconfusion(YMat,oofLabelMat);
-h = gca;
-h.XTickLabel = [num2cell(isLabels); {''}];
-h.YTickLabel = [num2cell(isLabels); {''}];
-
-% [~,~,~,PosteriorRegion] = predict(Mdl,trainingGroup);
+%% Output
+output.Mdl = Mdl;
+output.CVMdl = CVMdl;
+output.oosLoss = oosLoss;
+output.predictClass = predictClass;
 
 end
 

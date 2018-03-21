@@ -35,27 +35,30 @@ for i = 1:numChannels
             testingClassTemp = [testingClassTemp; j*ones(size(testingSetTemp,1),1)];
         end
         
-        svmClassification(trainingTemp,trainingClassTemp,testingTemp,classNames);
+        svmClassificationOutput = svmClassification(trainingTemp,trainingClassTemp,testingTemp);
         
-        [classTemp,errorTemp,posteriorTemp,logPTemp,coefficientTemp] = ... % run the classification
-            classify(testingTemp,trainingTemp,trainingClassTemp);
+%         [classTemp,errorTemp,posteriorTemp,logPTemp,coefficientTemp] = ... % run the classification
+%             classify(testingTemp,trainingTemp,trainingClassTemp);
         
-        accuracyTemp = calculateAccuracy(classTemp,testingClassTemp);
+        accuracyTemp = calculateAccuracy(svmClassificationOutput.predictClass,testingClassTemp);
         
         accuracyAll{i,1} = [accuracyAll{i,1};accuracyTemp.accuracy];
         
         if accuracyTemp.accuracy > accuracyHighest(1,i) % record the result from the classifier that has the highest performance
             accuracyHighest(1,i) = accuracyTemp.accuracy;
-            class{i,1} = classTemp;
-            error{i,1} = errorTemp;
-            posterior{i,1} = posteriorTemp;
-            logP{i,1} = logPTemp;
-            coefficient{i,1} = coefficientTemp;
+            class{i,1} = svmClassificationOutput.predictClass;
+%             error{i,1} = errorTemp;
+%             posterior{i,1} = posteriorTemp;
+%             logP{i,1} = logPTemp;
+%             coefficient{i,1} = coefficientTemp;
             training{i,1} = trainingTemp;
             testing{i,1} = testingTemp;
             trainingClass{i,1} = trainingClassTemp;
             testingClass{i,1} = testingClassTemp;
         end
+        
+        plotConfusionMat(svmClassificationOutput.predictClass,testingClassTemp)
+        title(['Fature ',checkMatNAddStr(featureIndex,','),' Channel ',num2str(i)])
     end
     accuracy(1,i) = mean(accuracyAll{i,1});
 end
@@ -65,7 +68,7 @@ output.class = class;
 % output.error = error;
 % output.posterior = posterior;
 % output.logP = logP;
-output.coefficient = coefficient;
+% output.coefficient = coefficient;
 output.accuracy = accuracy; % a matrix of numbers which are the mean accuracy after all the repeatations
 output.accuracyAll = accuracyAll;
 output.accuracyHighest = accuracyHighest; % a structure containing accuracy, true positive and false negative

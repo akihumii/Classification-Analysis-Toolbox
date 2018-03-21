@@ -9,7 +9,7 @@ close all
 runPCA = 0;
 numPrinComp = 0; % number of principle component to use as features
 threshPercentile = 95; % percentile to threshold the latent of principle component for data reconstruction
-classificationRepetition = 1000; % number of repetition of the classification with randomly assigned training set and testing set
+classificationRepetition = 1; % number of repetition of the classification with randomly assigned training set and testing set
 maxNumFeaturesInCombination = 2; % maximum nubmer of features used in combinations
 
 % for display
