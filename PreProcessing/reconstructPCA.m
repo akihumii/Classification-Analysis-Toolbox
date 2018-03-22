@@ -17,12 +17,19 @@ for i = 1:numChannel
         numBursts(j,i) = size(burst{j,i},2); % [class * channel]
         minBurstLength(j,i) = min(signalInfo(j,1).signalClassification.features.burstLength(:,i));
         maxBurstLength(j,i) = max(signalInfo(j,1).signalClassification.features.burstLength(:,i));  % get the maximum burst length in that class of that channel
+        burstOnly{j,i} = zeros(size(burst{j,i})); % only those within the burst range will be one, the rest will be zeros
+        burstLengthTemp = omitNan(signalInfo(j,1).signalClassification.features.burstLength(:,i),2,'all'); % to get the temperory burst length
+        for k = 1:numBursts(j,i)
+            burstOnly{j,i}(1:floor(samplingFreq*burstLengthTemp(k,1)),k) = 1;
+        end
     end
     
     burstPCARaw{i,1} = catNanMat(burst(:,i),2,'all'); % get all the bursts from different classes of one channel into a matrix
+    burstPCAOnOff{i,1} = catNanMat(burstOnly(:,i),2,'all'); % get all the bursts from different classes of one channel into a matrix (zeros and ones only)
     maxBurstLocs(i,1) = floor(max(samplingFreq*maxBurstLength(:,i))); % number of sample points of the maximum bursts length in that channel
-    burstPCARaw{i,1} = burstPCARaw{i,1}(1:maxBurstLocs(i,1),:); % get all the bursts with the same lengths, which is the maximum burst length of that channel in both classes
-    burstPCAMean{i,1} = nanmean(abs(burstPCARaw{i,1}),2); % get the mean of all the bursts
+    burstPCARaw{i,1} = burstPCARaw{i,1}(1:maxBurstLocs(i,1),:);
+    burstPCAOnOff{i,1} = burstPCAOnOff{i,1}(1:maxBurstLocs(i,1),:); % get all the bursts with the same lengths, which is the maximum burst length of that channel in both classes
+    burstPCAMean{i,1} = nanmean(abs(burstPCAOnOff{i,1}),2); % get the mean of all the bursts
     burstPCAMeanEnvelop{i,1} = filterData(burstPCAMean{i,1},samplingFreq,0,15,0); % apply low pass filter
     thresholdTemp = max(burstPCAMeanEnvelop{i,1}) * cutoffThreshold; % 50 percent of the envelop
     cutoffLocsTemp = burstPCAMeanEnvelop{i,1};
