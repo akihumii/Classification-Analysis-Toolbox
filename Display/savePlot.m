@@ -22,7 +22,7 @@ end
 saveas(fig,[saveLocation,'\',saveName,'.fig']);
 saveas(fig,[saveLocation,'\',saveName,'.jpg']);
 
-disp([titleName,' ',fileName, ' is saved...'])
+disp([saveLocation,'\',saveName, ' is saved...'])
 disp(' ')
 
 end

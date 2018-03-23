@@ -26,16 +26,16 @@ for i = 1:numChannel
     
     burstPCARaw{i,1} = catNanMat(burst(:,i),2,'all'); % get all the bursts from different classes of one channel into a matrix
     burstPCAOnOff{i,1} = catNanMat(burstOnly(:,i),2,'all'); % get all the bursts from different classes of one channel into a matrix (zeros and ones only)
+    burstPCAOnOff{i,1}(isnan(burstPCAOnOff{i,1})) = 0; % convert Nan to 0
     maxBurstLocs(i,1) = floor(max(samplingFreq*maxBurstLength(:,i))); % number of sample points of the maximum bursts length in that channel
     burstPCARaw{i,1} = burstPCARaw{i,1}(1:maxBurstLocs(i,1),:);
     burstPCAOnOff{i,1} = burstPCAOnOff{i,1}(1:maxBurstLocs(i,1),:); % get all the bursts with the same lengths, which is the maximum burst length of that channel in both classes
     burstPCAMean{i,1} = nanmean(abs(burstPCAOnOff{i,1}),2); % get the mean of all the bursts
-    burstPCAMeanEnvelop{i,1} = filterData(burstPCAMean{i,1},samplingFreq,0,15,0); % apply low pass filter
-    thresholdTemp = max(burstPCAMeanEnvelop{i,1}) * cutoffThreshold; % 50 percent of the envelop
-    cutoffLocsTemp = burstPCAMeanEnvelop{i,1};
+    thresholdTemp = max(burstPCAMean{i,1}) * cutoffThreshold; % 50 percent of the envelop
+    cutoffLocsTemp = burstPCAMean{i,1};
     cutoffLocsTemp(diff(cutoffLocsTemp)>0) = []; % omit the rising part
     cutoffLocsTemp = cutoffLocsTemp(find(cutoffLocsTemp<thresholdTemp,1));
-    cutoffLocs(i,1) = find(burstPCAMeanEnvelop{i,1} == cutoffLocsTemp);
+    cutoffLocs(i,1) = find(burstPCAMean{i,1} < cutoffLocsTemp,1);
     
     burstPCA{i,1} = burstPCARaw{i,1}(1:cutoffLocs(i,1),:); % get the trimmed bursts for PCA
     
@@ -55,11 +55,11 @@ end
 output.burst = burst;
 output.numBursts = numBursts;
 output.burstPCA = burstPCA;
+output.burstPCAOnOff = burstPCAOnOff
 output.pcaInfo = pcaInfo;
 output.scoreIndividual = scoreIndividual;
 output.cutoffLocs = cutoffLocs;
 output.burstPCAMean = burstPCAMean;
-output.burstPCAMeanEnvelop = burstPCAMeanEnvelop;
 
 end
 

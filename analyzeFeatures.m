@@ -27,7 +27,7 @@ displayInfo.saveSeparatedFigures = 0;
 displayInfo.saveFigures = 0;
 displayInfo.saveHistFit = 0;
 displayInfo.saveAccuracy = 0;
-displayInfo.saveReconstruction = 0;
+displayInfo.saveReconstruction = 1;
 displayInfo.savePrinComp = 0;
 
 %% Get features info
@@ -65,11 +65,11 @@ else
     %% Reconstruct features
     % matrix of one feature = [bursts x class x features x channel]
     featuresInfo = reconstructFeatures(featuresRaw,numClass,pcaInfo.numBursts); % as the raw features still contains Nan, so number of bursts should not be trimmed too
-    
-    %% Adding PCA info as one feature
-    if numPrinComp ~= 0
-        featuresInfo = addPCAintoFeatures(featuresInfo,pcaInfo.scoreIndividual,numPrinComp);
-    end
+end
+
+%% Adding PCA info as one feature
+if numPrinComp ~= 0
+    featuresInfo = addPCAintoFeatures(featuresInfo,pcaInfo.scoreIndividual,numPrinComp);
 end
 
 %% Train Classification
