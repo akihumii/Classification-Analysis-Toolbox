@@ -11,7 +11,7 @@ function [] = plotMultipleFeatureDistribution(numChannel,featuresInfo,plotFileNa
             featuresTemp{j,1} = featuresInfo.featuresAll(:,featureIndexTemp(i,j),i);
             featuresTemp{j,1} = cell2nanMat(featuresTemp{j,1});
         end
-        pScatter = plotFig(featuresTemp{1,1},featuresTemp{2,1},plotFileName,['Distribution of 2 Features ( ',checkMatNAddStr(featuresInfo.featuresNames(featureIndexTemp(i,:)),' , '),' ) of ',plotFileName,' ch ',num2str(channel(1,i))],featuresInfo.featuresNames(featureIndexTemp(i,1)),featuresInfo.featuresNames(featureIndexTemp(i,2)),0,1,path,'overlap',channel(1,i),'scatterPlot'); % plot the scattered points distribution of the feature of each class;
+        pScatter = plotFig(featuresTemp{1,1},featuresTemp{2,1},plotFileName,['Distribution of 2 Features ( ',checkMatNAddStr(featuresInfo.featuresNames(featureIndexTemp(i,:)),' , ',2),' ) of ',plotFileName,' ch ',num2str(channel(1,i))],featuresInfo.featuresNames(featureIndexTemp(i,1)),featuresInfo.featuresNames(featureIndexTemp(i,2)),0,1,path,'overlap',channel(1,i),'scatterPlot'); % plot the scattered points distribution of the feature of each class;
         hold all
         grid on
         

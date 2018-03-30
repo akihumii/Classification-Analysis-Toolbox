@@ -14,7 +14,7 @@ for i = 1:numFeatureCombination
     pA = plotFig(1:numCombination(i,1),meanTemp{i,1},plotFileName,['Accuracy with ',num2str(i),' features in combinations'],'Feature Combinations','Acurracy',0,1,path,'overlap',0,'barStackedPlot');
     hold on
     pA.XTick = 1:numCombination(i,1);
-    pA.XTickLabel = num2cell(num2str(featureIndexTemp),2);
+    pA.XTickLabel = checkMatNAddStr(featureIndexTemp,',',1);
     xLimit = xlim;
     ylim([0,1]);
     grid on
@@ -35,11 +35,11 @@ if is2DClassification
         for j = 1:numCombination(end,1)
             [synergyParameters(j,i),significance(j,i)] = calculateSynergy([classifierOutput.classificationOutput{1,1}(featureIndex{2,1}(j,1)).accuracyAll(i,1);classifierOutput.classificationOutput{1,1}(featureIndex{2,1}(j,2)).accuracyAll(i,1)],classifierOutput.classificationOutput{2,1}(j,1).accuracyAll{i,1},numRepetition);
         end
-        pS = plotFig(1:numCombination(end,1),vertcat(synergyParameters(:,i).mean),plotFileName,['Synergy with ',num2str(numFeatureCombination),' features in combinations with ',xScale,' ',checkMatNAddStr(xTickValue,',')],'Features Combinations','Acurracy',0,displayInfo.showAccuracy,path,'overlap',channel(1,i),'barPlot');
+        pS = plotFig(1:numCombination(end,1),vertcat(synergyParameters(:,i).mean),plotFileName,['Synergy with ',num2str(numFeatureCombination),' features in combinations with ',xScale,' ',checkMatNAddStr(xTickValue,',',2)],'Features Combinations','Acurracy',0,displayInfo.showAccuracy,path,'overlap',channel(1,i),'barPlot');
         hold on
         labelPlot(pS,find(significance(:,i)==1),'r^'); % label asteric on the barchart if it is significantly difference
         errorbar(1:numCombination(end,1),vertcat(synergyParameters(:,i).mean),vertcat(synergyParameters(:,i).stde),'r*');
-        set(pS,'XTick',1:numCombination(end,1),'XTickLabel',num2cell(num2str(featureIndex{2,1}),2));
+        set(pS,'XTick',1:numCombination(end,1),'XTickLabel',checkMatNAddStr(featureIndex{2,1},',',1));
         grid on
         if displayInfo.saveAccuracy
             savePlot(path,'Synergy',plotFileName,['Synergy of ',titleName,' of channel ',num2str(channel(i)),'  with ',num2str(numFeatureCombination),' features in combinations with ',xScale,' ',checkMatNAddStr(xTickValue,',')])

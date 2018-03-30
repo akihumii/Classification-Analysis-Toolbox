@@ -51,7 +51,7 @@ end
 %% Plot histogram and distribution
 if displayInfo.showHistFit || displayInfo.saveHistFit
     %% (for single features in all classes)
-    plotSingleFeatureDistribution(numChannel,numFeatures,featuresInfo,plotFileName,path,channel,numClass,colorArray,classifierOutput,numRowSubplots,xTickValue,xScale,displayInfo,titleName)
+    plotSingleFeatureDistribution(numChannel,numFeatures,featuresInfo,plotFileName,path,channel,numClass,colorArray,classifierOutput,2,xTickValue,xScale,displayInfo,titleName)
     
     %% for 2 features used in combinations
     if is2DClassification
