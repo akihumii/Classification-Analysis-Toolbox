@@ -6,11 +6,13 @@ close all
 % clc
 
 %% User Input
-runPCA = 1;
-numPrinComp = 0; % number of principle component to use as features
+runPCA = 0;
+numPrinComp = 4; % number of principle component to use as features
 threshPercentile = 95; % percentile to threshold the latent of principle component for data reconstruction
 classificationRepetition = 1000; % number of repetition of the classification with randomly assigned training set and testing set
 maxNumFeaturesInCombination = 2; % maximum nubmer of features used in combinations
+
+classifierType = 2; % 1 for manually classification, 2 for using classifier learner app
 
 % for display
 displayInfo.testClassifier = 0;
@@ -61,7 +63,7 @@ if runPCA
     % matrix of one feature = [bursts x class x features x channel]
     featuresInfo = reconstructFeatures(featuresPCA,numClass,pcaInfo.numBursts);
     
-else    
+else
     %% Reconstruct features
     % matrix of one feature = [bursts x class x features x channel]
     featuresInfo = reconstructFeatures(featuresRaw,numClass,pcaInfo.numBursts); % as the raw features still contains Nan, so number of bursts should not be trimmed too
@@ -72,38 +74,47 @@ if numPrinComp ~= 0
     featuresInfo = addPCAintoFeatures(featuresInfo,pcaInfo.scoreIndividual,numPrinComp);
 end
 
-%% Train Classification
-tTrain = tic;
-
-classifierOutput = trainClassifier(featuresInfo, signalInfo, displayInfo, classificationRepetition, maxNumFeaturesInCombination);
-
-display(['Training session takes ',num2str(toc(tTrain)),' seconds...']);
-
-%% Plot features
-tPlot = tic;
-close all
-
-% type can be 'Active EMG', 'Different Speed', 'Different Day'
-visualizeFeatures(numClass, path, classifierOutput, featuresInfo, signalInfo, displayInfo, pcaInfo, runPCA);
-
-display(['Plotting session takes ',num2str(toc(tPlot)),' seconds...']);
-
-%% Run through the entire signal and classify
-if displayInfo.testClassifier
-    tTest = tic;
-    
-    classificatioOutput = runClassifier(classifierOutput);
-    
-    display(['Continuous classification takes ',num2str(toc(tTrain)),' seconds...']);
+switch classifierType
+    case 1
+        %% Train Classification
+        tTrain = tic;
+        
+        classifierOutput = trainClassifier(featuresInfo, signalInfo, displayInfo, classificationRepetition, maxNumFeaturesInCombination);
+        
+        display(['Training session takes ',num2str(toc(tTrain)),' seconds...']);
+        
+        %% Plot features
+        tPlot = tic;
+        close all
+        
+        % type can be 'Active EMG', 'Different Speed', 'Different Day'
+        visualizeFeatures(numClass, path, classifierOutput, featuresInfo, signalInfo, displayInfo, pcaInfo, runPCA);
+        
+        display(['Plotting session takes ',num2str(toc(tPlot)),' seconds...']);
+        
+        %% Run through the entire signal and classify
+        if displayInfo.testClassifier
+            tTest = tic;
+            
+            classificatioOutput = runClassifier(classifierOutput);
+            
+            display(['Continuous classification takes ',num2str(toc(tTrain)),' seconds...']);
+        end
+        
+        %% Save the classification output and accuracy output
+        if displayInfo.saveOutput
+            saveVar([path,'\classificationInfo\'],horzcat(signalInfo(:,1).saveFileName),classifierOutput,featuresInfo,signalInfo);
+        end
+        
+        %% End
+        clear i j k
+        
+    case 2
+        [channel1class1,channel1class2,channel2class1,channel2class2] = ...
+            loadDataForClassifyLearner(featuresInfo.featuresAll);
+        
+    otherwise
+        warning('wrong classifier type... nothing was done...')
 end
-
-%% Save the classification output and accuracy output
-if displayInfo.saveOutput
-    saveVar([path,'\classificationInfo\'],horzcat(signalInfo(:,1).saveFileName),classifierOutput,featuresInfo,signalInfo);
-end
-
-%% End
-clear i j k
-
 finishMsg()
 
