@@ -44,7 +44,6 @@ end
  
 %% Plot Accuracy and Synergy
 if displayInfo.showAccuracy || displayInfo.saveAccuracy
-
     plotAccuracy(classifierOutput,featureIndex,plotFileName,path,numClass,xScale,xTickValue,displayInfo,numChannel,is2DClassification,channel,titleName);
 end
  

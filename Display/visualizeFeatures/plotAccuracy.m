@@ -6,6 +6,11 @@ accuracyBasicParameter = classifierOutput.accuracyBasicParameter; % accuracy
 numFeatureCombination = length(accuracyBasicParameter); % number of feature combinations
 numRepetition = length(classifierOutput.classificationOutput{1,1}(1,1).accuracyAll{1,1});
 
+selectedFeatureCombination = [2,8,14:18]; % select specific feature combinations to analyse
+featureIndex{2,1} = featureIndex{2,1}(selectedFeatureCombination,:);
+accuracyBasicParameter{2,1} = accuracyBasicParameter{2,1}(selectedFeatureCombination);
+classifierOutput.classificationOutput{2,1} = classifierOutput.classificationOutput{2,1}(selectedFeatureCombination);
+
 for i = 1:numFeatureCombination
     numCombination(i,1) = length(accuracyBasicParameter{i,1}); % number of combination
     featureIndexTemp = featureIndex{i,1};

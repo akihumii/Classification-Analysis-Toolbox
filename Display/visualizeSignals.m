@@ -84,6 +84,7 @@ end
 
 %% Plot windows following stimulation artefacts
 if ~saveOverlap && ~showOverlap
+    windowsValues = nan;
 else    
     for i = 1:length(signalClassification)
         %% Plot the data for peak detection

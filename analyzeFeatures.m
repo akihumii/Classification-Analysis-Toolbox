@@ -6,7 +6,7 @@ close all
 % clc
 
 %% User Input
-runPCA = 0;
+runPCA = 1;
 numPrinComp = 0; % number of principle component to use as features
 threshPercentile = 95; % percentile to threshold the latent of principle component for data reconstruction
 classificationRepetition = 1000; % number of repetition of the classification with randomly assigned training set and testing set
@@ -18,7 +18,7 @@ displayInfo.saveOutput = 1;
 
 displayInfo.showSeparatedFigures = 0;
 displayInfo.showFigures = 0;
-displayInfo.showHistFit = 1;
+displayInfo.showHistFit = 0;
 displayInfo.showAccuracy = 1;
 displayInfo.showReconstruction = 0;
 displayInfo.showPrinComp = 0;

@@ -41,7 +41,7 @@ function [] = plotMultipleFeatureDistribution(numChannel,featuresInfo,plotFileNa
         end
 
         if numClass == 2
-            legend(flipud(pScatter.Children),xTickValue{:},checkMatNAddStr(xTickValue(:,1),' , '));
+            legend(flipud(pScatter.Children),xTickValue{:},checkMatNAddStr(xTickValue(:,1),' , '),'classifier''s boundary');
         elseif numClass == 3
             legend(flipud(pScatter.Children),xTickValue{:},checkMatNAddStr(xTickValue(1:2,1),' , '),checkMatNAddStr(xTickValue(2:3,1),' , '),checkMatNAddStr(xTickValue([1,3],1),' , '));
         end

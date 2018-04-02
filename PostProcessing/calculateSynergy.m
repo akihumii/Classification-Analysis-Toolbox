@@ -7,10 +7,13 @@ function [synergyParameters,significance] = calculateSynergy(dataSingle, dataGro
 % 
 %   synergyParameters = calculateSynergy(dataSingle, dataGroup, downSamplingValue)
 
-[singleFeatureMesh{1,1},singleFeatureMesh{2,1}] = meshgrid(dataSingle{1,1},dataSingle{2,1});
+% [singleFeatureMesh{1,1},singleFeatureMesh{2,1}] = meshgrid(dataSingle{1,1},dataSingle{2,1});
+% 
+% singleFeatureMax = max(singleFeatureMesh{1,1}, singleFeatureMesh{2,1}); % get the maximum performance with the single feature classification
+% singleFeatureMax = singleFeatureMax(randperm(downSamplingValue^2,downSamplingValue)); % down size by randomly picking numRepetition from all the combinations of summation
 
-singleFeatureMax = max(singleFeatureMesh{1,1}, singleFeatureMesh{2,1}); % get the maximum performance with the single feature classification
-singleFeatureMax = singleFeatureMax(randperm(downSamplingValue^2,downSamplingValue)); % down size by randomly picking numRepetition from all the combinations of summation
+[~,maxIndex] = max([mean(dataSingle{1,1}),mean(dataSingle{2,1})]);
+singleFeatureMax = dataSingle{maxIndex};
 
 [twoFeatureMesh,singleFeatureMaxMesh] = meshgrid(dataGroup,singleFeatureMax(:));
 
