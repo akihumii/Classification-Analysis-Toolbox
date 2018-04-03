@@ -4,7 +4,7 @@ function [] = plotMultipleFeatureDistribution(numChannel,featuresInfo,plotFileNa
 % 
 %   [] = plotMultipleFeatureDistribution(numChannel,featuresInfo,plotFileName,channel,path,featureIndex,classifierOutput,xTickValue,displayInfo,numClass,colorArray)
 
-    featureIndexTemp = [3,4;3,4]; % features used in combinations, channels are separated in rows
+    featureIndexTemp = [3,4;3,9]; % features used in combinations, channels are separated in rows
     
     for i = 1:numChannel
         for j = 1:2

@@ -6,7 +6,7 @@ accuracyBasicParameter = classifierOutput.accuracyBasicParameter; % accuracy
 numFeatureCombination = length(accuracyBasicParameter); % number of feature combinations
 numRepetition = length(classifierOutput.classificationOutput{1,1}(1,1).accuracyAll{1,1});
 
-selectedFeatureCombination = [2,8,14:18]; % select specific feature combinations to analyse
+selectedFeatureCombination = [2,12,22:30]; % select specific feature combinations to analyse
 featureIndex{2,1} = featureIndex{2,1}(selectedFeatureCombination,:);
 accuracyBasicParameter{2,1} = accuracyBasicParameter{2,1}(selectedFeatureCombination);
 classifierOutput.classificationOutput{2,1} = classifierOutput.classificationOutput{2,1}(selectedFeatureCombination);
@@ -24,8 +24,8 @@ for i = 1:numFeatureCombination
     ylim([0,1]);
     grid on
     cp = plot(xLimit,[1/numClass,1/numClass],'k--'); % plot chance performance
-    legend('channel 14','channel 16','chance performance');
     errorbar(getErrorBarXAxisValues(numCombination(i,1),numChannel),meanTemp{i,1},stdeTemp,'r*'); % error bar
+    legend('channel 14','channel 16','chance performance');
     if displayInfo.saveAccuracy
         savePlot(path,'Accuracy of Features Combination',plotFileName,['Accuracy of ',titleName,' with ',num2str(i),' features in combinations with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
     end

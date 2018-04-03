@@ -105,8 +105,8 @@ end
 for i = 1:numData
     f(i,1) = figure;
     hold on;
-    set(gcf, 'Position', get(0,'Screensize'),'DefaultAxesFontSize',textSize,...
-        'PaperPositionMode', 'auto');
+    set(gcf, 'Position', get(0,'Screensize'),'PaperPositionMode', 'auto');
+    set(gca, 'FontSize', textSize);
     
     if channel{1,1} ~= 0
         titleTemp = [' ch ', checkMatNAddStr(channel{i},' -')];

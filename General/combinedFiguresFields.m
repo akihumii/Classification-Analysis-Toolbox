@@ -11,7 +11,7 @@ close all
 showFigure = 1;
 saveFigure = 1;
 
-plotType = 2; % 1 for subplots, 2 for barplots
+plotType = 2; % 1 for subplots, 2 for barStackedPlots
 
 [files, path, iter] = selectFiles();
 fileName = files{1,1}(1:end-11);
@@ -36,6 +36,7 @@ for i = 1:iter
 end
 
 numFeatures = size(dataX,2);
+% numFeatures = numFeatures - 1; % to get 11 features into 10...
 [numRowSubplot,numColSubplot] = getFactors(numFeatures);
 % numRowSubplot = 2;
 % numColSubplot = 6;
@@ -70,7 +71,7 @@ switch plotType
         end
         
         %% plot the variance of features across weeks
-        dataYInfo = getBasicParameter(dataY(:,:,:));
+        dataYInfo = getBasicParameter(dataY(:,1:numFeatures,:));
         [pF,fF] = plotFig(1:numFeatures,dataYInfo.mean,fileName,'Mean accuracy of features across weeks','Feature','',0,1,path,'subplot',0,'barStackedPlot');
         hold on; ylim([0,1]); grid on
         errorbar(getErrorBarXAxisValues(numFeatures,2),dataYInfo.mean,dataYInfo.stde,'r*'); % plot errorbar
