@@ -5,13 +5,18 @@ function output = svmClassification(trainingGroup,trainingClassGroup,testingGrou
 % 
 %   output = svmClassification(trainingGroup,trainingClassGroup,testingGroup)
 
-template = templateSVM('Standardize',1,'KernelFunction','gaussian');
+numFeatures = size(trainingGroup,2);
 
-Mdl = fitcecoc(trainingGroup,trainingClassGroup,'Learners',template,'FitPosterior',1,'Verbose',2);
+kernelSizeValue = 1; 
+% kernelSizeValue = sqrt(numFeatures)/4; % fine Gaussian
 
-CVMdl = crossval(Mdl); % kFold = 10 for cross-validation
+templateMdl = templateSVM('Standardize',1,'KernelFunction','polynomial','KernelScale',kernelSizeValue);
 
-oosLoss = kfoldLoss(CVMdl); % generalization error
+Mdl = fitcecoc(trainingGroup,trainingClassGroup,'Learners',templateMdl,'FitPosterior',1,'Verbose',0);
+
+% CVMdl = crossval(Mdl); % kFold = 10 for cross-validation
+
+% oosLoss = kfoldLoss(CVMdl); % generalization error
 
 %% Prediction
 predictClass = predict(Mdl,testingGroup); % predict
@@ -19,9 +24,9 @@ predictClass = predict(Mdl,testingGroup); % predict
 % oofLabel = kfoldPredict(CVMdl); % predicted class, similar as the output of the function predict
 
 %% Output
-output.Mdl = Mdl;
-output.CVMdl = CVMdl;
-output.oosLoss = oosLoss;
+% output.Mdl = Mdl;
+% output.CVMdl = CVMdl;
+% output.oosLoss = oosLoss;
 output.predictClass = predictClass;
 
 end

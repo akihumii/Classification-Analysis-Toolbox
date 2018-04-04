@@ -40,6 +40,7 @@ for i = 1:numChannels
 %         [classTemp,errorTemp,posteriorTemp,logPTemp,coefficientTemp] = ... % run the classification
 %             classify(testingTemp,trainingTemp,trainingClassTemp);
         
+%         accuracyTemp = calculateAccuracy(classTemp,testingClassTemp);
         accuracyTemp = calculateAccuracy(svmClassificationOutput.predictClass,testingClassTemp);
         
         accuracyAll{i,1} = [accuracyAll{i,1};accuracyTemp.accuracy];
@@ -57,8 +58,9 @@ for i = 1:numChannels
             testingClass{i,1} = testingClassTemp;
         end
         
-        plotConfusionMat(svmClassificationOutput.predictClass,testingClassTemp)
-        title(['Fature ',checkMatNAddStr(featureIndex,','),' Channel ',num2str(i)])
+        % plot confusion matrix
+%         plotConfusionMat(svmClassificationOutput.predictClass,testingClassTemp)
+%         title(['Fature ',checkMatNAddStr(featureIndex,','),' Channel ',num2str(i)])
     end
     accuracy(1,i) = mean(accuracyAll{i,1});
 end
