@@ -7,10 +7,11 @@ function output = svmClassification(trainingGroup,trainingClassGroup,testingGrou
 
 numFeatures = size(trainingGroup,2);
 
-kernelSizeValue = 1; 
+% kernelSizeValue = 1; 
 % kernelSizeValue = sqrt(numFeatures)/4; % fine Gaussian
 
-templateMdl = templateSVM('Standardize',1,'KernelFunction','polynomial','KernelScale',kernelSizeValue);
+% templateMdl = templateSVM('Standardize',1,'KernelFunction','polynomial','KernelScale',kernelSizeValue);
+templateMdl = templateSVM('Standardize',1,'KernelFunction','polynomial');
 
 Mdl = fitcecoc(trainingGroup,trainingClassGroup,'Learners',templateMdl,'FitPosterior',1,'Verbose',0);
 
