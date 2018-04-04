@@ -23,7 +23,8 @@ for i = 1:length(signalInfo)
         case 'Active EMG'
             fileType = [{'Active'};{'Non Active'}];
     end
-    classifierFullTitle = [classifierFullTitle,' ',char(fileType)];
+    classNames{i,1} = char(fileType);
+    classifierFullTitle = [classifierFullTitle,' ',classNames{i,1}];
 end
 classifierFullTitle = [classifierFullTitle,' )'];
 
@@ -35,7 +36,7 @@ if displayInfo.showHistFit||displayInfo.saveHistFit||displayInfo.showAccuracy||d
         featureIndex{i,1} = nchoosek(1:numFeatures,i); % n choose k
         numCombination = size(featureIndex{i,1},1); % number of combination
         for j = 1:numCombination
-            classificationOutput{i,1}(j,1) = classification(featuresInfo.featuresAll,featureIndex{i,1}(j,:),trainingRatio,classifierFullTitle,classificationRepetition); % run the classification by using the features index etc
+            classificationOutput{i,1}(j,1) = classification(featuresInfo.featuresAll,featureIndex{i,1}(j,:),trainingRatio,classifierFullTitle,classificationRepetition,classNames); % run the classification by using the features index etc
             accuracyBasicParameter{i,1}(j,1) = getBasicParameter(horzcat(classificationOutput{i,1}(j,1).accuracyAll{:})); % get the accuracy by checking the classification performances
         end
         accuracy{i,1} = vertcat(accuracyBasicParameter{i,1}.mean);

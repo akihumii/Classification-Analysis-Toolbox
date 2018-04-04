@@ -1,6 +1,9 @@
 function output = calculateAccuracy(prediction, testingClass)
 %calculateAccuracy Calculate the accuracy, truePositive, falseNegative.
 %Prediction and testingClass should have the same size.
+% 
+% output:   accuracy, truePositive, falseNegative
+% 
 %   output = calculateAccuracy(prediction, testingClass)
 
 classes = unique(testingClass);

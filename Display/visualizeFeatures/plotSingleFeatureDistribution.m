@@ -17,9 +17,13 @@ function [] = plotSingleFeatureDistribution(numChannel,numFeatures,featuresInfo,
             l(j,i) = legend(hHistTemp,xTickValue);
             
             % plot classifier's boundary
+            try
             constTemp(1,1) = classifierOutput.classificationOutput{1,1}(j,1).coefficient{i,1}(1,2).const; % first and second class constant
             linearTemp(1,:) = classifierOutput.classificationOutput{1,1}(j,1).coefficient{i,1}(1,2).linear; % first and second class linear
             plotBoundary(pHist(j,i),constTemp,linearTemp);
+            catch
+                warning('no boundary is plotted as it''s not LDA...')
+            end
         end
     end
     % plot all the graphs in a same figure
