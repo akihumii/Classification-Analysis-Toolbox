@@ -4,7 +4,7 @@ function [] = plotMultipleFeatureDistribution(numChannel,featuresInfo,plotFileNa
 % 
 %   [] = plotMultipleFeatureDistribution(numChannel,featuresInfo,plotFileName,channel,path,featureIndex,classifierOutput,xTickValue,displayInfo,numClass,colorArray)
 
-    featureIndexTemp = [3,4;3,4]; % features used in combinations, channels are separated in rows
+    featureIndexTemp = [3,4;3,9]; % features used in combinations, channels are separated in rows
     
     for i = 1:numChannel
         for j = 1:2
@@ -41,7 +41,7 @@ function [] = plotMultipleFeatureDistribution(numChannel,featuresInfo,plotFileNa
         end
 
         if numClass == 2
-            legend(flipud(pScatter.Children),xTickValue{:},checkMatNAddStr(xTickValue(:,1),' , '));
+            legend(flipud(pScatter.Children),xTickValue{:},checkMatNAddStr(xTickValue(:,1),' , '),'classifier''s boundary');
         elseif numClass == 3
             legend(flipud(pScatter.Children),xTickValue{:},checkMatNAddStr(xTickValue(1:2,1),' , '),checkMatNAddStr(xTickValue(2:3,1),' , '),checkMatNAddStr(xTickValue([1,3],1),' , '));
         end

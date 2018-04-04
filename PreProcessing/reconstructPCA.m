@@ -55,7 +55,7 @@ end
 output.burst = burst;
 output.numBursts = numBursts;
 output.burstPCA = burstPCA;
-output.burstPCAOnOff = burstPCAOnOff
+output.burstPCAOnOff = burstPCAOnOff;
 output.pcaInfo = pcaInfo;
 output.scoreIndividual = scoreIndividual;
 output.cutoffLocs = cutoffLocs;

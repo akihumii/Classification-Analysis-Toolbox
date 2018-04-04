@@ -12,7 +12,7 @@ if nargin < 4
     titleName = repmat({''},rowSubplot*colSubplot,1);
 end
     
-textSize = 1;
+textSize = 16;
 
 f = figure;
 hold on;
@@ -23,6 +23,7 @@ titleName = reshape(titleName,rowSubplot,colSubplot);
 for i = 1:rowSubplot
     for j = 1:colSubplot
         sp(i,j) = subplot(rowSubplot,colSubplot,(i-1)*colSubplot+j);        
+        set(gca,'fontSize',textSize);
         newSp(i,j) = copyAxes(originalPlots(i,j), sp(i,j), titleName{i,j});
     end
 end

@@ -88,7 +88,8 @@ else
 end
 
 %% Plot
-textSize = 12;
+titleFontSize = 20;
+textSize = 16;
 
 [numData, numPlot] = checkSize(y);
 if isequal(plotWay,'barStackedPlot')
@@ -104,8 +105,8 @@ end
 for i = 1:numData
     f(i,1) = figure;
     hold on;
-    set(gcf, 'Position', get(0,'Screensize'),'DefaultAxesFontSize',textSize,...
-        'PaperPositionMode', 'auto');
+    set(gcf, 'Position', get(0,'Screensize'),'PaperPositionMode', 'auto');
+    set(gca, 'FontSize', textSize);
     
     if channel{1,1} ~= 0
         titleTemp = [' ch ', checkMatNAddStr(channel{i},' -')];
@@ -122,10 +123,10 @@ for i = 1:numData
         if isequal(type, 'subplot')
             p(j,i) = subplot(numPlot,1,j);            
             if numData > 1
-                title([titleName, ' ', fileName, ' set ', num2str(j), titleTemp])
+                title([titleName, ' ', fileName, ' set ', num2str(j), titleTemp], 'FontSize', titleFontSize)
                 saveName = [titleName, ' ', fileName, titleTemp];
             else
-                title([titleName, ' ', fileName, titleTemp])
+                title([titleName, ' ', fileName, titleTemp], 'FontSize', titleFontSize)
                 saveName = [titleName, ' ', fileName, titleTemp];
             end
             hold on
@@ -177,7 +178,7 @@ for i = 1:numData
     if isequal(type, 'subplot')
         linkaxes(p(:,1),'x');
     else
-        title([titleName, ' ', fileName, titleTemp])
+        title([titleName, ' ', fileName, titleTemp], 'FontSize', titleFontSize)
         saveName = [titleName, ' ', fileName, titleTemp];
     end
     

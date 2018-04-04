@@ -51,15 +51,15 @@ showRaw = 1;
 showDifferential = 0;
 showRectified = 1;
 showFilt = 1;
-showOverlap = 1;
+showOverlap = 0;
 showFFT = 1;
 
-saveRaw = 0;
+saveRaw = 1;
 saveDifferential = 0;
-saveRectified = 0;
-saveFilt = 0;
+saveRectified = 1;
+saveFilt = 1;
 saveOverlap = 0;
-saveFFT = 0;
+saveFFT = 1;
 
 saveUserInput = 1;
 
