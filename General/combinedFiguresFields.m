@@ -12,6 +12,8 @@ showFigure = 1;
 saveFigure = 1;
 
 plotType = 2; % 1 for subplots, 2 for barStackedPlots
+% legendMatrix = [{'with PCA'},{'without PCA'}]; % for plotType2
+legendMatrix = [{'kNN'},{'LDA'},{'SVM'}]; % for plotType2
 
 [files, path, iter] = selectFiles();
 fileName = files{1,1}(1:end-11);
@@ -94,8 +96,8 @@ switch plotType
         for i = 1:numChannel
             pS(i,1) = plotFig(dataX(1,:,i), dataY(:,:,i)', fileName, 'Comparison of accuracies', 'Feature','Accuracy',0, showFigure, path, 'subplot', 0, 'barStackedPlot');
             hold on; ylim([0,1]); grid on
-            errorbar(pS(i,1),getErrorBarXAxisValues(numFeatures,2)',dataEY(:,:,i),dataEL(:,:,i),'r*'); % plot errorbar
-            legend('with PCA','without PCA')
+            errorbar(pS(i,1),getErrorBarXAxisValues(numFeatures,iter)',dataEY(:,:,i),dataEL(:,:,i),'r*'); % plot errorbar
+            legend(legendMatrix)
             % save figures
             if saveFigure % save combined figures
                 savePlot(path,'Accuracy across weeks',fileName,['Accuracy across weeks of different type (ch ',num2str(i),')'])
