@@ -43,6 +43,9 @@ for i = 1:numChannels
                 [classTemp,errorTemp,posteriorTemp,logPTemp,coefficientTemp] = ... % run the classification
                     classify(testingTemp,trainingTemp,trainingClassTemp);     
                 accuracyTemp = calculateAccuracy(classTemp,testingClassTemp);
+            case 'knn'
+                knnClassificationOutput = knnClassification(trainingTemp,trainingClassTemp,testingTemp);
+                accuracyTemp = calculateAccuracy(knnClassificationOutput.predictClass,testingClassTemp);
             otherwise
                 error('Invalid classifier name...')
         end
@@ -56,6 +59,8 @@ for i = 1:numChannels
                     class{i,1} = svmClassificationOutput.predictClass;
                 case 'lda'
                     class{i,1} = classTemp;
+                case 'knn'
+                    class{i,1} = knnClassificationOutput.predictClass;
             end
 %             error{i,1} = errorTemp;
 %             posterior{i,1} = posteriorTemp;
