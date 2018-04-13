@@ -6,6 +6,8 @@ function output = pulse2spike(data,samplingFreq,minDistance,threshold,type)
 %           threshold(optional): default is baselineInfo.mean + baselineStdMult * baselineInfo.std
 %           type: 'local maxima' or 'trigger'. 'trigger' will get the first point exceeding the threshold while 'local maxima' will get the maximum.
 % 
+% output:   spikePeaks, spikeLocs, threshold, figures
+% 
 %   newData = pulse2spike(data)
 
 if nargin < 2
