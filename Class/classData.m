@@ -62,6 +62,14 @@ classdef classData
                 end
                 [data.dataAll, data.time] = reconstructData(file, path, fileType, neutrinoBit, neutrinoInputReferred);
                 
+                % cut the lousy data
+                cutDataAll = cutData([data.dataAll,checkSizeNTranspose(data.time,2)],data.dataAll(:,12),[1,-65535]);
+                cutDataAll = cutData(cutDataAll,cutDataAll(:,11),[0,255]);
+                data.dataAll = cutDataAll(:,1:13);
+                data.time = cutDataAll(:,14);
+
+                
+                
                 % decimate signal
                 if downSamplingFreq ~= 0 
                     data.dataAll = decimateData(data.dataAll,downSamplingFreq,data.samplingFreq);
