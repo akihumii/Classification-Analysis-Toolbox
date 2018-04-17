@@ -11,7 +11,7 @@ close all
 showFigure = 1;
 saveFigure = 1;
 
-plotType = 2; % 1 for subplots, 2 for barStackedPlots
+plotType = 1; % 1 for subplots, 2 for barStackedPlots
 
 [files, path, iter] = selectFiles();
 fileName = files{1,1}(1:end-11);
@@ -37,9 +37,9 @@ end
 
 numFeatures = size(dataX,2);
 % numFeatures = numFeatures - 1; % to get 11 features into 10...
-[numRowSubplot,numColSubplot] = getFactors(numFeatures);
-% numRowSubplot = 2;
-% numColSubplot = 6;
+% [numRowSubplot,numColSubplot] = getFactors(numFeatures);
+numRowSubplot = 2;
+numColSubplot = 6;
 
 close all
 
