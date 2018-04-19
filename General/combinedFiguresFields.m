@@ -4,7 +4,7 @@
 %
 %   [] = combinedFiguresFields()
 
-% clear
+clear
 close all
 
 %% Select files and initialize
@@ -108,6 +108,18 @@ switch plotType
         warning('wrong plotType, nothing is plotted...')
 end
 
+%% Check Siginificancy
+% reps = size(dataY,1);
+% [pCh1,tblCh1,statsCh1] = anova2(dataY(:,:,1),reps,'off');
+% c=multcompare(statsCh1);
+% cCh1 = c(find(c(:,6)<0.05),[1:2,6])
+% [pCh2,tblCh2,statsCh2] = anova2(dataY(:,:,2),reps,'off');
+% c=multcompare(statsCh2);
+% cCh2 = c(find(c(:,6)<0.05),[1:2,6])
+% save('multcompare','pCh1','pCh2','tblCh1','tblCh2','statsCh1','statsCh2','cCh1','cCh2')
+
+%% save data
+save('dataY','dataY');
 
 %% Finish
 finishMsg(); % pop the finish message
