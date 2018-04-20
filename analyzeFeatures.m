@@ -12,6 +12,7 @@ threshPercentile = 95; % percentile to threshold the latent of principle compone
 classificationRepetition = 100; % number of repetition of the classification with randomly assigned training set and testing set
 maxNumFeaturesInCombination = 2; % maximum nubmer of features used in combinations
 
+classifierName = 'svm'; % input only either 'lda' or 'svm'
 classifierType = 1; % 1 for manually classification, 2 for using classifier learner app
 
 % for display
@@ -28,7 +29,7 @@ displayInfo.showPrinComp = 0;
 displayInfo.saveSeparatedFigures = 0;
 displayInfo.saveFigures = 0;
 displayInfo.saveHistFit = 0;
-displayInfo.saveAccuracy = 0;
+displayInfo.saveAccuracy = 1;
 displayInfo.saveReconstruction = 0;
 displayInfo.savePrinComp = 0;
 
@@ -79,7 +80,7 @@ switch classifierType
         %% Train Classification
         tTrain = tic;
         
-        classifierOutput = trainClassifier(featuresInfo, signalInfo, displayInfo, classificationRepetition, maxNumFeaturesInCombination);
+        classifierOutput = trainClassifier(featuresInfo, signalInfo, displayInfo, classificationRepetition, maxNumFeaturesInCombination,classifierName);
         
         display(['Training session takes ',num2str(toc(tTrain)),' seconds...']);
         

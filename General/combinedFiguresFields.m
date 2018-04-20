@@ -9,9 +9,11 @@ close all
 
 %% Select files and initialize
 showFigure = 1;
-saveFigure = 1;
+saveFigure = 0;
 
-plotType = 2; % 1 for subplots, 2 for barStackedPlots
+plotType = 1; % 1 for subplots, 2 for barStackedPlots
+% legendMatrix = [{'with PCA'},{'without PCA'}]; % for plotType2
+legendMatrix = [{'kNN'},{'LDA'},{'SVM'}]; % for plotType2
 
 [files, path, iter] = selectFiles();
 fileName = files{1,1}(1:end-11);
@@ -94,8 +96,8 @@ switch plotType
         for i = 1:numChannel
             pS(i,1) = plotFig(dataX(1,:,i), dataY(:,:,i)', fileName, 'Comparison of accuracies', 'Feature','Accuracy',0, showFigure, path, 'subplot', 0, 'barStackedPlot');
             hold on; ylim([0,1]); grid on
-            errorbar(pS(i,1),getErrorBarXAxisValues(numFeatures,2)',dataEY(:,:,i),dataEL(:,:,i),'r*'); % plot errorbar
-            legend('with PCA','without PCA')
+            errorbar(pS(i,1),getErrorBarXAxisValues(numFeatures,iter)',dataEY(:,:,i),dataEL(:,:,i),'r*'); % plot errorbar
+            legend(legendMatrix)
             % save figures
             if saveFigure % save combined figures
                 savePlot(path,'Accuracy across weeks',fileName,['Accuracy across weeks of different type (ch ',num2str(i),')'])
@@ -106,6 +108,18 @@ switch plotType
         warning('wrong plotType, nothing is plotted...')
 end
 
+%% Check Siginificancy
+% reps = size(dataY,1);
+% [pCh1,tblCh1,statsCh1] = anova2(dataY(:,:,1),reps,'off');
+% c=multcompare(statsCh1);
+% cCh1 = c(find(c(:,6)<0.05),[1:2,6])
+% [pCh2,tblCh2,statsCh2] = anova2(dataY(:,:,2),reps,'off');
+% c=multcompare(statsCh2);
+% cCh2 = c(find(c(:,6)<0.05),[1:2,6])
+% save('multcompare','pCh1','pCh2','tblCh1','tblCh2','statsCh1','statsCh2','cCh1','cCh2')
+
+%% save data
+save('dataY','dataY');
 
 %% Finish
 finishMsg(); % pop the finish message

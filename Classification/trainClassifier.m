@@ -1,4 +1,4 @@
-function output = trainClassifier(featuresInfo, signalInfo, displayInfo, classificationRepetition, maxNumFeaturesInCombination)
+function output = trainClassifier(featuresInfo, signalInfo, displayInfo, classificationRepetition, maxNumFeaturesInCombination, classifierName)
 %trainClassifier Train the classifier to use in analyzeFeatures
 %
 % output:   classificationOutput, accuracyBasicParameter, accuracy,
@@ -33,10 +33,16 @@ if displayInfo.showHistFit||displayInfo.saveHistFit||displayInfo.showAccuracy||d
     popMsg('Training classifiers...');
     
     for i = 1:maxNumFeaturesInCombination
-        featureIndex{i,1} = nchoosek(1:numFeatures,i); % n choose k
+        featureIndex{i,1} = nchoosek(1:numFeatures,i); % n choose 
+        
+        if i == 2
+            selectedFeatureCombination = [2,12,22:30]; % select specific feature combinations to analyse
+            featureIndex{2,1} = featureIndex{2,1}(selectedFeatureCombination,:);
+        end
+        
         numCombination = size(featureIndex{i,1},1); % number of combination
         for j = 1:numCombination
-            classificationOutput{i,1}(j,1) = classification(featuresInfo.featuresAll,featureIndex{i,1}(j,:),trainingRatio,classifierFullTitle,classificationRepetition,classNames); % run the classification by using the features index etc
+            classificationOutput{i,1}(j,1) = classification(featuresInfo.featuresAll,featureIndex{i,1}(j,:),trainingRatio,classifierFullTitle,classificationRepetition,classifierName); % run the classification by using the features index etc
             accuracyBasicParameter{i,1}(j,1) = getBasicParameter(horzcat(classificationOutput{i,1}(j,1).accuracyAll{:})); % get the accuracy by checking the classification performances
         end
         accuracy{i,1} = vertcat(accuracyBasicParameter{i,1}.mean);

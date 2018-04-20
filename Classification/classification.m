@@ -1,4 +1,4 @@
-function output = classification(trials,featureIndex,trainingRatio,classifierTitle,numRepeat,classNames)
+function output = classification(trials,featureIndex,trainingRatio,classifierTitle,numRepeat,classifierName)
 %classification Perform lda classification with trials that are in cells.
 % The structure is like: [channel * feature * class]
 % 
@@ -35,19 +35,33 @@ for i = 1:numChannels
             testingClassTemp = [testingClassTemp; j*ones(size(testingSetTemp,1),1)];
         end
         
-        svmClassificationOutput = svmClassification(trainingTemp,trainingClassTemp,testingTemp);
-        
-%         [classTemp,errorTemp,posteriorTemp,logPTemp,coefficientTemp] = ... % run the classification
-%             classify(testingTemp,trainingTemp,trainingClassTemp);
-        
-%         accuracyTemp = calculateAccuracy(classTemp,testingClassTemp);
-        accuracyTemp = calculateAccuracy(svmClassificationOutput.predictClass,testingClassTemp);
-        
+        switch classifierName
+            case 'svm'
+                svmClassificationOutput = svmClassification(trainingTemp,trainingClassTemp,testingTemp);
+                accuracyTemp = calculateAccuracy(svmClassificationOutput.predictClass,testingClassTemp);
+            case 'lda'
+                [classTemp,errorTemp,posteriorTemp,logPTemp,coefficientTemp] = ... % run the classification
+                    classify(testingTemp,trainingTemp,trainingClassTemp);     
+                accuracyTemp = calculateAccuracy(classTemp,testingClassTemp);
+            case 'knn'
+                knnClassificationOutput = knnClassification(trainingTemp,trainingClassTemp,testingTemp);
+                accuracyTemp = calculateAccuracy(knnClassificationOutput.predictClass,testingClassTemp);
+            otherwise
+                error('Invalid classifier name...')
+        end
+
         accuracyAll{i,1} = [accuracyAll{i,1};accuracyTemp.accuracy];
         
         if accuracyTemp.accuracy > accuracyHighest(1,i) % record the result from the classifier that has the highest performance
             accuracyHighest(1,i) = accuracyTemp.accuracy;
-            class{i,1} = svmClassificationOutput.predictClass;
+            switch classifierName
+                case 'svm'
+                    class{i,1} = svmClassificationOutput.predictClass;
+                case 'lda'
+                    class{i,1} = classTemp;
+                case 'knn'
+                    class{i,1} = knnClassificationOutput.predictClass;
+            end
 %             error{i,1} = errorTemp;
 %             posterior{i,1} = posteriorTemp;
 %             logP{i,1} = logPTemp;
