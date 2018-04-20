@@ -29,7 +29,9 @@ switch lower(fileType)
         %% For EMG Wireless Newest Format
         data = csvread([path,files]);
         data(:,1:10) = data(:,1:10)*res; % convert data to Voltage, keep the counter and sync pulse unchanged
-        
+
+        % edit the lousy data
+        data = editData(data,data(:,11),[0,255],2);
         time = 1:size(data,1);
         
     case 'intan'

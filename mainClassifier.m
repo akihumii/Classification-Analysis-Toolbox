@@ -14,7 +14,7 @@ dataType = 'sylphx'; % configurable types: ,'neutrino2','neutrino', 'intan', 'sy
 channel = [4:7,11,12]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
 channelPair = [0]; % input the pairs seperated in rows, eg:[1,2;3,4] means 1 pairs with 2 and 3 pairs with 4; input 0 if no differential data is needed.
 samplingFreq = 0; % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 1798.2, sylphII: 1798.2)
-neutrinoInputReferred = 1; % input 1 to check input refer, otherwise input 0
+neutrinoInputReferred = 0; % input 1 to check input refer, otherwise input 0
 neutrinoBit = 1; % input 1 for 8 bit mode, input 0 for 10 bit mode
 
 partialDataSelection = 0; % input 1 to select partial data to analyse, otherwise input 0
@@ -32,10 +32,10 @@ pcaCleaning = 0; % run PCA to omit principle components that have very little la
 dataToBeFFT = 'dataFiltered'; % input 'dataRaw' for raw data; input 'dataFiltered' for filtered data; input 'dataRectified' for rectified data; input 'dataDifferential' for differential data
 
 % Peak Detection Parameters
-dataToBeDetectedSpike = 'dataFiltered'; % data for spike detecting
+dataToBeDetectedSpike = 'dataTKEO'; % data for spike detecting
 overlappedWindow = 'dataFiltered'; % Select window for overlapping. Input 'dataRaw' for raw data, 'dataFiltered' for filtered data, 'dataDifferential' for differential data
-spikeDetectionType = 'trigger'; % input 'local maxima' for local maxima, input 'trigger for first point exceeding threshold, input 'TKEO' for taking following consecutive points into account
-threshold = [1e-5]; % specified one threshold for spikes detection in all the channels; multiple thresholds are allowed for different channels; input 0 for default value (baseline + threshMult * baselineStandardDeviation) (baseline is obtained by calculating the mean of the data points spanned between 1/4 to 3/4 of the data array sorted by amplitudes)
+spikeDetectionType = 'TKEO'; % input 'local maxima' for local maxima, input 'trigger for first point exceeding threshold, input 'TKEO' for taking following consecutive points into account
+threshold = [0]; % specified one threshold for spikes detection in all the channels; multiple thresholds are allowed for different channels; input 0 for default value (baseline + threshMult * baselineStandardDeviation) (baseline is obtained by calculating the mean of the data points spanned between 1/4 to 3/4 of the data array sorted by amplitudes)
 threshStdMult = [3,1]; % multiples of standard deviation above the baseline as the threshold for TKEO detection. All channels will use the same value if there is only one value, multiple values are allowed for different channels
 sign = 1; % input 1 for threhoslding upwards, input -1 for thresholding downwards
 windowSize = [0.03, 0.07]; % range of window starting from the detected peaks(in seconds)
@@ -51,7 +51,7 @@ showRaw = 1;
 showDifferential = 0;
 showRectified = 0;
 showFilt = 1;
-showOverlap = 1;
+showOverlap = 0;
 showFFT = 0;
 
 saveRaw = 0;
@@ -61,7 +61,7 @@ saveFilt = 0;
 saveOverlap = 0;
 saveFFT = 0;
 
-saveUserInput = 0;
+saveUserInput = 0; % set to 1 to save all the information, otherwise set to 0
 
 %% Main
 ticDataAnalysis = tic;

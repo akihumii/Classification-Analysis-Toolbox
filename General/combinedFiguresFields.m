@@ -39,9 +39,9 @@ end
 
 numFeatures = size(dataX,2);
 % numFeatures = numFeatures - 1; % to get 11 features into 10...
-[numRowSubplot,numColSubplot] = getFactors(numFeatures);
-% numRowSubplot = 2;
-% numColSubplot = 6;
+% [numRowSubplot,numColSubplot] = getFactors(numFeatures);
+numRowSubplot = 2;
+numColSubplot = 6;
 
 close all
 
