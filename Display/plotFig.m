@@ -88,8 +88,9 @@ else
 end
 
 %% Plot
-titleFontSize = 20;
-textSize = 16;
+titleFontSize = 10;
+textSize = 8; % axis font size
+chunkText = 'channel';
 
 [numData, numPlot] = checkSize(y);
 if isequal(plotWay,'barStackedPlot')
@@ -109,15 +110,15 @@ for i = 1:numData
     set(gca, 'FontSize', textSize);
     
     if channel{1,1} ~= 0
-        titleTemp = [' ch ', checkMatNAddStr(channel{i},' -')];
+        titleTemp = [' ch ', checkMatNAddStr(channel{i},' - ')];
     else
         titleTemp = '';
     end
 
     for j = 1:numPlot
         % Titling
-        if channel{1,1} ~= 0 && length(channel) >= numPlot
-            titleTemp = [' burst ', checkMatNAddStr(channel{j},' -')];
+        if channel{1,1} ~= 0 & length(channel) >= numPlot
+            titleTemp = [' ',chunkText,' ', checkMatNAddStr(channel{j},' - ')];
         end
         
         if isequal(type, 'subplot')

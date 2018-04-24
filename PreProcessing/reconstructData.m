@@ -29,7 +29,9 @@ switch lower(fileType)
         %% For EMG Wireless Newest Format
         data = csvread([path,files]);
         data(:,1:10) = data(:,1:10)*res; % convert data to Voltage, keep the counter and sync pulse unchanged
-        
+
+        % edit the lousy data
+        data = editData(data,data(:,11),[0,255],2);
         time = 1:size(data,1);
         
     case 'intan'
@@ -52,12 +54,12 @@ switch lower(fileType)
         
     case 'neutrino2'
         %% For Neutrino with bit analysing function
-        [data,~,~] = xlsread([path,files]);
-        info = data(2,4); % info for multiplicatoin
+        info = dlmread([path,files],',',[0,1,1,7]); % info for multiplicatoin
+        info = info(2,3);
         bitInfo = bitget(info,5:8); % convert info into binary for comparison
         bitInfo = fliplr(bitInfo); % flip the array
         gain = inputReferMultiplier(bitInfo); % compute the gain
-        data = data(3:end,1:end); % raw data before multiplication
+        data = dlmread([path,files],',',2,0);
         if neutrinoInputRefer == 1
             data = data / gain; % change output refer data into input refer data
         end
