@@ -11,7 +11,12 @@ xAxis = transpose(1:numBar);
 xAxis = repmat(xAxis,1,numClass);
 
 middleNumber = floor(numClass/2);
-difference = 0.3; % difference from the whole number
+switch numClass
+    case 2
+        difference = 0.3; % difference from the whole number
+    otherwise
+        difference = 0.23;
+end
 
 if logical(mod(numClass,2)) % odd number
     array = -middleNumber : middleNumber;

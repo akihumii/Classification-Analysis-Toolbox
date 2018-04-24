@@ -21,11 +21,11 @@ partialDataSelection = 0; % input 1 to select partial data to analyse, otherwise
 constraintWindow = [-0.300750000000000,6.90490000000000]; % starting point and end point of constraint window, unit is in seconds. Input 0 for default (pre-select the whole signal). It can be found in signal.analysedDataTiming(2,:), the first row is the timing in seconds
 
 % Filtering Parameters
-dataToBeFiltered = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataDelta' for differential data; input 'dataRectified' for rectified data
+dataToBeFiltered = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataDifferential' for differential data; input 'dataRectified' for rectified data
 highPassCutoffFreq = 30; % high pass cutoff frequency, input 0 if not applied
 lowPassCutoffFreq = 500; % low pass cutoff frequency, input 0 if not applied
 notchFreq = 50; % notch frequency, input 0 if not applied
-downSamplingFreq = 1000; % down sampling the data to the sampling rate of downSamplingFrequency; input 0 to deactivate
+downSamplingFreq = 0; % down sampling the data to the sampling rate of downSamplingFrequency; input 0 to deactivate
 pcaCleaning = 0; % run PCA to omit principle components that have very little latent (eigenvalues), default threshold is 50 percentile
 
 % FFT parameters
@@ -49,10 +49,10 @@ burstTrimmingType = 2; % 1 to delete; 2 to pick
 % Plots will be saved in the folder 'Figures' at the same path with the processed data 
 showRaw = 1;
 showDifferential = 0;
-showRectified = 1;
+showRectified = 0;
 showFilt = 1;
 showOverlap = 0;
-showFFT = 1;
+showFFT = 0;
 
 saveRaw = 0;
 saveDifferential = 0;
@@ -61,7 +61,7 @@ saveFilt = 0;
 saveOverlap = 0;
 saveFFT = 0;
 
-saveUserInput = 1;
+saveUserInput = 0; % set to 1 to save all the information, otherwise set to 0
 
 %% Main
 ticDataAnalysis = tic;
