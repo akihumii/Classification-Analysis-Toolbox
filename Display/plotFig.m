@@ -110,15 +110,15 @@ for i = 1:numData
     set(gca, 'FontSize', textSize);
     
     if channel{1,1} ~= 0
-        titleTemp = [' ch ', checkMatNAddStr(channel{i},' -')];
+        titleTemp = [' ch ', checkMatNAddStr(channel{i},' - ')];
     else
         titleTemp = '';
     end
 
     for j = 1:numPlot
         % Titling
-        if channel{1,1} ~= 0 && length(channel) >= numPlot
-            titleTemp = [' burst ', checkMatNAddStr(channel{j},' -')];
+        if channel{1,1} ~= 0 & length(channel) >= numPlot
+            titleTemp = [' ',chunkText,' ', checkMatNAddStr(channel{j},' - ')];
         end
         
         if isequal(type, 'subplot')
