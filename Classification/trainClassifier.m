@@ -36,8 +36,12 @@ if displayInfo.showHistFit||displayInfo.saveHistFit||displayInfo.showAccuracy||d
         featureIndex{i,1} = nchoosek(1:numFeatures,i); % n choose 
         
         if i == 2
-            selectedFeatureCombination = [2,12,22:30]; % select specific feature combinations to analyse
+%             selectedFeatureCombination = [2,12,22:30]; % select specific feature combinations to analyse
+            selectedFeatureCombination = [8,14]; % select specific feature combinations to analyse
             featureIndex{2,1} = featureIndex{2,1}(selectedFeatureCombination,:);
+        else
+%             selectedFeatureCombination = [2,3,4]; % select specific feature combinations to analyse
+%             featureIndex{1,1} = featureIndex{1,1}(selectedFeatureCombination,:);
         end
         
         numCombination = size(featureIndex{i,1},1); % number of combination

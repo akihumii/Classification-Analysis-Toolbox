@@ -7,10 +7,10 @@ close all
 
 %% User Input
 runPCA = 0;
-numPrinComp = 4; % number of principle component to use as features
+numPrinComp = 0; % number of principle component to use as features
 threshPercentile = 95; % percentile to threshold the latent of principle component for data reconstruction
-classificationRepetition = 100; % number of repetition of the classification with randomly assigned training set and testing set
-maxNumFeaturesInCombination = 2; % maximum nubmer of features used in combinations
+classificationRepetition = 1000; % number of repetition of the classification with randomly assigned training set and testing set
+maxNumFeaturesInCombination = 1; % maximum nubmer of features used in combinations
 
 classifierName = 'svm'; % input only either 'lda' or 'svm'
 classifierType = 1; % 1 for manually classification, 2 for using classifier learner app

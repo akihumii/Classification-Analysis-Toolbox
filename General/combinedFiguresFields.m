@@ -11,7 +11,7 @@ close all
 showFigure = 1;
 saveFigure = 0;
 
-plotType = 1; % 1 for subplots, 2 for barStackedPlots
+plotType = 2; % 1 for subplots, 2 for barStackedPlots
 % legendMatrix = [{'with PCA'},{'without PCA'}]; % for plotType2
 legendMatrix = [{'kNN'},{'LDA'},{'SVM'}]; % for plotType2
 

@@ -89,7 +89,8 @@ end
 
 %% Plot
 titleFontSize = 20;
-textSize = 16;
+textSize = 16; % axis font size
+chunkText = 'channel';
 
 [numData, numPlot] = checkSize(y);
 if isequal(plotWay,'barStackedPlot')
