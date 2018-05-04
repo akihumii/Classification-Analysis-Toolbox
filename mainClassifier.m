@@ -11,7 +11,7 @@ close all
 %% User's Input
 % General Parameters
 dataType = 'sylphx'; % configurable types: ,'neutrino2','neutrino', 'intan', 'sylphx', 'sylphii'
-channel = [4:7,11,12]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
+channel = [4,13]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
 channelPair = [0]; % input the pairs seperated in rows, eg:[1,2;3,4] means 1 pairs with 2 and 3 pairs with 4; input 0 if no differential data is needed.
 samplingFreq = 0; % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 1798.2, sylphII: 1798.2)
 neutrinoInputReferred = 0; % input 1 to check input refer, otherwise input 0
@@ -50,7 +50,7 @@ burstTrimmingType = 1; % 1 to delete; 2 to pick
 showRaw = 1;
 showDifferential = 0;
 showRectified = 0;
-showFilt = 1;
+showFilt = 0;
 showOverlap = 0;
 showFFT = 0;
 
