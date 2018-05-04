@@ -14,6 +14,9 @@ for i = 1:length(chStartingRef)
     chLocs(:,i) = preLocs([true;preLocsDiff~=1]);
 end
 
+chStartingPoint = chLocs(1:2:size(chLocs,1),:);
+chEndPoint = chLocs(2:2:size(chLocs,1),:);
+
 %%
 
 
