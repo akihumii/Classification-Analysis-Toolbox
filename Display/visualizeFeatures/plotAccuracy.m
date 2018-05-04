@@ -48,7 +48,8 @@ if is2DClassification
         set(pS,'XTick',1:numCombination(end,1),'XTickLabel',checkMatNAddStr(featureIndex{2,1},',',1));
         grid on
         if displayInfo.saveAccuracy
-            savePlot(path,'Synergy',plotFileName,['Synergy of ',titleName,' of channel ',num2str(channel(i)),'  with ',num2str(numFeatureCombination),' features in combinations with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
+%             savePlot(path,'Synergy',plotFileName,['Synergy of ',titleName,' of channel ',num2str(channel(i)),'  with ',num2str(numFeatureCombination),' features in combinations with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
+savePlot(path,'Synergy',plotFileName,['Synergy of ',titleName,' of channel ',num2str(channel(i)),'  with ',num2str(numFeatureCombination),' features in combinations with ',num2str(length(xTickValue)), ' speeds'])
         end
         if ~displayInfo.showAccuracy
             close

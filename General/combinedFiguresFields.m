@@ -11,7 +11,7 @@ close all
 showFigure = 1;
 saveFigure = 0;
 
-plotType = 2; % 1 for subplots, 2 for barStackedPlots
+plotType = 1; % 1 for subplots, 2 for barStackedPlots
 % legendMatrix = [{'with PCA'},{'without PCA'}]; % for plotType2
 legendMatrix = [{'kNN'},{'LDA'},{'SVM'}]; % for plotType2
 
@@ -39,9 +39,9 @@ end
 
 numFeatures = size(dataX,2);
 % numFeatures = numFeatures - 1; % to get 11 features into 10...
-% [numRowSubplot,numColSubplot] = getFactors(numFeatures);
-numRowSubplot = 2;
-numColSubplot = 6;
+[numRowSubplot,numColSubplot] = getFactors(numFeatures);
+% numRowSubplot = 2;
+% numColSubplot = 6;
 
 close all
 
@@ -86,10 +86,13 @@ switch plotType
         end
         
         %% normal distribution testing
+        try
         for i = 1:numChannel
             for j = 1:numFeatures
                 lillieTestResult(j,i) = lillietest(dataY(:,j,i)) % 0 means null hypothesis 'the data are normaly distributed' can't be rejected, otherwise then 1
             end
+        end
+        catch
         end
         
     case 2

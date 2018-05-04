@@ -14,7 +14,7 @@ function varargout = plotFig(varargin)
 % saveName = subplot: [titleName, ' ', fileName]
 %            overlap: [titleName, ' ', fileName, ' ch ', num2str(channel(i))]
 %
-%   [p,f] = plotFig(x, y, fileName, titleName, xScale, yScale, answerSave, 
+%   [p,f] = plotFig(x, y, fileName, titleName, xScale, yScale, answerSave,
 %                   answerShow, path, type, channel, plotWay)
 
 %% fill unset parameters
@@ -88,8 +88,8 @@ else
 end
 
 %% Plot
-titleFontSize = 20;
-textSize = 16; % axis font size
+titleFontSize = 0.4; % title font size (normalized)
+textSize = 0.3; % axis font size (normalized)
 chunkText = 'channel';
 
 [numData, numPlot] = checkSize(y);
@@ -107,14 +107,13 @@ for i = 1:numData
     f(i,1) = figure;
     hold on;
     set(gcf, 'Position', get(0,'Screensize'),'PaperPositionMode', 'auto');
-    set(gca, 'FontSize', textSize);
     
     if channel{1,1} ~= 0
         titleTemp = [' ch ', checkMatNAddStr(channel{i},' - ')];
     else
         titleTemp = '';
     end
-
+    
     for j = 1:numPlot
         % Titling
         if channel{1,1} ~= 0 & length(channel) >= numPlot
@@ -122,18 +121,22 @@ for i = 1:numData
         end
         
         if isequal(type, 'subplot')
-            p(j,i) = subplot(numPlot,1,j);            
+            p(j,i) = subplot(numPlot,1,j);
+            
             if numData > 1
-                title([titleName, ' ', fileName, ' set ', num2str(j), titleTemp], 'FontSize', titleFontSize)
+                title([titleName, ' ', fileName, ' set ', num2str(j), titleTemp], 'Fontunit', 'Normalized', 'FontSize', titleFontSize)
                 saveName = [titleName, ' ', fileName, titleTemp];
             else
-                title([titleName, ' ', fileName, titleTemp], 'FontSize', titleFontSize)
+                title([titleName, ' ', fileName, titleTemp], 'Fontunit', 'Normalized', 'FontSize', titleFontSize)
                 saveName = [titleName, ' ', fileName, titleTemp];
             end
             hold on
-            ylabel(yScale, 'FontSize', textSize);
+            ylabel(yScale, 'Fontunit', 'Normalized', 'FontSize', textSize);
+            set(gca, 'Fontunit', 'Normalized', 'FontSize', textSize);
+            
         else
             p(i,1) = gca;
+            
         end
         
         % Plotting
@@ -172,16 +175,18 @@ for i = 1:numData
         
         axis tight;
     end
-    ylabel(yScale, 'FontSize', textSize);
+    ylabel(yScale, 'Fontunit', 'Normalized', 'FontSize', textSize);
     
-    xlabel(xScale, 'FontSize', textSize);
+    xlabel(xScale, 'Fontunit', 'Normalized', 'FontSize', textSize);
     
     if isequal(type, 'subplot')
         linkaxes(p(:,1),'x');
     else
-        title([titleName, ' ', fileName, titleTemp], 'FontSize', titleFontSize)
+        title([titleName, ' ', fileName, titleTemp], 'Fontunit', 'Normalized', 'FontSize', titleFontSize)
         saveName = [titleName, ' ', fileName, titleTemp];
     end
+    
+    set(gca, 'Fontunit', 'Normalized', 'FontSize', textSize);
     
     hold off
     

@@ -40,8 +40,8 @@ if displayInfo.showHistFit||displayInfo.saveHistFit||displayInfo.showAccuracy||d
             selectedFeatureCombination = [8,14]; % select specific feature combinations to analyse
             featureIndex{2,1} = featureIndex{2,1}(selectedFeatureCombination,:);
         else
-%             selectedFeatureCombination = [2,3,4]; % select specific feature combinations to analyse
-%             featureIndex{1,1} = featureIndex{1,1}(selectedFeatureCombination,:);
+            selectedFeatureCombination = [2,3,4]; % select specific feature combinations to analyse
+            featureIndex{1,1} = featureIndex{1,1}(selectedFeatureCombination,:);
         end
         
         numCombination = size(featureIndex{i,1},1); % number of combination
