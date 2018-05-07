@@ -48,6 +48,8 @@ classdef classData
                             data.samplingFreq = 20000;
                         case 'sylphx'
                             data.samplingFreq = 1000;
+                        case 'odin'
+                            data.samplingFreq = 1000;
                         case 'sylphii'
                             data.samplingFreq = 1798.2;
                         case 'neutrino'

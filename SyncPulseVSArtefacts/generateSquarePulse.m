@@ -1,19 +1,19 @@
-%% Lijing Square Pulse Stimulator
-% Run mainClassifier to get the data first :)
-
-clearvars -except signal
+function output = generateSquarePulse(dataRef, samplingFreqOriginal)
+%GENERATESQUAREPULSE Lijing Square Pulse Stimulator
+% input:    dataRef: Check the timing of each starting point
+% 
+%   [squareWaveTime,squareWave] = generateSquarePulse(signal)
 
 %% Parameters
+% General parameters
 pulsePeriod = 1/50; % seconds
 pulseDuration = 200e-6; % seconds
 amplitude = 10;
 intraGap = 10e-6; % seconds
 
-samplingFreq = 1e5; % Hz
+samplingFreq = 1e5; % Hz, for more detailed simulation catering for the short pulseDuration, which is shorter than the original sampling frequency
 
 %% Main
-dataRef = signal.dataAll(:,13); % check the timing of each starting point.
-
 chStartingRef = [16,17,18,19]; % values in sync pulse to indicate the start and end of the channel 
 numChannel = length(chStartingRef); 
 
@@ -34,7 +34,7 @@ chEndPoint = chLocs(2:2:size(chLocs,1),:);
 numStartingPoint = size(chStartingPoint,1);
 
 %% Generate square wave
-samplingFreqRatio = samplingFreq/signal.samplingFreq; % new sampling frequency / original sampling frequency
+samplingFreqRatio = samplingFreq/samplingFreqOriginal; % new sampling frequency / original sampling frequency
 
 squareWave = zeros(numSamplePoints*samplingFreqRatio,numChannel);
 squareWaveTime = 1/samplingFreq:1/samplingFreq:size(squareWave,1)/samplingFreq; % in seconds
@@ -47,12 +47,12 @@ for i = 1:numChannel
     end
 end
 
-plotFig(squareWaveTime,squareWave);
+%% Output
+output.squareWaveTime = squareWaveTime;
+output.squareWave = squareWave;
+output.chStartingPoint = chStartingPoint;
+output.chEndPoint = chEndPoint;
+output.samplingFreq = samplingFreq;
 
-
-
-
-
-
-
+end
 

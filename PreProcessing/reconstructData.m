@@ -7,7 +7,7 @@ function [data, time] = reconstructData(files, path, fileType, neutrinoBit, neut
 % 
 %   [data, time] = reconstructData(files, path, fileType, neutrinoBit, neutrinoInputRefer)
 
-res = 0.000000195; %uV/unit
+res = 0.000000195; % V/unit
 
 if nargin < 4
     neutrinoBit = 1;
@@ -33,6 +33,13 @@ switch lower(fileType)
         % edit the lousy data
         data = editData(data,data(:,11),[0,255],2);
         time = 1:size(data,1);
+        
+    case 'odin'
+        %% For converting voltage recorded from force sensor into Newton
+        data = csvread([path,files]);
+        data(:,1:10) = (res*(21.65*(data(:,1:10).*data(:,1:10))+65.951*data(:,1:10)+6.2792))/1000*9.8; % convert Voltage into Newton, keep the counter and sync pulse unchanged
+
+        time = 1:size(data,1);        
         
     case 'intan'
         %% For Intan

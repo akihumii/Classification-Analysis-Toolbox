@@ -170,7 +170,7 @@ for i = 1:numData
                 l(j,i) = scatter(x(:,j,i),y(:,j,i),500,'.');
         end
         
-        axis tight;
+%         axis tight;
     end
     ylabel(yScale, 'FontSize', textSize);
     

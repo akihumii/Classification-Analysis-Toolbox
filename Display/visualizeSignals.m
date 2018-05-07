@@ -4,7 +4,7 @@ function windowsValues = visualizeSignals(signal, signalClassification, selected
 %spikes can be plotted.
 % Average window will be show/save according to the input of
 % 'showOverlap/saveOverlap'.
-% Overall signal with spikes indicated will be show only when the input 
+% Overall signal with spikes indicated will be show only when the input
 % 'showOverlap' is 1 and will not be saved.
 %   [] = visualizeSignals(signal, signalClassification, selectedWindow, windowSize, saveRaw, showRaw, saveDelta, showDelta, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT)
 
@@ -23,10 +23,51 @@ end
 if ~saveRaw && ~showRaw
 else
     for i = 1:length(signal)
-        plotFig(signal(i,1).time/signal(i,1).samplingFreq,signal(i,1).dataRaw,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],'Raw Signal','Time(s)','Amplitude(V)',...
-            saveRaw,... % save
-            showRaw,... % show
-            signal(i,1).path,'subplot', signal(i,1).channel);
+        if ~isequal(signal(i,1).fileType,'odin')
+            plotFig(signal(i,1).time/signal(i,1).samplingFreq,signal(i,1).dataRaw,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],'Raw Signal','Time(s)','Amplitude(V)',...
+                saveRaw,... % save
+                showRaw,... % show
+                signal(i,1).path,'subplot', signal(i,1).channel);
+        else
+            outputSW = generateSquarePulse(signal(i,1).dataAll(:,13), signal(i,1).samplingFreq);
+            shortTimeTemp = repmat(signal(i,1).time/signal(i,1).samplingFreq,length(signal(i,1).channel(signal(i,1).channel<16)),1);
+            timeTemp = cell(0,1);
+            dataTemp = cell(0,1);
+            for j = 1:size(shortTimeTemp,1)
+                timeTemp = [timeTemp;{shortTimeTemp(j,:)}];
+                dataTemp = [dataTemp;{signal(i,1).dataRaw(:,j)}];
+            end
+            for j = 1:size(outputSW.squareWave,2)
+                timeTemp = [timeTemp;{outputSW.squareWaveTime}];
+                dataTemp = [dataTemp;{outputSW.squareWave(:,j)}];
+            end
+            
+            timeTemp = cell2nanMat(timeTemp);
+            dataTemp = cell2nanMat(dataTemp);
+            
+            pSW = plotFig(timeTemp,dataTemp,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],'Raw Signal','Time(s)','Newton(N)',...
+                saveRaw,... % save
+                showRaw,... % show
+                signal(i,1).path,'subplot', signal(i,1).channel);
+            
+            % plot lines
+            colorArray = [0,0.4470,0.7410;0.8500,0.3250,0.0980;0.9290,0.6940,0.1250;0.4940,0.1840,0.5560;0.4660,0.6740,0.1880;0.3010,0.7450,0.9330;0.6350,0.0780,0.1840];
+            
+            for j = 1:length(pSW)-4
+                axes(pSW(j,1));
+                yLimitTemp = ylim;
+                hold on
+                for k = 1:4
+                    line{k,1} = plot(repmat(outputSW.chStartingPoint(:,k)',2,1)/signal.samplingFreq,ylim,'-.','color',colorArray(k,:),'lineWidth',1.5);
+                    plot(repmat(outputSW.chEndPoint(:,k)',2,1)/signal.samplingFreq,ylim,'-.','color',colorArray(k,:),'lineWidth',1.5);
+                end
+            end
+            
+            for j = length(pSW)-4+1 : length(pSW)
+                set(pSW(j,1).Children,'color',colorArray(j-(length(pSW)-4),:));
+            end
+            
+        end
     end
 end
 
@@ -85,7 +126,7 @@ end
 %% Plot windows following stimulation artefacts
 if ~saveOverlap && ~showOverlap
     windowsValues = nan;
-else    
+else
     for i = 1:length(signalClassification)
         %% Plot the data for peak detection
         if isequal(dataToBeDetectedSpike, 'dataFiltered') || isequal(dataToBeDetectedSpike, 'dataTKEO')
@@ -123,8 +164,8 @@ else
             windowSize, signal(i,1).samplingFreq, channelExtractStartingLocs);
         
         % Get all windows in same plots
-%         windowsValues.xAxisValues = reshape(windowsValues.xAxisValues,[],2*size(windowsValues.xAxisValues,2));
-%         windowsValues.burst = reshape(windowsValues.burst,[],2*size(windowsValues.burst,2));
+        %         windowsValues.xAxisValues = reshape(windowsValues.xAxisValues,[],2*size(windowsValues.xAxisValues,2));
+        %         windowsValues.burst = reshape(windowsValues.burst,[],2*size(windowsValues.burst,2));
         
         % Plot overlapping windows
         plotFig(windowsValues.xAxisValues,windowsValues.burst,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],['Windows Following Artefacts ( ', dataName, ' )'],'Time(s)','Amplitude(V)',...
@@ -148,7 +189,7 @@ else
             
             % Plot the markings
             for j = 1:numChannel
-                plotMarkings(overallP(j,1), signal(i,1).time/signal(i,1).samplingFreq, dataValues(:,j), signalClassification(i,1).burstDetection.spikeLocs(:,j), signalClassification(i,1).burstDetection.burstEndLocs(:,j), nan)                
+                plotMarkings(overallP(j,1), signal(i,1).time/signal(i,1).samplingFreq, dataValues(:,j), signalClassification(i,1).burstDetection.spikeLocs(:,j), signalClassification(i,1).burstDetection.burstEndLocs(:,j), nan)
             end
             
             % Save
