@@ -10,6 +10,7 @@ pulsePeriod = 1/50; % seconds
 pulseDuration = 200e-6; % seconds
 amplitude = 10;
 intraGap = 10e-6; % seconds
+interPulseFromDiffChannelDelay = 0.71e-3; % seconds
 
 samplingFreq = 1e5; % Hz, for more detailed simulation catering for the short pulseDuration, which is shorter than the original sampling frequency
 
@@ -33,17 +34,28 @@ chEndPoint = chLocs(2:2:size(chLocs,1),:);
 
 numStartingPoint = size(chStartingPoint,1);
 
-%% Generate square wave
+%% tilt the starting points so that the pulses won't overlap
 samplingFreqRatio = samplingFreq/samplingFreqOriginal; % new sampling frequency / original sampling frequency
 
+chStartingPoint = chStartingPoint * samplingFreqRatio; % up sample the chStartingPoint and chEndPoint so that the minor delay can be seen
+chEndPoint = chEndPoint * samplingFreqRatio;
+
+lengthFullPulse = (2*pulseDuration + intraGap) * samplingFreq; % units: sample point
+
+for i = 2:numChannel
+    chStartingPoint(:,i) = chStartingPoint(:,i) + (i-1)*interPulseFromDiffChannelDelay*samplingFreq + (i-1)*lengthFullPulse;
+    chEndPoint(:,i) = chEndPoint(:,i) + (i-1)*interPulseFromDiffChannelDelay*samplingFreq + (i-1)*lengthFullPulse;
+end
+
+%% Generate square wave
 squareWave = zeros(numSamplePoints*samplingFreqRatio,numChannel);
 squareWaveTime = 1/samplingFreq:1/samplingFreq:size(squareWave,1)/samplingFreq; % in seconds
 
 for i = 1:numChannel
     for j = 1:numStartingPoint
-        lengthSW = (chEndPoint(j,i) - chStartingPoint(j,i))*samplingFreqRatio; % length of simulated square wave (in simulated sampling frequency)
+        lengthSW = (chEndPoint(j,i) - chStartingPoint(j,i)); % length of simulated square wave (in simulated sampling frequency)
         SWTemp = stimulateSquareWave(lengthSW,floor(pulsePeriod*samplingFreq),floor(pulseDuration*samplingFreq),amplitude,intraGap*samplingFreq);
-        squareWave(transpose(chStartingPoint(j,i)*samplingFreqRatio : chEndPoint(j,i)*samplingFreqRatio-1),i) = SWTemp;
+        squareWave(transpose(chStartingPoint(j,i) : chEndPoint(j,i)-1),i) = SWTemp;
     end
 end
 
