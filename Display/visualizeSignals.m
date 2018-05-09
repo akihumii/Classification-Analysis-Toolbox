@@ -57,9 +57,11 @@ else
                 axes(pSW(j,1));
                 yLimitTemp = ylim;
                 hold on
-                for k = 1:4
-                    line{k,1} = plot(repmat(outputSW.chStartingPoint(:,k)',2,1)/signal.samplingFreq,ylim,'-.','color',colorArray(k,:),'lineWidth',1.5);
-                    plot(repmat(outputSW.chEndPoint(:,k)',2,1)/signal.samplingFreq,ylim,'-.','color',colorArray(k,:),'lineWidth',1.5);
+                line{1,1} = plot(repmat(outputSW.chStartingTime(:,1)',2,1),ylim,'-.','color',colorArray(1,:),'lineWidth',1.5);
+                plot(repmat(outputSW.chEndTime(:,1)',2,1),ylim,'-.','color',colorArray(1,:),'lineWidth',1.5);
+                for k = 2:4
+                    line{k,1} = plot(repmat(outputSW.chStartingTime(:,k)',2,1),ylim,'-.','color',colorArray(k,:),'lineWidth',1.5);
+                    plot(repmat(outputSW.chEndTime(:,k)',2,1),ylim,'-.','color',colorArray(k,:),'lineWidth',1.5);
                 end
             end
             

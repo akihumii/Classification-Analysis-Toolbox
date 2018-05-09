@@ -41,10 +41,12 @@ chStartingPoint = chStartingPoint * samplingFreqRatio; % up sample the chStartin
 chEndPoint = chEndPoint * samplingFreqRatio;
 
 lengthFullPulse = (2*pulseDuration + intraGap) * samplingFreq; % units: sample point
+chStartingPointEdited(:,1) = chStartingPoint(:,1);
+chEndPointEdited(:,1) = chEndPoint(:,1);
 
 for i = 2:numChannel
-    chStartingPoint(:,i) = chStartingPoint(:,i) + (i-1)*interPulseFromDiffChannelDelay*samplingFreq + (i-1)*lengthFullPulse;
-    chEndPoint(:,i) = chEndPoint(:,i) + (i-1)*interPulseFromDiffChannelDelay*samplingFreq + (i-1)*lengthFullPulse;
+    chStartingPointEdited(:,i) = chStartingPoint(:,i) + (i-1)*interPulseFromDiffChannelDelay*samplingFreq + (i-1)*lengthFullPulse;
+    chEndPointEdited(:,i) = chEndPoint(:,i) + (i-1)*interPulseFromDiffChannelDelay*samplingFreq + (i-1)*lengthFullPulse;
 end
 
 %% Generate square wave
@@ -53,9 +55,9 @@ squareWaveTime = 1/samplingFreq:1/samplingFreq:size(squareWave,1)/samplingFreq; 
 
 for i = 1:numChannel
     for j = 1:numStartingPoint
-        lengthSW = (chEndPoint(j,i) - chStartingPoint(j,i)); % length of simulated square wave (in simulated sampling frequency)
+        lengthSW = (chEndPointEdited(j,i) - chStartingPointEdited(j,i)); % length of simulated square wave (in simulated sampling frequency)
         SWTemp = stimulateSquareWave(lengthSW,floor(pulsePeriod*samplingFreq),floor(pulseDuration*samplingFreq),amplitude,intraGap*samplingFreq);
-        squareWave(transpose(chStartingPoint(j,i) : chEndPoint(j,i)-1),i) = SWTemp;
+        squareWave(transpose(chStartingPointEdited(j,i) : chEndPointEdited(j,i)-1),i) = SWTemp;
     end
 end
 
@@ -64,6 +66,8 @@ output.squareWaveTime = squareWaveTime;
 output.squareWave = squareWave;
 output.chStartingPoint = chStartingPoint;
 output.chEndPoint = chEndPoint;
+output.chStartingTime = chStartingPoint/samplingFreq;
+output.chEndTime = chEndPoint/samplingFreq;
 output.samplingFreq = samplingFreq;
 
 end
