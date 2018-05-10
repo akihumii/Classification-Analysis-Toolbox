@@ -29,7 +29,8 @@ else
                 showRaw,... % show
                 signal(i,1).path,'subplot', signal(i,1).channel);
         else
-            outputSW = generateSquarePulse(signal(i,1).dataAll(:,13), signal(i,1).samplingFreq);
+            % Generate square pulse
+            outputSW = generateSquarePulse(signal(i,1).dataAll(:,13:14), signal(i,1).samplingFreq); 
             shortTimeTemp = repmat(signal(i,1).time/signal(i,1).samplingFreq,length(signal(i,1).channel(signal(i,1).channel<16)),1);
             timeTemp = cell(0,1);
             dataTemp = cell(0,1);
@@ -37,9 +38,11 @@ else
                 timeTemp = [timeTemp;{shortTimeTemp(j,:)}];
                 dataTemp = [dataTemp;{signal(i,1).dataRaw(:,j)}];
             end
-            for j = 1:size(outputSW.squareWave,2)
-                timeTemp = [timeTemp;{outputSW.squareWaveTime}];
-                dataTemp = [dataTemp;{outputSW.squareWave(:,j)}];
+            if outputSW.showPlot
+                for j = 1:size(outputSW.squareWave,2)
+                    timeTemp = [timeTemp;{outputSW.squareWaveTime}];
+                    dataTemp = [dataTemp;{outputSW.squareWave(:,j)}];
+                end
             end
             
             timeTemp = cell2nanMat(timeTemp);
@@ -53,10 +56,11 @@ else
             % plot lines
             colorArray = [0,0.4470,0.7410;0.8500,0.3250,0.0980;0.9290,0.6940,0.1250;0.4940,0.1840,0.5560;0.4660,0.6740,0.1880;0.3010,0.7450,0.9330;0.6350,0.0780,0.1840];
             
-            for j = 1:length(pSW)-4
+            for j = 1:length(pSW)-outputSW.showPlot*4
                 axes(pSW(j,1));
                 yLimitTemp = ylim;
                 hold on
+                grid minor
                 line{1,1} = plot(repmat(outputSW.chStartingTime(:,1)',2,1),ylim,'-.','color',colorArray(1,:),'lineWidth',1.5);
                 plot(repmat(outputSW.chEndTime(:,1)',2,1),ylim,'-.','color',colorArray(1,:),'lineWidth',1.5);
                 for k = 2:4
@@ -65,10 +69,13 @@ else
                 end
             end
             
-            for j = length(pSW)-4+1 : length(pSW)
-                set(pSW(j,1).Children,'color',colorArray(j-(length(pSW)-4),:));
+            if outputSW.showPlot
+                for j = length(pSW)-4+1 : length(pSW)
+                    axes(pSW(j,1));
+                    grid minor;
+                    set(pSW(j,1).Children,'color',colorArray(j-(length(pSW)-4),:));
+                end
             end
-            
         end
     end
 end

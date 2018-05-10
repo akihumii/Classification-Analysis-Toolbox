@@ -1,6 +1,7 @@
 function output = generateSquarePulse(dataRef, samplingFreqOriginal)
 %GENERATESQUAREPULSE Lijing Square Pulse Stimulator
-% input:    dataRef: Check the timing of each starting point
+% input:    dataRef: column 1: Check the timing of each starting point
+%                    column 2: The data to refer for the square wave amplitude
 % 
 %   [squareWaveTime,squareWave] = generateSquarePulse(signal)
 
@@ -8,11 +9,13 @@ function output = generateSquarePulse(dataRef, samplingFreqOriginal)
 % General parameters
 pulsePeriod = 1/50; % seconds
 pulseDuration = 200e-6; % seconds
-amplitude = 10;
 intraGap = 22e-6; % seconds
 interPulseFromDiffChannelDelay = 0.71e-3; % seconds
+constantConversion = [-.0087, 13.383, -7.58];
 
-samplingFreq = 1e5; % Hz, for more detailed simulation catering for the short pulseDuration, which is shorter than the original sampling frequency
+samplingFreq = 1e4; % Hz, for more detailed simulation catering for the short pulseDuration, which is shorter than the original sampling frequency
+
+showPlot = 0;
 
 %% Main
 chStartingRef = [16,17,18,19]; % values in sync pulse to indicate the start and end of the channel 
@@ -24,13 +27,22 @@ numSamplePoints = size(dataRef,1); % length of the signal in sample points
 clear chLocs chStartingPoint chEndPoint numStartingPoint squareWave lengthSW SWTemp
 
 for i = 1:numChannel
-    preLocs = find(dataRef == chStartingRef(i));
+    preLocs = find(dataRef(:,1) == chStartingRef(i));
     preLocsDiff = diff(preLocs);
-    chLocs(:,i) = preLocs([true;preLocsDiff~=1]);
+    chLocs{i,1} = preLocs([true;preLocsDiff~=1]);
 end
+chLocs = cell2nanMat(chLocs);
 
-chStartingPoint = chLocs(1:2:size(chLocs,1),:);
-chEndPoint = chLocs(2:2:size(chLocs,1),:);
+for i = 1:numChannel
+    chLocs(isnan(chLocs(:,i)),i) = chLocs(find(~isnan(chLocs(:,i)),1,'last'),i);
+end
+    
+    
+endLocs = reshape((dataRef(chLocs,2)==0),size(chLocs));
+endLocsAny = any(endLocs,2); % for reference to see if any of the channel changed to zero
+
+chStartingPoint = chLocs;
+chEndPoint = chLocs(endLocsAny,:);
 
 numStartingPoint = size(chStartingPoint,1);
 
@@ -55,9 +67,25 @@ squareWaveTime = 1/samplingFreq:1/samplingFreq:size(squareWave,1)/samplingFreq; 
 
 for i = 1:numChannel
     for j = 1:numStartingPoint
-        lengthSW = (chEndPointEdited(j,i) - chStartingPointEdited(j,i)); % length of simulated square wave (in simulated sampling frequency)
-        SWTemp = stimulateSquareWave(floor(lengthSW),floor(pulsePeriod*samplingFreq),floor(pulseDuration*samplingFreq),amplitude,floor(intraGap*samplingFreq));
-        squareWave(transpose(chStartingPointEdited(j,i) : chEndPointEdited(j,i)-1),i) = SWTemp;
+        try
+            chStartingPointEditedNext = chStartingPointEdited(j+1,i); % try getting the next starting point
+        catch
+            chStartingPointEditedNext = chStartingPointEdited(end,i); % otherwise get the last end point
+        end
+        lengthSW = (chStartingPointEditedNext - chStartingPointEdited(j,i)); % length of simulated square wave (in simulated sampling frequency)
+        amplitudeTemp = dataRef(floor(chStartingPointEdited(j,i)/samplingFreqRatio),2);
+        if amplitudeTemp
+            constantConversionTemp = constantConversion;
+            constantConversionTemp(3) = constantConversionTemp(3)-amplitudeTemp;
+            rootTemp = roots(constantConversionTemp);
+            rootTemp = round(rootTemp(rootTemp>0 & rootTemp<19)); % get the correct one
+        else
+            rootTemp = amplitudeTemp; % if the channel is off
+        end
+        SWTemp = stimulateSquareWave(floor(lengthSW),floor(pulsePeriod*samplingFreq),floor(pulseDuration*samplingFreq),rootTemp,floor(intraGap*samplingFreq));
+        dataTemp = transpose(floor(chStartingPointEdited(j,i)) : floor(chStartingPointEditedNext));
+        dataTemp = dataTemp(1:length(SWTemp));
+        squareWave(dataTemp,i) = SWTemp;
     end
 end
 
@@ -69,6 +97,7 @@ output.chEndPoint = chEndPoint;
 output.chStartingTime = chStartingPoint/samplingFreq;
 output.chEndTime = chEndPoint/samplingFreq;
 output.samplingFreq = samplingFreq;
+output.showPlot = showPlot;
 
 end
 

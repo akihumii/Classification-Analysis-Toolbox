@@ -106,7 +106,7 @@ end
 for i = 1:numData
     f(i,1) = figure;
     hold on;
-    set(gcf, 'Position', get(0,'Screensize'),'PaperPositionMode', 'auto');
+    set(f(i,1),'units','normalized','outerposition',[0 0 1 1]);
     set(gca, 'FontSize', textSize);
     
     if channel{1,1} ~= 0
