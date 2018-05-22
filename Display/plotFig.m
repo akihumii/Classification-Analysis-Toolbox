@@ -89,7 +89,7 @@ end
 
 %% Plot
 titleFontSize = 10;
-textSize = 8; % axis font size
+textSize = 11; % axis font size
 chunkText = 'channel';
 
 [numData, numPlot] = checkSize(y);

@@ -30,6 +30,8 @@ else
                 signal(i,1).path,'subplot', signal(i,1).channel);
         else
             % Generate square pulse
+            horzLineValue = 0.01; % plot a threshold on pressure sensor plot
+            
             outputSW = generateSquarePulse(signal(i,1).dataAll(:,13:14), signal(i,1).samplingFreq); 
             shortTimeTemp = repmat(signal(i,1).time/signal(i,1).samplingFreq,length(signal(i,1).channel(signal(i,1).channel<16)),1);
             timeTemp = cell(0,1);
@@ -56,7 +58,9 @@ else
             % plot lines
             colorArray = [0,0.4470,0.7410;0.8500,0.3250,0.0980;0.9290,0.6940,0.1250;0.4940,0.1840,0.5560;0.4660,0.6740,0.1880;0.3010,0.7450,0.9330;0.6350,0.0780,0.1840];
             
-            for j = 1:length(pSW)-outputSW.showPlot*4
+            numPlot = length(pSW);
+            
+            for j = 1:numPlot-outputSW.showPlot*4
                 axes(pSW(j,1));
                 yLimitTemp = ylim;
                 hold on
@@ -69,7 +73,18 @@ else
                 end
             end
             
-            if outputSW.showPlot
+            for j = 1:numPlot-2 % pressure sensor plot
+                axes(pSW(j))
+                pHorzLine = plot(xlim,[horzLineValue,horzLineValue], 'k'); % plot a threshold
+                legend(pHorzLine,'threshold');
+            end
+            
+            for j = numPlot-1 : numPlot % to select sync pulses plots when no channels plots showing
+                axes(pSW(j))
+                ylabel('Decimal Value')
+            end
+            
+            if outputSW.showPlot % channel plots
                 for j = length(pSW)-4+1 : length(pSW)
                     axes(pSW(j,1));
                     grid minor;
