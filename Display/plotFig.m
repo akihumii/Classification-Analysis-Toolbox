@@ -5,7 +5,7 @@ function varargout = plotFig(varargin)
 %
 % input:    "type" could be 'subplot', 'overlap' or 'overlapAll', default type is 'subplot'
 %           'y' could be a matrix where the data in column will be plotted as one signal trial; Different rows represent different trials that have been performed.
-%           'plotWay' could be 'linePlot', 'barPlot', 'barStackedPlot', 'stemPlot', 'histFitPlot', 'scatterPlot', default way is 'linePlot'
+%           'plotWay' could be 'linePlot', 'barPlot', 'barGroupedPlot', 'stemPlot', 'histFitPlot', 'scatterPlot', default way is 'linePlot'
 %           'channel' is for the title purpose, default value is 1.
 %
 % output:   p: the axes
@@ -16,6 +16,14 @@ function varargout = plotFig(varargin)
 %
 %   [p,f] = plotFig(x, y, fileName, titleName, xScale, yScale, answerSave,
 %                   answerShow, path, type, channel, plotWay)
+
+%% Parameters
+titleFontSize = 14; % title font size (normalized)
+textSize = 10; % axis font size (normalized)
+lineThickenss = 2; % border line width
+chunkText = 'channel';
+sizeUnit = 'points'; % 'points' as default or 'normalized'
+textThickness = 'bold'; % 'normal' as default or 'bold', for the axes fonts
 
 %% fill unset parameters
 if nargin == 1
@@ -88,10 +96,6 @@ else
 end
 
 %% Plot
-titleFontSize = 0.4; % title font size (normalized)
-textSize = 0.3; % axis font size (normalized)
-chunkText = 'channel';
-
 [numData, numPlot] = checkSize(y);
 if isequal(plotWay,'barStackedPlot')
     numPlot = 1;
@@ -124,15 +128,15 @@ for i = 1:numData
             p(j,i) = subplot(numPlot,1,j);
             
             if numData > 1
-                title([titleName, ' ', fileName, ' set ', num2str(j), titleTemp], 'Fontunit', 'Normalized', 'FontSize', titleFontSize)
+                title([titleName, ' ', fileName, ' set ', num2str(j), titleTemp], 'Fontunit', sizeUnit, 'FontSize', titleFontSize)
                 saveName = [titleName, ' ', fileName, titleTemp];
             else
-                title([titleName, ' ', fileName, titleTemp], 'Fontunit', 'Normalized', 'FontSize', titleFontSize)
+                title([titleName, ' ', fileName, titleTemp], 'Fontunit', sizeUnit, 'FontSize', titleFontSize)
                 saveName = [titleName, ' ', fileName, titleTemp];
             end
             hold on
-            ylabel(yScale, 'Fontunit', 'Normalized', 'FontSize', textSize);
-            set(gca, 'Fontunit', 'Normalized', 'FontSize', textSize);
+            ylabel(yScale, 'Fontunit', sizeUnit, 'FontSize', textSize, 'FontWeight', textThickness);
+            set(gca, 'Fontunit', sizeUnit, 'FontSize', textSize, 'LineWidth', lineThickenss, 'FontWeight', textThickness);
             
         else
             p(i,1) = gca;
@@ -153,9 +157,15 @@ for i = 1:numData
                 else
                     l(j,i) = bar(x(:,j,i),y(:,j,i));
                 end
-            case 'barStackedPlot'
+            case 'barGroupedPlot'
                 if any(size(x)==1)
-                    l(i,:) = bar(x,y(:,:,i));
+                    if size(y,2) == 1
+                        y = y';
+                        l(i,:) = bar([x,x+1],[y(:,:,i);nan(size(y(:,:,i)))]);
+                        xlim([0.5,1.5]);
+                    else
+                        l(i,:) = bar(x,y(:,:,i));
+                    end
                 else
                     l(i,:) = bar(x(:,j,i),y(:,:,i));
                 end
@@ -171,22 +181,24 @@ for i = 1:numData
                 l{j,i} = pTemp;
             case 'scatterPlot'
                 l(j,i) = scatter(x(:,j,i),y(:,j,i),500,'.');
+            otherwise
+                error('Invalid plotway...')
         end
         
-        axis tight;
+%         axis tight;
     end
-    ylabel(yScale, 'Fontunit', 'Normalized', 'FontSize', textSize);
+    ylabel(yScale, 'Fontunit', sizeUnit, 'FontSize', textSize, 'FontWeight', textThickness);
     
-    xlabel(xScale, 'Fontunit', 'Normalized', 'FontSize', textSize);
+    xlabel(xScale, 'Fontunit', sizeUnit, 'FontSize', textSize, 'FontWeight', textThickness);
     
     if isequal(type, 'subplot')
         linkaxes(p(:,1),'x');
     else
-        title([titleName, ' ', fileName, titleTemp], 'Fontunit', 'Normalized', 'FontSize', titleFontSize)
+        title([titleName, ' ', fileName, titleTemp], 'Fontunit', sizeUnit, 'FontSize', titleFontSize)
         saveName = [titleName, ' ', fileName, titleTemp];
     end
     
-    set(gca, 'Fontunit', 'Normalized', 'FontSize', textSize);
+    set(gca, 'Fontunit', sizeUnit, 'FontSize', textSize, 'FontWeight', textThickness);
     
     hold off
     
@@ -210,5 +222,4 @@ if nargout > 2
     varargout{3} = l;
 end
 
-end
 
