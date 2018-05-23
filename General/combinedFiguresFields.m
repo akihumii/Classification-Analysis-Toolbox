@@ -11,7 +11,7 @@ close all
 showFigure = 1;
 saveFigure = 0;
 
-plotType = 1; % 1 for subplots, 2 for barStackedPlots
+plotType = 2; % 1 for subplots, 2 for barGroupedBarPlots
 % legendMatrix = [{'with PCA'},{'without PCA'}]; % for plotType2
 legendMatrix = [{'kNN'},{'LDA'},{'SVM'}]; % for plotType2
 
@@ -31,12 +31,24 @@ dataEL = zeros(0,0,1);
 %% open separated files and get the values
 for i = 1:iter
     fig(i,1) = open([path,files{1,i}]); % open figures
-    dataEY = cat(1,dataEY,cat(3,fig(i,1).Children(2).Children(numChannel:-1:1,1).YData)); % errorbar
-    dataEL = cat(1,dataEL,cat(3,fig(i,1).Children(2).Children(numChannel:-1:1,1).LData)); % errorbar
+    v = version; % check for version
+    if str2num(v(1))<9
+        dataEY = cat(1,dataEY,cat(3,fig(i,1).Children(2).Children(numChannel:-1:1,1).YData)); % errorbar
+        dataEL = cat(1,dataEL,cat(3,fig(i,1).Children(2).Children(numChannel:-1:1,1).LData)); % errorbar
+    else
+        dataEY = cat(1,dataEY,reshape(fig(i,1).Children(2).Children(1,1).YData,1,1,[])); % errorbar
+        dataEL = cat(1,dataEL,reshape(fig(i,1).Children(2).Children(1,1).LData,1,1,[])); % errorbar
+    end
     dataX = cat(1,dataX,cat(3,fig(i,1).Children(2).Children(end:-1:end-(numChannel-1),1).XData)); % order of channels is descending
     dataY = cat(1,dataY,cat(3,fig(i,1).Children(2).Children(end:-1:end-(numChannel-1),1).YData)); % [features, iter, channel]
 end
 
+if any(isnan(fig(i,1).Children(2).Children(end,1).YData))
+    dataX(:,2,:) = [];
+    dataY(:,2,:) = [];
+end
+    
+    
 numFeatures = size(dataX,2);
 % numFeatures = numFeatures - 1; % to get 11 features into 10...
 [numRowSubplot,numColSubplot] = getFactors(numFeatures);
@@ -97,7 +109,7 @@ switch plotType
         
     case 2
         for i = 1:numChannel
-            pS(i,1) = plotFig(dataX(1,:,i), dataY(:,:,i)', fileName, 'Comparison of accuracies', 'Feature','Accuracy',0, showFigure, path, 'subplot', 0, 'barStackedPlot');
+            pS(i,1) = plotFig(dataX(1,:,i), dataY(:,:,i)', fileName, 'Comparison of accuracies', 'Feature','Accuracy',0, showFigure, path, 'subplot', 0, 'barGroupedPlot');
             hold on; ylim([0,1]); grid on
             errorbar(pS(i,1),getErrorBarXAxisValues(numFeatures,iter)',dataEY(:,:,i),dataEL(:,:,i),'r*'); % plot errorbar
             legend(legendMatrix)
