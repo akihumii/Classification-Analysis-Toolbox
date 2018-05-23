@@ -9,7 +9,7 @@ pulseDuration = 200e-6; % seconds
 amplitude = 10;
 intraGap = 10e-6; % seconds
 
-samplingFreq = 1e5; % Hz
+samplingFreq = 1e4; % Hz
 
 %% Main
 dataRef = signal.dataAll(:,13); % check the timing of each starting point.

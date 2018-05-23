@@ -1,10 +1,10 @@
 function varargout = selectFiles(dialogTitle)
 %selectFiles Select files and output its path and name
 %   varargout = selectFiles(dialogTitle)
-%
+% 
 % input: dialogTitle(optional): title of the dialog to select the file(s).
 % Default is 'select decoding file'.
-%
+% 
 % varargout{1} = files (compulsory)
 % varargout{2} = path (compulsory)
 % varargout{3} = iter (optional)
@@ -18,11 +18,7 @@ if iscell(files)
     iter = length(files);
 else
     iter = 1;
-    try
-        files = cellstr(files);
-    catch
-        error('No file was selected...');
-    end
+    files = cellstr(files);
 end
 
 varargout{1} = files;
