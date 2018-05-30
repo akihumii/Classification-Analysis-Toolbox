@@ -109,9 +109,12 @@ switch plotType
         
     case 2
         for i = 1:numChannel
-            pS(i,1) = plotFig(dataX(1,:,i), dataY(:,:,i)', fileName, 'Comparison of accuracies', 'Feature','Accuracy',0, showFigure, path, 'subplot', 0, 'barGroupedPlot');
+            if isequal(ones(size(dataX(1,:,i))),dataX(1,:,i))
+                dataX(:,:,i) = repmat(1:size(dataX,1),1,size(dataX,2));
+            end
+            pS(i,1) = plotFig(dataX(:,:,i), dataY(:,:,i), fileName, ['Comparison of accuracies of channel ',num2str(i)], 'Feature','Accuracy',0, showFigure, path, 'subplot', 0, 'barPlot');
             hold on; ylim([0,1]); grid on
-            errorbar(pS(i,1),getErrorBarXAxisValues(numFeatures,iter)',dataEY(:,:,i),dataEL(:,:,i),'r*'); % plot errorbar
+            errorbar(pS(i,1),dataX(:,:,i),dataEY(:,:,i),dataEL(:,:,i),'r*'); % plot errorbar
             legend(legendMatrix)
             % save figures
             if saveFigure % save combined figures
