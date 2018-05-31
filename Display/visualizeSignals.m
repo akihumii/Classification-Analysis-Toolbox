@@ -32,6 +32,7 @@ else
             % Generate square pulse
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             horzLineValue = 0.00; % plot a threshold on pressure sensor plot
+            specialNumbers = [16,17,18,19,81,82,65,97]; % special number for inspecting
             
             outputSW = generateSquarePulse(signal(i,1).dataAll(:,13:14), signal(i,1).samplingFreq); 
             shortTimeTemp = repmat(signal(i,1).time/signal(i,1).samplingFreq,length(signal(i,1).channel(signal(i,1).channel<16)),1);
@@ -41,12 +42,16 @@ else
                 timeTemp = [timeTemp;{shortTimeTemp(j,:)}];
                 dataTemp = [dataTemp;{signal(i,1).dataRaw(:,j)}];
             end
+            
             if outputSW.showPlot
                 for j = 1:size(outputSW.squareWave,2)
                     timeTemp = [timeTemp;{outputSW.squareWaveTime}];
                     dataTemp = [dataTemp;{outputSW.squareWave(:,j)}];
                 end
             end
+            
+%             timeTemp = [timeTemp;timeTemp(1,1)]; % for color inspection of the change of commands
+%             dataTemp = [dataTemp;nan(size(timeTemp{1,1}))]; 
             
             timeTemp = cell2nanMat(timeTemp);
             dataTemp = cell2nanMat(dataTemp);
@@ -57,10 +62,23 @@ else
                 signal(i,1).path,'subplot', [signal(i,1).channel,1:4]);
             
             % plot lines
-            colorArray = [0,0.4470,0.7410;0.8500,0.3250,0.0980;0.9290,0.6940,0.1250;0.4940,0.1840,0.5560;0.4660,0.6740,0.1880;0.3010,0.7450,0.9330;0.6350,0.0780,0.1840];
+            colorArray = [0,0.4470,0.7410;0.8500,0.3250,0.0980;0.9290,0.6940,0.1250;0.4940,0.1840,0.5560;0.4660,0.6740,0.1880;0.3010,0.7450,0.9330;0.6350,0.0780,0.1840;0,0,0];
             
             numPlot = length(pSW);
             
+            % plot the colors for special numbers while changing commands
+            numSpecialNumber = length(specialNumbers);
+            for j = 1:numSpecialNumber
+                locsTemp = find(signal(i,1).dataAll(:,13) == specialNumbers(j));
+                axes(pSW(2,1));
+                pStem(j,1) = stem(locsTemp/signal(i,1).samplingFreq,255*ones(length(locsTemp),1),'Color',colorArray(j,:));
+                hold on
+            end
+            
+            % Replot 2nd subplot
+            axes(pSW(2,1))
+            plot(pSW(2,1).Children(end,1).XData,pSW(2,1).Children(end,1).YData,'Color','k')
+
             for j = 1:numPlot-outputSW.showPlot*4
                 axes(pSW(j,1));
                 yLimitTemp = ylim;
@@ -73,6 +91,7 @@ else
                     plot(repmat(outputSW.chEndTime(:,k)',2,1),ylim,'-.','color',colorArray(k,:),'lineWidth',1.5);
                 end
             end
+            
             
             for j = 1:numPlot-2 % pressure sensor plot
                 axes(pSW(j))
@@ -92,6 +111,9 @@ else
                     set(pSW(j,1).Children,'color',colorArray(j-(length(pSW)-4),:));
                 end
             end
+            
+            axes(pSW(1,1))
+            legend(pStem,[{'A0'},{'A1'},{'A2'},{'A3'},{'Up'},{'Down'},{'Enable'},{'Threshold'}]);
         end
     end
 end

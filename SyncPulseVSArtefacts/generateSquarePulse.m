@@ -15,7 +15,7 @@ constantConversion = [-.0087, 13.383, -7.58];
 
 samplingFreq = 1e4; % Hz, for more detailed simulation catering for the short pulseDuration, which is shorter than the original sampling frequency
 
-showPlot = 1;
+showPlot = 0;
 
 %% Main
 chStartingRef = [16,17,18,19]; % values in sync pulse to indicate the start and end of the channel 
