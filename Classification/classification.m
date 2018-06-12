@@ -12,40 +12,20 @@ for i = 1:numChannels
     accuracyAll{i,1} = zeros(0,1); % store all the accuracy in this array
     
     for r = 1:numRepeat
-        trainingTemp = zeros(0,1);
-        testingTemp = zeros(0,1);
-        trainingClassTemp = zeros(0,1);
-        testingClassTemp = zeros(0,1);
-        
-        for j = 1:numClasses
-            trialsTemp = zeros(1,0);
-            notNanFeatures = zeros(1,0);
-            
-            trialsTemp = catNanMat(trials(j,featureIndex(1,:),i)',2,'all'); % concatanate the different classes into different columns including nan
- 
-            notNanFeatures = omitNan(trialsTemp,2,'any'); % get rid of rows containing Nan
-            
-            randFeatures = notNanFeatures(randperm(size(notNanFeatures,1)),:);
-            numRandBursts = size(randFeatures,1); % number of bursts that are not nan
-            trainingSetTemp = randFeatures(1 : floor(trainingRatio * numRandBursts),:);
-            testingSetTemp = randFeatures(floor(trainingRatio * numRandBursts)+1 : end,:);
-            trainingTemp = [trainingTemp; trainingSetTemp];
-            testingTemp = [testingTemp; testingSetTemp];
-            trainingClassTemp = [trainingClassTemp; j*ones(size(trainingSetTemp,1),1)];
-            testingClassTemp = [testingClassTemp; j*ones(size(testingSetTemp,1),1)];
-        end
-        
+
+        groupedFeature = combineFeatureWithoutNan(trials(:,featureIndex(1,:),i),trainingRatio,numClasses);
+
         switch classifierName
             case 'svm'
-                svmClassificationOutput = svmClassification(trainingTemp,trainingClassTemp,testingTemp);
-                accuracyTemp = calculateAccuracy(svmClassificationOutput.predictClass,testingClassTemp);
+                svmClassificationOutput = svmClassification(groupedFeature.training,groupedFeature.trainingClass,groupedFeature.testing);
+                accuracyTemp = calculateAccuracy(svmClassificationOutput.predictClass,groupedFeature.testingClass);
             case 'lda'
                 [classTemp,errorTemp,posteriorTemp,logPTemp,coefficientTemp] = ... % run the classification
-                    classify(testingTemp,trainingTemp,trainingClassTemp);     
-                accuracyTemp = calculateAccuracy(classTemp,testingClassTemp);
+                    classify(groupedFeature.testing,groupedFeature.training,groupedFeature.trainingClass);     
+                accuracyTemp = calculateAccuracy(classTemp,groupedFeature.testingClass);
             case 'knn'
-                knnClassificationOutput = knnClassification(trainingTemp,trainingClassTemp,testingTemp);
-                accuracyTemp = calculateAccuracy(knnClassificationOutput.predictClass,testingClassTemp);
+                knnClassificationOutput = knnClassification(groupedFeature.training,groupedFeature.trainingClass,groupedFeature.testing);
+                accuracyTemp = calculateAccuracy(knnClassificationOutput.predictClass,groupedFeature.testingClass);
             otherwise
                 error('Invalid classifier name...')
         end
@@ -69,14 +49,14 @@ for i = 1:numChannels
 %             posterior{i,1} = posteriorTemp;
 %             logP{i,1} = logPTemp;
 %             coefficient{i,1} = coefficientTemp;
-            training{i,1} = trainingTemp;
-            testing{i,1} = testingTemp;
-            trainingClass{i,1} = trainingClassTemp;
-            testingClass{i,1} = testingClassTemp;
+            training{i,1} = groupedFeature.training;
+            testing{i,1} = groupedFeature.testing;
+            trainingClass{i,1} = groupedFeature.trainingClass;
+            testingClass{i,1} = groupedFeature.testingClass;
         end
         
         % plot confusion matrix
-%         plotConfusionMat(svmClassificationOutput.predictClass,testingClassTemp)
+%         plotConfusionMat(svmClassificationOutput.predictClass,groupedFeature.testingClass)
 %         title(['Fature ',checkMatNAddStr(featureIndex,','),' Channel ',num2str(i)])
     end
     accuracy(1,i) = mean(accuracyAll{i,1});

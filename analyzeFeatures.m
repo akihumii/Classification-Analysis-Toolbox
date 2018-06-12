@@ -16,7 +16,7 @@ classifierName = 'svm'; % input only either 'lda' or 'svm'
 classifierType = 1; % 1 for manually classification, 2 for using classifier learner app
 
 % for display
-displayInfo.testClassifier = 0;
+displayInfo.testClassifier = 1;
 displayInfo.saveOutput = 1;
 
 displayInfo.showSeparatedFigures = 0;
@@ -29,7 +29,7 @@ displayInfo.showPrinComp = 0;
 displayInfo.saveSeparatedFigures = 0;
 displayInfo.saveFigures = 0;
 displayInfo.saveHistFit = 0;
-displayInfo.saveAccuracy = 1;
+displayInfo.saveAccuracy = 0;
 displayInfo.saveReconstruction = 0;
 displayInfo.savePrinComp = 0;
 
@@ -97,9 +97,9 @@ switch classifierType
         if displayInfo.testClassifier
             tTest = tic;
             
-            classificatioOutput = runClassifier(classifierOutput);
+            classificatioOutput = runClassifier(classifierOutput,pcaInfo);
             
-            display(['Continuous classification takes ',num2str(toc(tTrain)),' seconds...']);
+            display(['Testing classification takes ',num2str(toc(tTest)),' seconds...']);
         end
         
         %% Save the classification output and accuracy output
