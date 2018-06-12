@@ -10,6 +10,8 @@ function output = trainClassifier(featuresInfo, signalInfo, displayInfo, classif
 %% Parameters
 trainingRatio = 0.625;
 numFeatures = length(featuresInfo.featuresNames);
+featureIndex1D = 2; % input index number ([1,2,3,...]) of the features that are going to train in 1D classification, input 0 if want to train all features combinations
+featureIndex2D = 14; % input index number ([1,2,3,...]) of the features that are going to train in 2D classification, input 0 if want ot train all features combinations
 
 %% Classification Settings
 classifierTitle = 'Different Speed'; % it can be 'Different Speed','Different Day','Active EMG'
@@ -36,12 +38,14 @@ if displayInfo.showHistFit||displayInfo.saveHistFit||displayInfo.showAccuracy||d
         featureIndex{i,1} = nchoosek(1:numFeatures,i); % n choose 
         
         if i == 2
+            if all(featureIndex2D > 0)
 %             selectedFeatureCombination = [2,12,22:30]; % select specific feature combinations to analyse
-            selectedFeatureCombination = [8,14]; % select specific feature combinations to analyse
-            featureIndex{2,1} = featureIndex{2,1}(selectedFeatureCombination,:);
+            featureIndex{2,1} = featureIndex{2,1}(featureIndex2D,:);
+            end
         else
-%             selectedFeatureCombination = [2,3,4]; % select specific feature combinations to analyse
-%             featureIndex{1,1} = featureIndex{1,1}(selectedFeatureCombination,:);
+            if all(featureIndex1D > 0)
+            featureIndex{1,1} = featureIndex{1,1}(featureIndex1D,:);
+            end
         end
         
         numCombination = size(featureIndex{i,1},1); % number of combination

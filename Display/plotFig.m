@@ -5,7 +5,7 @@ function varargout = plotFig(varargin)
 %
 % input:    "type" could be 'subplot', 'overlap' or 'overlapAll', default type is 'subplot'
 %           'y' could be a matrix where the data in column will be plotted as one signal trial; Different rows represent different trials that have been performed.
-%           'plotWay' could be 'linePlot', 'barPlot', 'barStackedPlot', 'stemPlot', 'histFitPlot', 'scatterPlot', default way is 'linePlot'
+%           'plotWay' could be 'linePlot', 'barPlot', 'barGroupedPlot', 'stemPlot', 'histFitPlot', 'scatterPlot', default way is 'linePlot'
 %           'channel' is for the title purpose, default value is 1.
 %
 % output:   p: the axes
@@ -14,8 +14,16 @@ function varargout = plotFig(varargin)
 % saveName = subplot: [titleName, ' ', fileName]
 %            overlap: [titleName, ' ', fileName, ' ch ', num2str(channel(i))]
 %
-%   [p,f] = plotFig(x, y, fileName, titleName, xScale, yScale, answerSave, 
+%   [p,f] = plotFig(x, y, fileName, titleName, xScale, yScale, answerSave,
 %                   answerShow, path, type, channel, plotWay)
+
+%% Parameters
+titleFontSize = 14; % title font size (normalized)
+textSize = 10; % axis font size (normalized)
+lineThickenss = 2; % border line width
+chunkText = 'channel';
+sizeUnit = 'points'; % 'points' as default or 'normalized'
+textThickness = 'bold'; % 'normal' as default or 'bold', for the axes fonts
 
 %% fill unset parameters
 if nargin == 1
@@ -88,10 +96,6 @@ else
 end
 
 %% Plot
-titleFontSize = 20;
-textSize = 16; % axis font size
-chunkText = 'channel';
-
 [numData, numPlot] = checkSize(y);
 if isequal(plotWay,'barStackedPlot')
     numPlot = 1;
@@ -107,14 +111,13 @@ for i = 1:numData
     f(i,1) = figure;
     hold on;
     set(gcf, 'Position', get(0,'Screensize'),'PaperPositionMode', 'auto');
-    set(gca, 'FontSize', textSize);
     
     if channel{1,1} ~= 0
         titleTemp = [' ch ', checkMatNAddStr(channel{i},' - ')];
     else
         titleTemp = '';
     end
-
+    
     for j = 1:numPlot
         % Titling
         if channel{1,1} ~= 0 & length(channel) >= numPlot
@@ -122,18 +125,22 @@ for i = 1:numData
         end
         
         if isequal(type, 'subplot')
-            p(j,i) = subplot(numPlot,1,j);            
+            p(j,i) = subplot(numPlot,1,j);
+            
             if numData > 1
-                title([titleName, ' ', fileName, ' set ', num2str(j), titleTemp], 'FontSize', titleFontSize)
+                title([titleName, ' ', fileName, ' set ', num2str(j), titleTemp], 'Fontunit', sizeUnit, 'FontSize', titleFontSize)
                 saveName = [titleName, ' ', fileName, titleTemp];
             else
-                title([titleName, ' ', fileName, titleTemp], 'FontSize', titleFontSize)
+                title([titleName, ' ', fileName, titleTemp], 'Fontunit', sizeUnit, 'FontSize', titleFontSize)
                 saveName = [titleName, ' ', fileName, titleTemp];
             end
             hold on
-            ylabel(yScale, 'FontSize', textSize);
+            ylabel(yScale, 'Fontunit', sizeUnit, 'FontSize', textSize, 'FontWeight', textThickness);
+            set(gca, 'Fontunit', sizeUnit, 'FontSize', textSize, 'LineWidth', lineThickenss, 'FontWeight', textThickness);
+            
         else
             p(i,1) = gca;
+            
         end
         
         % Plotting
@@ -150,9 +157,15 @@ for i = 1:numData
                 else
                     l(j,i) = bar(x(:,j,i),y(:,j,i));
                 end
-            case 'barStackedPlot'
+            case 'barGroupedPlot'
                 if any(size(x)==1)
-                    l(i,:) = bar(x,y(:,:,i));
+                    if size(y,2) == 1
+                        y = y';
+                        l(i,:) = bar([x,x+1],[y(:,:,i);nan(size(y(:,:,i)))]);
+                        xlim([0.5,1.5]);
+                    else
+                        l(i,:) = bar(x,y(:,:,i));
+                    end
                 else
                     l(i,:) = bar(x(:,j,i),y(:,:,i));
                 end
@@ -168,20 +181,24 @@ for i = 1:numData
                 l{j,i} = pTemp;
             case 'scatterPlot'
                 l(j,i) = scatter(x(:,j,i),y(:,j,i),500,'.');
+            otherwise
+                error('Invalid plotway...')
         end
         
-        axis tight;
+%         axis tight;
     end
-    ylabel(yScale, 'FontSize', textSize);
+    ylabel(yScale, 'Fontunit', sizeUnit, 'FontSize', textSize, 'FontWeight', textThickness);
     
-    xlabel(xScale, 'FontSize', textSize);
+    xlabel(xScale, 'Fontunit', sizeUnit, 'FontSize', textSize, 'FontWeight', textThickness);
     
     if isequal(type, 'subplot')
         linkaxes(p(:,1),'x');
     else
-        title([titleName, ' ', fileName, titleTemp], 'FontSize', titleFontSize)
+        title([titleName, ' ', fileName, titleTemp], 'Fontunit', sizeUnit, 'FontSize', titleFontSize)
         saveName = [titleName, ' ', fileName, titleTemp];
     end
+    
+    set(gca, 'Fontunit', sizeUnit, 'FontSize', textSize, 'FontWeight', textThickness);
     
     hold off
     
@@ -205,5 +222,4 @@ if nargout > 2
     varargout{3} = l;
 end
 
-end
 

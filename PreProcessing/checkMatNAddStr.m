@@ -3,10 +3,10 @@ function newStr = checkMatNAddStr(mat,str,varargin)
 %so.
 % input:    mat: could be either in cell or matrix
 %           str: a string to insert in between the values
-%           dim: 1 to combine the columns, 2 to combine the rows, optional,
+%           dim: (optional) 1 to combine the columns, 2 to combine the rows, optional,
 %                default is 1.
 %
-%   newStr = checkMatNAddStr(mat,str)
+%   newStr = checkMatNAddStr(mat,str,dim)
 
 if nargin > 2
     dim = varargin{1,1};
