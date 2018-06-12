@@ -25,7 +25,7 @@ predictClass = predict(Mdl,testingGroup); % predict
 % oofLabel = kfoldPredict(CVMdl); % predicted class, similar as the output of the function predict
 
 %% Output
-% output.Mdl = Mdl;
+output.Mdl = Mdl;
 % output.CVMdl = CVMdl;
 % output.oosLoss = oosLoss;
 output.predictClass = predictClass;

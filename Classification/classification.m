@@ -57,10 +57,13 @@ for i = 1:numChannels
             switch classifierName
                 case 'svm'
                     class{i,1} = svmClassificationOutput.predictClass;
+                    Mdl{i,1} = svmClassificationOutput.Mdl;
                 case 'lda'
                     class{i,1} = classTemp;
+                    Mdl{i,1} = coefficientTemp;
                 case 'knn'
                     class{i,1} = knnClassificationOutput.predictClass;
+                    Mdl{i,1} = knnClassificationOutput.Mdl;
             end
 %             error{i,1} = errorTemp;
 %             posterior{i,1} = posteriorTemp;
@@ -81,6 +84,7 @@ end
  
 output.classifierTitle = classifierTitle;
 output.class = class;
+output.Mdl = Mdl;
 % output.error = error;
 % output.posterior = posterior;
 % output.logP = logP;
