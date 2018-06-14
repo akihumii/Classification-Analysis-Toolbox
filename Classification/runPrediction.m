@@ -1,5 +1,5 @@
-function output = runClassifier(classifierOutput,pcaInfo)
-%runClassifier Run classifier in the analyzeFeatures
+function output = runPrediction(classifierOutput,threshPercentile)
+%runPrediction Run classifier in the analyzeFeatures
 % output: prediction: accuracyTemp: [featureDimension x channel x iter]
 %   output = runClassifier(classifierOutput,pcaInfo)
 
@@ -9,17 +9,19 @@ windowSkipSize = 0.05; % skipped window size in seconds
 correctClass = 1; % real class of the signal bursts
 
 %% Read files
-[filesTest,pathTest,iterTest] = selectFiles('select mat files for continuous classifier''s testing');
+[filesTest,pathTest,iterTest] = selectFiles('select mat files for testing classifier');
 
 %% Run classifier
 popMsg('Processing continuous classification...');
 
 for i = 1:iterTest % test the classifier
     testSignalInfo(i,1) = getFeaturesInfo(pathTest,filesTest{i,1});
-    
+
+    testPCAInfo(i,1) = reconstructPCA(testSignalInfo,threshPercentile); % matrix in [class x channel]
+
     testFeaturesRaw{i,1} = reconstructSignalInfoFeatures(testSignalInfo(i,1));
     
-    featuresInfo{i,1} = reconstructFeatures(testFeaturesRaw{i,1},1,pcaInfo.numBursts); % as the raw features still contains Nan, so number of bursts should not be trimmed too
+    featuresInfo{i,1} = reconstructFeatures(testFeaturesRaw{i,1},1,testPCAInfo(i,1).numBursts); % as the raw features still contains Nan, so number of bursts should not be trimmed too
     
 
     switch testSignalInfo(i,1).fileSpeed{1,1}
@@ -36,11 +38,11 @@ for i = 1:iterTest % test the classifier
     for j = 1:numFeatureSet
         for k = 1:numChannel
             trainingRatio = 0;
-            groupedFeature = combineFeatureWithoutNan(featuresInfo{i,1}.featuresAll(:,classifierOutput.featureIndex{j,1}(1,:),k),trainingRatio,iterTest);
+            groupedFeature(j,k,i) = combineFeatureWithoutNan(featuresInfo{i,1}.featuresAll(:,classifierOutput.featureIndex{j,1}(1,:),k),trainingRatio,iterTest);
             
-            predictClass{j,k,i} = predict(classifierOutput.classificationOutput{j,1}.Mdl{k},groupedFeature.testing); % get the prediction
+            predictClass{j,k,i} = predict(classifierOutput.classificationOutput{j,1}.Mdl{k},groupedFeature(j,k,i).testing); % get the prediction
             
-            accuracyTemp(j,k,i) = calculateAccuracy(predictClass{i,j},ones(size(predictClass{i,j}))*classTemp);
+            accuracyTemp(j,k,i) = calculateAccuracy(predictClass{j,k,i},ones(size(predictClass{j,k}))*classTemp);
         end
     end
     
@@ -55,6 +57,7 @@ end
 
 %% Output
 output.prediction = accuracyTemp;
+output.predictClass = predictClass;
 output.signalInfo = testSignalInfo;
 
 end

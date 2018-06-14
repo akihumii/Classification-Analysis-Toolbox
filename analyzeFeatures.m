@@ -6,14 +6,14 @@ close all
 % clc
 
 %% User Input
-runPCA = 0;
-numPrinComp = 0; % number of principle component to use as features
-threshPercentile = 95; % percentile to threshold the latent of principle component for data reconstruction
-classificationRepetition = 100; % number of repetition of the classification with randomly assigned training set and testing set
-maxNumFeaturesInCombination = 2; % maximum nubmer of features used in combinations
+parameters.runPCA = 0;
+parameters.numPrinComp = 0; % number of principle component to use as features
+parameters.threshPercentile = 95; % percentile to threshold the latent of principle component for data reconstruction
+parameters.classificationRepetition = 100; % number of repetition of the classification with randomly assigned training set and testing set
+parameters.maxNumFeaturesInCominbation = 2; % maximum nubmer of features used in combinations
 
-classifierName = 'svm'; % input only either 'lda' or 'svm'
-classifierType = 1; % 1 for manually classification, 2 for using classifier learner app
+parameters.classifierName = 'svm'; % input only either 'lda' or 'svm'
+parameters.classifierType = 1; % 1 for manually classification, 2 for using classifier learner app
 
 % for display
 displayInfo.testClassifier = 1;
@@ -44,13 +44,13 @@ for i = 1:numClass
 end
 
 %% Reconstruct PCA
-pcaInfo = reconstructPCA(signalInfo,threshPercentile); % matrix in [class x channel]
+pcaInfo = reconstructPCA(signalInfo,parameters.threshPercentile); % matrix in [class x channel]
 
 %% Reconstruct features in singal so that the structure is the same as the one in extracted Features.
 featuresRaw = reconstructSignalInfoFeatures(signalInfo);
 
 %% Run PCA
-if runPCA
+if parameters.runPCA
     %% Extract features from reconstructed signals after running PCA
     numChannel = length(signalInfo(1).signal.channel);
     for i = 1:numChannel
@@ -71,16 +71,16 @@ else
 end
 
 %% Adding PCA info as one feature
-if numPrinComp ~= 0
-    featuresInfo = addPCAintoFeatures(featuresInfo,pcaInfo.scoreIndividual,numPrinComp);
+if parameters.numPrinComp ~= 0
+    featuresInfo = addPCAintoFeatures(featuresInfo,pcaInfo.scoreIndividual,parameters.numPrinComp);
 end
 
-switch classifierType
+switch parameters.classifierType
     case 1
         %% Train Classification
         tTrain = tic;
         
-        classifierOutput = trainClassifier(featuresInfo, signalInfo, displayInfo, classificationRepetition, maxNumFeaturesInCombination,classifierName);
+        classifierOutput = trainClassifier(featuresInfo, signalInfo, displayInfo, parameters.classificationRepetition, parameters.maxNumFeaturesInCominbation,parameters.classifierName);
         
         display(['Training session takes ',num2str(toc(tTrain)),' seconds...']);
         
@@ -89,7 +89,7 @@ switch classifierType
         close all
         
         % type can be 'Active EMG', 'Different Speed', 'Different Day'
-        visualizeFeatures(numClass, path, classifierOutput, featuresInfo, signalInfo, displayInfo, pcaInfo, runPCA);
+        visualizeFeatures(numClass, path, classifierOutput, featuresInfo, signalInfo, displayInfo, pcaInfo, parameters.runPCA);
         
         display(['Plotting session takes ',num2str(toc(tPlot)),' seconds...']);
         
@@ -97,14 +97,14 @@ switch classifierType
         if displayInfo.testClassifier
             tTest = tic;
             
-            testClassifierOutput = runClassifier(classifierOutput,pcaInfo);
+            testClassifierOutput = runPrediction(classifierOutput,parameters.threshPercentile);
             
             display(['Testing classification takes ',num2str(toc(tTest)),' seconds...']);
         end
         
         %% Save the classification output and accuracy output
         if displayInfo.saveOutput
-            saveVar([path,'\classificationInfo\'],horzcat(signalInfo(:,1).saveFileName),classifierOutput,featuresInfo,signalInfo,pcaInfo);
+            saveVar([path,'\classificationInfo\'],horzcat(signalInfo(:,1).saveFileName),classifierOutput,featuresInfo,signalInfo,pcaInfo,parameters);
         end
         
         %% End
