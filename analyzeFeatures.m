@@ -97,14 +97,14 @@ switch classifierType
         if displayInfo.testClassifier
             tTest = tic;
             
-            classificatioOutput = runClassifier(classifierOutput,pcaInfo);
+            testClassifierOutput = runClassifier(classifierOutput,pcaInfo);
             
             display(['Testing classification takes ',num2str(toc(tTest)),' seconds...']);
         end
         
         %% Save the classification output and accuracy output
         if displayInfo.saveOutput
-            saveVar([path,'\classificationInfo\'],horzcat(signalInfo(:,1).saveFileName),classifierOutput,featuresInfo,signalInfo);
+            saveVar([path,'\classificationInfo\'],horzcat(signalInfo(:,1).saveFileName),classifierOutput,featuresInfo,signalInfo,pcaInfo);
         end
         
         %% End
