@@ -15,7 +15,7 @@ threshPercentile = fullInfo.varargin{1,5}.threshPercentile;
 % Run the prediction on target file
 tTest = tic;
 testClassifierOutput = runPrediction(trainedClassifier,threshPercentile);
-disp(['Testing classification takes ',num2str(toc(tTest)),' seconds...']);
+disp(['Testing classification took ',num2str(toc(tTest)),' seconds...']);
 
 % Visualize the accuracy
 sizePrediction = size(testClassifierOutput.prediction); % [numFeatureSet x numChannel]
@@ -23,7 +23,9 @@ accuracy = vertcat(testClassifierOutput.prediction(:,:).accuracy); % line up all
 accuracy = reshape(accuracy,sizePrediction);
 
 numFeatureSet = size(accuracy,1);
-p = plotFig(1:numFeatureSet,accuracy,'','Accuracy of classifier models','Classifier Models','Accuracy',0,1,path,'overlap',1,'barGroupedPlot'); % plot the figure
+for i = 1:testClassifierOutput.iterTest
+    p = plotFig(1:numFeatureSet,accuracy(:,:,i),'','Accuracy of classifier models','Classifier Models','Accuracy',0,1,path,'overlap',1,'barGroupedPlot'); % plot the figure
+end
 
 % Get the legend name
 legendName = cell(0,1);
@@ -33,3 +35,5 @@ end
 numBars = length(p.Children);
 legend(p.Children(numBars/2:-1:1),legendName)
 
+% Finish Message
+finishMsg();
