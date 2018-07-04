@@ -6,6 +6,7 @@ close all
 
 % Select files of trained classifier model 
 [files, path, iter] = selectFiles('Select the trained classifier model');
+disp([fullfile(path,files{1,1}),' has been selected as trained classifier model...'])
 
 % Load the required variables
 fullInfo = load(fullfile(path,files{1,1}));
@@ -19,21 +20,23 @@ disp(['Testing classification took ',num2str(toc(tTest)),' seconds...']);
 
 % Visualize the accuracy
 sizePrediction = size(testClassifierOutput.prediction); % [numFeatureSet x numChannel]
-accuracy = vertcat(testClassifierOutput.prediction(:,:).accuracy); % line up all the accuracy in a vertical array
+predictionAll = vertcat(testClassifierOutput.prediction{:,:}); % line up all the output prediction
+accuracy = vertcat(predictionAll.accuracy); % line up all the accuracy in a vertical array
 accuracy = reshape(accuracy,sizePrediction);
 
-numFeatureSet = size(accuracy,1);
-for i = 1:testClassifierOutput.iterTest
-    p = plotFig(1:numFeatureSet,accuracy(:,:,i),'','Accuracy of classifier models','Classifier Models','Accuracy',0,1,path,'overlap',1,'barGroupedPlot'); % plot the figure
-end
+accuracy = permute(accuracy,[1,3,2]); % change the dimensions into [classifier dimensions x week x channel]
 
 % Get the legend name
 legendName = cell(0,1);
-for i = 1:numFeatureSet
-    legendName = [legendName;{[num2str(i),' Dimension Classification']}];
+for i = 1:size(accuracy,2)
+    legendName = [legendName;{['Week ', num2str(i)]}];
 end
-numBars = length(p.Children);
-legend(p.Children(numBars/2:-1:1),legendName)
+
+for i = 1:size(accuracy,3) % plot different channels in different plots
+    p = plotFig(1:size(accuracy,1),accuracy(:,:,i),'','Accuracy of classifier models','Classifier Models','Accuracy',0,1,path,'overlap',1,'barGroupedPlot'); % plot the figure
+    numBars = length(p.Children);
+    legend(p.Children(sqrt(numBars):-1:1),legendName)
+end
 
 % Finish Message
 finishMsg();

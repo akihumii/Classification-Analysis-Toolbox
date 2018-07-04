@@ -55,6 +55,8 @@ for i = 1:numChannels
             testingClass{i,1} = groupedFeature.testingClass;
         end
         
+%         showProgressPercentage(r,numRepeat); % Progress bar
+        
         % plot confusion matrix
 %         plotConfusionMat(svmClassificationOutput.predictClass,groupedFeature.testingClass)
 %         title(['Fature ',checkMatNAddStr(featureIndex,','),' Channel ',num2str(i)])

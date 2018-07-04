@@ -1,18 +1,43 @@
-function findNcopy()
+function allFiles = findNcopy(fileFormat)
 %FINDNCOPY Find the target file format and copy to a folder
-%   Detailed explanation goes here
+% input:    fileFormat: Target file format to copy
+% output:   allFiles: Storing the found file name, path, date, bytes, isdir, datenum
+%
+%   allFiles = findNcopy()
 
-fileFormat = '.jpg'; % change this variable as the target format
-fileFormat = ['*', fileFormat]; % select all of the files that have the target format
+matlabVersion = version;
+matlabVersion = str2double(matlabVersion(end-5:end-1));
 
-[files] = uigetdir('Select the folders for searching');
-
-[targetFiles] = uigetdir('','Select the folders for saving the copied files');
-
-allfiles = dir(files);
-
-copyAllFiles(allfiles,targetFiles,fileFormat); % copy all the files including subfolders
-
+if  matlabVersion >= 2016
+    
+    cwd = pwd;
+    
+    [files] = uigetdir('Select the folders for searching');
+    
+    [targetFiles] = uigetdir('','Select the folders for saving the copied files');
+    
+    cd(files)
+    allFiles = dir(['**/*.',fileFormat]);
+    cd(cwd);
+    
+    numFiles = length(allFiles);
+    for i = 1:numFiles
+        copyfile(fullfile(allFiles(i,1).folder,allFiles(i,1).name),targetFiles);
+    end
+    
+else
+    %% Recursive method
+    fileFormat = ['*', fileFormat]; % select all of the files that have the target format
+    
+    [files] = uigetdir('Select the folders for searching');
+    
+    [targetFiles] = uigetdir('','Select the folders for saving the copied files');
+    
+    allfiles = dir(files);
+    
+    copyAllFiles(allfiles,targetFiles,fileFormat); % copy all the files including subfolders
+    
+end
 end
 
 function copyAllFiles(allfiles,targetFiles,fileFormat)
@@ -33,7 +58,7 @@ else
         warning(['no matching files were found in ', allfiles(1,1).folder, '...'])
     end
 end
-
 end
+
 
 

@@ -1,9 +1,9 @@
 function output = calculateAccuracy(prediction, testingClass)
 %calculateAccuracy Calculate the accuracy, truePositive, falseNegative.
 %Prediction and testingClass should have the same size.
-% 
+%
 % output:   accuracy, truePositive, falseNegative
-% 
+%
 %   output = calculateAccuracy(prediction, testingClass)
 
 classes = unique(testingClass);
@@ -18,9 +18,15 @@ for i = 1:numClasses
     falseNegative(i,1) = predictedFalse(i,1) / numTotal(i,1);
 end
 
-output.accuracy = sum(predictedTrue) / sum(numTotal);
-output.truePositive = truePositive;
-output.falseNegative = falseNegative;
+try
+    output.accuracy = sum(predictedTrue) / sum(numTotal);
+    output.truePositive = truePositive;
+    output.falseNegative = falseNegative;
+catch
+    output.accuracy = 0;
+    output.truePositive = 0;
+    output.falseNegative = 0;
+end
 
 end
 
