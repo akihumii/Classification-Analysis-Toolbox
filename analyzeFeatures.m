@@ -91,13 +91,13 @@ switch parameters.classifierType
         display(['Training session takes ',num2str(toc(tTrain)),' seconds...']);
         
         %% Plot features
-        tPlot = tic;
-        close all
-        
-        % type can be 'Active EMG', 'Different Speed', 'Different Day'
-        visualizeFeatures(numClass, path, classifierOutput, featuresInfo, signalInfo, displayInfo, pcaInfo, parameters.runPCA);
-        
-        display(['Plotting session takes ',num2str(toc(tPlot)),' seconds...']);
+%         tPlot = tic;
+%         close all
+%         
+%         % type can be 'Active EMG', 'Different Speed', 'Different Day'
+%         visualizeFeatures(numClass, path, classifierOutput, featuresInfo, signalInfo, displayInfo, pcaInfo, parameters.runPCA);
+%         
+%         display(['Plotting session takes ',num2str(toc(tPlot)),' seconds...']);
         
         %% Run through the entire signal and classify
         if displayInfo.testClassifier
