@@ -42,7 +42,7 @@ for i = 1:numClass
 end
 path = pwd;
 
-popMsg('Gathering features...');
+disp('Gathering features...');
 
 %% Read and Reconstruct
 for i = 1:numClass
@@ -123,6 +123,6 @@ switch parameters.classifierType
     otherwise
         warning('wrong classifier type... nothing was done...')
 end
-finishMsg()
+disp('Finish...')
 
 end
