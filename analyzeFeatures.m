@@ -1,6 +1,6 @@
 %% Analyze features from multiple files
 % Load features from multiple mat files and plot the figures
-function [] = analyzeFeatures(files,path,numClass)
+function [] = analyzeFeatures()
 clear
 close all
 % clc
@@ -35,6 +35,12 @@ displayInfo.savePrinComp = 0;
 
 %% Get features info
 % [files, path, numClass] = selectFiles('select mat files for classifier''s training');
+allFiles = dir('*.mat');
+numClass = length(allFiles); 
+for i = 1:numClass
+    files{i,1} = allFiles(i,1).name;
+end
+path = pwd;
 
 popMsg('Gathering features...');
 
