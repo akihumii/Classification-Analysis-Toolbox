@@ -16,7 +16,7 @@ parameters.classifierName = 'svm'; % input only either 'lda' or 'svm'
 parameters.classifierType = 1; % 1 for manually classification, 2 for using classifier learner app
 
 % for display
-displayInfo.testClassifier = 1;
+displayInfo.testClassifier = 0;
 displayInfo.saveOutput = 1;
 
 displayInfo.showSeparatedFigures = 0;

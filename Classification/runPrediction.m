@@ -16,12 +16,12 @@ popMsg('Processing classifier testing...');
 tTesting = tic;
 
 % initiate required variables
-numFeatureSet = length(classifierOutput.classificationOutput); % number of feature dimensions used for classification, eg numFeatureSet = 2 means that there is up to 2-D of classification
-numChannel = length(classifierOutput.classificationOutput{1,1}.Mdl);
+numClassierDim = length(classifierOutput.classificationOutput); % number of feature dimensions used for classification, eg numFeatureSet = 2 means that there is up to 2-D of classification
+numChannel = length(classifierOutput.classificationOutput{1,1}(1,1).Mdl);
 
-groupedFeature = cell(numFeatureSet,numChannel,iterTest);
-predictClass = cell(numFeatureSet,numChannel,iterTest);
-accuracyTemp = cell(numFeatureSet,numChannel,iterTest);
+groupedFeature = cell(numClassierDim,numChannel,iterTest);
+predictClass = cell(numClassierDim,numChannel,iterTest);
+accuracyTemp = cell(numClassierDim,numChannel,iterTest);
 
 for i = 1:iterTest % test the classifier
     testSignalInfo(i,1) = getFeaturesInfo(pathTest,filesTest{1,i});
@@ -42,19 +42,21 @@ for i = 1:iterTest % test the classifier
             error('Invalid input class...')
     end
     
-    for j = 1:numFeatureSet
+    for j = 1:numClassierDim
+        numClassifierModel(j,1) = length(classifierOutput.classificationOutput{j,1});
         for k = 1:numChannel
-            trainingRatio = 0;
-            groupedFeature{j,k,i}(:,1) = combineFeatureWithoutNan(featuresInfo{i,1}.featuresAll(:,classifierOutput.featureIndex{j,1}(1,:),k),trainingRatio,1);
-            
-            try
-                predictClass{j,k,i}(:,1) = predict(classifierOutput.classificationOutput{j,1}.Mdl{k},groupedFeature{j,k,i}(:,end).testing); % get the prediction
-                accuracyTemp{j,k,i}(1,:) = calculateAccuracy(predictClass{j,k,i}(:,end),ones(size(predictClass{j,k,i}(:,end)))*classTemp);
-            catch
-                predictClass{j,k,i}(:,1) = 0;
-                accuracyTemp{j,k,i}(1,:) = calculateAccuracy(nan,nan);
+            for n = 1:numClassifierModel(j,1)
+                trainingRatio = 0;
+                groupedFeature{j,k,i}(:,n) = combineFeatureWithoutNan(featuresInfo{i,1}.featuresAll(:,classifierOutput.featureIndex{j,1}(1,:),k),trainingRatio,1);
+                
+                try
+                    predictClass{j,k,i}(:,n) = predict(classifierOutput.classificationOutput{j,1}(n,1).Mdl{k},groupedFeature{j,k,i}(:,end).testing); % get the prediction
+                    accuracyTemp{j,k,i}(n,:) = calculateAccuracy(predictClass{j,k,i}(:,n),ones(size(predictClass{j,k,i}(:,n)))*classTemp);
+                catch
+                    predictClass{j,k,i}(:,n) = 0;
+                    accuracyTemp{j,k,i}(n,:) = calculateAccuracy(nan,nan);
+                end
             end
-            
         end
     end
     %     predictionOutput(i,1) = discreteClassification(testSignalInfo(i,1).dataTKEOTest,testSignalInfo(i,1).dataFilteredTest,testSignalInfo(i,1).samplingFreqTest,windowSize,windowSkipSize,testSignalInfo(i,1).detectionInfoTest,classifierOutput.featureIndex,classifierOutput.coefficient,correctClass);
@@ -62,9 +64,11 @@ end
 
 % Compute the average
 for i = 1:iterTest
-    for j = 1:numFeatureSet
+    for j = 1:numClassierDim
         for k = 1:numChannel
-            resultedAccuracy(j,k,i) = getBasicParameter(vertcat(accuracyTemp{j,k,i}.accuracy));
+            for n = 1:numClassifierModel(j,1)
+                resultedAccuracy(j,k,i,n) = getBasicParameter(vertcat(accuracyTemp{j,k,i}(n,:).accuracy));
+            end
         end
     end
 end

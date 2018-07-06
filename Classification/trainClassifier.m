@@ -10,8 +10,8 @@ function output = trainClassifier(featuresInfo, signalInfo, displayInfo, classif
 %% Parameters
 trainingRatio = 0.625;
 numFeatures = length(featuresInfo.featuresNames);
-featureIndex1D = 2; % input index number ([1,2,3,...]) of the features that are going to train in 1D classification, input 0 if want to train all features combinations
-featureIndex2D = 14; % input index number ([1,2,3,...]) of the features that are going to train in 2D classification, input 0 if want ot train all features combinations
+featureIndex1D = 0; % input index number ([1,2,3,...]) of the features that are going to train in 1D classification, input 0 if want to train all features combinations
+featureIndex2D = 0; % input index number ([1,2,3,...]) of the features that are going to train in 2D classification, input 0 if want ot train all features combinations
 
 %% Classification Settings
 classifierTitle = 'Different Speed'; % it can be 'Different Speed','Different Day','Active EMG'

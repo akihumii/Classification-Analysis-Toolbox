@@ -112,7 +112,7 @@ for i = 1:numData
     f(i,1) = figure;
     hold on;
     set(gcf, 'Position', get(0,'Screensize')-[0 0 0 80],'PaperPositionMode', 'auto');
-    
+
     if channel{1,1} ~= 0
         titleTemp = [' ch ', checkMatNAddStr(channel{i},' - ')];
     else
@@ -160,7 +160,7 @@ for i = 1:numData
                 end
             case 'barGroupedPlot'
                 if any(size(x)==1)
-                    if size(y,2) == 1
+                    if size(y,2) == 1 && all(x==1)
                         y = y';
                         l(i,:) = bar([x,x+1],[y(:,:,i);nan(size(y(:,:,i)))]);
                         xlim([0.5,1.5]);
