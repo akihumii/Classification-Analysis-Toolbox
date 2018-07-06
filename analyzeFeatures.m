@@ -40,7 +40,7 @@ numClass = length(allFiles);
 for i = 1:numClass
     files{i,1} = allFiles(i,1).name;
 end
-path = pwd;
+path = [pwd,filesep];
 
 disp('Gathering features...');
 
