@@ -38,7 +38,7 @@ displayInfo.savePrinComp = 0;
 allFiles = dir('*.mat');
 numClass = length(allFiles); 
 for i = 1:numClass
-    files{i,1} = allFiles(i,1).name;
+    files{1,i} = allFiles(i,1).name;
 end
 path = [pwd,filesep];
 
