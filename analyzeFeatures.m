@@ -1,6 +1,6 @@
 %% Analyze features from multiple files
 % Load features from multiple mat files and plot the figures
-
+function [] = analyzeFeatures(files,path,numClass)
 clear
 close all
 % clc
@@ -9,14 +9,14 @@ close all
 parameters.runPCA = 0;
 parameters.numPrinComp = 0; % number of principle component to use as features
 parameters.threshPercentile = 95; % percentile to threshold the latent of principle component for data reconstruction
-parameters.classificationRepetition = 100; % number of repetition of the classification with randomly assigned training set and testing set
+parameters.classificationRepetition = 1000; % number of repetition of the classification with randomly assigned training set and testing set
 parameters.maxNumFeaturesInCominbation = 2; % maximum nubmer of features used in combinations
 
 parameters.classifierName = 'svm'; % input only either 'lda' or 'svm'
 parameters.classifierType = 1; % 1 for manually classification, 2 for using classifier learner app
 
 % for display
-displayInfo.testClassifier = 1;
+displayInfo.testClassifier = 0;
 displayInfo.saveOutput = 1;
 
 displayInfo.showSeparatedFigures = 0;
@@ -34,7 +34,7 @@ displayInfo.saveReconstruction = 0;
 displayInfo.savePrinComp = 0;
 
 %% Get features info
-[files, path, numClass] = selectFiles('select mat files for classifier''s training');
+% [files, path, numClass] = selectFiles('select mat files for classifier''s training');
 
 popMsg('Gathering features...');
 
@@ -119,3 +119,4 @@ switch parameters.classifierType
 end
 finishMsg()
 
+end
