@@ -110,7 +110,8 @@ switch parameters.classifierType
         
         %% Save the classification output and accuracy output
         if displayInfo.saveOutput
-            saveVar([path,'\classificationInfo\'],horzcat(signalInfo(:,1).saveFileName),classifierOutput,featuresInfo,signalInfo,pcaInfo,parameters);
+            saveDir = saveVar(fullfile(path,'classificationInfo'),horzcat(signalInfo(:,1).saveFileName),classifierOutput,featuresInfo,signalInfo,pcaInfo,parameters);
+            disp(saveDir);
         end
         
         %% End

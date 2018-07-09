@@ -1,4 +1,4 @@
-function [] = saveVar(path,fileName,varargin)
+function saveDir = saveVar(path,fileName,varargin)
 %saveVar Save the variables in the folder 'Info' appended with saving time
 %   [] = saveVar(path,fileName,varargin)
 
@@ -8,7 +8,8 @@ end
 
 timeString = time2string;
 
-save([path,fileName,' ',timeString],'varargin');
+saveDir = (fullfile(path,[fileName,'_',timeString]));
+save(saveDir,'varargin');
 
 end
 
