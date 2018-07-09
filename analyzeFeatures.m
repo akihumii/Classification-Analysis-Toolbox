@@ -36,12 +36,12 @@ displayInfo.savePrinComp = 0;
 %% Get features info
 % [files, path, numClass] = selectFiles('select mat files for classifier''s training');
 allFiles = dir('*.mat');
-numClass = length(allFiles);
-allPairs = nchoosek(1:numClass,2);
-numPairs = size(allPairs);
+numTrial = length(allFiles);
+allPairs = nchoosek(1:numTrial,2);
+[numPairs, numClass] = size(allPairs);
 for i = 1:numPairs
     for j = 1:numClass
-        files{1,j} = allFiles(numPairs(i,j),1).name;
+        files{1,j} = allFiles(allPairs(i,j),1).name;
     end
     path = [pwd,filesep];
     
