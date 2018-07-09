@@ -40,6 +40,7 @@ numTrial = length(allFiles);
 allPairs = nchoosek(1:numTrial,2);
 [numPairs, numClass] = size(allPairs);
 for i = 1:numPairs
+    try
     for j = 1:numClass
         files{1,j} = allFiles(allPairs(i,j),1).name;
     end
@@ -126,6 +127,9 @@ for i = 1:numPairs
             
         otherwise
             warning('wrong classifier type... nothing was done...')
+    end
+    catch
+        warning(['Error while training the pair ',checkMNAddStr(allPairs(i,:),'_')]);
     end
 end
 disp('Finish...')
