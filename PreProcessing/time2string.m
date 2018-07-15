@@ -14,7 +14,7 @@ end
 
 numDigits = length(timeString(1:end-4));
 
-timeStringFinal = '00000000000000'; % yyyymmddmmssss = 14 digits
+timeStringFinal = repmat('0',14); % yyyymmddmmssss = 14 digits
 
 timeStringFinal(1:numDigits) = timeString(1:numDigits); % omit the decimal places
 
