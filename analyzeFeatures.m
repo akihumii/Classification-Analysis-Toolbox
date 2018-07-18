@@ -133,7 +133,7 @@ for i = 1:numPairs
             warning(['Error while training the pair ',checkMNAddStr(allPairs(i,:),'_')]);
         catch
             warning('Error while training the pair ...');
-        end
+            end
     end
 end
 disp('Finish...')
