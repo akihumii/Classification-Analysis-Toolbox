@@ -8,7 +8,7 @@ end
 
 timeString = time2string;
 
-saveDir = (fullfile(path,[fileName,'_',timeString,'.mat']));
+saveDir = fullfile(path,[fileName,'_',timeString,'.mat']);
 save(saveDir,'varargin');
 
 end

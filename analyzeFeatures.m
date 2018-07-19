@@ -9,7 +9,7 @@ close all
 parameters.runPCA = 0;
 parameters.numPrinComp = 0; % number of principle component to use as features
 parameters.threshPercentile = 95; % percentile to threshold the latent of principle component for data reconstruction
-parameters.classificationRepetition = 1000; % number of repetition of the classification with randomly assigned training set and testing set
+parameters.classificationRepetition = 1; % number of repetition of the classification with randomly assigned training set and testing set
 parameters.maxNumFeaturesInCominbation = 2; % maximum nubmer of features used in combinations
 
 parameters.classifierName = 'svm'; % input only either 'lda' or 'svm'
@@ -39,10 +39,10 @@ allFiles = dir('*.mat');
 numTrial = length(allFiles);
 allPairs = nchoosek(1:numTrial,2);
 [numPairs, numClass] = size(allPairs);
-for i = 1:numPairs
+for n = 1:numPairs
     try
         for j = 1:numClass
-            files{1,j} = allFiles(allPairs(i,j),1).name;
+            files{1,j} = allFiles(allPairs(n,j),1).name;
         end
         path = [pwd,filesep];
         
@@ -115,7 +115,7 @@ for i = 1:numPairs
                 %% Save the classification output and accuracy output
                 if displayInfo.saveOutput
                     saveDir = saveVar(fullfile(path,'classificationInfo'),horzcat(signalInfo(:,1).saveFileName),classifierOutput,featuresInfo,signalInfo,pcaInfo,parameters);
-                    disp(saveDir);
+                    disp(['Saving', saveDir, '...']);
                 end
                 
                 %% End
