@@ -9,7 +9,7 @@ close all
 parameters.runPCA = 0;
 parameters.numPrinComp = 0; % number of principle component to use as features
 parameters.threshPercentile = 95; % percentile to threshold the latent of principle component for data reconstruction
-parameters.classificationRepetition = 1; % number of repetition of the classification with randomly assigned training set and testing set
+parameters.classificationRepetition = 1000; % number of repetition of the classification with randomly assigned training set and testing set
 parameters.maxNumFeaturesInCominbation = 2; % maximum nubmer of features used in combinations
 
 parameters.classifierName = 'svm'; % input only either 'lda' or 'svm'
