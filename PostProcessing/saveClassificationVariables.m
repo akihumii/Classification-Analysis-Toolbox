@@ -1,5 +1,5 @@
-function [] = extractFeatures()
-%EXTRACTFEATURES Extract the features and save it in a new mat file.
+function [] = saveClassificationVariables()
+%SAVECLASSIFICATIONVARIABLES Extract the features and save it in a new mat file.
 %   Detailed explanation goes here
 
 allMat = dir('*.mat');
