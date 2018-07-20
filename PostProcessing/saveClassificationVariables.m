@@ -23,7 +23,7 @@ end
 
 summaryTable = table(name,oneDimTA,oneDimGC,twoDimTA,twoDimGC,oneDimFeature,twoDimFeature);
 
-writetable(summaryTable,['summaryTable',time2string]);
+writetable(summaryTable,['summaryTable',time2string,'.xlsx']);
 
 end
 
