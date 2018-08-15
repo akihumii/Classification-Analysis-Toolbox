@@ -6,6 +6,8 @@ close all
 % clc
 
 %% User Input
+parameters.useHPC = 0;
+
 parameters.runPCA = 0;
 parameters.numPrinComp = 0; % number of principle component to use as features
 parameters.threshPercentile = 95; % percentile to threshold the latent of principle component for data reconstruction
@@ -34,17 +36,24 @@ displayInfo.saveReconstruction = 0;
 displayInfo.savePrinComp = 0;
 
 %% Get features info
-% [files, path, numClass] = selectFiles('select mat files for classifier''s training');
-allFiles = dir('*.mat');
-numTrial = length(allFiles);
-allPairs = nchoosek(1:numTrial,2);
-[numPairs, numClass] = size(allPairs);
+if parameters.useHPC
+    allFiles = dir('*.mat');
+    numTrial = length(allFiles);
+    allPairs = nchoosek(1:numTrial,2);
+    [numPairs, numClass] = size(allPairs);
+else
+    [files, path, numClass] = selectFiles('select mat files for classifier''s training');
+    numPairs = 1;
+end
+
 for n = 1:numPairs
     try
-        for j = 1:numClass
-            files{1,j} = allFiles(allPairs(n,j),1).name;
+        if parameters.useHPC
+            for j = 1:numClass
+                files{1,j} = allFiles(allPairs(n,j),1).name;
+            end
+            path = [pwd,filesep];
         end
-        path = [pwd,filesep];
         
         disp('Gathering features...');
         
