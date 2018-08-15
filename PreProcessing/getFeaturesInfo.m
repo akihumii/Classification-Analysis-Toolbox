@@ -15,8 +15,10 @@ output.windowsValues = info.varargin{1,3};
 
 output.fileName = output.signal.fileName;
 output.features = output.signalClassification.features;
-output.fileSpeed{1,1} = output.fileName(7:8);
-output.fileDate{1,1} = output.fileName(12:17);
+% output.fileSpeed{1,1} = output.fileName(7:8);
+% output.fileDate{1,1} = output.fileName(12:17);
+output.fileSpeed{1,1} = files(22:23);
+output.fileDate{1,1} = files(6:13);
 
 output.dataFiltered = output.signal.dataFiltered.values;
 output.dataTKEO = output.signal.dataTKEO.values; % signals for discrete classifcation
