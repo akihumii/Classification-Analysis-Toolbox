@@ -7,7 +7,7 @@ function [] = savePlot(path,titleName,fileName,saveName,varargin)
 % 
 %   [] = savePlot(path,titleName,fileName,saveName)
 
-saveLocation = [path,'Figures\',titleName];
+saveLocation = [path,'Figures',filesep,titleName];
 
 if ~exist(saveLocation,'file')
     mkdir(saveLocation);
@@ -19,10 +19,10 @@ else
     fig = varargin{1,1};
 end
 
-saveas(fig,[saveLocation,'\',saveName,'.fig']);
-saveas(fig,[saveLocation,'\',saveName,'.jpg']);
+saveas(fig,[saveLocation,filesep,saveName,'_',time2string,'.fig']);
+saveas(fig,[saveLocation,filesep,saveName,'_',time2string,'.jpg']);
 
-disp([saveLocation,'\',saveName, ' is saved...'])
+disp([saveLocation,filesep,saveName,'_',time2string,' is saved...'])
 disp(' ')
 
 end

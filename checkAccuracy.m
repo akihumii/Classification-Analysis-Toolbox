@@ -8,39 +8,61 @@ close all
 % Parameters
 maxNumFeatureUsed = 2;
 numChannel = 2;
+saveFigures = 1;
 
 %% Load accuracies and feature IDs
+fileSpeed = cell(0,0); % speeds contained in the file
+fileDate = cell(0,0); % dates contained in the file
 for i = 1:iters
     dataTemp = load(fullfile(path,files{1,i}));
-%     [accuracyAll{i,1},featureIDAll{i,1},numTrainBurst{i,1},numTestBurst{i,1}] = getMaxAccuracy(dataTemp,maxNumFeatureUsed,numChannel);
     output(i,1) = getMaxAccuracy(dataTemp,maxNumFeatureUsed,numChannel);
-    weekStr{i,1} = ['Week ',num2str(i)];
+    fileSpeed{i,1} = [files{1,i}(5:6),'_',files{1,i}(8),' vs ',files{1,i}(55:56),'_',files{1,i}(58)];
+    fileDate{i,1} = files{1,i}(10:17);
 end
         
+infoLegend = checkMatNAddStr(horzcat(fileSpeed,fileDate),'| ',1);
+
 %% separate accuracy and features ID according to their dimensions
-accuracyIndividual = separateAccuracy(vertcat(output(:,1).accuracy),numChannel,iters);
-featureIDIndividual = separateAccuracy(vertcat(output(:,1).featureID),numChannel,iters);
-numTrainBurstIndividual = separateAccuracy(vertcat(output(:,1).numTrainBurst),numChannel,iters);
-numTestBurstIndividual = separateAccuracy(vertcat(output(:,1).numTestBurst),numChannel,iters);
+% field: channel -> [iters, numFeatureUsed]
+outputFieldNames = fieldnames(output);
+numField = length(outputFieldNames);
+for i = 1:numField
+    outputIndividual.([outputFieldNames{i,1},'Individual']) = separateAccuracy(vertcat(output(:,1).(outputFieldNames{i,1})),numChannel,iters);
+end
 
 %% set xticklabel
 for i = 1:iters
     for j = 1:numChannel
-        featureIDStr{i,j} = checkMatNAddStr(featureIDIndividual{j,1}(i,:), ' , ', 1);
+        featureIDStr{i,j} = checkMatNAddStr(outputIndividual.featureIDIndividual{j,1}(i,:), ' , ', 1);
     end
 end
 
 for i = 1:numChannel
-    featureIDStr(:,i) = checkMatNAddStr(horzcat(weekStr,featureIDStr(:,i)),': ',1);
+    featureIDStr(:,i) = checkMatNAddStr(horzcat(infoLegend,featureIDStr(:,i)),': ',1);
 end
 
 %% Visualize
 close all
 
+xCoordinates = getErrorBarXAxisValues(iters,maxNumFeatureUsed); % for plotting mean and error bar
+
 for i = 1:numChannel
+    titleName = ['Highest accuracy of the days channel ', num2str(i)];
+    saveName = strrep(titleName,' ','_');
+    
     % plot the bar chart of accuracies
-    p(i,1) = plotFig(1:iters,accuracyIndividual{i,1},'',['Highest accuracy of the days channel ', num2str(i)], 'Week, Used Feature', 'Accuracy', 0, 1, path, 'overlap', 0, 'barGroupedPlot');
+    p(i,1) = plotFig(1:iters,outputIndividual.accuracyMaxIndividual{i,1},'',titleName, 'Week, Used Feature', 'Accuracy', 0, 1, path, 'overlap', 0, 'barGroupedPlot');
     ylim([0,1]);
+    hold on
+    
+    % plot the mean
+    meanTemp = outputIndividual.accuracyAveIndividual{i,1};
+    plot(xCoordinates,meanTemp,'r*');
+    
+    % plot the percentile
+    perc5Temp = meanTemp(:) - outputIndividual.accuracyPerc5Individual{i,1}(:);
+    perc95Temp = outputIndividual.accuracyPerc95Individual{i,1}(:) - meanTemp(:);
+    errorbar(xCoordinates(:),meanTemp(:),perc5Temp,perc95Temp,'v');
     
     % change the XTickLabel
     p(i,1).XTick = 1:iters;
@@ -48,9 +70,9 @@ for i = 1:numChannel
 
     % insert the number of used bursts
     text(-0.3,0.98,'Number of training bursts in each class: ');
-    text(1:iters,repmat(0.98,1,iters),checkMatNAddStr(numTrainBurstIndividual{i,1},',',1));
+    text(1:iters,repmat(0.98,1,iters),checkMatNAddStr(outputIndividual.numTrainBurstIndividual{i,1},',',1));
     text(-0.3,0.95,'Number of testing bursts in each class: ');
-    text(1:iters,repmat(0.95,1,iters),checkMatNAddStr(numTestBurstIndividual{i,1},',',1));
+    text(1:iters,repmat(0.95,1,iters),checkMatNAddStr(outputIndividual.numTestBurstIndividual{i,1},',',1));
     
     % insert faeture legend
     legendMat = horzcat(mat2cell(transpose(1:8),ones(8,1),1),dataTemp.varargin{1,2}.featuresNames);
@@ -58,10 +80,14 @@ for i = 1:numChannel
     t = text(-0.3,0.1,legendText);
     
     % input bar legend
-    barObj = vertcat(p(i,1).Children(end-2),p(i,1).Children(end-3));
-    barObjLegend = [{'1-feature classification'};{'2-feature classification'}];
+    barObj = vertcat(p(i,1).Children(end-2),p(i,1).Children(end-3),p(i,1).Children(end-4),p(i,1).Children(end-6));
+    barObjLegend = [{'1-feature classification'};{'2-feature classification'};{'Mean value'};{'5 to 95 percentile'}];
     legend(barObj,barObjLegend,'Location','SouthEast')
     grid on
+    
+    if saveFigures
+        savePlot(path,titleName,'',saveName);
+    end
 end
 
 popMsg('Finished...');
