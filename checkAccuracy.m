@@ -12,14 +12,16 @@ numChannel = 2;
 %% Load accuracies and feature IDs
 for i = 1:iters
     dataTemp = load(fullfile(path,files{1,i}));
-    [accuracyAll{i,1},featureIDAll{i,1},numTrainBurst{i,1},numTestBurst{i,1}] = getMaxAccuracy(dataTemp,maxNumFeatureUsed,numChannel);
+%     [accuracyAll{i,1},featureIDAll{i,1},numTrainBurst{i,1},numTestBurst{i,1}] = getMaxAccuracy(dataTemp,maxNumFeatureUsed,numChannel);
+    output(i,1) = getMaxAccuracy(dataTemp,maxNumFeatureUsed,numChannel);
     weekStr{i,1} = ['Week ',num2str(i)];
 end
         
 %% separate accuracy and features ID according to their dimensions
-accuracyIndividual = separateAccuracy(accuracyAll,numChannel,iters);
-featureIDIndividual = separateAccuracy(featureIDAll,numChannel,iters);
-numTrainBurstIndividual = separateAccuracy(numTrainBurst,numChannel,iters);
+accuracyIndividual = separateAccuracy(vertcat(output(:,1).accuracy),numChannel,iters);
+featureIDIndividual = separateAccuracy(vertcat(output(:,1).featureID),numChannel,iters);
+numTrainBurstIndividual = separateAccuracy(vertcat(output(:,1).numTrainBurst),numChannel,iters);
+numTestBurstIndividual = separateAccuracy(vertcat(output(:,1).numTestBurst),numChannel,iters);
 
 %% set xticklabel
 for i = 1:iters
@@ -33,6 +35,8 @@ for i = 1:numChannel
 end
 
 %% Visualize
+close all
+
 for i = 1:numChannel
     % plot the bar chart of accuracies
     p(i,1) = plotFig(1:iters,accuracyIndividual{i,1},'',['Highest accuracy of the days channel ', num2str(i)], 'Week, Used Feature', 'Accuracy', 0, 1, path, 'overlap', 0, 'barGroupedPlot');
@@ -43,14 +47,20 @@ for i = 1:numChannel
     p(i,1).XTickLabel = featureIDStr(:,i);
 
     % insert the number of used bursts
-    text(0,-0.1,'Number of bursts in each class: ');
-    text(1:iters,repmat(-0.1,1,iters),checkMatNAddStr(numTrainBurstIndividual{i,1},',',1));
+    text(-0.3,0.98,'Number of training bursts in each class: ');
+    text(1:iters,repmat(0.98,1,iters),checkMatNAddStr(numTrainBurstIndividual{i,1},',',1));
+    text(-0.3,0.95,'Number of testing bursts in each class: ');
+    text(1:iters,repmat(0.95,1,iters),checkMatNAddStr(numTestBurstIndividual{i,1},',',1));
     
     % insert faeture legend
     legendMat = horzcat(mat2cell(transpose(1:8),ones(8,1),1),dataTemp.varargin{1,2}.featuresNames);
     legendText = checkMatNAddStr(legendMat,': ',1);
-    t = text(-0.3,0.9,legendText);
+    t = text(-0.3,0.1,legendText);
     
+    % input bar legend
+    barObj = vertcat(p(i,1).Children(end-2),p(i,1).Children(end-3));
+    barObjLegend = [{'1-feature classification'};{'2-feature classification'}];
+    legend(barObj,barObjLegend,'Location','SouthEast')
     grid on
 end
 
