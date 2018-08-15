@@ -10,6 +10,7 @@ Mdl = fitcknn(trainingTemp,trainingClassTemp,'NumNeighbors',numNeighbours,'Stand
 predictClass = predict(Mdl,testingTemp);
 
 %% output
+output.Mdl = Mdl;
 output.predictClass = predictClass;
 end
 

@@ -1,5 +1,5 @@
 function output = getBasicParameter(data)
-%basicParam Output the basic parameters.
+%basicParam Output the basic parameters, input must be vertical array.
 % 
 % output: mean, std, stde, max, min
 % 
