@@ -31,14 +31,14 @@ for i = 1:numPairs
     if iscell(mat)
         switch dim
             case 1
-                newStr{i,1} = mat{i,1};
+                newStr{i,1} = num2str(mat{i,1});
                 for j = 2:numElement
-                    newStr{i,1} = [newStr{i,1},str,mat{i,j}];
+                    newStr{i,1} = [newStr{i,1},str,num2str(mat{i,j})];
                 end
             case 2
-                newStr{i,1} = mat{1,i};
+                newStr{i,1} = num2str(mat{1,i});
                 for j = 2:numElement
-                    newStr{i,1} = [newStr{i,1},str,mat{j,i}];
+                    newStr{i,1} = [newStr{i,1},str,num2str(mat{j,i})];
                 end
         end
     else
