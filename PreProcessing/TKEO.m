@@ -5,9 +5,9 @@ function [dataTKEO_abs_filtered] = TKEO(data,samplingFreq)
 
 [rowData,colData] = size(data);
 
-data = filterData(data,samplingFreq,10,500);
+data = filterData(data,samplingFreq,10,500); % bandpass filter of 10-500 Hz
 
-data = filterData(data,samplingFreq,30,300);
+data = filterData(data,samplingFreq,30,300); % bandpass filter of 30-300 Hz
 
 dataTKEO = zeros(rowData,1);
 dataTKEO(end,1) = data(end,1);

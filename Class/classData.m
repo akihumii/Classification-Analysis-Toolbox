@@ -20,14 +20,14 @@ classdef classData
         samplingFreq
         decimateFactor
         channel
-        channelRef % reference channel for differential data
+        channelPair % reference channel for differential data
         noiseData
         dataAll
         dataRaw
         dataRectified
         dataFiltered
         dataFFT
-        dataDelta
+        dataDifferential
         dataTKEO
         dataPCA
     end
@@ -37,7 +37,7 @@ classdef classData
     
     %% Methods
     methods
-        function data = classData(file,path,fileType,neutrinoBit,channel,samplingFreq,neutrinoInputReferred,partialDataSelection,constraintWindow)
+        function data = classData(file,path,fileType,neutrinoBit,channel,samplingFreq,neutrinoInputReferred,partialDataSelection,constraintWindow,downSamplingFreq)
             if nargin > 0
                 data.file = file;
                 data.path = path;
@@ -60,10 +60,19 @@ classdef classData
                 else
                     data.samplingFreq = samplingFreq;
                 end
-                data.samplingFreq = data.samplingFreq; % down sampling
                 [data.dataAll, data.time] = reconstructData(file, path, fileType, neutrinoBit, neutrinoInputReferred);
+                
+                % decimate signal
+                if downSamplingFreq ~= 0 
+                    data.dataAll = decimateData(data.dataAll,downSamplingFreq,data.samplingFreq);
+                    data.time = data.time * downSamplingFreq / data.samplingFreq; % change the unit to suit the downsampled one
+                    data.time = decimateData(data.time,downSamplingFreq,data.samplingFreq);
+                    data.samplingFreq = downSamplingFreq; % change the samplingFreq to the downSamplingFreq
+                end
+                
                 data.fileName = naming(data.file);
                 data.channel = channel;
+                data.channelPair = channel';
                 if channel > size(data.dataAll,2)
                     error('Error found in User Input: Selected channel is not existed')
                 end
@@ -84,10 +93,10 @@ classdef classData
             data.dataRectified = abs(data.dataRectified);
         end
         
-        function data = dataDifferentialSubtraction(data, targetName, channelRef)
-            channelRefLocs = find(data.channel == channelRef);
-            data.dataDelta = dataDifferentialSubtraction(data.(targetName), channelRefLocs);
-            data.channelRef = channelRef;
+        function data = dataDifferentialSubtraction(data, targetName, channelPair)
+            [~,channelRefLocs] = ismember(channelPair',data.channel); % get the locations of the channel pairs in all the channels
+            data.dataDifferential = dataDifferentialSubtraction(data.(targetName), channelRefLocs); % subtract according to 1-2, 3-4, etc...
+            data.channelPair = channelPair;
         end
         
         function data = filterData(data, targetName, samplingFreq, highPassCutoffFreq, lowPassCutoffFreq, notchFreq)
@@ -131,21 +140,5 @@ classdef classData
             errorShow(targetName, 'targetName', 'char');
         end
         
-        function data = decimateData(data,decimateFactor,targetName) % downsampling the targetName's values and the samplingFreq
-            data.decimateFactor = decimateFactor;
-            numField = length(targetName);
-            for i = 1:numField
-                if isequal(targetName{i,1},'dataFiltered') || isequal(targetName{i,1},'dataTKEO')
-                    targetNameTemp = [targetName(i,1);{'values'}];
-                    [dataValue, dataName] = loadMultiLayerStruct(data,targetNameTemp);
-                    data.(targetName{i,1}).values = decimateData(dataValue,decimateFactor);
-                else
-                    targetNameTemp = targetName{i,1};
-                    [dataValue, dataName] = loadMultiLayerStruct(data,targetNameTemp);
-                    data.(targetName{i,1}) = decimateData(dataValue,decimateFactor);
-                end
-            end
-            data.time = decimateData(data.time,decimateFactor);
-        end
     end
 end

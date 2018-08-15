@@ -14,7 +14,7 @@ skipDataLogics = ~correctData;
 
 skipDataLocs = find(skipDataLogics==1);
 
-skipDataArray = diffData(skipDataLocs);
+skipDataArray = diffData(skipDataLocs) - 1;
 
 numSkipData = length(skipDataLocs);
 

@@ -1,6 +1,5 @@
 function output = selectPartialData(time, data, fileName, path, window, samplingFreq)
-%selectPartialSignals Select baseline signal portion and decoding burst
-%signal portion. Type can be 'line' or 'box'.
+%selectPartialSignals Select a portion of data. 
 %   output = selectPartialSignals(time, data, fileName, path, window, samplingFreq)
 %
 % output.partialData = partial data value

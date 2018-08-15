@@ -1,4 +1,4 @@
-function [] = savePlot(path,titleName,fileName,saveName)
+function [] = savePlot(path,titleName,fileName,saveName,varargin)
 %savePlot Save the current plots
 % Plots will be save in path:
 % [path, 'Figures\', titleName, '\', saveName, '.fig'];
@@ -13,10 +13,16 @@ if ~exist(saveLocation,'file')
     mkdir(saveLocation);
 end
 
-saveas(gcf,[saveLocation,'\',saveName,'.fig']);
-saveas(gcf,[saveLocation,'\',saveName,'.jpg']);
+if length(varargin) == 0
+    fig = gcf;
+else
+    fig = varargin{1,1};
+end
 
-disp([titleName,' ',fileName, ' is saved...'])
+saveas(fig,[saveLocation,'\',saveName,'.fig']);
+saveas(fig,[saveLocation,'\',saveName,'.jpg']);
+
+disp([saveLocation,'\',saveName, ' is saved...'])
 disp(' ')
 
 end

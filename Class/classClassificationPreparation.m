@@ -62,28 +62,37 @@ classdef classClassificationPreparation
             clfp.burstDetection.channelExtractStartingLocs = channelExtractStartingLocs;
         end
         
-        function clfp = classificationWindowSelection(clfp, targetClassData, targetName)
+        function clfp = classificationWindowSelection(clfp, targetClassData, targetName,burstTrimming,burstTrimmingType)
             if isequal(targetName,'dataFiltered') || isequal(targetName,'dataTKEO')
                 targetName = [{targetName};{'values'}];
             end
             [dataValue, dataName] = loadMultiLayerStruct(targetClassData,targetName);
-%             clfp.selectedWindows = classificationWindowSelection(...
-%                 dataValue,...
-%                 clfp.burstDetection.spikeLocs,...
-%                 clfp.window,...
-%                 targetClassData.samplingFreq);
+            
+            if burstTrimming % to trim the bursts
+                p = plotFig(targetClassData.time/targetClassData.samplingFreq,dataValue,'','','Time(s)','Amplitude(V)',0,1);
+                [clfp.burstDetection.spikePeaksValue,clfp.burstDetection.spikeLocs,clfp.burstDetection.burstEndValue,clfp.burstDetection.burstEndLocs,clfp.burstDetection.selectedBurstsIndex] =...
+                    deleteBurst(burstTrimmingType, p, targetClassData.time, targetClassData.samplingFreq, clfp.burstDetection.spikePeaksValue,clfp.burstDetection.spikeLocs,clfp.burstDetection.burstEndValue,clfp.burstDetection.burstEndLocs);
+            end
+            
             clfp.selectedWindows = getPointsWithinRange(...
                 targetClassData.time,...
                 dataValue,...
                 clfp.burstDetection.spikeLocs,...
                 clfp.burstDetection.burstEndLocs,...
-                clfp.window,...
+                [0,0],...
                 targetClassData.samplingFreq, 0);
         end
         
-        function clfp = featureExtraction(clfp,targetField)
+        function clfp = pcaCleanData(clfp)
+            clfp.selectedWindows.burst = pcaCleanData(clfp.selectedWindows.burst);
+            clfp.selectedWindows.burstMean = nanmean(clfp.selectedWindows.burst,2);
+            numSamplePoints = size(clfp.selectedWindows.burst,1);
+            clfp.selectedWindows.xAxisValues = clfp.selectedWindows.xAxisValues(1:numSamplePoints,:,:);
+        end
+
+        function clfp = featureExtraction(clfp,samplingFreq,targetField)
             [dataValues, dataName] = loadMultiLayerStruct(clfp,targetField);
-            clfp.features = featureExtraction(dataValues);
+            clfp.features = featureExtraction(dataValues,samplingFreq);
             clfp.features.dataAnalysed = [clfp.file, ' -> ', dataName];
         end
         
