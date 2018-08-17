@@ -6,7 +6,7 @@ close all
 % clc
 
 %% User Input
-parameters.useHPC = 0;
+parameters.useHPC = 1;
 
 parameters.runPCA = 0;
 parameters.numPrinComp = 0; % number of principle component to use as features
@@ -61,6 +61,9 @@ for n = 1:numPairs
         for i = 1:numClass
             signalInfo(i,1) = getFeaturesInfo(path,files{1,i});
         end
+        
+        %% Balance the number of bursts from all the channels
+        signalInfo = balanceBursts(signalInfo,numClass);
         
         %% Reconstruct PCA
         pcaInfo = reconstructPCA(signalInfo,parameters.threshPercentile); % matrix in [class x channel]
@@ -142,7 +145,7 @@ for n = 1:numPairs
             warning(['Error while training the pair ',checkMNAddStr(allPairs(i,:),'_')]);
         catch
             warning('Error while training the pair ...');
-            end
+        end
     end
 end
 disp('Finish...')
