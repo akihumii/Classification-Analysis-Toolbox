@@ -10,12 +10,19 @@ featureNames = fieldnames(signalInfo(1,1).features);
 featureNames(end) = []; % the last field is the name of the analysed data but not the featuresName
 numFeatures = length(featureNames);
 
+% Initialize
 for i = 1:numChannel
     for j = 1:numFeatures
         output(i,1).(featureNames{j,1}) = zeros(0,0);
-        for k = 1:numClass
-            locsTemp = ~isnan(signalInfo(k,1).features.(featureNames{j,1})(:,i)) & signalInfo(k,1).features.(featureNames{j,1})(:,i) ~= 0;
-            output(i,1).(featureNames{j,1}) = [output(i,1).(featureNames{j,1}) ; signalInfo(k,1).features.(featureNames{j,1})(locsTemp,i)];
+    end
+end
+        
+
+for i = 1:numClass
+    for j = 1:numChannel
+        locsTemp = ~isnan(signalInfo(i,1).features.(featureNames{1,1})(:,j)) & signalInfo(i,1).features.(featureNames{1,1})(:,j) ~= 0;
+        for k = 1:numFeatures
+            output(j,1).(featureNames{k,1}) = [output(j,1).(featureNames{k,1}) ; signalInfo(i,1).features.(featureNames{k,1})(locsTemp,j)];
         end
     end
 end

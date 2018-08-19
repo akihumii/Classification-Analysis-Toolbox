@@ -8,7 +8,7 @@ trainingRatio = 0.7;
 
 numBurstsAll = zeros(0,0);
 for i = 1:numClass
-    numBurstsAll = vertcat(numBurstsAll,transpose(signalInfo(i,1).signalClassification.selectedWindows.numBursts));
+    numBurstsAll = vertcat(numBurstsAll,checkSizeNTranspose(signalInfo(i,1).signalClassification.selectedWindows.numBursts,1));
     signalInfo(i,1).signalClassification.trainingRatio = trainingRatio;
 end
 

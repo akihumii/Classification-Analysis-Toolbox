@@ -47,7 +47,7 @@ else
 end
 
 for n = 1:numPairs
-    try
+%     try
         if parameters.useHPC
             for j = 1:numClass
                 files{1,j} = allFiles(allPairs(n,j),1).name;
@@ -140,13 +140,13 @@ for n = 1:numPairs
             otherwise
                 warning('wrong classifier type... nothing was done...')
         end
-    catch
-        try
-            warning(['Error while training the pair ',checkMNAddStr(allPairs(i,:),'_')]);
-        catch
-            warning('Error while training the pair ...');
-        end
-    end
+%     catch
+%         try
+%             warning(['Error while training the pair ',checkMNAddStr(allPairs(i,:),'_')]);
+%         catch
+%             warning('Error while training the pair ...');
+%         end
+%     end
 end
 disp('Finish...')
 
