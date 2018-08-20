@@ -1,4 +1,4 @@
-function output = trainClassifier(featuresInfo, signalInfo, displayInfo, classificationRepetition, maxNumFeaturesInCombination, classifierName)
+function output = trainClassifier(featuresInfo, signalInfo, displayInfo, classificationRepetition, numFeaturesInCombination, classifierName)
 %trainClassifier Train the classifier to use in analyzeFeatures
 %
 % output:   classificationOutput, accuracyBasicParameter, accuracy,
@@ -34,8 +34,10 @@ classifierFullTitle = [classifierFullTitle,' )'];
 if displayInfo.showHistFit||displayInfo.saveHistFit||displayInfo.showAccuracy||displayInfo.saveAccuracy||displayInfo.showReconstruction||displayInfo.saveReconstruction||displayInfo.showPrinComp||displayInfo.savePrinComp
     disp('Training classifiers...');
     
-    for i = 1:maxNumFeaturesInCombination
-        featureIndex{i,1} = nchoosek(1:numFeatures,i); % n choose 
+    lengthumFeaturesInCombination = length(numFeaturesInCombination);
+    
+    for i = 1:lengthumFeaturesInCombination
+        featureIndex{i,1} = nchoosek(1:numFeatures,numFeaturesInCombination(i)); % n choose 
         
 %         if i == 2
 %             if all(featureIndex2D > 0)
