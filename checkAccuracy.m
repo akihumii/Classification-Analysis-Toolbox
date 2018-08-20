@@ -8,7 +8,7 @@ close all
 % Parameters
 maxNumFeatureUsed = 2;
 numChannel = 2;
-saveFigures = 0;
+saveFigures = 1;
 
 %% Load accuracies and feature IDs
 fileSpeed = cell(0,0); % speeds contained in the file
