@@ -8,7 +8,7 @@ function output = trainClassifier(featuresInfo, signalInfo, displayInfo, classif
 %   output = trainClassifier(featuresInfo, signalInfo, displayInfo, classificationRepetition, maxNumFeaturesInCombination)
 
 %% Parameters
-trainingRatio = 0.625;
+trainingRatio = 0.7;
 numFeatures = length(featuresInfo.featuresNames);
 % featureIndex1D = 0; % input index number ([1,2,3,...]) of the features that are going to train in 1D classification, input 0 if want to train all features combinations
 % featureIndex2D = 0; % input index number ([1,2,3,...]) of the features that are going to train in 2D classification, input 0 if want ot train all features combinations
