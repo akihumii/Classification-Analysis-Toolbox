@@ -23,6 +23,7 @@ end
 %% separate accuracy and features ID according to their dimensions
 % field: channel -> [iters, numFeatureUsed]
 outputFieldNames = fieldnames(output);
+outputFieldNames(end) = []; % this is the chosen accuracy locations
 numField = length(outputFieldNames);
 for i = 1:numField
     outputIndividual.([outputFieldNames{i,1},'Individual']) = separateAccuracy(vertcat(output(:,1).(outputFieldNames{i,1})),numChannel,iters);
@@ -50,7 +51,7 @@ for i = 1:numChannel
     saveName = [strrep(titleName,' ','_'),fileDate{1,1},'to',fileDate{end,1}];
     
     % plot the bar chart of accuracies
-    p(i,1) = plotFig(1:iters,outputIndividual.accuracyMaxIndividual{i,1},'',titleName, '', 'Accuracy', 0, 1, path, 'overlap', 0, 'barGroupedPlot');
+    p(i,1) = plotFig(1:iters,outputIndividual.accuracyMedianIndividual{i,1},'',titleName, '', 'Accuracy', 0, 1, path, 'overlap', 0, 'barGroupedPlot');
     ylim([0,1]);
     hold on
     
@@ -59,9 +60,10 @@ for i = 1:numChannel
     plot(xCoordinates,meanTemp,'r*');
     
     % plot the percentile
-    perc5Temp = meanTemp(:) - outputIndividual.accuracyPerc5Individual{i,1}(:);
-    perc95Temp = outputIndividual.accuracyPerc95Individual{i,1}(:) - meanTemp(:);
-    errorbar(xCoordinates(:),meanTemp(:),perc5Temp,perc95Temp,'kv');
+    medianTemp = outputIndividual.accuracyMedianIndividual{i,1};
+    perc5Temp = medianTemp(:) - outputIndividual.accuracyPerc5Individual{i,1}(:);
+    perc95Temp = outputIndividual.accuracyPerc95Individual{i,1}(:) - medianTemp(:);
+    errorbar(xCoordinates(:),medianTemp(:),perc5Temp,perc95Temp,'kv');
     
     % change the XTickLabel
     p(i,1).XTick = 1:iters;

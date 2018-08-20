@@ -31,6 +31,7 @@ else
     warning('Nothing has been done in omitNan due to invalid input ''dim''');
 end
 
+output = squeezeNan(output,dim);
 
 end
 
