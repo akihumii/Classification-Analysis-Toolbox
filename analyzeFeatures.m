@@ -1,6 +1,6 @@
 %% Analyze features from multiple files
 % Load features from multiple mat files and plot the figures
-function [] = analyzeFeatures(numFeaturesInCombinations)
+function [] = analyzeFeatures(varargin)
 % clear
 close all
 % clc
@@ -12,7 +12,11 @@ parameters.runPCA = 0;
 parameters.numPrinComp = 0; % number of principle component to use as features
 parameters.threshPercentile = 95; % percentile to threshold the latent of principle component for data reconstruction
 parameters.classificationRepetition = 1000; % number of repetition of the classification with randomly assigned training set and testing set
-parameters.numFeaturesInCominbation = numFeaturesInCombinations; % array of nubmer of features used in combinations
+if nargin == 1
+    parameters.numFeaturesInCominbation = varargin{1,1}; % array of nubmer of features used in combinations
+else
+    parameters.numFeaturesInCominbation = 1:2; % array of nubmer of features used in combinations
+end    
 
 parameters.classifierName = 'svm'; % input only either 'lda' or 'svm'
 parameters.classifierType = 1; % 1 for manually classification, 2 for using classifier learner app
