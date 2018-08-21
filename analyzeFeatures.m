@@ -1,7 +1,7 @@
 %% Analyze features from multiple files
 % Load features from multiple mat files and plot the figures
 function [] = analyzeFeatures(numFeaturesInCombinations)
-clear
+% clear
 close all
 % clc
 
