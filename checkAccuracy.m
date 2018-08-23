@@ -19,6 +19,9 @@ for i = 1:iters
     fileSpeed{i,1} = [files{1,i}(5:6),'_',files{1,i}(8),' vs ',files{1,i}(55:56),'_',files{1,i}(58)];
     fileDate{i,1} = files{1,i}(10:17);
 end
+fileSpeedOnly{1,1} = [fileSpeed{1,1}(1:2),'cm/s'];
+fileSpeedOnly{2,1} = [fileSpeed{1,1}(9:10),'cm/s'];
+    
         
 %% separate accuracy and features ID according to their dimensions
 % field: channel -> [iters, numFeatureUsed]
@@ -32,21 +35,17 @@ end
 %% set xticklabel
 for i = 1:iters
     for j = 1:numChannel
-        featureIDStr{i,j} = checkMatNAddStr(outputIndividual.featureIDIndividual{j,1}(i,:), ',', 1);
+        featureIDStr{i,j} = checkMatNAddStr(outputIndividual.featureIDIndividual{j,1}(i,:), ' | ', 1);
     end
 end
-
-% for i = 1:numChannel
-%     featureIDStr(:,i) = checkMatNAddStr(horzcat(fileDate,featureIDStr(:,i)),': ',1);
-% end
 
 %% Visualize
 close all
 
 xCoordinates = getErrorBarXAxisValues(iters,maxNumFeatureUsed); % for plotting mean and error bar
-leftCoordinates = -1.8;
+leftCoordinates = -1;
 
-for i = 1:numChannel
+for i = 1:numChannel % plot median accuracy
     titleName = ['Highest accuracy of the days channel ', num2str(i)];
     saveName = [strrep(titleName,' ','_'),fileDate{1,1},'to',fileDate{end,1}];
     
@@ -70,10 +69,11 @@ for i = 1:numChannel
     p(i,1).XTickLabel = featureIDStr(:,i);
 
     % insert the number of used bursts
-    text(leftCoordinates,0.98,'No. for training: ');
-    text(1:iters,repmat(0.98,1,iters),checkMatNAddStr(outputIndividual.numTrainBurstIndividual{i,1},',',1));
-    text(leftCoordinates,0.95,'No. for testing: ');
-    text(1:iters,repmat(0.95,1,iters),checkMatNAddStr(outputIndividual.numTestBurstIndividual{i,1},',',1));
+    yLimitBursts = ylim;
+    text(leftCoordinates,0.98*yLimitBursts(2),'No. for training: ');
+    text(xCoordinates(:,1),repmat(0.98*yLimitBursts(2),1,iters),checkMatNAddStr(outputIndividual.numTrainBurstIndividual{i,1},',',1));
+    text(leftCoordinates,0.95*yLimitBursts(2),'No. for testing: ');
+    text(xCoordinates(:,1),repmat(0.95*yLimitBursts(2),1,iters),checkMatNAddStr(outputIndividual.numTestBurstIndividual{i,1},',',1));
     
     % insert speed
     text(xCoordinates(:,1),repmat(0.05,1,iters),fileSpeed);
@@ -96,6 +96,10 @@ for i = 1:numChannel
         savePlot(path,titleName,'',saveName);
     end
 end
+
+plotFeatures('maxValue',numChannel,fileDate,outputIndividual,xCoordinates,iters,leftCoordinates,fileSpeedOnly);
+plotFeatures('BL',numChannel,fileDate,outputIndividual,xCoordinates,iters,leftCoordinates,fileSpeedOnly);
+plotFeatures('meanValue',numChannel,fileDate,outputIndividual,xCoordinates,iters,leftCoordinates,fileSpeedOnly);
 
 popMsg('Finished...');
 

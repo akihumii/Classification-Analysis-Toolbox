@@ -47,6 +47,19 @@ for j = 1:numChannel
         % get number of bursts
         numTrainBurst{1,1}(k,j) = length(find(data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).trainingClass{j,1}==k));
         numTestBurst{1,1}(k,j) = length(find(data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).testingClass{j,1}==k));
+        
+        % get some features
+        maxValueIndex = 1;
+        maxValue{1,1}(k,j) = mean(data.varargin{1,2}.featuresAll{k,maxValueIndex,j});
+        maxValueStde{1,1}(k,j) = data.varargin{1,2}.featureStde(maxValueIndex,k,j);
+        
+        meanValueIndex = 5;
+        meanValue{1,1}(k,j) = mean(data.varargin{1,2}.featuresAll{k,meanValueIndex,j});
+        meanValueStde{1,1}(k,j) = data.varargin{1,2}.featureStde(meanValueIndex,k,j);
+
+        BLIndex = 3;
+        BL{1,1}(k,j) = mean(data.varargin{1,2}.featuresAll{k,BLIndex,j});
+        BLStde{1,1}(k,j) = data.varargin{1,2}.featureStde(BLIndex,k,j);
     end
 end
     
@@ -58,6 +71,12 @@ end
     output.accuracyAve = accuracyAve;
     output.accuracyPerc5 = accuracyPerc5;
     output.accuracyPerc95 = accuracyPerc95;
+    output.maxValue = maxValue;
+    output.maxValueStde = maxValueStde;
+    output.BL = BL;
+    output.BLStde = BLStde;
+    output.meanValue = meanValue;
+    output.meanValueStde = meanValueStde;
     output.accuracyLocs = accuracyLocs;
     
 end
