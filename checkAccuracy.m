@@ -95,11 +95,27 @@ for i = 1:numChannel % plot median accuracy
     if saveFigures
         savePlot(path,titleName,'',saveName);
     end
+    hold off
 end
 
 plotFeatures('maxValue',numChannel,fileDate,outputIndividual,xCoordinates,iters,leftCoordinates,fileSpeedOnly);
 plotFeatures('BL',numChannel,fileDate,outputIndividual,xCoordinates,iters,leftCoordinates,fileSpeedOnly);
 plotFeatures('meanValue',numChannel,fileDate,outputIndividual,xCoordinates,iters,leftCoordinates,fileSpeedOnly);
+
+
+for i = 1:numChannel
+    for j = 1:iters
+        figure
+        
+        YTestTrueTemp = mat2confusionMat(outputIndividual.predictionVSKnownClassIndividual{i,1}{j,1}(:,1));
+        YTestPredictedTemp = mat2confusionMat(outputIndividual.predictionVSKnownClassIndividual{i,1}{j,2}(:,2));
+        pCM(j,i) = plotconfusion(YTestTrueTemp,YTestPredictedTemp);
+        title([fileDate{j},' channel ',num2str(i)])
+        
+        pause
+    end
+end
+
 
 popMsg('Finished...');
 
