@@ -6,7 +6,7 @@ close all
 [files, path, iters] = selectFiles('select the desired classifier models');
 
 % Parameters
-maxNumFeatureUsed = 2;
+maxNumFeatureUsed = 1;
 numChannel = 2;
 saveFigures = 0;
 
@@ -50,7 +50,8 @@ for i = 1:numChannel % plot median accuracy
     saveName = [strrep(titleName,' ','_'),fileDate{1,1},'to',fileDate{end,1}];
     
     % plot the bar chart of accuracies
-    p(i,1) = plotFig(1:iters,outputIndividual.accuracyMedianIndividual{i,1},'',titleName, '', 'Accuracy', 0, 1, path, 'overlap', 0, 'barGroupedPlot');
+    p(i,1) = plotFig(1:iters,outputIndividual.accuracyMedianIndividual{i,1},'',titleName, '', 'Accuracy', 0, 1, path, 'overlap', 0, 'barPlot');
+%     p(i,1) = plotFig(1:iters,outputIndividual.accuracyMedianIndividual{i,1},'',titleName, '', 'Accuracy', 0, 1, path, 'overlap', 0, 'barGroupedPlot');
     ylim([0,1]);
     hold on
     
@@ -103,18 +104,18 @@ plotFeatures('BL',numChannel,fileDate,outputIndividual,xCoordinates,iters,leftCo
 plotFeatures('meanValue',numChannel,fileDate,outputIndividual,xCoordinates,iters,leftCoordinates,fileSpeedOnly);
 
 
-for i = 1:numChannel
-    for j = 1:iters
-        figure
-        
-        YTestTrueTemp = mat2confusionMat(outputIndividual.predictionVSKnownClassIndividual{i,1}{j,1}(:,1));
-        YTestPredictedTemp = mat2confusionMat(outputIndividual.predictionVSKnownClassIndividual{i,1}{j,2}(:,2));
-        pCM(j,i) = plotconfusion(YTestTrueTemp,YTestPredictedTemp);
-        title([fileDate{j},' channel ',num2str(i)])
-        
-        pause
-    end
-end
+% for i = 1:numChannel
+%     for j = 1:iters
+%         figure
+%         
+%         YTestTrueTemp = mat2confusionMat(outputIndividual.predictionVSKnownClassIndividual{i,1}{j,1}(:,1));
+%         YTestPredictedTemp = mat2confusionMat(outputIndividual.predictionVSKnownClassIndividual{i,1}{j,2}(:,2));
+%         pCM(j,i) = plotconfusion(YTestTrueTemp,YTestPredictedTemp);
+%         title([fileDate{j},' channel ',num2str(i)])
+%         
+%         pause
+%     end
+% end
 
 
 popMsg('Finished...');

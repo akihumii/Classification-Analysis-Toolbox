@@ -7,11 +7,11 @@ for i = 1:maxNumFeatureUsed
     numFeatureSetsTemp = length(data.varargin{1,1}.classificationOutput{1,1});
     % check the accuracy from all the utilized feature sets
     for j = 1:numFeatureSetsTemp
-        accuracyMedianAll{i,1}(j,:) = median(horzcat(data.varargin{1,1}.classificationOutput{i,1}(j,1).accuracyAll{:,1}),1);
+        accuracyMedianAll{i,1}(j,:) = median(data.varargin{1,1}.classificationOutput{i,1}(j,1).accuracyAll,1);
         
         for k = 1:numChannel
-            accuracyPerc5All{i,1}(j,k) = prctile(data.varargin{1,1}.classificationOutput{i,1}(j,1).accuracyAll{k,1},5);
-            accuracyPerc95All{i,1}(j,k) = prctile(data.varargin{1,1}.classificationOutput{i,1}(j,1).accuracyAll{k,1},95);
+            accuracyPerc5All{i,1}(j,k) = prctile(data.varargin{1,1}.classificationOutput{i,1}(j,1).accuracyAll(:,k),5);
+            accuracyPerc95All{i,1}(j,k) = prctile(data.varargin{1,1}.classificationOutput{i,1}(j,1).accuracyAll(:,k),95);
         end
     end
     
@@ -33,15 +33,15 @@ for i = 1:maxNumFeatureUsed
         featureID{1,1}{i,j} = data.varargin{1,1}.featureIndex{i,1}(accuracyLocs(i,j),:);
         
         % get average accuracy
-        accuracyAve{1,1}(i,j) = mean(data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).accuracyAll{j,1});
+        accuracyAve{1,1}(i,j) = mean(data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).accuracyAll(:,j));
         
         % get percentile
-        accuracyPerc5{1,1}(i,j) = prctile(data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).accuracyAll{j,1},5);
-        accuracyPerc95{1,1}(i,j) = prctile(data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).accuracyAll{j,1},95);
+        accuracyPerc5{1,1}(i,j) = prctile(data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).accuracyAll(:,j),5);
+        accuracyPerc95{1,1}(i,j) = prctile(data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).accuracyAll(:,j),95);
         
         % class prediction
-        YTestTrueTemp = data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).testingClass{j,1};
-        YTestPredictedTemp = data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).class{j,1};
+        YTestTrueTemp = data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).testingClass{accuracyLocs(i,j),j};
+        YTestPredictedTemp = data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).predictClass{accuracyLocs(i,j),j};
         predictionVSKnownClass{1,1}{i,j} = horzcat(YTestTrueTemp,YTestPredictedTemp);
     end
 end
@@ -49,8 +49,8 @@ end
 for j = 1:numChannel
     for k = 1:2 % class ID
         % get number of bursts
-        numTrainBurst{1,1}(k,j) = length(find(data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).trainingClass{j,1}==k));
-        numTestBurst{1,1}(k,j) = length(find(data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).testingClass{j,1}==k));
+        numTrainBurst{1,1}(k,j) = length(find(data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).trainingClass{accuracyLocs(i,j),j}==k));
+        numTestBurst{1,1}(k,j) = length(find(data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).testingClass{accuracyLocs(i,j),j}==k));
         
         % get some features
         % max value
