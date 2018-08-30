@@ -1,4 +1,4 @@
-function output = calculateAccuracy(prediction, testingClass)
+function output = calculateAccuracy(predictClass, trueClass)
 %calculateAccuracy Calculate the accuracy, truePositive, falseNegative.
 %Prediction and testingClass should have the same size.
 % 
@@ -6,21 +6,24 @@ function output = calculateAccuracy(prediction, testingClass)
 % 
 %   output = calculateAccuracy(prediction, testingClass)
 
-classes = unique(testingClass);
+classes = unique(trueClass);
+numObservation = length(trueClass);
 numClasses = length(classes);
 
 for i = 1:numClasses
-    [locs, element] = find(testingClass == classes(i));
-    numTotal(i,1) = length(element);
-    predictedTrue(i,1) = sum(prediction(locs) == testingClass(locs));
-    predictedFalse(i,1) = numTotal(i,1) - predictedTrue(i,1);
-    truePositive(i,1) = predictedTrue(i,1) / numTotal(i,1);
-    falseNegative(i,1) = predictedFalse(i,1) / numTotal(i,1);
+    locs = trueClass == classes(i);
+    TPplusFN(i,1) = sum(locs);
+    TNplusFP(i,1) = sum(~locs);
+    TP(i,1) = sum(predictClass(locs) == trueClass(locs));
+    TN(i,1) = sum(predictClass(~locs) == trueClass(~locs));
+    sensitivity(i,1) = TP(i,1) / TPplusFN(i,1);
+    specificity(i,1) = TN(i,1) / TNplusFP(i,1);
+    accuracy(i,1) = (TP(i,1)+TN(i,1)) / (TPplusFN(i,1)+TNplusFP(i,1));
 end
 
-output.accuracy = sum(predictedTrue) / sum(numTotal);
-output.truePositive = truePositive;
-output.falseNegative = falseNegative;
+output.accuracy = accuracy;
+output.sensitivity = sensitivity;
+output.specificity = specificity;
 
 end
 
