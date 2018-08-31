@@ -181,6 +181,13 @@ for i = 1:numData
                 l{j,i} = pTemp;
             case 'scatterPlot'
                 l(j,i) = scatter(x(:,j,i),y(:,j,i),500,'.');
+%             case 'boxPlot'
+%                 % refer to https://www.mathworks.com/matlabcentral/answers/171414-how-to-show-95-quanile-in-a-boxplot
+%                 q95 = quantile(y(:,j,i),0.95);
+%                 q75 = quantile(y(:,j,i),0.75);
+%                 q25 = quantile(y(:,j,i),0.25);
+%                 w95 = (q95-q75) / (q75-q25);
+%                 l(j,i) = box(y(:,j,i),'whisker',w95);
             otherwise
                 error('Invalid plotway...')
         end

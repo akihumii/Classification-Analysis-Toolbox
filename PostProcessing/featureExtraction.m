@@ -24,7 +24,7 @@ for i = 1:numData
                 areaUnderCurve(j,i) = nan;
             end
             
-            meanValue(j,i) = nanmean(data(:,j,i));
+            meanValue(j,i) = nanmean(dataRectified(:,j));
             
             sumDifferences(j,i) = nansum(diff(dataRectified(:,j)));
             if sumDifferences(j,i) == 0
