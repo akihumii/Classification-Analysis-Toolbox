@@ -41,6 +41,9 @@ for i = 1:numChannel % plot burst height across weeks
             perc95Temp = outputIndividual.([plotFeature,'Perc95Individual']){i,1}(:) - medianTemp(:);
             errorbar(xCoordinates(:),medianTemp(:),perc5Temp,perc95Temp,'kv');
             
+            % insert used feature
+            text(xCoordinates(:,1),repmat(-0.07*diff(yLimitBursts)+yLimitBursts(1),1,iters),featureIDStr(:,i));
+            
             % input bar legend
             barObj = vertcat(p(i,1).Children(end-2),p(i,1).Children(end-3),p(i,1).Children(end-4),p(i,1).Children(end-6));
             switch plotFeature
@@ -63,9 +66,6 @@ for i = 1:numChannel % plot burst height across weeks
 
     % insert speed
     text(xCoordinates(:,1),repmat(0.05*diff(yLimitBursts)+yLimitBursts(1),1,iters),fileSpeed);
-    
-    % insert used feature
-    text(xCoordinates(:,1),repmat(-0.07*diff(yLimitBursts)+yLimitBursts(1),1,iters),featureIDStr(:,i));
     
     % insert faeture legend
     legendMat = horzcat(mat2cell(transpose(1:8),ones(8,1),1),dataTemp.varargin{1,2}.featuresNames);
