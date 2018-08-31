@@ -1,4 +1,4 @@
-function p = plotFeatures(plotFeature,plotType,numChannel,fileSpeed,fileDate,outputIndividual,xCoordinates,iters,leftCoordinates,fileSpeedOnly,dataTemp,titleType)
+function p = plotFeatures(plotFeature,plotType,numChannel,fileSpeed,fileDate,outputIndividual,xCoordinates,iters,leftCoordinates,fileSpeedOnly,dataTemp,titleType,featureIDStr)
 %PLOTFEATURES Plot the features across the weeks in teh checkAccuracy
 %fucntion
 % input:    plotFeature:    Feature name (string)
@@ -41,20 +41,16 @@ for i = 1:numChannel % plot burst height across weeks
             perc95Temp = outputIndividual.([plotFeature,'Perc95Individual']){i,1}(:) - medianTemp(:);
             errorbar(xCoordinates(:),medianTemp(:),perc5Temp,perc95Temp,'kv');
             
-            % insert speed
-            text(xCoordinates(:,1),repmat(0.05,1,iters),fileSpeed);
-            
-            % insert date
-            text(xCoordinates(:,1),repmat(-0.07,1,iters),fileDate);
-            
-            % insert faeture legend
-            legendMat = horzcat(mat2cell(transpose(1:8),ones(8,1),1),dataTemp.varargin{1,2}.featuresNames);
-            legendText = checkMatNAddStr(legendMat,': ',1);
-            t = text(leftCoordinates,0.1,legendText);
-            
             % input bar legend
             barObj = vertcat(p(i,1).Children(end-2),p(i,1).Children(end-3),p(i,1).Children(end-4),p(i,1).Children(end-6));
-            barObjLegend = [{'1-feature classification'};{'2-feature classification'};{'Mean value'};{'5 to 95 percentile'}];
+            switch plotFeature
+                case 'accuracy'
+                    barObjLegend = [{'1-feature classification'};{'2-feature classification'};{'Mean value'};{'5 to 95 percentile'}];
+                case 'sensitivity'
+                    barObjLegend = [fileSpeedOnly;{'Mean value'};{'5 to 95 percentile'}];
+                otherwise
+                    warning('Invalid plot feature...')
+            end
             legend(barObj,barObjLegend,'Location','SouthEast')
             grid on
             
@@ -63,6 +59,19 @@ for i = 1:numChannel % plot burst height across weeks
             warning(['Invalid plot type of ',plotType,'...'])
             break
     end
+    yLimitBursts = ylim;
+
+    % insert speed
+    text(xCoordinates(:,1),repmat(0.05*diff(yLimitBursts)+yLimitBursts(1),1,iters),fileSpeed);
+    
+    % insert used feature
+    text(xCoordinates(:,1),repmat(-0.07*diff(yLimitBursts)+yLimitBursts(1),1,iters),featureIDStr(:,i));
+    
+    % insert faeture legend
+    legendMat = horzcat(mat2cell(transpose(1:8),ones(8,1),1),dataTemp.varargin{1,2}.featuresNames);
+    legendText = checkMatNAddStr(legendMat,': ',1);
+    t = text(leftCoordinates,0.1,legendText);
+    
     
     % change the XTickLabel
     p(i,1).XTick = 1:iters;
@@ -70,7 +79,6 @@ for i = 1:numChannel % plot burst height across weeks
     
     
     % insert the number of used bursts
-    yLimitBursts = ylim;
     text(leftCoordinates,0.98*diff(yLimitBursts)+yLimitBursts(1),'No. for training: ');
     text(xCoordinates(:,1),repmat(0.98*diff(yLimitBursts)+yLimitBursts(1),1,iters),checkMatNAddStr(outputIndividual.numTrainBurstIndividual{i,1},',',1));
     text(leftCoordinates,0.95*diff(yLimitBursts)+yLimitBursts(1),'No. for testing: ');
