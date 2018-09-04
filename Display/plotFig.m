@@ -4,8 +4,9 @@ function varargout = plotFig(varargin)
 % (If there is only one input, it will be y value.)
 %
 % input:    "type" could be 'subplot', 'overlap' or 'overlapAll', default type is 'subplot'
+%           'x' would be the xbinsWidth if 'plotWay' is 'histPlot', input 0 if it is not specified into any value
 %           'y' could be a matrix where the data in column will be plotted as one signal trial; Different rows represent different trials that have been performed.
-%           'plotWay' could be 'linePlot', 'barPlot', 'barGroupedPlot', 'stemPlot', 'histFitPlot', 'scatterPlot', default way is 'linePlot'
+%           'plotWay' could be 'linePlot', 'barPlot', 'barGroupedPlot', 'stemPlot','histPlot', 'histFitPlot', 'scatterPlot', default way is 'linePlot'
 %           'channel' is for the title purpose, default value is 1.
 %
 % output:   p: the axes
@@ -103,8 +104,10 @@ end
 saveName = [titleName, ' ', fileName];
 
 [numDataX, ~] = checkSize(x);
-if numDataX == 1 && numData ~= 1
-    x = repmat(x,1,1,numData);
+if ~isequal(plotWay,'histPlot')
+    if numDataX == 1 && numData ~= 1
+        x = repmat(x,1,1,numData);
+    end
 end
 
 for i = 1:numData
@@ -174,6 +177,13 @@ for i = 1:numData
                     l(j,i) = stem(x,y(:,j,i));
                 else
                     l(j,i) = stem(x(:,j,i),y(:,j,i));
+                end
+            case 'histPlot'
+                if x ~= 0 || length(x) == 1
+                    xbinsTemp = min(y) : x : max(y);
+                    l(j,i) = histogram(y,xbinsTemp);
+                else
+                    l(j,i) = histogram(y);
                 end
             case 'histFitPlot'
                 pTemp = histfit(y(:,j,i));
