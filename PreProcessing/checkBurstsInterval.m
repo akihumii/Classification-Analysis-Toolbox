@@ -1,7 +1,9 @@
 function [] = checkBurstsInterval(varargin)
-%CHECKBURSTSINTERVAL Check the burst interval to see their actual speed
-%
-%   Detailed explanation goes here
+%CHECKBURSTSINTERVAL Check the burst interval to see their actual speed.
+%Only the intervals fall in between 0 to 3 seconds will be included. 
+% input: 'useHPC','saveMatFile','saveHistFlag','plotHistFlag','xbinsWidth'
+% 
+%   [] = checkBurstsInterval(varargin)
 
 close all
 
@@ -9,7 +11,7 @@ close all
 parameters = struct(...
     'useHPC',1,...
     'saveMatFile',0,...
-    'saveHistFlag',1,...
+    'saveHistFlag',0,...
     'plotHistFlag',1,...
     'xbinsWidth',0.2);
 
@@ -39,7 +41,7 @@ numChannel = size(signalInfo(1,1).signalClassification.burstDetection.spikeLocs,
 for i = 1:iters
     burstInterval{i,1} = diff(signalInfo(i,1).signalClassification.burstDetection.spikeLocs);
     burstInterval{i,1} = vertcat(burstInterval{i,1}, nan(1,numChannel)); % for the last set of bursts
-    burstInterval{i,1}(burstInterval{i,1}<0) = nan;
+    burstInterval{i,1}(burstInterval{i,1}<0 | burstInterval{i,1}>3*signalInfo(i,1).samplingFreq) = nan;
     burstIntervalAllSeconds{i,1} = burstInterval{i,1} / signalInfo(i,1).samplingFreq;
 end
 
