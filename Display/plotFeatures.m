@@ -18,7 +18,8 @@ for i = 1:numChannel % plot burst height across weeks
             p(i,1) = plotFig(1:iters,outputIndividual.([plotFeature,'Individual']){i,1},'',titleName,'Day','Amplitude(V)',0,1,path,'overlap',0,'barGroupedPlot');
             grid on
             hold on
-            
+            yLimitBursts = ylim;
+
             % errorbar
             errorbar(xCoordinates,outputIndividual.([plotFeature,'Individual']){i,1},outputIndividual.([plotFeature,'StdeIndividual']){i,1},'k.');
             
@@ -30,7 +31,8 @@ for i = 1:numChannel % plot burst height across weeks
             p(i,1) = plotFig(1:iters,outputIndividual.([plotFeature,'MedianIndividual']){i,1},'',titleName, '', 'Accuracy', 0, 1, path, 'overlap', 0, 'barGroupedPlot');
             ylim([0,1]);
             hold on
-            
+            yLimitBursts = ylim;
+
             % plot the mean
             meanTemp = outputIndividual.([plotFeature,'AveIndividual']){i,1};
             plot(xCoordinates,meanTemp,'r*');
@@ -48,9 +50,9 @@ for i = 1:numChannel % plot burst height across weeks
             barObj = vertcat(p(i,1).Children(end-2),p(i,1).Children(end-3),p(i,1).Children(end-4),p(i,1).Children(end-6));
             switch plotFeature
                 case 'accuracy'
-                    barObjLegend = [{'1-feature classification'};{'2-feature classification'};{'Mean value'};{'5 to 95 percentile'}];
+                    barObjLegend = {'1-feature classification';'2-feature classification';'Mean value';'5 to 95 percentile'};
                 case 'sensitivity'
-                    barObjLegend = [fileSpeedOnly;{'Mean value'};{'5 to 95 percentile'}];
+                    barObjLegend = [fileSpeedOnly;{'Mean value';'5 to 95 percentile'}];
                 otherwise
                     warning('Invalid plot feature...')
             end
@@ -62,7 +64,6 @@ for i = 1:numChannel % plot burst height across weeks
             warning(['Invalid plot type of ',plotType,'...'])
             break
     end
-    yLimitBursts = ylim;
 
     % insert speed
     text(xCoordinates(:,1),repmat(0.05*diff(yLimitBursts)+yLimitBursts(1),1,iters),fileSpeed);

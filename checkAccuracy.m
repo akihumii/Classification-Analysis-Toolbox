@@ -72,23 +72,6 @@ for i = 1:maxNumFeatureUsed
     
 end
 
-
-
-
-% for i = 1:numChannel
-%     for j = 1:iters
-%         figure
-%         
-%         YTestTrueTemp = mat2confusionMat(outputIndividual.predictionVSKnownClassIndividual{i,1}{j,1}(:,1));
-%         YTestPredictedTemp = mat2confusionMat(outputIndividual.predictionVSKnownClassIndividual{i,1}{j,2}(:,2));
-%         pCM(j,i) = plotconfusion(YTestTrueTemp,YTestPredictedTemp);
-%         title([fileDate{j},' channel ',num2str(i)])
-%         
-%         pause
-%     end
-% end
-
-
 popMsg('Finished...');
 
 

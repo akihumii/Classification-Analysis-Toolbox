@@ -92,27 +92,10 @@ for j = 1:numChannel
 end
     
     %% output
-    output.accuracyMedian = accuracyMedian;
-    output.featureID = featureID;
-    output.numTrainBurst = numTrainBurst;
-    output.numTestBurst = numTestBurst;
-    output.accuracyAve = accuracyAve;
-    output.accuracyPerc5 = accuracyPerc5;
-    output.accuracyPerc95 = accuracyPerc95;
-    output.sensitivityAll = sensitivityAll;
-    output.sensitivityMedian = sensitivityMedian;
-    output.sensitivityAve = sensitivityAve;
-    output.sensitivityPerc5 = sensitivityPerc5;
-    output.sensitivityPerc95 = sensitivityPerc95;
-    output.maxValue = maxValue;
-    output.maxValueStde = maxValueStde;
-    output.BL = BL;
-    output.BLStde = BLStde;
-    output.meanValue = meanValue;
-    output.meanValueStde = meanValueStde;
-    output.durationBtwBursts = durationBtwBursts;
-    output.predictionVSKnownClass = predictionVSKnownClass;
-    output.accuracyLocs = accuracyLocs;
+output = makeStruct(accuracyMedian,featureID,numTrainBurst,numTestBurst,accuracyAve,...
+    accuracyPerc5,accuracyPerc95,sensitivityAll,sensitivityMedian,sensitivityAve,...
+    sensitivityPerc5,sensitivityPerc95,maxValue,maxValueStde,BL,BLStde,meanValue,...
+    meanValueStde,durationBtwBursts,predictionVSKnownClass,accuracyLocs);
     
 end
 
