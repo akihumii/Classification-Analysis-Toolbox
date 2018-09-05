@@ -29,6 +29,8 @@ else
 end
 
 %% Read and Reconstruct
+disp('Processing...')
+
 for i = 1:iters
     files{1,i} = allFiles(i,1).name;
     fileNames{i,1} = files{1,i}(1:end-4);
@@ -51,7 +53,7 @@ if parameters.saveMatFile
         fileTemp = load(allFiles(i,1).name);
         fileTemp.varargin{1,2}.burstDetection.burstInterval = burstInterval{i,1};
         fileTemp.varargin{1,2}.burstDetection.burstIntervalSeconds = burstIntervalAllSeconds{i,1};
-        saveVar(path,allFiles(i,1).name,fileTemp.varargin{:})
+        saveVar(path,allFiles(i,1).name,fileTemp.varargin{:});
     end
 end
 
@@ -63,15 +65,23 @@ titleName = 'Burst Interval Histogram';
 dataDate = vertcat(signalInfo(:,1).fileDate);
 dataSpeed = vertcat(signalInfo(:,1).fileSpeed);
 dataDateNSpeed = checkMatNAddStr([dataDate,dataSpeed],' ',1);
-dataDateNSpeed = checkMatNAddStr(dataDateNSpeed,' , ',2);
+dataDateNSpeed = checkMatNAddStr([dataDateNSpeed(1,1);dataDateNSpeed(end,1)],' , ',2);
 for i = 1:numChannel
     for j = 1:iters
         % Individual BI
-        plotFig(parameters.xbinsWidth,burstIntervalAllSeconds{j,1}(:,i),fileNames{j,1},[titleName,' channel ',num2str(i)],'Time (s)','Occurence',parameters.saveHistFlag,parameters.plotHistFlag,'','',0,'histPlot');
+	try
+        	plotFig(parameters.xbinsWidth,burstIntervalAllSeconds{j,1}(:,i),fileNames{j,1},[titleName,' channel ',num2str(i)],'Time (s)','Occurence',parameters.saveHistFlag,parameters.plotHistFlag,'','',0,'histPlot');
+	catch
+		warning(['channel ', num2str(i),' ', fileNames{j,1},' failed to plot ...'])
+	end
     end
     % Combined BI
     BITemp = burstIntervalAll(:,i);
-    plotFig(parameters.xbinsWidth,burstIntervalAll(:,i),signalInfo(1,1).fileDate{1,1},[titleName, dataDateNSpeed,' channel ',num2str(i)],'Time (s)','Occurence',parameters.saveHistFlag,parameters.plotHistFlag,'','',0,'histPlot');
+	try
+	    plotFig(parameters.xbinsWidth,burstIntervalAll(:,i),signalInfo(1,1).fileDate{1,1},[titleName, dataDateNSpeed,' channel ',num2str(i)],'Time (s)','Occurence',parameters.saveHistFlag,parameters.plotHistFlag,'','',0,'histPlot');
+	catch
+		warning(['channel ', num2str(i),' combined files failed to plot ...'])
+	end
 end
 
 end
