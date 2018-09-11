@@ -8,8 +8,8 @@ function output = classification(trials,featureIndex,trainingRatio,classifierTit
 numSelectedFeatures = length(featureIndex);
  
 for i = 1:numChannels
-    accuracyHighest(1,i) = 0; % initialize accuracy
-    
+    accuracyHighest(:,i) = zeros(2,1); % initialize accuracy
+    try
     for r = 1:numRepeat
 
         groupedFeature = combineFeatureWithoutNan(trials(:,featureIndex(1,:),i),trainingRatio,numClasses);
@@ -29,10 +29,10 @@ for i = 1:numChannels
                 error('Invalid classifier name...')
         end
 
-        accuracyAll(r,i) = accuracyTemp.accuracy;
+        accuracyAll{i,1}(:,r) = accuracyTemp.accuracy;
         
 %         if accuracyTemp.accuracy > accuracyHighest(1,i) % record the result from the classifier that has the highest performance
-            accuracyHighest(1,i) = accuracyTemp.accuracy;
+            accuracyHighest(:,i) = accuracyTemp.accuracy;
             switch classifierName
                 case 'svm'
 %                     class{i,1} = svmClassificationOutput.predictClass;
@@ -68,24 +68,34 @@ for i = 1:numChannels
 %         plotConfusionMat(svmClassificationOutput.predictClass,groupedFeature.testingClass)
 %         title(['Fature ',checkMatNAddStr(featureIndex,','),' Channel ',num2str(i)])
     end
-    accuracy(1,i) = mean(accuracyAll(:));
+    accuracy(:,i) = mean(accuracyAll{i,1},2);
+            catch
+    Mdl{i,1} = nan;
+    accuracy(:,i) = nan;
+    accuracyAll{i,1} = nan;
+    accuracyHighest(1,i) = nan;
+    training{1,i} = nan;
+    testing{1,i} = nan;
+    trainingClass{1,i} = nan;
+    testingClass{1,i} = nan;
+    predictClass{1,i} = nan;
+
+    end
 end
  
-output.classifierTitle = classifierTitle;
-% output.class = class;
-output.Mdl = Mdl;
-% output.error = error;
-% output.posterior = posterior;
-% output.logP = logP;
-% output.coefficient = coefficient;
-output.accuracy = accuracy; % a matrix of numbers which are the mean accuracy after all the repeatations
-output.accuracyAll = accuracyAll;
-output.accuracyHighest = accuracyHighest; % a structure containing accuracy, true positive and false negative
-output.training = training;
-output.testing = testing;
-output.trainingClass = trainingClass;
-output.testingClass = testingClass;
-output.predictClass = predictClass;
+
+%% Output
+output = makeStruct(...
+    classifierTitle,...
+    Mdl,...
+    accuracy,...
+    accuracyAll,...
+    accuracyHighest,...
+    training,...
+    testing,...
+    trainingClass,...
+    testingClass,...
+    predictClass);
 end
  
 

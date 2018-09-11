@@ -55,8 +55,8 @@ if displayInfo.showHistFit||displayInfo.saveHistFit||displayInfo.showAccuracy||d
             classificationOutput{i,1}(j,1) = classification(featuresInfo.featuresAll,featureIndex{i,1}(j,:),trainingRatio,classifierFullTitle,classificationRepetition,classifierName); % run the classification by using the features index etc
             accuracyBasicParameter{i,1}(j,1) = getBasicParameter(horzcat(classificationOutput{i,1}(j,1).accuracyAll(:))); % get the accuracy by checking the classification performances
         end
-        accuracy{i,1} = vertcat(accuracyBasicParameter{i,1}.mean);
-        accuracyStde{i,1} = vertcat(accuracyBasicParameter{i,1}.stde);
+        accuracy{i,1} = vertcat(accuracyBasicParameter{i,1}.average);
+        accuracyStde{i,1} = vertcat(accuracyBasicParameter{i,1}.standardDeviation);
         [~,maxAccuracyLocs] = max(sum(accuracy{i,1},2));
         accuracyMax(i,:) = accuracy{i,1}(maxAccuracyLocs,:);
         maxFeatureCombo{i,1} = featureIndex{i,1}(maxAccuracyLocs,:);

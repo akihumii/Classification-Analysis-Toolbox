@@ -1,6 +1,6 @@
 function output = varIntoStruct(structure,varargin)
 %VARINTOSTRUCT Insert variables into the strucutre.
-%   Detailed explanation goes here
+%   output = varIntoStruct(structure,varargin)
 
 output = structure;
 

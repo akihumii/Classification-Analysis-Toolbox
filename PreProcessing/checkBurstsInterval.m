@@ -53,7 +53,8 @@ if parameters.saveMatFile
         fileTemp = load(allFiles(i,1).name);
         fileTemp.varargin{1,2}.burstDetection.burstInterval = burstInterval{i,1};
         fileTemp.varargin{1,2}.burstDetection.burstIntervalSeconds = burstIntervalAllSeconds{i,1};
-        saveVar(path,allFiles(i,1).name,fileTemp.varargin{:});
+        delete(files{1,:});
+        saveVarWithoutTime(path,allFiles(i,1).name,fileTemp.varargin{:});
     end
 end
 

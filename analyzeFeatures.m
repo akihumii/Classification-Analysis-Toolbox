@@ -11,15 +11,12 @@ parameters = struct('useHPC',1,...
     'runPCA',0,...
     'numPrinComp',0,... % number of principle component to use as features
     'threshPercentile',95,... % percentile to threshold the latent of principle component for data reconstruction
-    'classificationRepetition',5); % number of repetition of the classification with randomly assigned training set and testing set
-if nargin == 1
-    parameters.numFeaturesInCominbation = varargin{1,1}; % array of nubmer of features used in combinations
-else
-    parameters.numFeaturesInCominbation = 1:2; % array of nubmer of features used in combinations
-end    
-
-parameters.classifierName = 'svm'; % input only either 'lda' or 'svm'
-parameters.classifierType = 1; % 1 for manually classification, 2 for using classifier learner app
+    ...
+    'classificationRepetition',5,...; % number of repetition of the classification with randomly assigned training set and testing set
+    'numFeaturesInCominbation',1:2,... % array of nubmer of features used in combinations
+    ...
+    'classifierName','svm',...; % input only either 'lda' or 'svm'
+    'classifierType',1); % 1 for manually classification, 2 for using classifier learner app
 
 % for display
 displayInfo = struct(...
@@ -39,6 +36,10 @@ displayInfo = struct(...
     'saveAccuracy',0,...
     'saveReconstruction',0,...
     'savePrinComp',0);
+
+% for additional amendment from varargin
+parameters = varIntoStruct(parameters,varargin);
+displayInfo = varIntoStruct(displayInfo,varargin);
 
 %% Get features info
 if parameters.useHPC
@@ -66,6 +67,10 @@ for n = 1:numPairs
         for i = 1:numClass
             signalInfo(i,1) = getFeaturesInfo(path,files{1,i});
         end
+        
+        %% Check burst intervals and then trim accordingly
+        signalInfo = trimWithBurstIntervals(signalInfo,numClass,repmat([0,0.615; 0.615,3],1,1,2));
+        
         
         %% Balance the number of bursts from all the channels
         signalInfo = balanceBursts(signalInfo,numClass);
