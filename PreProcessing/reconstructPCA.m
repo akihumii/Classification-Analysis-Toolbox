@@ -24,7 +24,11 @@ for i = 1:numChannel
         burstOnly{j,i} = zeros(size(burst{j,i})); % only those within the burst range will be one, the rest will be zeros
         burstLengthTemp = omitNan(signalInfo(j,1).signalClassification.features.burstLength(:,i),2,'all'); % to get the temperory burst length
         for k = 1:numBursts(j,i)
-            burstOnly{j,i}(1:floor(samplingFreq*burstLengthTemp(k,1)),k) = 1;
+            try
+                burstOnly{j,i}(1:floor(samplingFreq*burstLengthTemp(k,1)),k) = 1;
+            catch
+                burstOnly{j,i} = nan;
+            end
         end
     end
     

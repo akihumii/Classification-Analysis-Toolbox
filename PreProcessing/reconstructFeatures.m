@@ -17,7 +17,7 @@ for i = 1:numFeatures
         
         for j = 1:numClass % different speed = different class
             featureNameTemp = output.featuresNames{i,1};
-            if numBursts(j,k) ~= 0
+            if numBursts(j,k) ~= 0 && ~isempty(features(k,1).(featureNameTemp))
                 arrayTemp = arrayTemp(end)+1 : (arrayTemp(end) + numBursts(j,k));
                 output.featuresAll{j,i,k} = features(k,1).(featureNameTemp)(arrayTemp,:); % it is sorted in [bursts * classes * features * channels]
                 featuresTemp = output.featuresAll{j,i,k};
