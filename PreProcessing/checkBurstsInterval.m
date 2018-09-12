@@ -1,8 +1,8 @@
 function [] = checkBurstsInterval(varargin)
 %CHECKBURSTSINTERVAL Check the burst interval to see their actual speed.
-%Only the intervals fall in between 0 to 3 seconds will be included. 
+%Only the intervals fall in between 0 to 3 seconds will be included.
 % input: 'useHPC','saveMatFile','saveHistFlag','plotHistFlag','xbinsWidth'
-% 
+%
 %   [] = checkBurstsInterval(varargin)
 
 close all
@@ -13,7 +13,8 @@ parameters = struct(...
     'saveMatFile',0,...
     'saveHistFlag',0,...
     'plotHistFlag',1,...
-    'xbinsWidth',0.2);
+    'xbinsWidth',0.2,...
+    'combineAllBursts',1);
 
 if nargin > 0
     parameters = varIntoStruct(parameters,varargin{1,:}); % to load the varargin into structure
@@ -59,30 +60,32 @@ if parameters.saveMatFile
 end
 
 %% Combine all the Burst Intervals in the current directory
-close all
-
-burstIntervalAll = vertcat(burstIntervalAllSeconds{:,1});
-titleName = 'Burst Interval Histogram';
-dataDate = vertcat(signalInfo(:,1).fileDate);
-dataSpeed = vertcat(signalInfo(:,1).fileSpeed);
-dataDateNSpeed = checkMatNAddStr([dataDate,dataSpeed],' ',1);
-dataDateNSpeed = checkMatNAddStr([dataDateNSpeed(1,1);dataDateNSpeed(end,1)],' , ',2);
-for i = 1:numChannel
-    for j = 1:iters
-        % Individual BI
-	try
-        	plotFig(parameters.xbinsWidth,burstIntervalAllSeconds{j,1}(:,i),fileNames{j,1},[titleName,' channel ',num2str(i)],'Time (s)','Occurence',parameters.saveHistFlag,parameters.plotHistFlag,'','',0,'histPlot');
-	catch
-		warning(['channel ', num2str(i),' ', fileNames{j,1},' failed to plot ...'])
-	end
+if parameters.combineAllBursts
+    close all
+    
+    burstIntervalAll = vertcat(burstIntervalAllSeconds{:,1});
+    titleName = 'Burst Interval Histogram';
+    dataDate = vertcat(signalInfo(:,1).fileDate);
+    dataSpeed = vertcat(signalInfo(:,1).fileSpeed);
+    dataDateNSpeed = checkMatNAddStr([dataDate,dataSpeed],' ',1);
+    dataDateNSpeed = checkMatNAddStr([dataDateNSpeed(1,1);dataDateNSpeed(end,1)],' , ',2);
+    for i = 1:numChannel
+        for j = 1:iters
+            % Individual BI
+            try
+                plotFig(parameters.xbinsWidth,burstIntervalAllSeconds{j,1}(:,i),fileNames{j,1},[titleName,' channel ',num2str(i)],'Time (s)','Occurence',parameters.saveHistFlag,parameters.plotHistFlag,'','',0,'histPlot');
+            catch
+                warning(['channel ', num2str(i),' ', fileNames{j,1},' failed to plot ...'])
+            end
+        end
+        % Combined BI
+        BITemp = burstIntervalAll(:,i);
+        try
+            plotFig(parameters.xbinsWidth,burstIntervalAll(:,i),signalInfo(1,1).fileDate{1,1},[titleName, dataDateNSpeed,' channel ',num2str(i)],'Time (s)','Occurence',parameters.saveHistFlag,parameters.plotHistFlag,'','',0,'histPlot');
+        catch
+            warning(['channel ', num2str(i),' combined files failed to plot ...'])
+        end
     end
-    % Combined BI
-    BITemp = burstIntervalAll(:,i);
-	try
-	    plotFig(parameters.xbinsWidth,burstIntervalAll(:,i),signalInfo(1,1).fileDate{1,1},[titleName, dataDateNSpeed,' channel ',num2str(i)],'Time (s)','Occurence',parameters.saveHistFlag,parameters.plotHistFlag,'','',0,'histPlot');
-	catch
-		warning(['channel ', num2str(i),' combined files failed to plot ...'])
-	end
+    
 end
-
 end
