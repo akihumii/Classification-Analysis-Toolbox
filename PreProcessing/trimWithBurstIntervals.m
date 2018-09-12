@@ -12,10 +12,11 @@ numFeatures = length(featureNames);
 
 %% get the location
 for i = 1:numClass
+    burstIntervalTemp = omitNan(signalInfo(i).signalClassification.burstDetection.burstIntervalSeconds,2,'all');
     for j = 1:numChannel
         burstLocs{i,j} = ...
-            signalInfo(i).signalClassification.burstDetection.burstIntervalSeconds(:,j) > burstIntervalsThreshold(i,1,j) &...
-            signalInfo(i).signalClassification.burstDetection.burstIntervalSeconds(:,j) < burstIntervalsThreshold(i,2,j);
+            burstIntervalTemp(:,j) > burstIntervalsThreshold(i,1,j) &...
+            burstIntervalTemp(:,j) < burstIntervalsThreshold(i,2,j);
     end
 end
 
@@ -26,8 +27,8 @@ for i = 1:numClass
         signalInfo(i,1).signalClassification.burstDetection.spikeLocs(~burstLocs{i,j},j) = nan;
         signalInfo(i,1).signalClassification.burstDetection.burstEndValue(~burstLocs{i,j},j) = nan;
         signalInfo(i,1).signalClassification.burstDetection.burstEndLocs(~burstLocs{i,j},j) = nan;
-        numSelectedBurstsTemp = length(signalInfo(i,1).signalClassification.burstDetection.selectedBurstsIndex{j,1});
-        signalInfo(i,1).signalClassification.burstDetection.selectedBurstsIndex{j,1}(~burstLocs{i,j}(1:numSelectedBurstsTemp)) = [];
+        %numSelectedBurstsTemp = length(signalInfo(i,1).signalClassification.burstDetection.selectedBurstsIndex{j,1});
+        %signalInfo(i,1).signalClassification.burstDetection.selectedBurstsIndex{j,1}(~burstLocs{i,j}(1:numSelectedBurstsTemp)) = [];
         
         signalInfo(i,1).signalClassification.selectedWindows.burst(:,~burstLocs{i,j},j) = nan;
         signalInfo(i,1).signalClassification.selectedWindows.burstMean = nanmean(signalInfo(i,1).signalClassification.selectedWindows.burst,2);
@@ -47,7 +48,7 @@ for i = 1:numClass
         signalInfo(i,1).detectionInfo.spikeLocs(~burstLocs{i,j},j) = nan;
         signalInfo(i,1).detectionInfo.burstEndValue(~burstLocs{i,j},j) = nan;
         signalInfo(i,1).detectionInfo.burstEndLocs(~burstLocs{i,j},j) = nan;
-        signalInfo(i,1).detectionInfo.selectedBurstsIndex{j,1}(~burstLocs{i,j}(1:numSelectedBurstsTemp)) = [];
+        %signalInfo(i,1).detectionInfo.selectedBurstsIndex{j,1}(~burstLocs{i,j}(1:numSelectedBurstsTemp)) = [];
     end
     
     % squeeze nan and reoder

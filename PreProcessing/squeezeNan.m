@@ -25,14 +25,18 @@ for i = 1:numData
             outputTemp{j,i} = data(~isnan(data(:,j,i)),j,i);
         end
         output{i,1} = cell2nanMat(outputTemp(:,i));
+        if dim == 1
+            output{i,1} = permute(output{i,1},numDimArrayTemp);
+        end
     end
 end
 
 output = cell2nanMat(output);
+% output = vertcat(output{:,1});
 
-if dim == 1
-    output = permute(output,numDimArrayTemp);
-end
+% if dim == 1
+%     output = permute(output,numDimArrayTemp);
+% end
 
 end
 

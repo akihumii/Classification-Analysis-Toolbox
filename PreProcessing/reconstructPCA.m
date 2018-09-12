@@ -15,8 +15,12 @@ for i = 1:numChannel
         burst{j,i} = signalInfo(j,1).windowsValues.burst(:,:,i);
         burst{j,i} = omitNan(burst{j,i},1,'all');
         numBursts(j,i) = size(burst{j,i},2); % [class * channel]
-        minBurstLength(j,i) = min(signalInfo(j,1).signalClassification.features.burstLength(:,i));
-        maxBurstLength(j,i) = max(signalInfo(j,1).signalClassification.features.burstLength(:,i));  % get the maximum burst length in that class of that channel
+        %minBurstLength(j,i) = min(signalInfo(j,1).signalClassification.features.burstLength(:,i));
+        try
+            maxBurstLength(j,i) = max(signalInfo(j,1).signalClassification.features.burstLength(:,i));  % get the maximum burst length in that class of that channel
+        catch
+            maxBurstLength(j,i) = nan;
+        end
         burstOnly{j,i} = zeros(size(burst{j,i})); % only those within the burst range will be one, the rest will be zeros
         burstLengthTemp = omitNan(signalInfo(j,1).signalClassification.features.burstLength(:,i),2,'all'); % to get the temperory burst length
         for k = 1:numBursts(j,i)
