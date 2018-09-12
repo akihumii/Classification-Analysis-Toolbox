@@ -16,7 +16,10 @@ parameters = struct('useHPC',1,...
     'numFeaturesInCominbation',1:2,... % array of nubmer of features used in combinations
     ...
     'classifierName','svm',...; % input only either 'lda' or 'svm'
-    'classifierType',1); % 1 for manually classification, 2 for using classifier learner app
+    'classifierType',1,... % 1 for manually classification, 2 for using classifier learner app
+    ...
+    'trimBursts',1,...
+    'balanceBursts',1); 
 
 % for display
 displayInfo = struct(...
@@ -69,11 +72,15 @@ for n = 1:numPairs
         end
         
         %% Check burst intervals and then trim accordingly
-        signalInfo = trimWithBurstIntervals(signalInfo,numClass,repmat([0,0.615; 0.615,3],1,1,2));
+        if parameters.trimBursts
+            signalInfo = trimWithBurstIntervals(signalInfo,numClass,repmat([0,0.615; 0.615,3],1,1,2));
+        end
         
         
         %% Balance the number of bursts from all the channels
-        signalInfo = balanceBursts(signalInfo,numClass);
+        if parameters.balanceBursts
+            signalInfo = balanceBursts(signalInfo,numClass);
+        end
         
         %% Reconstruct PCA
         pcaInfo = reconstructPCA(signalInfo,parameters.threshPercentile); % matrix in [class x channel]

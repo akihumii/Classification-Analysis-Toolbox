@@ -32,6 +32,10 @@ for i = 1:numData
 end
 
 output = cell2nanMat(output);
+
+if dim == 2 && size(output,2) == 1
+    output = checkSizeNTranspose(output,1);
+end
 % output = vertcat(output{:,1});
 
 % if dim == 1
