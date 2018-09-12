@@ -18,12 +18,13 @@ for i = 1:numClasses
     TN(i,1) = sum(predictClass(~locs) == trueClass(~locs));
     sensitivity(i,1) = TP(i,1) / TPplusFN(i,1);
     specificity(i,1) = TN(i,1) / TNplusFP(i,1);
-    accuracy(i,1) = (TP(i,1)+TN(i,1)) / (TPplusFN(i,1)+TNplusFP(i,1));
     FN(i,1) = TPplusFN(i,1) - TP(i,1);
     FP(i,1) = TNplusFP(i,1) - TN(i,1);
     TPR(i,1) = sensitivity(i,1);
     FPR(i,1) = 1-specificity(i,1);
 end
+
+accuracy = (TP(1,1)+TN(1,1)) / (TPplusFN(1,1)+TNplusFP(1,1));
 
 %% output
 output = makeStruct(...

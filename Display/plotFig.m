@@ -161,9 +161,13 @@ for i = 1:numData
                     l(j,i) = bar(x(:,j,i),y(:,j,i));
                 end
             case 'barGroupedPlot'
-                if any(size(x)==1)
+                if all(size(x)==1)
+                    y = checkSizeNTranspose(y,1);
+                    l(i,:) = bar([x,x+1],[y(:,:,i);nan(size(y(:,:,i)))]);
+                    xlim([0.5,1.5]);
+                elseif any(size(x)==1)
                     if size(y,2) == 1
-                        y = y';
+                        y = checkSizeNTranspose(y,1);
                         l(i,:) = bar([x,x+1],[y(:,:,i);nan(size(y(:,:,i)))]);
                         xlim([0.5,1.5]);
                     else

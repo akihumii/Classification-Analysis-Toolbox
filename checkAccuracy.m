@@ -52,13 +52,13 @@ close all
 xCoordinates = getErrorBarXAxisValues(iters,maxNumFeatureUsed); % for plotting mean and error bar
 leftCoordinates = -1;
 
-plotFeatures('accuracy','medianPlot',numChannel,fileSpeed,fileDate,outputIndividual,xCoordinates,iters,leftCoordinates,fileSpeedOnly,dataTemp,'channel',featureIDStr);
+plotFeaturesBar('accuracy','medianPlot',numChannel,fileSpeed,fileDate,outputIndividual,xCoordinates,iters,leftCoordinates,fileSpeedOnly,dataTemp,'channel',featureIDStr);
 
-plotFeatures('maxValue','meanPlot',numChannel,fileSpeed,fileDate,outputIndividual,xCoordinates,iters,leftCoordinates,fileSpeedOnly,dataTemp,'channel',featureIDStr);
+plotFeaturesBar('maxValue','meanPlot',numChannel,fileSpeed,fileDate,outputIndividual,xCoordinates,iters,leftCoordinates,fileSpeedOnly,dataTemp,'channel',featureIDStr);
 
-plotFeatures('BL','meanPlot',numChannel,fileSpeed,fileDate,outputIndividual,xCoordinates,iters,leftCoordinates,fileSpeedOnly,dataTemp,'channel',featureIDStr);
+plotFeaturesBar('BL','meanPlot',numChannel,fileSpeed,fileDate,outputIndividual,xCoordinates,iters,leftCoordinates,fileSpeedOnly,dataTemp,'channel',featureIDStr);
 
-plotFeatures('meanValue','meanPlot',numChannel,fileSpeed,fileDate,outputIndividual,xCoordinates,iters,leftCoordinates,fileSpeedOnly,dataTemp,'channel',featureIDStr);
+plotFeaturesBar('meanValue','meanPlot',numChannel,fileSpeed,fileDate,outputIndividual,xCoordinates,iters,leftCoordinates,fileSpeedOnly,dataTemp,'channel',featureIDStr);
 
 outputIndividualTemp = outputIndividual;
 
@@ -68,7 +68,7 @@ for i = 1:maxNumFeatureUsed
     outputIndividualTemp.sensitivityPerc5Individual = outputIndividual.sensitivityPerc5Individual(:,i);
     outputIndividualTemp.sensitivityPerc95Individual = outputIndividual.sensitivityPerc95Individual(:,i);
     
-    pS{i,1} = plotFeatures('sensitivity','medianPlot',numChannel,fileSpeed,fileDate,outputIndividualTemp,xCoordinates,iters,leftCoordinates,fileSpeedOnly,dataTemp,[num2str(i),'-feature classification channel'],featureIDStr);
+    pS{i,1} = plotFeaturesBar('sensitivity','medianPlot',numChannel,fileSpeed,fileDate,outputIndividualTemp,xCoordinates,iters,leftCoordinates,fileSpeedOnly,dataTemp,[num2str(i),'-feature classification channel'],featureIDStr);
     
 end
 

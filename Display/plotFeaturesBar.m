@@ -1,11 +1,11 @@
-function p = plotFeatures(plotFeature,plotType,numChannel,fileSpeed,fileDate,outputIndividual,xCoordinates,iters,leftCoordinates,fileSpeedOnly,dataTemp,titleType,featureIDStr)
+function p = plotFeaturesBar(plotFeature,plotType,numChannel,fileSpeed,fileDate,outputIndividual,xCoordinates,iters,leftCoordinates,fileSpeedOnly,dataTemp,titleType,featureIDStr)
 %PLOTFEATURES Plot the features across the weeks in teh checkAccuracy
 %fucntion
 % input:    plotFeature:    Feature name (string)
 %           plotType:       medianPlot,meanPlot
 %           titleType:      type for increment numbers shown in figures
 %
-%   [] = plotFeatures(plotFeature,plotType,numChannel,fileDate,outputIndividual,xCoordinates,iters,leftCoordinates,fileSpeedOnly)
+%   p = plotFeaturesBar(plotFeature,plotType,numChannel,fileSpeed,fileDate,outputIndividual,xCoordinates,iters,leftCoordinates,fileSpeedOnly,dataTemp,titleType,featureIDStr)
 
 for i = 1:numChannel % plot burst height across weeks
     titleName = [plotFeature,' across Weeks ',titleType,' ',num2str(i)];
@@ -41,13 +41,16 @@ for i = 1:numChannel % plot burst height across weeks
             medianTemp = outputIndividual.([plotFeature,'MedianIndividual']){i,1};
             perc5Temp = medianTemp(:) - outputIndividual.([plotFeature,'Perc5Individual']){i,1}(:);
             perc95Temp = outputIndividual.([plotFeature,'Perc95Individual']){i,1}(:) - medianTemp(:);
-            errorbar(xCoordinates(:),medianTemp(:),perc5Temp,perc95Temp,'kv');
+            try
+                errorbar(xCoordinates(:),medianTemp(:),perc5Temp,perc95Temp,'kv');
+            catch
+                errorbar(0,0)
+            end
             
             % insert used feature
             text(xCoordinates(:,1),repmat(-0.07*diff(yLimitBursts)+yLimitBursts(1),1,iters),featureIDStr(:,i));
             
             % input bar legend
-            barObj = vertcat(p(i,1).Children(end-2),p(i,1).Children(end-3),p(i,1).Children(end-4),p(i,1).Children(end-6));
             switch plotFeature
                 case 'accuracy'
                     barObjLegend = {'1-feature classification';'2-feature classification';'Mean value';'5 to 95 percentile'};
@@ -56,7 +59,17 @@ for i = 1:numChannel % plot burst height across weeks
                 otherwise
                     warning('Invalid plot feature...')
             end
-            legend(barObj,barObjLegend,'Location','SouthEast')
+            try
+                barObj = vertcat(p(i,1).Children(end-2),p(i,1).Children(end-3),p(i,1).Children(end-4),p(i,1).Children(end-6));
+                legend(barObj,barObjLegend,'Location','SouthEast')
+            catch
+                try
+                    barObj = vertcat(p(i,1).Children(end-2),p(i,1).Children(end-3),p(i,1).Children(end-4),p(i,1).Children(end-5));
+                    legend(barObj,barObjLegend,'Location','SouthEast')
+                catch
+                    warning('no legend is plotted...')
+                end
+            end
             grid on
             
             
