@@ -24,7 +24,7 @@ for i = 1:maxNumFeatureUsed
         clear sensitivityTemp
         
         accuracyMedianAllLocs{i,j} = find(accuracyMedianAll{i,1}(:,j) == max(accuracyMedianAll{i,1}(:,j)));
-
+        
         % find the most suitable feature set to visualize
         accuracyPercRangeLeast{i,j} = accuracyPercRange{i,1}(accuracyMedianAllLocs{i,j},j); % all the range that corresponds to the accuracy that is maximum
         [~,locsTemp] = min(accuracyPercRangeLeast{i,j}); % get the locs of the minimum range in the list of all the ranges that correspond to the accuracy that is maximum
@@ -50,13 +50,13 @@ for i = 1:maxNumFeatureUsed
             sensitivityPerc5{1,1}{i,j} = prctile(sensitivityTemp,5);
             sensitivityPerc95{1,1}{i,j} = prctile(sensitivityTemp,95);
         catch
-            sensitivityAll{1,1}{i,j} = nan;
-            sensitivityMedian{1,1}{i,j} = nan;
-            sensitivityAve{1,1}{i,j} = nan;
-            sensitivityPerc5{1,1}{i,j} = nan;
-            sensitivityPerc95{1,1}{i,j} = nan;
+            sensitivityAll{1,1}{i,j} = nan(1,numChannel);
+            sensitivityMedian{1,1}{i,j} = nan(1,numChannel);
+            sensitivityAve{1,1}{i,j} = nan(1,numChannel);
+            sensitivityPerc5{1,1}{i,j} = nan(1,numChannel);
+            sensitivityPerc95{1,1}{i,j} = nan(1,numChannel);
         end
-
+        
         % get feature ID
         try
             featureID{1,1}{i,j} = data.varargin{1,1}.featureIndex{i,1}(accuracyLocs(i,j),:);
@@ -93,11 +93,11 @@ end
 
 for j = 1:numChannel
     for k = 1:numClass % class ID
+        
+        % get number of bursts
         try
-            % get number of bursts
-            numTrainBurst{1,1}(k,j) = length(find(data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).trainingClass{accuracyLocs(i,j),j}==k));
-            numTestBurst{1,1}(k,j) = length(find(data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).testingClass{accuracyLocs(i,j),j}==k));
-            
+            numTrainBurst{1,1}(k,j) = length(find(data.varargin{1,1}.classificationOutput{1,1}(1).trainingClass{1,j}==k));
+            numTestBurst{1,1}(k,j) = length(find(data.varargin{1,1}.classificationOutput{1,1}(1).testingClass{1,j}==k));
             % get some features
             % max value
             maxValueIndex = 1;
@@ -142,12 +142,12 @@ for j = 1:numChannel
         end
     end
 end
-    
-    %% output
+
+%% output
 output = makeStruct(accuracyMedian,featureID,numTrainBurst,numTestBurst,accuracyAve,...
     accuracyPerc5,accuracyPerc95,sensitivityAll,sensitivityMedian,sensitivityAve,...
     sensitivityPerc5,sensitivityPerc95,maxValue,maxValueStde,BL,BLStde,meanValue,...
     meanValueStde,durationBtwBursts,predictionVSKnownClass,accuracyLocs);
-    
+
 end
 
