@@ -1,4 +1,4 @@
-function p = plotFeaturesBar(plotFeature,plotType,numChannel,fileSpeed,fileDate,outputIndividual,xCoordinates,iters,leftCoordinates,fileSpeedOnly,dataTemp,titleType,featureIDStr)
+function p = plotFeaturesBar(plotFeature,plotType,parameters,path,fileSpeed,fileDate,outputIndividual,xCoordinates,iters,leftCoordinates,fileSpeedOnly,dataTemp,titleType,featureIDStr)
 %PLOTFEATURES Plot the features across the weeks in teh checkAccuracy
 %fucntion
 % input:    plotFeature:    Feature name (string)
@@ -7,7 +7,7 @@ function p = plotFeaturesBar(plotFeature,plotType,numChannel,fileSpeed,fileDate,
 %
 %   p = plotFeaturesBar(plotFeature,plotType,numChannel,fileSpeed,fileDate,outputIndividual,xCoordinates,iters,leftCoordinates,fileSpeedOnly,dataTemp,titleType,featureIDStr)
 
-for i = 1:numChannel % plot burst height across weeks
+for i = 1:parameters.numChannel % plot burst height across weeks
     titleName = [plotFeature,' across Weeks ',titleType,' ',num2str(i)];
     saveName = [strrep(titleName,' ','_'),fileDate{1,1},'to',fileDate{end,1}];
     
@@ -18,10 +18,11 @@ for i = 1:numChannel % plot burst height across weeks
             p(i,1) = plotFig(1:iters,outputIndividual.([plotFeature,'Individual']){i,1},'',titleName,'Day','Amplitude(V)',0,1,path,'overlap',0,'barGroupedPlot');
             grid on
             hold on
-            yLimitBursts = ylim;
 
             % errorbar
             errorbar(xCoordinates,outputIndividual.([plotFeature,'Individual']){i,1},outputIndividual.([plotFeature,'StdeIndividual']){i,1},'k.');
+            
+            yLimitBursts = ylim; % ylim
             
             % Legend
             barObjBursts = vertcat(p(i,1).Children(end-2),p(i,1).Children(end-3));
@@ -31,7 +32,6 @@ for i = 1:numChannel % plot burst height across weeks
             p(i,1) = plotFig(1:iters,outputIndividual.([plotFeature,'MedianIndividual']){i,1},'',titleName, '', 'Accuracy', 0, 1, path, 'overlap', 0, 'barGroupedPlot');
             ylim([0,1]);
             hold on
-            yLimitBursts = ylim;
 
             % plot the mean
             meanTemp = outputIndividual.([plotFeature,'AveIndividual']){i,1};
@@ -47,6 +47,8 @@ for i = 1:numChannel % plot burst height across weeks
                 errorbar(0,0)
             end
             
+            yLimitBursts = ylim; % ylim
+
             % insert used feature
             text(xCoordinates(:,1),repmat(-0.07*diff(yLimitBursts)+yLimitBursts(1),1,iters),featureIDStr(:,i));
             
@@ -98,6 +100,8 @@ for i = 1:numChannel % plot burst height across weeks
     text(leftCoordinates,0.95*diff(yLimitBursts)+yLimitBursts(1),'No. for testing: ');
     text(xCoordinates(:,1),repmat(0.95*diff(yLimitBursts)+yLimitBursts(1),1,iters),checkMatNAddStr(outputIndividual.numTestBurstIndividual{i,1},',',1));
     
+    % Saving
+    savePlot(path,titleName,'',saveName)
 end
 
 end
