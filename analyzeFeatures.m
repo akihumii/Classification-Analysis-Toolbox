@@ -13,7 +13,8 @@ parameters = struct('useHPC',1,...
     'threshPercentile',95,... % percentile to threshold the latent of principle component for data reconstruction
     ...
     'classificationRepetition',5,...; % number of repetition of the classification with randomly assigned training set and testing set
-    'numFeaturesInCominbation',1:2,... % array of nubmer of features used in combinations
+    'numFeaturesInCominbation',1,... % array of nubmer of features used in combinations
+    'featureIndexSelected',{5},... % enter the index of the feature set for training, grouping in cells
     ...
     'classifierName','svm',...; % input only either 'lda' or 'svm'
     'classifierType',1,... % 1 for manually classification, 2 for using classifier learner app
@@ -120,7 +121,7 @@ for n = 1:numPairs
                 %% Train Classification
                 tTrain = tic;
                 
-                classifierOutput = trainClassifier(featuresInfo, signalInfo, displayInfo, parameters.classificationRepetition, parameters.numFeaturesInCominbation,parameters.classifierName);
+                classifierOutput = trainClassifier(featuresInfo, signalInfo, displayInfo, parameters.classificationRepetition, parameters.numFeaturesInCominbation,parameters.classifierName,parameters.featureIndexSelected);
                 
                 display(['Training session takes ',num2str(toc(tTrain)),' seconds...']);
                 

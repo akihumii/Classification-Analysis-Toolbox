@@ -1,4 +1,4 @@
-function output = trainClassifier(featuresInfo, signalInfo, displayInfo, classificationRepetition, numFeaturesInCombination, classifierName)
+function output = trainClassifier(featuresInfo, signalInfo, displayInfo, classificationRepetition, numFeaturesInCombination, classifierName, featureIndexSelected)
 %trainClassifier Train the classifier to use in analyzeFeatures
 %
 % output:   classificationOutput, accuracyBasicParameter, accuracy,
@@ -10,8 +10,6 @@ function output = trainClassifier(featuresInfo, signalInfo, displayInfo, classif
 %% Parameters
 trainingRatio = 0.7;
 numFeatures = length(featuresInfo.featuresNames);
-% featureIndex1D = 0; % input index number ([1,2,3,...]) of the features that are going to train in 1D classification, input 0 if want to train all features combinations
-% featureIndex2D = 0; % input index number ([1,2,3,...]) of the features that are going to train in 2D classification, input 0 if want ot train all features combinations
 
 %% Classification Settings
 classifierTitle = 'Different Speed'; % it can be 'Different Speed','Different Day','Active EMG'
@@ -39,16 +37,12 @@ if displayInfo.showHistFit||displayInfo.saveHistFit||displayInfo.showAccuracy||d
     for i = 1:lengthumFeaturesInCombination
         featureIndex{i,1} = nchoosek(1:numFeatures,numFeaturesInCombination(i)); % n choose 
         
-%         if i == 2
-%             if all(featureIndex2D > 0)
-% %             selectedFeatureCombination = [2,12,22:30]; % select specific feature combinations to analyse
-%             featureIndex{2,1} = featureIndex{2,1}(featureIndex2D,:);
-%             end
-%         else
-%             if all(featureIndex1D > 0)
-%             featureIndex{1,1} = featureIndex{1,1}(featureIndex1D,:);
-%             end
-%         end
+        try
+            if all(featureIndexSelected{i,1} > 0)
+                featureIndex{i,1} = featureIndex{i,1}(featureIndexSelected{i,1});
+            end
+        catch
+        end
         
         numCombination = size(featureIndex{i,1},1); % number of combination
         for j = 1:numCombination

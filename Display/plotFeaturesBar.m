@@ -101,7 +101,9 @@ for i = 1:parameters.numChannel % plot burst height across weeks
     text(xCoordinates(:,1),repmat(0.95*diff(yLimitBursts)+yLimitBursts(1),1,iters),checkMatNAddStr(outputIndividual.numTestBurstIndividual{i,1},',',1));
     
     % Saving
-    savePlot(path,titleName,'',saveName)
+    if parameters.saveFigures
+        savePlot(path,titleName,'',saveName)
+    end
 end
 
 end

@@ -20,16 +20,16 @@ titleName = [titleName; p.Title.String];
 %% PreProcessing
 parameters = struct(...
     'plotType','percentile',...
-    'overlapPerc',[20,80]);
+    'overlapPerc',[30,70]);
 
 numData = length(data);
 
 %% PostProcessing
 switch parameters.plotType
     case 'ROC'
-        ROCOutput = plotROCNCheck(data,numData);
+        ROCOutput = plotROCNCheck(data,numData)
     case 'percentile'
-        percOuptut = getPercentileOverlap(parameters.overlapPerc,data,numData);
+        percOuptut = getPercentileOverlap(parameters.overlapPerc,data,numData)
     otherwise
         warning('Invalid plotType...')
 end
