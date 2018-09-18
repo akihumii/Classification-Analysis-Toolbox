@@ -121,7 +121,7 @@ for n = 1:numPairs
                 %% Train Classification
                 tTrain = tic;
                 
-                classifierOutput = trainClassifier(featuresInfo, signalInfo, displayInfo, parameters.classificationRepetition, parameters.numFeaturesInCominbation,parameters.classifierName,parameters.featureIndexSelected);
+                classifierOutput = trainClassifier(featuresInfo, signalInfo, displayInfo, parameters.classificationRepetition, parameters.numFeaturesInCombination,parameters.classifierName,parameters.featureIndexSelected);
                 
                 display(['Training session takes ',num2str(toc(tTrain)),' seconds...']);
                 
