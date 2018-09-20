@@ -2,7 +2,7 @@ function output = balanceBursts(signalInfo,numClass)
 %BALANCEBURSTS Balance the number of bursts from different classes in the
 %same channel.
 %
-%   Detailed explanation goes here
+%   output = balanceBursts(signalInfo,numClass)
 
 trainingRatio = 0.7;
 

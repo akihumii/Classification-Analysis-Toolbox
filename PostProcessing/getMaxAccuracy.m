@@ -24,95 +24,130 @@ for i = 1:maxNumFeatureUsed
         clear sensitivityTemp
         
         accuracyMedianAllLocs{i,j} = find(accuracyMedianAll{i,1}(:,j) == max(accuracyMedianAll{i,1}(:,j)));
-
+        
         % find the most suitable feature set to visualize
         accuracyPercRangeLeast{i,j} = accuracyPercRange{i,1}(accuracyMedianAllLocs{i,j},j); % all the range that corresponds to the accuracy that is maximum
         [~,locsTemp] = min(accuracyPercRangeLeast{i,j}); % get the locs of the minimum range in the list of all the ranges that correspond to the accuracy that is maximum
-        accuracyLocs(i,j) = accuracyMedianAllLocs{i,j}(locsTemp); % get the feature ID thta has the maximum accuracy and teh minimum percentile range
-        accuracyMedian{1,1}(i,j) = accuracyMedianAll{i,1}(accuracyLocs(i,j),j);
+        try
+            accuracyLocs(i,j) = accuracyMedianAllLocs{i,j}(locsTemp); % get the feature ID thta has the maximum accuracy and teh minimum percentile range
+            accuracyMedian{1,1}(i,j) = accuracyMedianAll{i,1}(accuracyLocs(i,j),j);
+        catch
+            accuracyLocs(i,j) = nan;
+            accuracyMedian{1,1}(i,j) = nan;
+        end
         
         % Sensitivity
-        for k = 1:numRepeat
-            trueClassTemp = data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j),1).testingClass{k,j};
-            predictClassTemp = data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j),1).predictClass{k,j};
-            sensitivityOutputTemp = calculateAccuracy(predictClassTemp,trueClassTemp);
-            sensitivityAll{1,1}{i,j}(k,:) = sensitivityOutputTemp.sensitivity;
+        try
+            for k = 1:numRepeat
+                trueClassTemp = data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j),1).testingClass{k,j};
+                predictClassTemp = data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j),1).predictClass{k,j};
+                sensitivityOutputTemp = calculateAccuracy(predictClassTemp,trueClassTemp);
+                sensitivityAll{1,1}{i,j}(k,:) = sensitivityOutputTemp.sensitivity;
+            end
+            sensitivityTemp = sensitivityAll{1,1}{i,j};
+            sensitivityMedian{1,1}{i,j} = median(sensitivityTemp);
+            sensitivityAve{1,1}{i,j} = mean(sensitivityTemp);
+            sensitivityPerc5{1,1}{i,j} = prctile(sensitivityTemp,5);
+            sensitivityPerc95{1,1}{i,j} = prctile(sensitivityTemp,95);
+        catch
+            sensitivityAll{1,1}{i,j} = nan(1,numChannel);
+            sensitivityMedian{1,1}{i,j} = nan(1,numChannel);
+            sensitivityAve{1,1}{i,j} = nan(1,numChannel);
+            sensitivityPerc5{1,1}{i,j} = nan(1,numChannel);
+            sensitivityPerc95{1,1}{i,j} = nan(1,numChannel);
         end
-        sensitivityTemp = sensitivityAll{1,1}{i,j};
-        sensitivityMedian{1,1}{i,j} = median(sensitivityTemp);
-        sensitivityAve{1,1}{i,j} = mean(sensitivityTemp);
-        sensitivityPerc5{1,1}{i,j} = prctile(sensitivityTemp,5);
-        sensitivityPerc95{1,1}{i,j} = prctile(sensitivityTemp,95);
-
+        
         % get feature ID
-        featureID{1,1}{i,j} = data.varargin{1,1}.featureIndex{i,1}(accuracyLocs(i,j),:);
+        try
+            featureID{1,1}{i,j} = data.varargin{1,1}.featureIndex{i,1}(accuracyLocs(i,j),:);
+        catch
+            featureID{1,1}{i,j} = nan;
+        end
         
         % get average accuracy
-        accuracyAve{1,1}(i,j) = mean(data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).accuracyAll(:,j));
+        try
+            accuracyAve{1,1}(i,j) = mean(data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).accuracyAll(:,j));
+        catch
+            accuracyAve{1,1}(i,j) = nan;
+        end
         
         % get percentile
-        accuracyPerc5{1,1}(i,j) = prctile(data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).accuracyAll(:,j),5);
-        accuracyPerc95{1,1}(i,j) = prctile(data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).accuracyAll(:,j),95);
+        try
+            accuracyPerc5{1,1}(i,j) = prctile(data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).accuracyAll(:,j),5);
+            accuracyPerc95{1,1}(i,j) = prctile(data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).accuracyAll(:,j),95);
+        catch
+            accuracyPerc5{1,1}(i,j) = nan;
+            accuracyPerc95{1,1}(i,j) = nan;
+        end
         
         % class prediction
-        YTestTrueTemp = data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).testingClass{accuracyLocs(i,j),j};
-        YTestPredictedTemp = data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).predictClass{accuracyLocs(i,j),j};
-        predictionVSKnownClass{1,1}{i,j} = horzcat(YTestTrueTemp,YTestPredictedTemp);
+        try
+            YTestTrueTemp = data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).testingClass{accuracyLocs(i,j),j};
+            YTestPredictedTemp = data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).predictClass{accuracyLocs(i,j),j};
+            predictionVSKnownClass{1,1}{i,j} = horzcat(YTestTrueTemp,YTestPredictedTemp);
+        catch
+            predictionVSKnownClass{1,1}{i,j} = nan;
+        end
     end
 end
 
 for j = 1:numChannel
     for k = 1:numClass % class ID
+        
         % get number of bursts
-        numTrainBurst{1,1}(k,j) = length(find(data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).trainingClass{accuracyLocs(i,j),j}==k));
-        numTestBurst{1,1}(k,j) = length(find(data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).testingClass{accuracyLocs(i,j),j}==k));
-        
-        % get some features
-        % max value
-        maxValueIndex = 1;
-        maxValue{1,1}(k,j) = mean(data.varargin{1,2}.featuresAll{k,maxValueIndex,j});
-        maxValueStde{1,1}(k,j) = data.varargin{1,2}.featureStde(maxValueIndex,k,j);
-        
-        % mean value
-        meanValueIndex = 5;
-        meanValue{1,1}(k,j) = mean(data.varargin{1,2}.featuresAll{k,meanValueIndex,j});
-        meanValueStde{1,1}(k,j) = data.varargin{1,2}.featureStde(meanValueIndex,k,j);
-
-        % burst length
-        BLIndex = 3;
-        BL{1,1}(k,j) = mean(data.varargin{1,2}.featuresAll{k,BLIndex,j});
-        BLStde{1,1}(k,j) = data.varargin{1,2}.featureStde(BLIndex,k,j);
-        
-        % duration between bursts
-        spikeLocsTemp = data.varargin{1,3}(k,1).detectionInfo.spikeLocs(:,j); % get the corresponding burst onset location
-        spikeLocsTemp = spikeLocsTemp(~isnan(spikeLocsTemp)); % ommit the NaN
-        spikeLocsTemp = [spikeLocsTemp;spikeLocsTemp(end)]; % repeat the last location one more time to compensate the one missing location after doing the differential
-        durationBtwBursts{1,1}{k,j} = diff(spikeLocsTemp); % duration between bursts
+        try
+            numTrainBurst{1,1}(k,j) = length(find(data.varargin{1,1}.classificationOutput{1,1}(1).trainingClass{1,j}==k));
+            numTestBurst{1,1}(k,j) = length(find(data.varargin{1,1}.classificationOutput{1,1}(1).testingClass{1,j}==k));
+            % get some features
+            % max value
+            maxValueIndex = 1;
+            maxValue{1,1}(k,j) = mean(data.varargin{1,2}.featuresAll{k,maxValueIndex,j});
+            maxValueStde{1,1}(k,j) = data.varargin{1,2}.featureStde(maxValueIndex,k,j);
+            
+            % mean value
+            meanValueIndex = 5;
+            meanValue{1,1}(k,j) = mean(data.varargin{1,2}.featuresAll{k,meanValueIndex,j});
+            meanValueStde{1,1}(k,j) = data.varargin{1,2}.featureStde(meanValueIndex,k,j);
+            
+            % burst length
+            BLIndex = 3;
+            BL{1,1}(k,j) = mean(data.varargin{1,2}.featuresAll{k,BLIndex,j});
+            BLStde{1,1}(k,j) = data.varargin{1,2}.featureStde(BLIndex,k,j);
+            
+            % duration between bursts
+            spikeLocsTemp = data.varargin{1,3}(k,1).detectionInfo.spikeLocs(:,j); % get the corresponding burst onset location
+            spikeLocsTemp = spikeLocsTemp(~isnan(spikeLocsTemp)); % ommit the NaN
+            spikeLocsTemp = [spikeLocsTemp;spikeLocsTemp(end)]; % repeat the last location one more time to compensate the one missing location after doing the differential
+            durationBtwBursts{1,1}{k,j} = diff(spikeLocsTemp); % duration between bursts
+        catch
+            % get number of bursts
+            numTrainBurst{1,1}(k,j) = nan;
+            numTestBurst{1,1}(k,j) = nan;
+            
+            % get some features
+            % max value
+            maxValue{1,1}(k,j) = nan;
+            maxValueStde{1,1}(k,j) = nan;
+            
+            % mean value
+            meanValue{1,1}(k,j) = nan;
+            meanValueStde{1,1}(k,j) = nan;
+            
+            % burst length
+            BL{1,1}(k,j) = nan;
+            BLStde{1,1}(k,j) = nan;
+            
+            % duration between bursts
+            durationBtwBursts{1,1}{k,j} = nan; % duration between bursts
+        end
     end
 end
-    
-    %% output
-    output.accuracyMedian = accuracyMedian;
-    output.featureID = featureID;
-    output.numTrainBurst = numTrainBurst;
-    output.numTestBurst = numTestBurst;
-    output.accuracyAve = accuracyAve;
-    output.accuracyPerc5 = accuracyPerc5;
-    output.accuracyPerc95 = accuracyPerc95;
-    output.sensitivityAll = sensitivityAll;
-    output.sensitivityMedian = sensitivityMedian;
-    output.sensitivityAve = sensitivityAve;
-    output.sensitivityPerc5 = sensitivityPerc5;
-    output.sensitivityPerc95 = sensitivityPerc95;
-    output.maxValue = maxValue;
-    output.maxValueStde = maxValueStde;
-    output.BL = BL;
-    output.BLStde = BLStde;
-    output.meanValue = meanValue;
-    output.meanValueStde = meanValueStde;
-    output.durationBtwBursts = durationBtwBursts;
-    output.predictionVSKnownClass = predictionVSKnownClass;
-    output.accuracyLocs = accuracyLocs;
-    
+
+%% output
+output = makeStruct(accuracyMedian,featureID,numTrainBurst,numTestBurst,accuracyAve,...
+    accuracyPerc5,accuracyPerc95,sensitivityAll,sensitivityMedian,sensitivityAve,...
+    sensitivityPerc5,sensitivityPerc95,maxValue,maxValueStde,BL,BLStde,meanValue,...
+    meanValueStde,durationBtwBursts,predictionVSKnownClass,accuracyLocs);
+
 end
 

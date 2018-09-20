@@ -33,5 +33,9 @@ end
 
 output = squeezeNan(output,dim);
 
+% if dim == 2 && size(output,2) == 1
+%     output = checkSizeNTranspose(output,1);
+% end
+
 end
 

@@ -40,7 +40,11 @@ else
     output = nan(maxElementLength, numCell); % create empty nan matrix for the case of different numSpikes in different channels
     for i = 1:numCell
         if numElement(i,1)~=0
-            output(1:numElement(i,1),i) = data{i};
+            try
+                output(1:numElement(i,1),i) = data{i};
+            catch
+                output = nan;
+            end
         end
     end
 end

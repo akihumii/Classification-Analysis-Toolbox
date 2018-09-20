@@ -6,38 +6,45 @@ close all
 % clc
 
 %% User Input
-parameters.useHPC = 1;
-
-parameters.runPCA = 0;
-parameters.numPrinComp = 0; % number of principle component to use as features
-parameters.threshPercentile = 95; % percentile to threshold the latent of principle component for data reconstruction
-parameters.classificationRepetition = 5; % number of repetition of the classification with randomly assigned training set and testing set
-if nargin == 1
-    parameters.numFeaturesInCominbation = varargin{1,1}; % array of nubmer of features used in combinations
-else
-    parameters.numFeaturesInCominbation = 1:2; % array of nubmer of features used in combinations
-end    
-
-parameters.classifierName = 'svm'; % input only either 'lda' or 'svm'
-parameters.classifierType = 1; % 1 for manually classification, 2 for using classifier learner app
+parameters = struct('useHPC',1,...
+    ...
+    'runPCA',0,...
+    'numPrinComp',0,... % number of principle component to use as features
+    'threshPercentile',95,... % percentile to threshold the latent of principle component for data reconstruction
+    ...
+    'classificationRepetition',5,...; % number of repetition of the classification with randomly assigned training set and testing set
+    'numFeaturesInCombination',1,... % array of nubmer of features used in combinations
+    'featureIndexSelected',0,... % enter the index of the feature set for training, grouping in cells
+    ...
+    'classifierName','svm',...; % input only either 'lda' or 'svm'
+    'classifierType',1,... % 1 for manually classification, 2 for using classifier learner app
+    ...
+    'trimBursts',1,...
+    'balanceBursts',1,...
+    'trimRange',repmat([0,0.615; 0.615,3],1,1,2)); 
 
 % for display
-displayInfo.testClassifier = 0;
-displayInfo.saveOutput = 1;
+displayInfo = struct(...
+    'testClassifier',0,...
+    'saveOutput',1,...
+    ...
+    'showSeparatedFigures',0,...
+    'showFigures',0,...
+    'showHistFit',0,...
+    'showAccuracy',1,...
+    'showReconstruction',0,...
+    'showPrinComp',0,...
+    ...
+    'saveSeparatedFigures',0,...
+    'saveFigures',0,...
+    'saveHistFit',0,...
+    'saveAccuracy',0,...
+    'saveReconstruction',0,...
+    'savePrinComp',0);
 
-displayInfo.showSeparatedFigures = 0;
-displayInfo.showFigures = 0;
-displayInfo.showHistFit = 0;
-displayInfo.showAccuracy = 1;
-displayInfo.showReconstruction = 0;
-displayInfo.showPrinComp = 0;
-
-displayInfo.saveSeparatedFigures = 0;
-displayInfo.saveFigures = 0;
-displayInfo.saveHistFit = 0;
-displayInfo.saveAccuracy = 0;
-displayInfo.saveReconstruction = 0;
-displayInfo.savePrinComp = 0;
+% for additional amendment from varargin
+parameters = varIntoStruct(parameters,varargin);
+displayInfo = varIntoStruct(displayInfo,varargin);
 
 %% Get features info
 if parameters.useHPC
@@ -66,8 +73,16 @@ for n = 1:numPairs
             signalInfo(i,1) = getFeaturesInfo(path,files{1,i});
         end
         
+        %% Check burst intervals and then trim accordingly
+        if parameters.trimBursts
+            signalInfo = trimWithBurstIntervals(signalInfo,numClass,parameters.trimRange);
+        end
+        
+        
         %% Balance the number of bursts from all the channels
-        signalInfo = balanceBursts(signalInfo,numClass);
+        if parameters.balanceBursts
+            signalInfo = balanceBursts(signalInfo,numClass);
+        end
         
         %% Reconstruct PCA
         pcaInfo = reconstructPCA(signalInfo,parameters.threshPercentile); % matrix in [class x channel]
@@ -106,7 +121,7 @@ for n = 1:numPairs
                 %% Train Classification
                 tTrain = tic;
                 
-                classifierOutput = trainClassifier(featuresInfo, signalInfo, displayInfo, parameters.classificationRepetition, parameters.numFeaturesInCominbation,parameters.classifierName);
+                classifierOutput = trainClassifier(featuresInfo, signalInfo, displayInfo, parameters.classificationRepetition, parameters.numFeaturesInCombination,parameters.classifierName,parameters.featureIndexSelected);
                 
                 display(['Training session takes ',num2str(toc(tTrain)),' seconds...']);
                 
