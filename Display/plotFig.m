@@ -4,8 +4,9 @@ function varargout = plotFig(varargin)
 % (If there is only one input, it will be y value.)
 %
 % input:    "type" could be 'subplot', 'overlap' or 'overlapAll', default type is 'subplot'
+%           'x' would be the xbinsWidth if 'plotWay' is 'histPlot', input 0 if it is not specified into any value
 %           'y' could be a matrix where the data in column will be plotted as one signal trial; Different rows represent different trials that have been performed.
-%           'plotWay' could be 'linePlot', 'barPlot', 'barGroupedPlot', 'stemPlot', 'histFitPlot', 'scatterPlot', default way is 'linePlot'
+%           'plotWay' could be 'linePlot', 'barPlot', 'barGroupedPlot', 'stemPlot','histPlot', 'histFitPlot', 'scatterPlot', default way is 'linePlot'
 %           'channel' is for the title purpose, default value is 1.
 %
 % output:   p: the axes
@@ -103,14 +104,16 @@ end
 saveName = [titleName, ' ', fileName];
 
 [numDataX, ~] = checkSize(x);
-if numDataX == 1 && numData ~= 1
-    x = repmat(x,1,1,numData);
+if ~isequal(plotWay,'histPlot')
+    if numDataX == 1 && numData ~= 1
+        x = repmat(x,1,1,numData);
+    end
 end
 
 for i = 1:numData
     f(i,1) = figure;
     hold on;
-    set(gcf, 'Position', get(0,'Screensize'),'PaperPositionMode', 'auto');
+    set(gcf, 'Position', get(0,'Screensize')-[0 0 0 80],'PaperPositionMode', 'auto');
     
     if channel{1,1} ~= 0
         titleTemp = [' ch ', checkMatNAddStr(channel{i},' - ')];
@@ -158,9 +161,13 @@ for i = 1:numData
                     l(j,i) = bar(x(:,j,i),y(:,j,i));
                 end
             case 'barGroupedPlot'
-                if any(size(x)==1)
+                if all(size(x)==1)
+                    y = checkSizeNTranspose(y,1);
+                    l(i,:) = bar([x,x+1],[y(:,:,i);nan(size(y(:,:,i)))]);
+                    xlim([0.5,1.5]);
+                elseif any(size(x)==1)
                     if size(y,2) == 1
-                        y = y';
+                        y = checkSizeNTranspose(y,1);
                         l(i,:) = bar([x,x+1],[y(:,:,i);nan(size(y(:,:,i)))]);
                         xlim([0.5,1.5]);
                     else
@@ -175,12 +182,26 @@ for i = 1:numData
                 else
                     l(j,i) = stem(x(:,j,i),y(:,j,i));
                 end
+            case 'histPlot'
+                if x ~= 0 || length(x) == 1
+                    xbinsTemp = min(y) : x : max(y);
+                    l(j,i) = histogram(y,xbinsTemp);
+                else
+                    l(j,i) = histogram(y);
+                end
             case 'histFitPlot'
                 pTemp = histfit(y(:,j,i));
                 pTemp(1,1).FaceAlpha = 0.2;
                 l{j,i} = pTemp;
             case 'scatterPlot'
                 l(j,i) = scatter(x(:,j,i),y(:,j,i),500,'.');
+%             case 'boxPlot'
+%                 % refer to https://www.mathworks.com/matlabcentral/answers/171414-how-to-show-95-quanile-in-a-boxplot
+%                 q95 = quantile(y(:,j,i),0.95);
+%                 q75 = quantile(y(:,j,i),0.75);
+%                 q25 = quantile(y(:,j,i),0.25);
+%                 w95 = (q95-q75) / (q75-q25);
+%                 l(j,i) = box(y(:,j,i),'whisker',w95);
             otherwise
                 error('Invalid plotway...')
         end
@@ -221,5 +242,3 @@ end
 if nargout > 2
     varargout{3} = l;
 end
-
-

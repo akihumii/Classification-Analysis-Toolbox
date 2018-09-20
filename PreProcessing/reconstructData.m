@@ -1,11 +1,11 @@
-function [data, time] = reconstructData(files, path, fileType, neutrinoBit, neutrinoInputRefer)
+function [data, timeIndex] = reconstructData(files, path, fileType, neutrinoBit, neutrinoInputRefer)
 %reconstructData Reconstruct different formats of data
 % 
 % fileType: 'sylphii' 'sylphx' 'intan' 'neutrino' 'neutrino2'
 % neutrinoBit: 1 for 8 bit mode, 0 for 10 bit mode
 % neutrinoInputRefer: 1 for checking input refer, 0 for checking output
 % 
-%   [data, time] = reconstructData(files, path, fileType, neutrinoBit, neutrinoInputRefer)
+%   [data, xAxisIndex] = reconstructData(files, path, fileType, neutrinoBit, neutrinoInputRefer)
 
 res = 0.000000195; %uV/unit
 
@@ -22,7 +22,7 @@ switch lower(fileType)
             dataTemp = dataTemp';
             data(:,i) = dataTemp(:)*res; % convert to Voltage
             
-            time = 1:size(data,1);
+            timeIndex = 1:size(data,1);
         end
         
     case 'sylphx'
@@ -32,14 +32,14 @@ switch lower(fileType)
 
         % edit the lousy data
         data = editData(data,data(:,11),[0,255],2);
-        time = 1:size(data,1);
+        timeIndex = 1:size(data,1);
         
     case 'intan'
         %% For Intan
-        [data, time, samplingFreq] = readIntan([path,files]);
+        [data, timeIndex, samplingFreq] = readIntan([path,files]);
         data = data*res;
         data = data'; % make it into structure of [samplePoint x channels]
-        time = time*samplingFreq;
+        timeIndex = timeIndex*samplingFreq;
         
     case 'neutrino'
         %% For Neutrino
@@ -50,7 +50,7 @@ switch lower(fileType)
             convertVoltage = 1.2/1024;
         end
         data = data * convertVoltage; % convert to Voltage
-        time = 1:size(data,1); 
+        timeIndex = 1:size(data,1); 
         
     case 'neutrino2'
         %% For Neutrino with bit analysing function
@@ -71,7 +71,7 @@ switch lower(fileType)
         end
         data = data * convertVoltage; % convert to Voltage
 
-        time = 1:size(data,1);
+        timeIndex = 1:size(data,1);
         
 end
 end

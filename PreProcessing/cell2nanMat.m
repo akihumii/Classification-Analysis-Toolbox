@@ -25,7 +25,7 @@ if any(numLayer > 1)
     output = nan(maxElementLength, maxSetLength, maxLayer, numCell);
     for i = 1:numCell
         if numElement(i,1)~=0 && numSet(i,1)~=0 && numLayer(i,1)~=0
-            output(1:numElement(i,1),1:numSet(i,1),1:numLayer(i,1),i) = data{i,1};
+            output(1:numElement(i,1),1:numSet(i,1),1:numLayer(i,1),i) = data{i};
         end
     end
 
@@ -33,14 +33,18 @@ elseif any(numSet > 1)
     output = nan(maxElementLength, maxSetLength, numCell);
     for i = 1:numCell
         if numElement(i,1)~=0 && numSet(i,1)~=0
-            output(1:numElement(i,1),1:numSet(i,1),i) = data{i,1};
+            output(1:numElement(i,1),1:numSet(i,1),i) = data{i};
         end
     end
 else
     output = nan(maxElementLength, numCell); % create empty nan matrix for the case of different numSpikes in different channels
     for i = 1:numCell
         if numElement(i,1)~=0
-            output(1:numElement(i,1),i) = data{i,1};
+            try
+                output(1:numElement(i,1),i) = data{i};
+            catch
+                output = nan;
+            end
         end
     end
 end
