@@ -1,31 +1,26 @@
-function [gaitLocs,path] = readGait()
+function [gaitLocs,gaitStats,path] = readGait()
 %readGait Read the gait and output the location in sample points
 %   [gaitLocs,path] = readGait()
 
-[files,path] = selectFiles('select gait data excel file');
+[files,path,iters] = selectFiles('select gait data excel file');
 
 popMsg('Processing gait data...');
 
-[num, txt, raw] = xlsread([path,files{1}],'List');
+[~, ~, raw] = xlsread([path,files{1,1}],'List');
+[gaitLocs{1,1},gaitStats] = getGaitInfo(files{1,1},raw,'Rear Right');
 
-numRow = size(raw(:,1));
-
-for i = 1:numRow
-    if isequal(raw{i,1},'Rear Left');
-        startLocs = i+1;
-    end
+for i = 2:iters
+    [~, ~, raw] = xlsread([path,files{1,i}],'List');
     
-    if isequal(raw{i,1},'Foot Spacing Info')
-        endLocs = i-1;
-        break
-    end
+    [gaitLocs{i,1},gaitStatsTemp] = getGaitInfo(files{1,i},raw,'Rear Right');
+    
+    gaitStats = join(gaitStats,gaitStatsTemp,'Keys','RowNames');
+    
+    clear raw
 end
 
-content = cell2mat(raw(startLocs:endLocs,1:2)); % locations in numbers in matrix form
-
-gaitLocs = content(~isnan(content)); % a tall matrix 
-gaitLocs = reshape(gaitLocs,[],2); % a matrix with 2 columns indicating starting and end locations
-gaitLocs = gaitLocs / 100; % convert into seconds
+% save the info
+writetable(gaitStats,[path,'GaitsInfo',time2string,'.xlsx'],'FileType','spreadsheet','WriteRowNames',true);
 
 end
 
