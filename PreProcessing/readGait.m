@@ -7,20 +7,25 @@ function [gaitLocs,gaitStats,path] = readGait()
 popMsg('Processing gait data...');
 
 [~, ~, raw] = xlsread([path,files{1,1}],'List');
-[gaitLocs{1,1},gaitStats] = getGaitInfo(files{1,1},raw,'Rear Right');
+[gaitLocs{1,1},gaitStatsAve,gaitStatsStd,gaitStatsMed] = getGaitInfo(files{1,1},raw,'Rear Right');
 
 for i = 2:iters
     [~, ~, raw] = xlsread([path,files{1,i}],'List');
     
-    [gaitLocs{i,1},gaitStatsTemp] = getGaitInfo(files{1,i},raw,'Rear Right');
+    [gaitLocs{i,1},gaitStatsAveTemp,gaitStatsStdTemp,gaitStatsMedTemp] = getGaitInfo(files{1,i},raw,'Rear Right');
     
-    gaitStats = join(gaitStats,gaitStatsTemp,'Keys','RowNames');
+    gaitStatsAve = join(gaitStatsAve,gaitStatsAveTemp,'Keys','RowNames');
+    gaitStatsStd = join(gaitStatsStd,gaitStatsStdTemp,'Keys','RowNames');
+    gaitStatsMed = join(gaitStatsMed,gaitStatsMedTemp,'Keys','RowNames');
     
-    clear raw
+    clear raw gaitStatsAveTemp gaitStatsStdTemp gaitStatsMedTemp
 end
 
 % save the info
-writetable(gaitStats,[path,'GaitsInfo',time2string,'.xlsx'],'FileType','spreadsheet','WriteRowNames',true);
+fileName = [path,'GaitsInfo',time2string,'.xlsx'];
+writetable(gaitStatsAve,fileName,'FileType','spreadsheet','WriteRowNames',true,'Sheet','Average');
+writetable(gaitStatsStd,fileName,'FileType','spreadsheet','WriteRowNames',true,'Sheet','Std');
+writetable(gaitStatsMed,fileName,'FileType','spreadsheet','WriteRowNames',true,'Sheet','Median');
 
 end
 
