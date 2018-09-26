@@ -17,8 +17,11 @@ gaitLocs = cell2mat(data(startLocs:endLocs,1:2)); % locations in numbers in matr
 gaitLocs = squeezeNan(gaitLocs,2); % a tall matrix 
 gaitLocs = gaitLocs / 100; % convert into seconds
 
-gaitStats = array2table(reshape(vertcat(data{endLocs:endLocs+2, 4}),3,[]));
-gaitStats.Properties.RowNames = {'Average','Std','Median'};
-gaitStats.Properties.VariableNames = {['speed_',fileName(1:4)]};
+numSteps = size(gaitLocs,1);
+dataStde = data{endLocs+1,4} / sqrt(numSteps);
+
+gaitStats = array2table([reshape(vertcat(data{endLocs:endLocs+2, 7}),3,[]);dataStde;numSteps]);
+gaitStats.Properties.RowNames = {'Average','Std','Median','Stde','No. burst'};
+gaitStats.Properties.VariableNames = {['speed',fileName(1:4)]};
 end
 
