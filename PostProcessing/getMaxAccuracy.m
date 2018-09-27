@@ -1,26 +1,26 @@
-function output = getMaxAccuracy(data,maxNumFeatureUsed,numChannel,numClass)
+function output = getMaxAccuracy(data,parameters)
 %GETMAXACCURACY Get the maximum accuracy of the classifier model
 % input: data: .mat file that has been trained
 %   accuracy, featureID, numTrainBurst, numTestBurst = getMaxAccuracy(data,maxNumFeatureUsed,numChannel)
 
-for i = 1:maxNumFeatureUsed
+for i = 1:parameters.maxNumFeatureUsed
     numFeatureSetsTemp = length(data.varargin{1,1}.classificationOutput{1,1});
     numRepeat = size(data.varargin{1,1}.classificationOutput{1,1}(1,1).testingClass,1);
     % check the accuracy from all the utilized feature sets
     for j = 1:numFeatureSetsTemp
         accuracyMedianAll{i,1}(j,:) = median(data.varargin{1,1}.classificationOutput{i,1}(j,1).accuracyAll,1);
         
-        for k = 1:numChannel
+        for k = 1:parameters.numChannel
             % 5 and 95 percentile
-            accuracyPerc5All{i,1}(j,k) = prctile(data.varargin{1,1}.classificationOutput{i,1}(j,1).accuracyAll(:,k),5);
-            accuracyPerc95All{i,1}(j,k) = prctile(data.varargin{1,1}.classificationOutput{i,1}(j,1).accuracyAll(:,k),95);
+            accuracyPerc5All{i,1}(j,k) = prctile(data.varargin{1,1}.classificationOutput{i,1}(j,1).accuracyAll(:,k),parameters.lowerPercThresh);
+            accuracyPerc95All{i,1}(j,k) = prctile(data.varargin{1,1}.classificationOutput{i,1}(j,1).accuracyAll(:,k),parameters.upperPercThresh);
         end
     end
     
     accuracyPercRange{i,1} = accuracyPerc95All{i,1} - accuracyPerc5All{i,1};
     
     % find the maximum accuracy with the least percentile range
-    for j = 1:numChannel
+    for j = 1:parameters.numChannel
         clear sensitivityTemp
         
         accuracyMedianAllLocs{i,j} = find(accuracyMedianAll{i,1}(:,j) == max(accuracyMedianAll{i,1}(:,j)));
@@ -47,14 +47,14 @@ for i = 1:maxNumFeatureUsed
             sensitivityTemp = sensitivityAll{1,1}{i,j};
             sensitivityMedian{1,1}{i,j} = median(sensitivityTemp);
             sensitivityAve{1,1}{i,j} = mean(sensitivityTemp);
-            sensitivityPerc5{1,1}{i,j} = prctile(sensitivityTemp,5);
-            sensitivityPerc95{1,1}{i,j} = prctile(sensitivityTemp,95);
+            sensitivityPerc5{1,1}{i,j} = prctile(sensitivityTemp,parameters.lowerPercThresh);
+            sensitivityPerc95{1,1}{i,j} = prctile(sensitivityTemp,parameters.upperPercThresh);
         catch
-            sensitivityAll{1,1}{i,j} = nan(1,numChannel);
-            sensitivityMedian{1,1}{i,j} = nan(1,numChannel);
-            sensitivityAve{1,1}{i,j} = nan(1,numChannel);
-            sensitivityPerc5{1,1}{i,j} = nan(1,numChannel);
-            sensitivityPerc95{1,1}{i,j} = nan(1,numChannel);
+            sensitivityAll{1,1}{i,j} = nan(1,parameters.numChannel);
+            sensitivityMedian{1,1}{i,j} = nan(1,parameters.numChannel);
+            sensitivityAve{1,1}{i,j} = nan(1,parameters.numChannel);
+            sensitivityPerc5{1,1}{i,j} = nan(1,parameters.numChannel);
+            sensitivityPerc95{1,1}{i,j} = nan(1,parameters.numChannel);
         end
         
         % get feature ID
@@ -73,8 +73,8 @@ for i = 1:maxNumFeatureUsed
         
         % get percentile
         try
-            accuracyPerc5{1,1}(i,j) = prctile(data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).accuracyAll(:,j),5);
-            accuracyPerc95{1,1}(i,j) = prctile(data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).accuracyAll(:,j),95);
+            accuracyPerc5{1,1}(i,j) = prctile(data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).accuracyAll(:,j),parameters.lowerPercThresh);
+            accuracyPerc95{1,1}(i,j) = prctile(data.varargin{1,1}.classificationOutput{i,1}(accuracyLocs(i,j)).accuracyAll(:,j),parameters.upperPercThresh);
         catch
             accuracyPerc5{1,1}(i,j) = nan;
             accuracyPerc95{1,1}(i,j) = nan;
@@ -91,8 +91,8 @@ for i = 1:maxNumFeatureUsed
     end
 end
 
-for j = 1:numChannel
-    for k = 1:numClass % class ID
+for j = 1:parameters.numChannel
+    for k = 1:parameters.numClass % class ID
         
         % get number of bursts
         try
