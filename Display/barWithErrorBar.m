@@ -15,7 +15,9 @@ if size(dataStde,3)==1
 else
     errorbar(getErrorBarXAxisValues(numBar,numClass),dataBar,dataStde(:,:,1),dataStde(:,:,2),'r*');
 end
-plot(getErrorBarXAxisValues(numBar,numClass),dataStar,'g^')
+if dataStar ~= 0
+    plot(getErrorBarXAxisValues(numBar,numClass),dataStar,'g^')
+end
 title(titleName)
 
 legend(legendNames);

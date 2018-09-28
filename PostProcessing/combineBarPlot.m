@@ -1,5 +1,5 @@
-function [] = combineBarPlot()
-%COMBINEBARPLOT Combine the bars in different figures.
+function [] = editBarPlot()
+%EDITBARPLOT Combine the bars in different figures.
 %   Detailed explanation goes here
 
 %% Parameters
