@@ -1,28 +1,29 @@
-function output = dataClassificationPreparation(signal, iter, pcaCleaning, selectedWindow, windowSize, dataToBeDetectedSpike, spikeDetectionType, threshold, sign, threshStdMult, TKEOStartConsecutivePoints, TKEOEndConsecutivePoints,channelExtractStartingLocs,burstTrimming,burstTrimmingType)
+function output = dataClassificationPreparation(signal, iter, parameters)
 %dataClassification Detect windows, extract features, execute
 %classification
+%   input: parameters: pcaCleaning, selectedWindow, windowSize, dataToBeDetectedSpike, spikeDetectionType, threshold, sign, threshStdMult, TKEOStartConsecutivePoints, TKEOEndConsecutivePoints,channelExtractStartingLocs,burstTrimming,burstTrimmingType
 %   output = dataClassificationPreparation(signal, iter, selectedWindow, windowSize, dataToBeDetectedSpike, spikeDetectionType, threshold, sign, treshStdMult, TKEOStartConsecutivePoints, TKEOEndConsecutivePoints,channelExtractStartingLocs,burstTrimming,burstTrimmingType)
 
 % for the case of selected filtered data, because the values lies in the
 % field 'values' of the structure 'dataFiltered'.
 
-if isequal(selectedWindow, 'dataFiltered')
-    selectedWindow = [{'dataFiltered'};{'values'}];
+if isequal(parameters.selectedWindow, 'dataFiltered')
+    parameters.selectedWindow = [{'dataFiltered'};{'values'}];
 end
 
 output(iter,1) = classClassificationPreparation; % pre-allocation
 
 for i = 1:iter
-output(i,1) = classClassificationPreparation(signal(i,1).file,signal(i,1).path,windowSize); % create object 'output'
+output(i,1) = classClassificationPreparation(signal(i,1).file,signal(i,1).path,parameters.windowSize); % create object 'output'
 
 % detect spikes
-output(i,1) = detectSpikes(output(i,1), signal(i,1), dataToBeDetectedSpike, spikeDetectionType, threshold, sign, threshStdMult, TKEOStartConsecutivePoints, TKEOEndConsecutivePoints,channelExtractStartingLocs);
+output(i,1) = detectSpikes(output(i,1), signal(i,1), parameters);
 
 % get windows around spikes
-output(i,1) = classificationWindowSelection(output(i,1), signal(i,1), selectedWindow,burstTrimming,burstTrimmingType);
+output(i,1) = classificationWindowSelection(output(i,1), signal(i,1), parameters);
 
 % clean the bursts by running PCA
-if pcaCleaning
+if parameters.pcaCleaning
     output(i,1) = pcaCleanData(output(i,1));
 end
 

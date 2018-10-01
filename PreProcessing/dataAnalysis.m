@@ -1,6 +1,8 @@
-function [data, dataName, iter] = dataAnalysis(dataType,dataToBeFiltered,dataToBeFFT,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,channel,channelPair,samplingFreq,partialDataSelection,constraintWindow,neutrinoInputReferred,neutrinoBit,downSamplingFreq,saveOverlap,showOverlap,saveFFT,showFFT)
+function [data, dataName, iter] = dataAnalysis(parameters)
 %dataAnalysis Generate objects that describes each processed data
-%   [data, dataName, iter] = dataAnalysis(dataType,dataToBeFiltered,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,channel,channelRef,samplingFreq,,partialDataSelection,constraintWindow,neutrinoInputReferred,decimateFactor,saveOverlap,showOverlap,saveFFT,showFFT)
+% input:    parameters: dataType,dataToBeFiltered,dataToBeFFT,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,channel,channelPair,samplingFreq,partialDataSelection,constraintWindow,neutrinoInputReferred,neutrinoBit,downSamplingFreq,saveOverlap,showOverlap,saveFFT,showFFT
+% 
+%   [data, dataName, iter] = dataAnalysis(parameters)
 
 [files, path, iter] = selectFiles(); % select files to be analysed
 
@@ -10,21 +12,21 @@ dataName = cell(iter,1);
 
 %% Analyse Data
 for i = 1:iter
-    data(i,1) = classData(files{i},path,dataType,neutrinoBit,channel,samplingFreq,neutrinoInputReferred,partialDataSelection,constraintWindow,downSamplingFreq);
-    if channelPair ~= 0
-        data(i,1) = dataDifferentialSubtraction(data(i,1),'dataRaw',channelPair); % create object 'data'
+    data(i,1) = classData(files{i},path,parameters);
+    if parameters.channelPair ~= 0
+        data(i,1) = dataDifferentialSubtraction(data(i,1),'dataRaw',parameters.channelPair); % create object 'data'
     end
     
     data(i,1) = rectifyData(data(i,1),'dataRaw'); % rectify data
     
-    data(i,1) = filterData(data(i,1),dataToBeFiltered, data(i,1).samplingFreq, highPassCutoffFreq,lowPassCutoffFreq, notchFreq); % filter data
+    data(i,1) = filterData(data(i,1),parameters); % filter data
     
-    if saveOverlap || showOverlap
-        data(i,1) = TKEO(data(i,1),'dataRaw',data(i,1).samplingFreq); % TKEO 
+    if parameters.saveOverlap || parameters.showOverlap
+        data(i,1) = TKEO(data(i,1),'dataRaw'); % TKEO 
     end
     
-    if saveFFT || showFFT
-        data(i,1) = fftDataConvert(data(i,1),dataToBeFFT,data(i,1).samplingFreq); % do FFT
+    if parameters.saveFFT || parameters.showFFT
+        data(i,1) = fftDataConvert(data(i,1),parameters.dataToBeFFT); % do FFT
     end
         
     dataName{i,1} = data(i,1).file;
