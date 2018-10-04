@@ -3,6 +3,7 @@
 function [] = checkAccuracy(varargin)
 % Parameters
 parameters = struct(...
+    'selectFile',1,...
     'maxNumFeatureUsed',2,...
     'numChannel',2,...
     'numClass',2,...
@@ -12,7 +13,11 @@ parameters = struct(...
 
 parameters = varIntoStruct(parameters,varargin);
 
-[files, path, iters] = selectFiles('select the desired classifier models');
+if parameters.selectFile
+    [files, path, iters] = selectFiles('select the desired classifier models');
+else
+    [files, path, iters] = getCurrentFiles('*.mat');
+end
 
 %% Load accuracies and feature IDs
 fileSpeed = cell(0,0); % speeds contained in the file
@@ -52,11 +57,12 @@ outputIndividual.sensitivityPerc95Individual = rearrangeSensitivity(outputIndivi
 %% Visualize
 close all
 
-xCoordinatesNumFeatureSet = getErrorBarXAxisValues(iters,parameters.maxNumFeatureUsed); % for plotting mean and error bar
+xCoordinatesErrorbarAccuracy = getErrorBarXAxisValues(iters,parameters.maxNumFeatureUsed); % for plotting mean and error bar for accuracy
+xCoordinatesErrorbarSensitivity = getErrorBarXAxisValues(iters,parameters.numChannel); % for plotting mean and error bar for accuracy
 xCoordinatesNumClass = getErrorBarXAxisValues(iters,parameters.numClass);
 leftCoordinates = -1;
 
-plotFeaturesBar('accuracy','medianPlot',parameters,path,fileSpeed,fileDate,outputIndividual,xCoordinatesNumFeatureSet,iters,leftCoordinates,fileSpeedOnly,dataTemp,'channel',featureIDStr);
+plotFeaturesBar('accuracy','medianPlot',parameters,path,fileSpeed,fileDate,outputIndividual,xCoordinatesErrorbarAccuracy,iters,leftCoordinates,fileSpeedOnly,dataTemp,'channel',featureIDStr);
 
 plotFeaturesBar('maxValue','meanPlot',parameters,path,fileSpeed,fileDate,outputIndividual,xCoordinatesNumClass,iters,leftCoordinates,fileSpeedOnly,dataTemp,'channel',featureIDStr);
 
@@ -72,7 +78,7 @@ for i = 1:parameters.maxNumFeatureUsed
     outputIndividualTemp.sensitivityPerc5Individual = outputIndividual.sensitivityPerc5Individual(:,i);
     outputIndividualTemp.sensitivityPerc95Individual = outputIndividual.sensitivityPerc95Individual(:,i);
     
-    pS{i,1} = plotFeaturesBar('sensitivity','medianPlot',parameters,path,fileSpeed,fileDate,outputIndividualTemp,xCoordinatesNumFeatureSet,iters,leftCoordinates,fileSpeedOnly,dataTemp,[num2str(i),'-feature classification channel'],featureIDStr);
+    pS{i,1} = plotFeaturesBar('sensitivity','medianPlot',parameters,path,fileSpeed,fileDate,outputIndividualTemp,xCoordinatesErrorbarSensitivity,iters,leftCoordinates,fileSpeedOnly,dataTemp,[num2str(i),'-feature classification channel'],featureIDStr);
 end
 
 popMsg('Finished...');
