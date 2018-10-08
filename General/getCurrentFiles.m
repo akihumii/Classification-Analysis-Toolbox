@@ -1,6 +1,6 @@
 function [files, path, varargout] = getCurrentFiles(varargin)
 %GETCURRENTFILES Get the files in current directory
-%   Detailed explanation goes here
+%   [files, path, varargout] = getCurrentFiles(varargin)
 
 if nargin == 1
     filesInfo = dir(varargin{1,1});

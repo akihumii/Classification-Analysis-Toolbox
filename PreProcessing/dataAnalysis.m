@@ -4,7 +4,22 @@ function [data, dataName, iter] = dataAnalysis(parameters)
 % 
 %   [data, dataName, iter] = dataAnalysis(parameters)
 
-[files, path, iter] = selectFiles(); % select files to be analysed
+switch parameters.selectFile 
+    case 1
+        [files, path, iter] = selectFiles(); % select files to be analysed
+    case 0
+        [files, path, iter] = getCurrentFiles(); % select files in current path
+    case 2
+        [files, path, iter] = getCurrentFiles(parameters.specificTarget);
+    case 3
+        splittedStr = split(parameters.specificTarget);
+        files = splittedStr(end);
+        path = fullfile(splittedStr(1:end-1));
+        iter = 1;
+    otherwise
+        error('Invalid option for selectFile...')
+end
+    
 
 %% pre-allocation
 data(iter,1) = classData; % pre-allocate object array

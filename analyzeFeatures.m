@@ -6,13 +6,15 @@ close all
 % clc
 
 %% User Input
-parameters = struct('useHPC',1,...
+parameters = struct(...
+    'selectFile',0,... % 0 to select all the files in the current directories and pair them up, 1 to select files, 2 to use the specific path stored in specificPath
+    'specificTarget','',... % it will only be activated when selectFile is equal to 2
     ...
     'runPCA',0,...
     'numPrinComp',0,... % number of principle component to use as features
     'threshPercentile',95,... % percentile to threshold the latent of principle component for data reconstruction
     ...
-    'classificationRepetition',5,...; % number of repetition of the classification with randomly assigned training set and testing set
+    'classificationRepetition',1,...; % number of repetition of the classification with randomly assigned training set and testing set
     'numFeaturesInCombination',1,... % array of nubmer of features used in combinations
     'featureIndexSelected',0,... % enter the index of the feature set for training, grouping in cells
     ...
@@ -47,19 +49,30 @@ parameters = varIntoStruct(parameters,varargin);
 displayInfo = varIntoStruct(displayInfo,varargin);
 
 %% Get features info
-if parameters.useHPC
-    allFiles = dir('*.mat');
-    numTrial = length(allFiles);
-    allPairs = nchoosek(1:numTrial,2);
-    [numPairs, numClass] = size(allPairs);
-else
-    [files, path, numClass] = selectFiles('select mat files for classifier''s training');
-    numPairs = 1;
+switch parameters.selectFile
+    case 0
+        allFiles = dir('*.mat');
+        numTrial = length(allFiles);
+        allPairs = nchoosek(1:numTrial,2);
+        [numPairs, numClass] = size(allPairs);
+    case 1
+        [files, path, numClass] = selectFiles('select mat files for classifier''s training');
+        numPairs = 1;
+    case 2
+        allFiles = dir([parameters.specificPath,'*.mat']);
+        numTrial = length(allFiles);
+        allPairs = nchoosek(1:numTrial,2);
+        [numPairs, numClass] = size(allPairs);
+    case 3
+        splittedStr = split(parameters.specificTarget);
+        files = splittedStr(end);
+        path = fullfile(splittedStr(1:end-1));
+    otherwise
 end
 
 for n = 1:numPairs
 %     try
-        if parameters.useHPC
+        if parameters.selectFiles == 0 || parameters.selectFiles == 2
             for j = 1:numClass
                 files{1,j} = allFiles(allPairs(n,j),1).name;
             end
