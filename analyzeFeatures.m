@@ -10,6 +10,8 @@ parameters = struct(...
     'selectFile',0,... % 0 to select all the files in the current directories and pair them up, 1 to select files, 2 to use the specific path stored in specificPath
     'specificTarget','',... % it will only be activated when selectFile is equal to 2
     ...
+    'numClass',2,... % number of different class to classify, it only applies when selectFile is not 1 nor 2, i.e. there is no a pop up window to select the files for classification
+    ...
     'runPCA',0,...
     'numPrinComp',0,... % number of principle component to use as features
     'threshPercentile',95,... % percentile to threshold the latent of principle component for data reconstruction
@@ -53,7 +55,7 @@ switch parameters.selectFile
     case 0
         allFiles = dir('*.mat');
         numTrial = length(allFiles);
-        allPairs = nchoosek(1:numTrial,2);
+        allPairs = nchoosek(1:numTrial,parameters.numClass);
         [numPairs, numClass] = size(allPairs);
     case 1
         [files, path, numClass] = selectFiles('select mat files for classifier''s training');
@@ -61,7 +63,7 @@ switch parameters.selectFile
     case 2
         allFiles = dir([parameters.specificPath,'*.mat']);
         numTrial = length(allFiles);
-        allPairs = nchoosek(1:numTrial,2);
+        allPairs = nchoosek(1:numTrial,parameters.numClass);
         [numPairs, numClass] = size(allPairs);
     case 3
         splittedStr = split(parameters.specificTarget);
