@@ -55,9 +55,9 @@ for i = 1:parameters.numChannel % plot burst height across weeks
             % input bar legend
             switch plotFeature
                 case 'accuracy'
-                    barObjLegend = {'1-feature classification';'2-feature classification';'Mean value';'5 to 95 percentile'};
+                    barObjLegend = {'1-feature classification';'2-feature classification';'Mean value';[num2str(parameters.lowerPercThresh),' to ',num2str(parameters.upperPercThresh),' percentile']};
                 case 'sensitivity'
-                    barObjLegend = [fileSpeedOnly;{'Mean value';'5 to 95 percentile'}];
+                    barObjLegend = [fileSpeedOnly;{'Mean value';[num2str(parameters.lowerPercThresh),' to ',num2str(parameters.upperPercThresh),' percentile']}];
                 otherwise
                     warning('Invalid plot feature...')
             end

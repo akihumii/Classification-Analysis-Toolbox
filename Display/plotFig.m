@@ -168,8 +168,12 @@ for i = 1:numData
                 elseif any(size(x)==1)
                     if size(y,2) == 1
                         y = checkSizeNTranspose(y,1);
+                        try
                         l(i,:) = bar([x,x+1],[y(:,:,i);nan(size(y(:,:,i)))]);
                         xlim([0.5,1.5]);
+                        catch
+                            l(i,:) = bar(x,y(:,:,i));
+                        end
                     else
                         l(i,:) = bar(x,y(:,:,i));
                     end
