@@ -7,7 +7,7 @@ function [data, timeIndex] = reconstructData(files, path, fileType, neutrinoBit,
 % 
 %   [data, xAxisIndex] = reconstructData(files, path, fileType, neutrinoBit, neutrinoInputRefer)
 
-res = 0.000000195; %uV/unit
+res = 0.000000195; %V/unit
 
 if nargin < 4
     neutrinoBit = 1;
@@ -28,10 +28,11 @@ switch lower(fileType)
     case 'sylphx'
         %% For EMG Wireless Newest Format
         data = csvread([path,files]);
-        data(:,1:10) = data(:,1:10)*res; % convert data to Voltage, keep the counter and sync pulse unchanged
+        numTotalChannel = 10;
+        data(:,1:numTotalChannel) = data(:,1:numTotalChannel)*res; % convert data to Voltage, keep the counter and sync pulse unchanged
 
         % edit the lousy data
-        data = editData(data,data(:,11),[0,255],2);
+%         data = editData(data,data(:,11),[0,255],2);
         timeIndex = 1:size(data,1);
         
     case 'intan'

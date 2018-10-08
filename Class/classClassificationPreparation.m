@@ -50,28 +50,30 @@ classdef classClassificationPreparation
             end
         end
         
-        function clfp = detectSpikes(clfp,targetClassData,targetName,type,threshold,sign,threshStdMult,TKEOStartConsecutivePoints,TKEOEndConsecutivePoints,channelExtractStartingLocs)
-            if isequal(targetName,'dataFiltered') || isequal(targetName,'dataTKEO')
-                targetName = [{targetName};{'values'}];
+        function clfp = detectSpikes(clfp,targetClassData,parameters)
+            % input: parameters: targetName,type,threshold,sign,threshStdMult,TKEOStartConsecutivePoints,TKEOEndConsecutivePoints,channelExtractStartingLocs
+            if isequal(parameters.targetName,'dataFiltered') || isequal(parameters.targetName,'dataTKEO')
+                parameters.targetName = [{parameters.targetName};{'values'}];
             end
-            [dataValue, dataName] = loadMultiLayerStruct(targetClassData,targetName);
+            [dataValue, dataName] = loadMultiLayerStruct(targetClassData,parameters.targetName);
             minDistance = floor(clfp.window * targetClassData.samplingFreq);
-            clfp.burstDetection = detectSpikes(dataValue,minDistance,threshold,sign,type,threshStdMult,TKEOStartConsecutivePoints,TKEOEndConsecutivePoints);
+            clfp.burstDetection = detectSpikes(dataValue,minDistance,parameters.threshold,parameters.sign,parameters.type,parameters.threshStdMult,parameters.TKEOStartConsecutivePoints,parameters.TKEOEndConsecutivePoints);
             clfp.burstDetection.dataAnalysed = [targetClassData.file,' -> ',dataName];
-            clfp.burstDetection.detectionMethod = type;
-            clfp.burstDetection.channelExtractStartingLocs = channelExtractStartingLocs;
+            clfp.burstDetection.detectionMethod = parameters.type;
+            clfp.burstDetection.channelExtractStartingLocs = parameters.channelExtractStartingLocs;
         end
         
-        function clfp = classificationWindowSelection(clfp, targetClassData, targetName,burstTrimming,burstTrimmingType)
-            if isequal(targetName,'dataFiltered') || isequal(targetName,'dataTKEO')
-                targetName = [{targetName};{'values'}];
+        function clfp = classificationWindowSelection(clfp, targetClassData, parameters)
+            % input: parameters: targetName,burstTrimming,burstTrimmingType
+            if isequal(parameters.targetName,'dataFiltered') || isequal(parameters.targetName,'dataTKEO')
+                parameters.targetName = [{parameters.targetName};{'values'}];
             end
-            [dataValue, dataName] = loadMultiLayerStruct(targetClassData,targetName);
+            [dataValue, dataName] = loadMultiLayerStruct(targetClassData,parameters.targetName);
             
-            if burstTrimming % to trim the bursts
+            if parameters.burstTrimming % to trim the bursts
                 p = plotFig(targetClassData.time/targetClassData.samplingFreq,dataValue,'','','Time(s)','Amplitude(V)',0,1);
                 [clfp.burstDetection.spikePeaksValue,clfp.burstDetection.spikeLocs,clfp.burstDetection.burstEndValue,clfp.burstDetection.burstEndLocs,clfp.burstDetection.selectedBurstsIndex] =...
-                    deleteBurst(burstTrimmingType, p, targetClassData.time, targetClassData.samplingFreq, clfp.burstDetection.spikePeaksValue,clfp.burstDetection.spikeLocs,clfp.burstDetection.burstEndValue,clfp.burstDetection.burstEndLocs);
+                    deleteBurst(parameters.burstTrimmingType, p, targetClassData.time, targetClassData.samplingFreq, clfp.burstDetection.spikePeaksValue,clfp.burstDetection.spikeLocs,clfp.burstDetection.burstEndValue,clfp.burstDetection.burstEndLocs);
             end
             
             clfp.selectedWindows = getPointsWithinRange(...
