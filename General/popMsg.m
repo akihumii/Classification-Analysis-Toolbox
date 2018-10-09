@@ -1,19 +1,23 @@
-function box = popMsg(content)
+function popMsg(content)
 %popMsg Pop the message box to show the popping content
 %   [] = popMsg(content)
 warning('off','all')
-delete(timerfind('Tag','box'))
+boxesT = timerfind('Tag','box');
+if ~isempty(boxesT)
+    close(boxesT(:).UserData); % close the box window
+    delete(boxesT)
+end
 
-timeClose = 5; % auto close the window once this timing has passed
-boxT = timer;
-set(boxT,'StartFcn', {@startTimerFcn, content});
-set(boxT,'TimerFcn', {@runTimerFcn, content});
-set(boxT,'StartDelay', timeClose);
-set(boxT,'StopFcn', @stopTimerFcn);
-set(boxT,'Tag','box');
+timeClose = 3000; % auto close the window once this timing has passed
+t = timer;
+set(t,'Tag','box');
+set(t,'StartFcn', {@startTimerFcn, content});
+set(t,'TimerFcn', {@runTimerFcn, content});
+set(t,'StartDelay', timeClose);
+set(t,'StopFcn', @stopTimerFcn);
+set(t,'Tag','box');
 
-start(boxT)
-box = boxT.UserData;
+start(t)
 end
 
 function startTimerFcn(obj,~,content)
