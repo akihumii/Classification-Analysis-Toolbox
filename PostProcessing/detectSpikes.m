@@ -44,7 +44,11 @@ for i = 1:colData % channel
     maxPeak = max(data(:,i));
     baseline{i,1} = baselineDetection(sign * data(:,i)); % the mean of the data points spanned from 1/4 to 3/4 of the data sorted by amplitude is obtained as baseline
     if threshold == 0 % if no user input, baseline + threshStdMult * baselineStandardDeviation will be used as threshold value
+        if length(threshStdMult) < colData
+            error('Not enough threshStdMult for all the channels...');
+        else
             thresholdValue = sign * baseline{i,1}.mean + threshStdMult(1,i) * baseline{i,1}.std;
+        end
     elseif length(threshold) == 1
         thresholdValue = sign * threshold(1,1);
     else
@@ -62,6 +66,9 @@ for i = 1:colData % channel
             spikeLocs{i,1} = spikeLocs{i,1} + minDistance(1); % compensate the skipped window
             [burstEndValue{i,1},burstEndLocs{i,1}] = pointAfterAWindow(data(:,i),minDistance(2),spikeLocs{i,1});
         case 'TKEO'
+            if length(TKEOStartConsecutivePoints) < colData
+                error('Not enough TKEOStartConsecutivePoints for all the channels...')
+            else
             [spikePeaksValue{i,1},spikeLocs{i,1}] = triggerSpikeDetection(data(minDistance(1):end-minDistance(2)-1,i),thresholdValue,minDistance(2),TKEOStartConsecutivePoints(1,i)); % the last value is the number of consecutive point that needs to exceed threshold to be detected as spikes
 %             [spikePeaksValue{i,1},spikeLocs{i,1}] = triggerSpikeDetection(data(minDistance(1):end-minDistance(2),i),thresholdValue,minDistance(2),TKEOStartConsecutivePoints); % the last value is the number of consecutive point that needs to exceed threshold to be detected as spikes
             spikeLocs{i,1} = spikeLocs{i,1} + minDistance(1); % compensate the skipped window
@@ -73,6 +80,7 @@ for i = 1:colData % channel
 %                 TKEOSpikeDetection(data(skipWindow:end-skipWindow,i),thresholdValue,TKEOStartConsecutivePoints,TKEOEndConsecutivePoints); % the last value is the number of consecutive point that needs to exceed threshold to be detected as spikes
 %             spikeLocs{i,1} = spikeLocs{i,1} + skipWindow - 1; % compensate the skipped window
 %             burstEndLocs{i,1} = burstEndLocs{i,1} + skipWindow -1; % compensate the skipped window
+            end
         otherwise
             error('Invalid spike detection type')
     end

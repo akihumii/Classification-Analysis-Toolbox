@@ -4,7 +4,10 @@ function popMsg(content)
 warning('off','all')
 boxesT = timerfind('Tag','box');
 if ~isempty(boxesT)
+    try
     close(boxesT(:).UserData); % close the box window
+    catch
+    end
     delete(boxesT)
 end
 

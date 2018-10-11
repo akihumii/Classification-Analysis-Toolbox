@@ -1,11 +1,12 @@
 function [] = mainClassifier(varargin)
 %% Main code for Signal analysis
-% Features data filtering, burst detecting, windows overlapping, 
+% Features data filtering, burst detecting, windows overlapping,
 % figures displaying and saving, bursts classification
-% 
+%
 % Coded by Tsai Chne Wuen
 
-close all
+close all hidden
+delete(timerfindall)
 % clc
 
 %% User's Input
@@ -19,51 +20,51 @@ parameters = struct(...
     'neutrinoBit',1,...; % input 1 for 8 bit mode, input 0 for 10 bit mode
     'selectFile',1,... % 1 to select file manually, 0 to select all the files in the current directories, 2 to use the specific path stored in specificPath, 3 to specify a file
     'specificTarget','',... % it will only be activated when selectFile is equal to 2
-...
+    ...
     'partialDataSelection',0,...; % input 1 to select partial data to analyse, otherwise input 0
     'constraintWindow',[-0.30075,6.9049],... % starting point and end point of constraint window, unit is in seconds. Input 0 for default (pre-select the whole signal). It can be found in signal.analysedDataTiming(2,:), the first row is the timing in seconds
-...
-...% Filtering Parameters
+    ...
+    ...% Filtering Parameters
     'dataToBeFiltered','dataRaw',...; % input 'dataRaw' for raw data; input 'dataDifferential' for differential data; input 'dataRectified' for rectified data
     'highPassCutoffFreq',30,... % high pass cutoff frequency, input 0 if not applied
     'lowPassCutoffFreq',500,... % low pass cutoff frequency, input 0 if not applied
     'notchFreq',50,... % notch frequency, input 0 if not applied
     'downSamplingFreq',0,... % down sampling the data to the sampling rate of downSamplingFrequency; input 0 to deactivate
     'pcaCleaning',0,... % run PCA to omit principle components that have very little latent (eigenvalues), default parameters.threshold is 50 percentile
-...
-...% FFT parameters
+    ...
+    ...% FFT parameters
     'dataToBeFFT','dataFiltered',... % input 'dataRaw' for raw data; input 'dataFiltered' for filtered data; input 'dataRectified' for rectified data; input 'dataDifferential' for differential data
-...
-...% Peak Detection Parameters
+    ...
+    ...% Peak Detection Parameters
     'dataToBeDetectedSpike','dataTKEO',... % data for spike detecting
     'overlappedWindow','dataFiltered',... % Select window for overlapping. Input 'dataRaw' for raw data, 'dataFiltered' for filtered data, 'dataDifferential' for differential data
     'spikeDetectionType','TKEO',... % input 'local maxima' for local maxima, input 'trigger for first point exceeding parameters.threshold, input 'TKEO' for taking following consecutive points into account
     'threshold',[0],... % specified one parameters.threshold for spikes detection in all the channels; multiple thresholds are allowed for different channels; input 0 for default value (baseline + threshMult * baselineStandardDeviation) (baseline is obtained by calculating the mean of the data points spanned between 1/4 to 3/4 of the data array sorted by amplitudes)
-    'threshStdMult',[30,2],... % multiples of standard deviation above the baseline as the parameters.threshold for TKEO detection. All channels will use the same value if there is only one value, multiple values are allowed for different channels
+    'threshStdMult',[30],... % multiples of standard deviation above the baseline as the parameters.threshold for TKEO detection. All channels will use the same value if there is only one value, multiple values are allowed for different channels
     'sign',1,... % input 1 for threhoslding upwards, input -1 for thresholding downwards
     'windowSize',[0.03, 0.07],... % range of window starting from the detected peaks(in seconds)
     'channelExtractStartingLocs',0,... % input parameters.channel index (start from 1, then 2, 3...) to fix the locs for all the channels, windows between 2 consecutive starting points of the bursts will be extracted and overlapped. Input 0 to deactivate this function
-    'TKEOStartConsecutivePoints',[25,15],... % number of consecutive points over the parameters.threshold to be detected as burst
-    'TKEOEndConsecutivePoints',[25,65],... % number of consecutive points below the parameters.threshold to be detected as end of burst
+    'TKEOStartConsecutivePoints',[25],... % number of consecutive points over the parameters.threshold to be detected as burst
+    'TKEOEndConsecutivePoints',[25],... % number of consecutive points below the parameters.threshold to be detected as end of burst
     'burstTrimming',0,... % to exclude the bursts by inputting the bursts indexes
     'burstTrimmingType',1,... % 1 to delete; 2 to pick
-...
-...% Show & Save Plots Parameters. Input 1 to save/show, otherwise input 0.
-...% Plots will be saved in the folder 'Figures' at the same path with the processed data 
-    'showRaw',1,...
+    ...
+    ...% Show & Save Plots Parameters. Input 1 to save/show, otherwise input 0.
+    ...% Plots will be saved in the folder 'Figures' at the same path with the processed data
+    'showRaw',0,...
     'showDifferential',0,...
     'showRectified',0,...
-    'showFilt',1,...
+    'showFilt',0,...
     'showOverlap',1,...
     'showFFT',0,...
-...
+    ...
     'saveRaw',0,...
     'saveDifferential',0,...
     'saveRectified',0,...
     'saveFilt',0,...
     'saveOverlap',0,...
     'saveFFT',0,...
-...
+    ...
     'saveUserInput',1); % set to 1 to save all the information, otherwise set to 0
 
 % load the input variables into parameters
@@ -71,41 +72,45 @@ parameters = varIntoStruct(parameters,varargin);
 
 %% Main
 ticDataAnalysis = tic;
+popMsg('Start Analysing...')
 [signal, signalName, iter] = dataAnalysis(parameters);
-disp([num2str(toc(ticDataAnalysis)), ' seconds is used for loading and processing data...'])
+popMsg([num2str(toc(ticDataAnalysis)), ' seconds is used for loading and processing data...'])
 disp(' ')
 
 %% Locate bursts and select windows around them
 tic
-if parameters.showOverlap==1 || parameters.saveOverlap==1 % peaks detection is only activated when either parameters.showOverlap or parameters.saveOverlap or both of them are TRUE
-    signalClassification = dataClassificationPreparation(signal, iter, parameters);
+popMsg('Start locting bursts...')
+% if parameters.showOverlap==1 || parameters.saveOverlap==1 % peaks detection is only activated when either parameters.showOverlap or parameters.saveOverlap or both of them are TRUE
+signalClassification = dataClassificationPreparation(signal, iter, parameters);
 
-    writeBurstIndexInfo(signal.path,parameters.channel,parameters.burstTrimming,signal.file(5:8),signal.analysedDataTiming,signalClassification.burstDetection.selectedBurstsIndex); % write the selected burst index info into info.xlsx
-else
-    signalClassification = 1;
-end
-disp([num2str(toc),' seconds is used for classification preparation...'])
+writeBurstIndexInfo(signal,signalClassification,parameters); % write the selected burst index info into info.xlsx
+% else
+%     signalClassification = 1;
+% end
+popMsg([num2str(toc),' seconds is used for classification preparation...'])
 disp(' ')
 
 %% Plot selected windows
 close all
 
 tic
+popMsg('Visualizing signals...')
 windowsValues = visualizeSignals(signal, signalClassification, parameters);
-disp ([num2str(toc), ' seconds is used for visualizing signals...'])
+popMsg([num2str(toc), ' seconds is used for visualizing signals...'])
 disp(' ')
 
 %% Ending
 tic
+popMsg('Saving .mat files...')
 if parameters.saveUserInput
     for i = 1:length(signal)
-        saveVar([signal(i,1).path,'\Info\'],signal(i,1).fileName,signal,signalClassification,windowsValues,parameters)
+        saveVar([signal(i,1).path,'\Info\'],signal(i,1).fileName,signal(i,1),signalClassification(i,1),windowsValues,parameters)
     end
 end
-disp ([num2str(toc), ' seconds is used for saving info...'])
+popMsg([num2str(toc), ' seconds is used for saving info...'])
 disp(' ')
 
-finishMsg()
+popMsg('Finished...')
 
 
 end

@@ -108,11 +108,11 @@ else
         end
         
         %% Plot Overlapping Signals
-        if isequal(parameters.selectedWindow, 'dataFiltered') || isequal(parameters.selectedWindow, 'dataTKEO')
-            parameters.selectedWindow = [{parameters.selectedWindow};{'values'}]; % reconstruct filtered vales, because the values lies in the field 'values' in the structure 'dataFiltered'
+        if isequal(parameters.dataToBeDetectedSpike, 'dataFiltered') || isequal(parameters.dataToBeDetectedSpike, 'dataTKEO')
+            parameters.dataToBeDetectedSpike = [{parameters.dataToBeDetectedSpike};{'values'}]; % reconstruct filtered vales, because the values lies in the field 'values' in the structure 'dataFiltered'
         end
         
-        [dataValues, dataName] = loadMultiLayerStruct(signal(i,1),parameters.selectedWindow); % get the values and the name of the selected window
+        [dataValues, dataName] = loadMultiLayerStruct(signal(i,1),parameters.dataToBeDetectedSpike); % get the values and the name of the selected window
         
         maxBurstLength = max(signalClassification(i,1).burstDetection.burstEndLocs - signalClassification(i,1).burstDetection.spikeLocs,[],1);
         

@@ -2,12 +2,12 @@
 % Load features from multiple mat files and plot the figures
 function [] = analyzeFeatures(varargin)
 % clear
-close all
+close all hidden
 % clc
 
 %% User Input
 parameters = struct(...
-    'selectFile',0,... % 0 to select all the files in the current directories and pair them up, 1 to select files, 2 to use the specific path stored in specificPath
+    'selectFile',1,... % 0 to select all the files in the current directories and pair them up, 1 to select files, 2 to use the specific path stored in specificPath
     'specificTarget','',... % it will only be activated when selectFile is equal to 2
     ...
     'runPCA',0,...
@@ -23,7 +23,7 @@ parameters = struct(...
     ...
     'trimBursts',1,...
     'balanceBursts',1,...
-    'trimRange',repmat([0,0.615; 0.615,3],1,1,2)); 
+    'trimRange',repmat([0,0.615; 0.615,3],1,1,4)); 
 
 % for display
 displayInfo = struct(...
@@ -72,7 +72,7 @@ end
 
 for n = 1:numPairs
 %     try
-        if parameters.selectFiles == 0 || parameters.selectFiles == 2
+        if parameters.selectFile == 0 || parameters.selectFile == 2
             for j = 1:numClass
                 files{1,j} = allFiles(allPairs(n,j),1).name;
             end

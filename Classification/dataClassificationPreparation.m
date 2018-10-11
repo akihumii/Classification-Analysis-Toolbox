@@ -7,8 +7,8 @@ function output = dataClassificationPreparation(signal, iter, parameters)
 % for the case of selected filtered data, because the values lies in the
 % field 'values' of the structure 'dataFiltered'.
 
-if isequal(parameters.selectedWindow, 'dataFiltered')
-    parameters.selectedWindow = [{'dataFiltered'};{'values'}];
+if isequal(parameters.overlappedWindow, 'dataFiltered')
+    parameters.overlappedWindow = [{'dataFiltered'};{'values'}];
 end
 
 output(iter,1) = classClassificationPreparation; % pre-allocation

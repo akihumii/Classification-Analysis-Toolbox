@@ -11,6 +11,9 @@ featureNames(end) = [];
 numFeatures = length(featureNames);
 
 %% get the location
+if size(burstIntervalsThreshold,3) < numClass
+    error('Not enough burstIntervalsThreshold for all the classes...')
+end
 for i = 1:numClass
     burstIntervalTemp = omitNan(signalInfo(i).signalClassification.burstDetection.burstIntervalSeconds,2,'all');
     for j = 1:numChannel
