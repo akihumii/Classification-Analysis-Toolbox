@@ -17,13 +17,17 @@ parameters = struct(...
     'classificationRepetition',1,...; % number of repetition of the classification with randomly assigned training set and testing set
     'numFeaturesInCombination',1,... % array of nubmer of features used in combinations
     'featureIndexSelected',0,... % enter the index of the feature set for training, grouping in cells
+    'classifyIndividualCh',1,... % 1 to classify the channel separately, 0 to combine all the channels as features
     ...
     'classifierName','svm',...; % input only either 'lda' or 'svm'
     'classifierType',1,... % 1 for manually classification, 2 for using classifier learner app
+    'resetTrainRatio',0,... % 1 to reset training ratio that was set while running the mainClassifier
     ...
-    'trimBursts',1,...
-    'balanceBursts',1,...
-    'trimRange',repmat([0,0.615; 0.615,3],2,1,4)); 
+    'editMeanValueFeature',0,... % to change the mean value feature from using the filtered signal to using the rectified signal
+    ...
+    'trimBursts',0,...
+    'balanceBursts',0,...
+    'trimRange',repmat([0,1000],2,1,4)); 
 
 % for display
 displayInfo = struct(...
@@ -94,19 +98,19 @@ for n = 1:numPairs
         
         %% Balance the number of bursts from all the channels
         if parameters.balanceBursts
-            signalInfo = balanceBursts(signalInfo,numClass);
+            signalInfo = balanceBursts(signalInfo,numClass,parameters.resetTrainRatio);
         end
         
         %% Reconstruct PCA
         pcaInfo = reconstructPCA(signalInfo,parameters.threshPercentile); % matrix in [class x channel]
         
         %% Reconstruct features in singal so that the structure is the same as the one in extracted Features.
-        featuresRaw = reconstructSignalInfoFeatures(signalInfo);
+        featuresRaw = reconstructSignalInfoFeatures(signalInfo,parameters);
         
         %% Run PCA
         if parameters.runPCA
             %% Extract features from reconstructed signals after running PCA
-            numChannel = length(signalInfo(1).signal.channel);
+            numChannel = length(pcaInfo.pcaInfo);
             for i = 1:numChannel
                 featuresPCA(i,1) = featureExtraction(pcaInfo.pcaInfo(i,1).reconstructedData',1); % different channels stored in different structures. The structures mimics the one in signalInfo
                 
@@ -134,18 +138,18 @@ for n = 1:numPairs
                 %% Train Classification
                 tTrain = tic;
                 
-                classifierOutput = trainClassifier(featuresInfo, signalInfo, displayInfo, parameters.classificationRepetition, parameters.numFeaturesInCombination,parameters.classifierName,parameters.featureIndexSelected);
+                classifierOutput = trainClassifier(featuresInfo, signalInfo, displayInfo, parameters);
                 
                 display(['Training session takes ',num2str(toc(tTrain)),' seconds...']);
                 
-                %% Plot features
-                %         tPlot = tic;
-                %         close all
-                %
-                %         % type can be 'Active EMG', 'Different Speed', 'Different Day'
-                %         visualizeFeatures(numClass, path, classifierOutput, featuresInfo, signalInfo, displayInfo, pcaInfo, parameters.runPCA);
-                %
-                %         display(['Plotting session takes ',num2str(toc(tPlot)),' seconds...']);
+                % Plot features
+                        tPlot = tic;
+                        close all
+                
+                        % type can be 'Active EMG', 'Different Speed', 'Different Day'
+                        visualizeFeatures(numClass, path, classifierOutput, featuresInfo, signalInfo, displayInfo, pcaInfo, parameters.runPCA);
+                
+                        display(['Plotting session takes ',num2str(toc(tPlot)),' seconds...']);
                 
                 %% Run through the entire signal and classify
                 if displayInfo.testClassifier

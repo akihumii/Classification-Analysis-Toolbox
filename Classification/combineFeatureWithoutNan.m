@@ -1,4 +1,4 @@
-function output = combineFeatureWithoutNan(data,trainingRatio,numClasses)
+function output = combineFeatureWithoutNan(data,trainingRatio,numClasses,parameters)
 %COMBINEFEATUREWITHOUTNAN Combine the features stored in structures while
 %removing the Nan
 % 
@@ -8,7 +8,7 @@ function output = combineFeatureWithoutNan(data,trainingRatio,numClasses)
 % 
 % output:   training, testing, trainingClass, testingClass
 % 
-%   output = combineFeatureWithoutNan(data,trainingRatio,numClasses)
+%   output = combineFeatureWithoutNan(data,trainingRatio,numClasses,parameters)
 
 training = zeros(0,1);
 testing = zeros(0,1);
@@ -20,7 +20,7 @@ for i = 1:numClasses
     trials = zeros(1,0);
     notNanFeatures = zeros(1,0);
     
-    trials = catNanMat(data(i,:,1)',2,'all'); % concatanate the different classes into different columns including nan
+    trials = catNanMat(data(i,:,:)',2,'all'); % concatanate the different classes into different columns including nan
     
     notNanFeatures = omitNan(trials,2,'any'); % get rid of rows containing Nan
     

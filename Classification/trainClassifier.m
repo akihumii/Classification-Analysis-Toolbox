@@ -1,14 +1,13 @@
-function output = trainClassifier(featuresInfo, signalInfo, displayInfo, classificationRepetition, numFeaturesInCombination, classifierName, featureIndexSelected)
+function output = trainClassifier(featuresInfo, signalInfo, displayInfo, parameters)
 %trainClassifier Train the classifier to use in analyzeFeatures
 %
 % output:   classificationOutput, accuracyBasicParameter, accuracy,
 % accurcyStde, accuracyMax, maxFeatureCombo, classifierTitle,
 % classifierFullTitle, featureIndex
 %
-%   output = trainClassifier(featuresInfo, signalInfo, displayInfo, classificationRepetition, maxNumFeaturesInCombination)
+%   output = trainClassifier(featuresInfo, signalInfo, displayInfo, parameters)
 
 %% Parameters
-trainingRatio = 0.7;
 numFeatures = length(featuresInfo.featuresNames);
 
 %% Classification Settings
@@ -32,22 +31,22 @@ classifierFullTitle = [classifierFullTitle,' )'];
 if displayInfo.showHistFit||displayInfo.saveHistFit||displayInfo.showAccuracy||displayInfo.saveAccuracy||displayInfo.showReconstruction||displayInfo.saveReconstruction||displayInfo.showPrinComp||displayInfo.savePrinComp
     disp('Training classifiers...');
     
-    lengthumFeaturesInCombination = length(numFeaturesInCombination);
+    lengthumFeaturesInCombination = length(parameters.numFeaturesInCombination);
     
     for i = 1:lengthumFeaturesInCombination
-        featureIndex{i,1} = nchoosek(1:numFeatures,numFeaturesInCombination(i)); % n choose 
+        featureIndex{i,1} = nchoosek(1:numFeatures,parameters.numFeaturesInCombination(i)); % n choose 
         
         try
-            if all(featureIndexSelected{i,1} > 0)
-                featureIndex{i,1} = featureIndex{i,1}(featureIndexSelected{i,1});
+            if all(parameters.featureIndexSelected{i,1} > 0)
+                featureIndex{i,1} = featureIndex{i,1}(parameters.featureIndexSelected{i,1});
             end
         catch
         end
         
         numCombination = size(featureIndex{i,1},1); % number of combination
         for j = 1:numCombination
-            classificationOutput{i,1}(j,1) = classification(featuresInfo.featuresAll,featureIndex{i,1}(j,:),trainingRatio,classifierFullTitle,classificationRepetition,classifierName); % run the classification by using the features index etc
-            accuracyBasicParameter{i,1}(j,1) = getBasicParameter(horzcat(classificationOutput{i,1}(j,1).accuracyAll(:))); % get the accuracy by checking the classification performances
+            classificationOutput{i,1}(j,1) = classification(featuresInfo.featuresAll,featureIndex{i,1}(j,:),signalInfo(i,1).signalClassification.trainingRatio,classifierFullTitle,parameters); % run the classification by using the features index etc
+            accuracyBasicParameter{i,1}(j,1) = getBasicParameter(horzcat(classificationOutput{i,1}(j,1).accuracyAll)); % get the accuracy by checking the classification performances
         end
         accuracy{i,1} = vertcat(accuracyBasicParameter{i,1}.average);
         accuracyStde{i,1} = vertcat(accuracyBasicParameter{i,1}.standardDeviation);

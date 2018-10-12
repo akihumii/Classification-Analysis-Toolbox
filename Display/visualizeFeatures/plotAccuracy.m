@@ -4,7 +4,7 @@ function [] = plotAccuracy(classifierOutput,featureIndex,plotFileName,path,numCl
 
 accuracyBasicParameter = classifierOutput.accuracyBasicParameter; % accuracy
 numFeatureCombination = length(accuracyBasicParameter); % number of feature combinations
-numRepetition = length(classifierOutput.classificationOutput{1,1}(1,1).accuracyAll{1,1});
+% numRepetition = length(classifierOutput.classificationOutput{1,1}(1,1).accuracyAll{1,1});
 
 % selectedFeatureCombination = [2,12,22:30]; % select specific feature combinations to analyse
 % featureIndex{2,1} = featureIndex{2,1}(selectedFeatureCombination,:);
@@ -14,9 +14,9 @@ numRepetition = length(classifierOutput.classificationOutput{1,1}(1,1).accuracyA
 for i = 1:numFeatureCombination
     numCombination(i,1) = length(accuracyBasicParameter{i,1}); % number of combination
     featureIndexTemp = featureIndex{i,1};
-    meanTemp{i,1} = vertcat(accuracyBasicParameter{i,1}.mean);
+    meanTemp{i,1} = vertcat(accuracyBasicParameter{i,1}.average);
     stdeTemp = vertcat(accuracyBasicParameter{i,1}.stde);
-    pA = plotFig(1:numCombination(i,1),meanTemp{i,1}',plotFileName,['Accuracy with ',num2str(i),' features in combinations'],'Feature Combinations','Acurracy',0,1,path,'overlap',0,'barGroupedPlot');
+    pA = plotFig(1:numCombination(i,1),meanTemp{i,1},plotFileName,['Accuracy with ',num2str(i),' features in combinations'],'Feature Combinations','Acurracy',0,1,path,'overlap',0,'barGroupedPlot');
     hold on
     pA.XTick = 1:numCombination(i,1);
     pA.XTickLabel = checkMatNAddStr(featureIndexTemp,',',1);
@@ -24,7 +24,9 @@ for i = 1:numFeatureCombination
     ylim([0,1]);
     grid on
     cp = plot(xLimit,[1/numClass,1/numClass],'k--'); % plot chance performance
-    errorbar(getErrorBarXAxisValues(numCombination(i,1),numChannel),meanTemp{i,1},stdeTemp,'r*'); % error bar
+    if ~all(isnan(meanTemp{i,1}(:)))
+        errorbar(getErrorBarXAxisValues(numCombination(i,1),numChannel),meanTemp{i,1},stdeTemp,'r*'); % error bar
+    end
     legend('channel 14','channel 16','chance performance');
     if displayInfo.saveAccuracy
 %         savePlot(path,'Accuracy of Features Combination',plotFileName,['Accuracy of ',titleName,' with ',num2str(i),' features in combinations with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
