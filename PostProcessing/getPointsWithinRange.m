@@ -78,6 +78,9 @@ for i = 1:numColumn
         timeTemp = timeAxis-timeAxis(minusLocation);
         xAxisValues{j,1} = timeTemp(1:length(xAxisValuesTemp));
         
+        if all(burst{j,1}(:)==0)
+            burst{j,1} = nan;
+        end
     else
         numLocs(i,1) = 0;
         burst{1,1} = nan;
@@ -92,9 +95,11 @@ end
 burstAll = cell2nanMat(burstAll);
 xAxisValuesAll = cell2nanMat(xAxisValuesAll);
 
+%% Output
 output.burst = burstAll;
 output.burstMean = nanmean(burstAll,2); % get the mean of the windows
 output.xAxisValues = xAxisValuesAll;
 output.numBursts = numLocs;
+
 end
 
