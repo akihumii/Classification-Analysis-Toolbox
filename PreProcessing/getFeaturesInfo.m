@@ -12,6 +12,7 @@ output.saveFileName = files(1:end-4);
 output.signal = info.varargin{1,1};
 output.signalClassification = info.varargin{1,2};
 output.windowsValues = info.varargin{1,3};
+output.parameters = info.varargin{1,4};
 
 output.fileName = output.signal.fileName;
 output.features = output.signalClassification.features;

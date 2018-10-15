@@ -10,6 +10,7 @@ timeString = time2string;
 
 saveDir = fullfile(path,[fileName,'_',timeString,'.mat']);
 save(saveDir,'varargin');
+disp(['Saved matfile ',saveDir]);
 
 end
 
