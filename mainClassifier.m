@@ -1,8 +1,11 @@
-function [] = mainClassifier(varargin)
+function varargout = mainClassifier(varargin)
 %% Main code for Signal analysis
 % Features data filtering, burst detecting, windows overlapping,
 % figures displaying and saving, bursts classification
 %
+% output: varargout: signal, signalClassificationInfo, windowsValues,
+% parameters
+% 
 % Coded by Tsai Chne Wuen
 
 close all hidden
@@ -48,7 +51,7 @@ parameters = struct(...
     'channelExtractStartingLocs',0,... % input parameters.channel index (start from 1, then 2, 3...) to fix the locs for all the channels, windows between 2 consecutive starting points of the bursts will be extracted and overlapped. Input 0 to deactivate this function
     'trainingRatio',0.7,... % training ratio for classifier
     ...
-    'TKEOStartConsecutivePoints',[35,30],... % number of consecutive points over the parameters.threshold to be detected as burst
+    'TKEOStartConsecutivePoints',[35],... % number of consecutive points over the parameters.threshold to be detected as burst
     'TKEOEndConsecutivePoints',[100,200],... % number of consecutive points below the parameters.threshold to be detected as end of burst
     'burstTrimming',0,... % to exclude the bursts by inputting the bursts indexes
     'burstTrimmingType',1,... % 1 to delete; 2 to pick
@@ -62,12 +65,12 @@ parameters = struct(...
     'showOverlap',0,...
     'showFFT',0,...
     ...
-    'saveRaw',1,...
+    'saveRaw',0,...
     'saveDifferential',0,...
     'saveRectified',0,...
-    'saveFilt',1,...
-    'saveOverlap',1,...
-    'saveFFT',1,...
+    'saveFilt',0,...
+    'saveOverlap',0,...
+    'saveFFT',0,...
     ...
     'saveUserInput',1); % set to 1 to save all the information, otherwise set to 0
 
@@ -108,11 +111,21 @@ tic
 popMsg('Saving .mat files...')
 if parameters.saveUserInput
     for i = 1:length(signal)
-        saveVar([signal(i,1).path,'\Info\'],signal(i,1).fileName,signal(i,1),signalClassification(i,1),windowsValues(i,1),parameters)
+        saveVar([signal(i,1).path,filesep,'Info',filesep],signal(i,1).fileName,signal(i,1),signalClassification(i,1),windowsValues(i,1),parameters);
     end
 end
 popMsg([num2str(toc), ' seconds is used for saving info...'])
 disp(' ')
+
+%% output
+if nargout >= 1; varargout{1,1} = signal;
+    if nargout >= 2; varargout{1,2} = signalClassification;
+        if nargout >= 3; varargout{1,3} = windowsValues;
+            if nargout >=4; varargout{1,4} = parameters;
+            end
+        end
+    end
+end
 
 popMsg('Finished...')
 
