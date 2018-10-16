@@ -65,8 +65,8 @@ for i = 1:parameters.numBarShown
     h.XTickLabel = XNames{i,1};
     
     if parameters.saveBarPlot
-        saveas(gcf,[titleName,'.fig']);
-        saveas(gcf,[titleName,'.jpg']);
+        saveas(gcf,[path,filesep,titleName,'.fig']);
+        saveas(gcf,[path,filesep,titleName,'.jpg']);
     end
     
 end
