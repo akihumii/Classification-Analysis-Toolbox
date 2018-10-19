@@ -65,9 +65,7 @@ classdef classOnlineClassification < matlab.System
         
         function readSample(obj,t)
             lengthData = length(obj.dataRaw{1,1});
-
             obj.readyDetect = lengthData > obj.lengthTKEO; % activate ready detect
-            
             obj.windowFull = lengthData > obj.windowSize; % activate trimming of samples
             
             for i = 1:obj.numChannel
@@ -86,7 +84,7 @@ classdef classOnlineClassification < matlab.System
                 for i = 1:obj.numChannel
                     dataTKEO = TKEO(obj.dataRaw{i,1},obj.samplingFreq);
                     [peaks,~] = triggerSpikeDetection(dataTKEO,obj.threshold(1,i),0,obj.numOnsetBurst(1,i),0);
-                    if ~isempty(peaks)
+                    if ~isnan(peaks)
                         obj.readyClassify = 1; % activate flag for classify
                         break % break the for loop whenever a burst is found
                     end
