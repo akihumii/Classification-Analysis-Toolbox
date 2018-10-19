@@ -16,8 +16,11 @@ classdef classOnlineClassification < matlab.System
         port
         tcpipArg
         dataRaw
-        dataTKEO
-        dataFiltered
+        highPassCutoffFreq = 500
+        lowPassCutoffFreq = 30
+        notchFreq = 50
+%         dataTKEO
+%         dataFiltered
         readyDetect = 0;
         readyClassify = 0;
     end
@@ -29,6 +32,7 @@ classdef classOnlineClassification < matlab.System
     % Pre-computed constants
     properties(Access = private)
         lengthTKEO = 13;
+        numChannel = 0;
     end
 
     methods
@@ -44,49 +48,77 @@ classdef classOnlineClassification < matlab.System
             obj.host = host;
             obj.port = port;
             obj.tcpipArg = varargin;
+            getNumChannel(obj); % update the number of channels
+        end
+        
+        function setInitialData(obj) % initialize data
+            obj.dataRaw = cell(obj.numChannel,1);
+%             obj.dataTKEO = cell(obj.numChannel,1);
+%             obj.dataFiltered = cell(obj.numChannel,1);
         end
         
         function t = tcpip(obj)
-            t = tcpip(obj.host,obj.port,obj.tcpipArg{:});
+            for i = 1:obj.numChannel
+                t(i,1) = tcpip(obj.host,obj.port(1,i),obj.tcpipArg{:});
+            end
         end
         
         function readSample(obj,t)
-            sample = fread(t, t.BytesAvailable);
-            lengthData = length(obj.dataRaw);
+            lengthData = length(obj.dataRaw{1,1});
+
+            obj.readyDetect = lengthData > obj.lengthTKEO; % activate ready detect
             
-            if lengthData < obj.lengthTKEO
-                obj.dataRaw = [obj.dataRaw; sample]; % accumulate samples at the beginning
-            else
-                obj.readyDetect = 1;
-                obj.dataRaw = fixRawData(obj,lengthData);
+            obj.windowFull = lengthData > obj.windowSize; % activate trimming of samples
+            
+            for i = 1:obj.numChannel
+                sample = fread(t(i,1), t.BytesAvailable);
+                
+                obj.dataRaw{1,1} = [obj.dataRaw{1,1}; sample]; % accumulate samples at the beginning
+                
+                if obj.windowFull
+                    obj.dataRaw{1,1}(1,1) = []; % remove the excess samples 
+                end
             end
         end
         
         function detectBurst(obj)
             if obj.readyDetect
-                obj.dataTKEO = TKEO(obj.dataRaw,obj.samplingFreq);
-                [obj.peaks,obj.locs] = triggerSpikeDetection(obj.dataTKEO,obj.threshold,0,obj.numOnsetBurst,0);
-                obj.readyClassify = ~isempty(obj.peaks); % activate flag for classify
+                for i = 1:obj.numChannel
+                    dataTKEO = TKEO(obj.dataRaw{i,1},obj.samplingFreq);
+                    [peaks,~] = triggerSpikeDetection(dataTKEO,obj.threshold(1,i),0,obj.numOnsetBurst(1,i),0);
+                    if ~isempty(peaks)
+                        obj.readyClassify = 1; % activate flag for classify
+                        break % break the for loop whenever a burst is found
+                    end
+                end                               
             end
         end
         
         function classifyBurst(obj)
             if obj.readyClassify
-                obj.features = featureExtraction(obj.dataFiltered,obj.samplingFreq);
+                features = cell(obj.numChannel,1);
+                for i = 1:obj.numChannel
+                    dataFiltered = filter(obj,i); % get the filtered data for each channel
+                    features{i,1} = featureExtraction(dataFiltered,obj.samplingFreq);
+                end
                 obj.predictClass = predict();
             end
         end
     end
     
+    
+    
     methods(Access = protected)        
         function output = setupMaxBurstLength(obj)
             output = max([obj.numOnsetBurst(:); obj.numOffsetBurst(:)]);
         end
-
-        function dataRaw = fixRawData(obj,lengthData)
-            if lengthData > obj.windowSize % to fix the burst length for processing
-                dataRaw = [obj.dataRaw(2:end); sample];
-            end
+        
+        function getNumChannel(obj)
+            obj.numChannel = length(obj.port);
+        end
+        
+        function dataFiltered = filter(obj,i)
+            dataFiltered = filterData(obj.dataRaw{i,1},obj.samplingFreq,obj.highPassCutoffFreq,obj.lowPassCutoffFreq,obj.notchFreq);
         end
     end
 end
