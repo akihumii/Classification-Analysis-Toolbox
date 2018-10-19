@@ -5,33 +5,33 @@ function [] = onlineClassification()
 
 [files,path,iters] = selectFiles('Select trained parameters...');
 
-load(fullfile(path,files{1,1}));
+classifierParameters = load(fullfile(path,files{1,1}));
+classifierParameters = classifierParameters.varargin{1,1};
 
-%% Parameters
-
-
-clear varargin files path
+numChannel = length(classifierParameters);
 
 %% Initialization
-rawData = zeros(0,1);
+ports = [1340,1341];
+
+for i = 1:numChannel
+    classInfo{i,1} = classOnlineClassification();
+    
+    setBasicParameters(classInfo{i,1},classifierParameters(i,1));
+    setTcpip(classInfo{i,1},'127.0.0.1',ports(1,i),'NetworkRole','client');
+end
 
 %% Streaming data
-t = tcpip('127.0.0.1',1345,'NetworkRole','client');
-
-fopen(t);
+for i = 1:numChannel % open the port
+    t(i,1) = tcpip(classInfo{i,1});
+%     fopen(t(i,1));
+    disp(['Open port ',num2str(ports(1,i)),'...']);
+end
 
 while(1)
-    sample = fread(t, t.ByesAvailable);
-    lengthData = length(rawData); % length of stored data
-    if lengthData < parameters.lenTKEO
-        rawData = [rawData; sample]; % accumulate samples at the beginning
-    else
-        if lengthData > parameters.maxBurstLength % to fix the burst length for processing
-            rawData = [rawData(2:end); sample];
-        end
-        
-        dataTKEO = TKEO(rawData,samplingFreq);
-        
+    for i = 1:numChannel
+        readSample(classInfo,t);
+        detectBurst(classInfo);
+        classifyBurst(classInfo);
     end
 end
 
