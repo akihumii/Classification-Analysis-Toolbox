@@ -2,7 +2,7 @@ function [] = onlineClassification()
 %ONLINECLASSIFIER Do the online classification in the Qt after reading the
 %prameters saved by onlineClassifierTraining
 %   Detailed explanation goes here
-% 
+
 % [files,path] = selectFiles('Select trained parameters...');
 % 
 % classifierParameters = load(fullfile(path,files{1,1}));
@@ -13,7 +13,7 @@ warning('off','all');
 parameters = struct(...
     'overlapWindowSize',50);
 
-classifierParameters = load('C:\Users\lsilsc\Desktop\OnlineClassificationInfo_20181023113558_2.mat');
+classifierParameters = load('C:\Users\lsilsc\Desktop\OnlineClassificationInfo_20181023113558_3.mat');
 classifierParameters = classifierParameters.varargin{1,1};
 
 %% Initialization
@@ -36,6 +36,7 @@ while(1)
     detectBurst(classInfo);
     classifyBurst(classInfo);
 %     toc(t)
+% i = i+1
 end
 
 closePort(classInfo);
