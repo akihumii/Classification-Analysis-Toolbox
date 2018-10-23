@@ -18,9 +18,8 @@ setTcpip(classInfo,'127.0.0.1',ports,'NetworkRole','client');
 setInitialData(classInfo);
 
 %% Streaming data
-t = tcpip(classInfo);
-%     fopen(t(i,1));
-disp(['Open port ',num2str(ports),'...']);
+tcpip(classInfo);
+openPort(obj);
 
 while(1)
     readSample(classInfo,t);
@@ -28,7 +27,7 @@ while(1)
     classifyBurst(classInfo);
 end
 
-fclose(t);
+closePort(obj);
 
 end
 

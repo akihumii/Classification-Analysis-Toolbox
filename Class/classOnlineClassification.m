@@ -37,6 +37,7 @@ classdef classOnlineClassification < matlab.System
     properties(Access = private)
         lengthTKEO = 13;
         numChannel = 0;
+        t
     end
 
     methods
@@ -64,9 +65,23 @@ classdef classOnlineClassification < matlab.System
 %             obj.dataFiltered = cell(obj.numChannel,1);
         end
         
-        function t = tcpip(obj)
+        function tcpip(obj)
             for i = 1:obj.numChannel
-                t(i,1) = tcpip(obj.host,obj.port(1,i),obj.tcpipArg{:});
+                obj.t(i,1) = tcpip(obj.host,obj.port(1,i),obj.tcpipArg{:});
+            end
+        end
+        
+        function openPort(obj)
+            for i = 1:obj.numChannel
+                fopen(obj.t(i,1));
+                disp(['Open port ',num2str(ports),'...']);
+            end
+        end
+        
+        function closePort(obj)
+            for i = 1:obj.numChannel
+                fclose(obj.t(i,1));
+                disp(['Close port ',num2str(ports),'...']);
             end
         end
         
