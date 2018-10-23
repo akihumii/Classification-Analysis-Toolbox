@@ -67,7 +67,7 @@ classdef classOnlineClassification < matlab.System
         
         function tcpip(obj)
             for i = 1:obj.numChannel
-                obj.t(i,1) = tcpip(obj.host,obj.port(1,i),obj.tcpipArg{:});
+                obj.t{i,1} = tcpip(obj.host,obj.port(1,i),obj.tcpipArg{:});
             end
         end
         
@@ -85,13 +85,13 @@ classdef classOnlineClassification < matlab.System
             end
         end
         
-        function readSample(obj,t)
+        function readSample(obj)
             lengthData = length(obj.dataRaw{1,1});
             obj.readyDetect = lengthData > obj.lengthTKEO; % activate ready detect
             obj.windowFull = lengthData > obj.windowSize; % activate trimming of samples
             
             for i = 1:obj.numChannel
-                sample = fread(t(i,1), t.BytesAvailable);
+                sample = fread(obj.t{i,1}, obj.t{i,1}.BytesAvailable);
                 
                 obj.dataRaw{1,1} = [obj.dataRaw{1,1}; sample]; % accumulate samples at the beginning
                 

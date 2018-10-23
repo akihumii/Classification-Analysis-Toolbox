@@ -22,7 +22,7 @@ tcpip(classInfo);
 openPort(obj);
 
 while(1)
-    readSample(classInfo,t);
+    readSample(classInfo);
     detectBurst(classInfo);
     classifyBurst(classInfo);
 end
