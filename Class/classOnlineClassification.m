@@ -6,7 +6,7 @@ classdef classOnlineClassification < matlab.System
 
     % Public, tunable properties
     properties
-        classiferMdl
+        predictClass = 0;
         threshold
         numOnsetBurst
         numOffsetBurst
@@ -19,8 +19,12 @@ classdef classOnlineClassification < matlab.System
         highPassCutoffFreq = 500
         lowPassCutoffFreq = 30
         notchFreq = 50
+        featureClassification; % corresponds to mean value
+        classifierMdl
+        numClass
 %         dataTKEO
 %         dataFiltered
+        windowFull = 0;
         readyDetect = 0;
         readyClassify = 0;
     end
@@ -42,6 +46,9 @@ classdef classOnlineClassification < matlab.System
             obj.numOffsetBurst = data.numEndConsecutivePoints;
             obj.samplingFreq = data.samplingFreq;
             obj.windowSize = setupMaxBurstLength(obj);
+            obj.featureClassification = data.featureClassification;
+            obj.classifierMdl = data.classifierMdl;
+            obj.numClass = data.numClass; % including one class of resting state
         end
         
         function setTcpip(obj,host,port,varargin)
@@ -99,7 +106,8 @@ classdef classOnlineClassification < matlab.System
                     dataFiltered = filter(obj,i); % get the filtered data for each channel
                     features{i,1} = featureExtraction(dataFiltered,obj.samplingFreq);
                 end
-                obj.predictClass = predict();
+                features = cell2nanMat(features);
+                obj.predictClass = predict(obj.classifierMdl, features);
             end
         end
     end

@@ -104,7 +104,7 @@ burstEndLocs = cell2nanMat(burstEndLocs);
 
 output.spikePeaksValue = parameters.sign * spikePeaksValue;
 output.spikeLocs = spikeLocs;
-output.parameters.threshold = parameters.sign * parameters.thresholdAll;
+output.threshold = parameters.sign * parameters.thresholdAll;
 output.baseline = baseline;
 output.burstEndValue = burstEndValue;
 output.burstEndLocs = burstEndLocs;

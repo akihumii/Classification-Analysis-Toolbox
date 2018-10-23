@@ -196,13 +196,16 @@ popMsg('Finish...')
 if nargout > 0
     varargout{1,1} = classifierOutput;
     if nargout > 1
-        varargout{1,2} = featuresInfo;
-        if nargout > 3
-            varargout{1,3} = signalInfo;
-            if nargout > 4
-                varargout{1,4} = pcaInfo;
-                if nargout > 5
-                    varargout{1,5} = parameters;
+        varargout{1,2} = numClass;
+        if nargout > 2
+            varargout{1,3} = featuresInfo;
+            if nargout > 3
+                varargout{1,4} = signalInfo;
+                if nargout > 4
+                    varargout{1,5} = pcaInfo;
+                    if nargout > 5
+                        varargout{1,6} = parameters;
+                    end
                 end
             end
         end
