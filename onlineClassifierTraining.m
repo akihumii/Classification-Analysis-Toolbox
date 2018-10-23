@@ -6,7 +6,7 @@ function [] = onlineClassifierTraining()
 %% Pre-train
 [signal,signalClassificationInfo] = mainClassifier(); % to detect the bursts
 
-% analyzeFeatures(); % to train the classifier
+classifierOutput = analyzeFeatures(); % to train the classifier
 
 %% Save required information for online classification
 numFiles = length(signal);

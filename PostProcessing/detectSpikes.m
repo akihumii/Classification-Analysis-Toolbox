@@ -116,5 +116,9 @@ if parameters.markBurstInAllChannels
     output = mergeChannelsInfo(data,output);
 end
 
+% if parameters.getBaselineFeatureFlag
+%     output = getBaselineFeature(baseline,output);
+% end
+
 end
 

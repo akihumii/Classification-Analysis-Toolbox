@@ -1,6 +1,6 @@
 function output = mergeChannelsInfo(data,input)
 %COMBINECHANNELS Merge the informations across all the channels
-%   Detailed explanation goes here
+%   output = mergeChannelsInfo(data,input)
 
 locsAll = [input.spikeLocs(:), input.burstEndLocs(:)]; % [startLocs x endLocs]
 

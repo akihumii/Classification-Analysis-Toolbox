@@ -1,4 +1,4 @@
-function [] = plotAccuracy(classifierOutput,featureIndex,plotFileName,path,numClass,xScale,xTickValue,displayInfo,numChannel,is2DClassification,channel,titleName)
+function [] = plotAccuracy(classifierOutput,featureIndex,plotFileName,path,numClass,xScale,xTickValue,displayInfo,numChannel,is2DClassification,channel,titleName,legendName)
 %plotAccuracy Plot accuracy in visualizeFeatures
 %   [] = plotAccuracy(classificationOutput,numFeatureCombination,accuracyBasicParameter,featureIndex,plotFileName,path,numClass,xScale,xTickValue,displayInfo,numChannel,is2DClassification,channel)
 
@@ -27,7 +27,7 @@ for i = 1:numFeatureCombination
     if ~all(isnan(meanTemp{i,1}(:)))
         errorbar(getErrorBarXAxisValues(numCombination(i,1),numChannel),meanTemp{i,1},stdeTemp,'r*'); % error bar
     end
-    legend('channel 14','channel 16','chance performance');
+    legend([pA.Children(end-2),pA.Children(end-3),pA.Children(end-4)],legendName);
     if displayInfo.saveAccuracy
 %         savePlot(path,'Accuracy of Features Combination',plotFileName,['Accuracy of ',titleName,' with ',num2str(i),' features in combinations with ',xScale,' ',checkMatNAddStr(xTickValue,',')])
         savePlot(path,'Accuracy of Features Combination',plotFileName,['Accuracy of ',titleName,' with ',num2str(i),' features in combinations with ',num2str(length(xTickValue)),' speeds'])

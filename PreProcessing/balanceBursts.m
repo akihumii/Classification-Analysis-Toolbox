@@ -17,7 +17,7 @@ end
 [numBurstsMin, ~] = min(numBurstsAll,[],1);
 [~, numBurstsMaxChannel] = max(numBurstsAll,[],1);
 
-numChannel = length(numBurstsMin);
+numChannel = size(signalInfo(1,1).signalClassification.burstDetection.spikePeaksValue,2);
 
 featureNames = fieldnames(signalInfo(1,1).signalClassification.features);
 featureNames(end) = [];
@@ -52,7 +52,7 @@ for i = 1:numChannel
     end
     
     signalInfo(changingClassTemp,1).signalClassification.grouping.all(numBurstsMin(1,i)+1:end,1,i) = nan;
-
+    
     signalInfo(changingClassTemp,1).windowsValues.burst(:,numBurstsMin(1,i)+1:end,i) = nan;
     signalInfo(changingClassTemp,1).windowsValues.burstMean = mean(signalInfo(changingClassTemp,1).windowsValues.burst,2);
     signalInfo(changingClassTemp,1).windowsValues.xAxisValues(:,numBurstsMin(1,i)+1:end,i) = nan;
@@ -61,7 +61,7 @@ for i = 1:numChannel
     for j = 1:numFeatures
         signalInfo(changingClassTemp,1).features.(featureNames{j,1})(numBurstsMin(1,i)+1:end,i) = nan;
     end
-
+    
     signalInfo(changingClassTemp,1).detectionInfo.spikePeaksValue(numBurstsMin(1,i)+1:end,i) = nan;
     signalInfo(changingClassTemp,1).detectionInfo.spikeLocs(numBurstsMin(1,i)+1:end,i) = nan;
     signalInfo(changingClassTemp,1).detectionInfo.burstEndValue(numBurstsMin(1,i)+1:end,i) = nan;

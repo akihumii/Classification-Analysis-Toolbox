@@ -67,7 +67,6 @@ classdef classClassificationPreparation
             burstIntervalAllSeconds = burstInterval / targetClassData.samplingFreq;
             clfp.burstDetection.burstInterval = burstInterval;
             clfp.burstDetection.burstIntervalSeconds = burstIntervalAllSeconds;
-            
         end
         
         function clfp = classificationWindowSelection(clfp, targetClassData, parameters)
@@ -115,7 +114,14 @@ classdef classClassificationPreparation
             end
             clfp.grouping = classificationGrouping(clfp.features, clfp.trainingRatio, class, targetField);
             clfp.grouping.class = class;
+            clfp.grouping.targetField = targetField;
         end
+        
+        function clfp = getBaselineFeature(clfp,samplingFreq)
+            baselineInfo = getBaselineFeature(clfp.burstDetection,samplingFreq);
+            clfp = insertBaselineFeature(clfp,baselineInfo);
+        end
+
     end
     
     methods (Access = protected)

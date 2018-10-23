@@ -1,4 +1,4 @@
-function output = combineFeatureWithoutNan(data,trainingRatio,numClasses,parameters)
+function output = combineFeatureWithoutNan(data,trainingRatio,numClasses)
 %COMBINEFEATUREWITHOUTNAN Combine the features stored in structures while
 %removing the Nan
 % 
@@ -8,7 +8,7 @@ function output = combineFeatureWithoutNan(data,trainingRatio,numClasses,paramet
 % 
 % output:   training, testing, trainingClass, testingClass
 % 
-%   output = combineFeatureWithoutNan(data,trainingRatio,numClasses,parameters)
+%   output = combineFeatureWithoutNan(data,trainingRatio,numClasses)
 
 training = zeros(0,1);
 testing = zeros(0,1);

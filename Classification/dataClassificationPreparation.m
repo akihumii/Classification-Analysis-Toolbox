@@ -32,6 +32,12 @@ output(i,1) = featureExtraction(output(i,1),signal(i,1).samplingFreq,[{'selected
 
 % group features for classification
 output(i,1) = classificationGrouping(output(i,1),'maxValue',i,parameters.trainingRatio);
+
+% get a baseline as the third class
+if parameters.getBaselineFeatureFlag
+    output(i,1) = getBaselineFeature(output(i,1),signal(i,1).samplingFreq);
+end
+
 end
 
 end

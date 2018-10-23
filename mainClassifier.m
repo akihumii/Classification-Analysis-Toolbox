@@ -27,7 +27,7 @@ parameters = struct(...
     'partialDataSelection',0,...; % input 1 to select partial data to analyse, otherwise input 0
     'constraintWindow',[-0.30075,6.9049],... % starting point and end point of constraint window, unit is in seconds. Input 0 for default (pre-select the whole signal). It can be found in signal.analysedDataTiming(2,:), the first row is the timing in seconds
     'markBurstInAllChannels',1,... % mark all the channels when one of the channels detects a burst
-    '
+    'getBaselineFeatureFlag',1,... % get the features of the baseline, which is the data that are not marked as bursts
     ...
     ...% Filtering Parameters
     'dataToBeFiltered','dataRaw',...; % input 'dataRaw' for raw data; input 'dataDifferential' for differential data; input 'dataRectified' for rectified data
