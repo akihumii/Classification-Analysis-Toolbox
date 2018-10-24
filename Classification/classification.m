@@ -1,11 +1,11 @@
-function output = classification(trials,featureIndex,trainingRatio,classifierTitle,getBaselineFeatureFlag,parameters)
+function output = classification(trials,featureIndex,trainingRatio,classifierTitle,parameters)
 %classification Perform lda classification with trials that are in cells.
 % The structure is like: [channel * feature * class]
 %
 %   output = classification(trials,featureIndex,trainingRatio,classifierTitle,parameters.classificationRepetition)
 
 [numClasses,~,numChannels] = size(trials);
-if getBaselineFeatureFlag
+if parameters.mergeChannelFeatures
     [d1,d2,d3] = size(trials);
     trialsTemp = cell(d1,d2);
     for i = 1:numChannels

@@ -18,6 +18,7 @@ parameters = struct(...
     'numFeaturesInCombination',1,... % array of nubmer of features used in combinations
     'featureIndexSelected',0,... % enter the index of the feature set for training, grouping in cells
     'classifyIndividualCh',1,... % 1 to classify the channel separately, 0 to combine all the channels as features
+    'mergeChannelFeatures',0,... % merge the features from all the channels as features of one movement
     ...
     'classifierName','svm',...; % input only either 'lda' or 'svm'
     'classifierType',1,... % 1 for manually classification, 2 for using classifier learner app
@@ -90,11 +91,6 @@ for n = 1:numPairs
             signalInfo(i,1) = getFeaturesInfo(path,files{1,i});
         end
                 
-        %% Combine the channels to do an overll classification
-        if ~parameters.classifyIndividualCh
-%             signalInfo = combineChannelsInfo(signalInfo);
-        end
-        
         %% Check burst intervals and then trim accordingly
         if parameters.trimBursts
             signalInfo = trimWithBurstIntervals(signalInfo,numClass,parameters.trimRange);
