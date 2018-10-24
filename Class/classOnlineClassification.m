@@ -7,25 +7,23 @@ classdef classOnlineClassification < matlab.System
     % Public, tunable properties
     properties
         predictClass = 0;
-        threshold
-        numOnsetBurst
-        numOffsetBurst
+        thresholds
+        numStartConsecutivePoints
+        numEndConsecutivePoints
         windowSize = 200
         overlapWindowSize
         samplingFreq
         host
         port
         tcpipArg
-        dataRaw
+        dataRaw = zeros(0,1)
         highPassCutoffFreq = 500
         lowPassCutoffFreq = 30
         notchFreq = 50
         featureClassification; % corresponds to mean value
         classifierMdl
         numClass
-        %         dataTKEO
-        %         dataFiltered
-
+        readyClassify = 0
     end
     
     properties(DiscreteState)
@@ -34,54 +32,43 @@ classdef classOnlineClassification < matlab.System
     
     % Pre-computed constants
     properties(Access = private)
-        lengthTKEO = 13
-        numChannel = 0
         t
         stepRead
-        readyClassify = 0
         startOverlapping = 0
     end
     
     methods
         function setBasicParameters(obj,data,parameters)
-            obj.threshold = data.thresholds;
-            obj.numOnsetBurst = data.numStartConsecutivePoints;
-            obj.numOffsetBurst = data.numEndConsecutivePoints;
-            obj.samplingFreq = data.samplingFreq;
-%             obj.windowSize = setupMaxBurstLength(obj);
-            obj.featureClassification = data.featureClassification;
-            obj.classifierMdl = data.classifierMdl;
-            obj.numClass = data.numClass; % including one class of resting state
+            fieldNames = fieldnames(data);
+            numField = length(fieldNames);
+            for i = 1:numField
+                obj.(fieldNames{i,1}) = data.(fieldNames{i,1});
+            end
             
             obj.overlapWindowSize = parameters.overlapWindowSize;
             
-            updateStepRead(obj); % update some constants
+            updateStepRead(obj); % update the step size to store the data from Qt
         end
         
         function setTcpip(obj,host,port,varargin)
             obj.host = host;
             obj.port = port;
             obj.tcpipArg = varargin;
-            getNumChannel(obj); % update the number of channels
         end
         
-        function setInitialData(obj) % initialize data
-            obj.dataRaw = cell(obj.numChannel,1);
-            %             obj.dataTKEO = cell(obj.numChannel,1);
-            %             obj.dataFiltered = cell(obj.numChannel,1);
-        end
+%         function setInitialData(obj) % initialize data
+%             obj.dataRaw = cell(obj.numChannel,1);
+%             %             obj.dataTKEO = cell(obj.numChannel,1);
+%             %             obj.dataFiltered = cell(obj.numChannel,1);
+%         end
         
         function tcpip(obj)
-            for i = 1:obj.numChannel
-                obj.t{i,1} = tcpip(obj.host,obj.port(1,i),obj.tcpipArg{:});
-            end
+            obj.t = tcpip(obj.host,obj.port,obj.tcpipArg{:});
         end
         
         function openPort(obj)
-            for i = 1:obj.numChannel
-                fopen(obj.t{i,1});
-                disp(['Open port ',num2str(obj.port),'...']);
-            end
+            fopen(obj.t);
+            disp(['Open port ',num2str(obj.port),'...']);
         end
         
         function closePort(obj)
@@ -92,46 +79,35 @@ classdef classOnlineClassification < matlab.System
         end
         
         function readSample(obj)
-            for i = 1:obj.numChannel
-                if ~obj.startOverlapping
-                    for j = 1:obj.stepRead:obj.windowSize
-                        sample = fread(obj.t{i,1}, obj.stepRead, 'double');
-                        obj.dataRaw{i,1} = [obj.dataRaw{i,1} ; sample];
-                    end
-                else
-                    for j = 1:obj.stepRead:obj.overlapWindowSize
-                        sample = fread(obj.t{i,1}, obj.stepRead, 'double');
-                        obj.dataRaw{i,1} = fixWindow(obj,obj.dataRaw{i,1},sample);
-                    end
+            if ~obj.startOverlapping
+                for j = 1:obj.stepRead:obj.windowSize % store windowSize of data to make it full at the first time
+                    sample = fread(obj.t, obj.stepRead, 'double');
+                    obj.dataRaw = [obj.dataRaw ; sample];
                 end
-                
-%                 obj.dataRaw{i,1}
+            else
+                for j = 1:obj.stepRead:obj.overlapWindowSize % store only overlapWindowSize of data as the update rate (overlapping window size)
+                    sample = fread(obj.t, obj.stepRead, 'double');
+                    obj.dataRaw = fixWindow(obj,obj.dataRaw,sample);
+                end
             end
+            % obj.dataRaw{i,1}
             obj.startOverlapping = 1;
         end
         
         function detectBurst(obj)
-            for i = 1:obj.numChannel
-                dataTKEO = TKEO(obj.dataRaw{i,1},obj.samplingFreq);
-                [peaks,~] = triggerSpikeDetection(dataTKEO,obj.threshold(1,i),0,obj.numOnsetBurst(1,i),0);
-                if ~isnan(peaks)
-                    obj.readyClassify = 1 % activate flag for classify
-                    break % break the for loop whenever a burst is found
-                end
+            dataTKEO = TKEO(obj.dataRaw,obj.samplingFreq);
+            [peaks,~] = triggerSpikeDetection(dataTKEO,obj.thresholds,0,obj.numStartConsecutivePoints,0);
+            if ~isnan(peaks)
+                obj.readyClassify = 1; % activate flag for classify
             end
         end
         
         function classifyBurst(obj)
             if obj.readyClassify
-                features = zeros(1,obj.numChannel);
-                for i = 1:obj.numChannel
-                    dataFiltered = filter(obj,i); % get the filtered data for each channel
-                    featuresTemp = featureExtraction(dataFiltered,obj.samplingFreq);
-                    features(1,i) = featuresTemp.areaUnderCurve;
-                end
-                obj.predictClass = predict(obj.classifierMdl.Mdl{i,1}, features);
-                
-                obj.readyClassify = 0 % to deactivate the readyClassify after the prediction
+                dataFiltered = filter(obj); % get the filtered data for each channel
+                featuresTemp = featureExtraction(dataFiltered,obj.samplingFreq);
+                features = featuresTemp.areaUnderCurve;
+                obj.predictClass = predict(obj.classifierMdl, features);
             end
         end
     end
@@ -140,15 +116,11 @@ classdef classOnlineClassification < matlab.System
     
     methods(Access = protected)
         function output = setupMaxBurstLength(obj)
-            output = max([obj.numOnsetBurst(:); obj.numOffsetBurst(:)]);
+            output = max([obj.numStartConsecutivePoints(:); obj.numEndConsecutivePoints(:)]);
         end
         
-        function getNumChannel(obj)
-            obj.numChannel = length(obj.port);
-        end
-        
-        function dataFiltered = filter(obj,i)
-            dataFiltered = filterData(obj.dataRaw{i,1},obj.samplingFreq,obj.highPassCutoffFreq,obj.lowPassCutoffFreq,obj.notchFreq);
+        function dataFiltered = filter(obj)
+            dataFiltered = filterData(obj.dataRaw,obj.samplingFreq,obj.highPassCutoffFreq,obj.lowPassCutoffFreq,obj.notchFreq);
         end
         
         function output = fixWindow(obj,dataRaw,sample)
