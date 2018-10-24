@@ -13,7 +13,10 @@ warning('off','all');
 parameters = struct(...
     'overlapWindowSize',50);
 
-classifierParameters = load('C:\Users\lsilsc\Desktop\OnlineClassificationInfo_20181023113558_3.mat');
+%classifierParameters = load('C:\Users\lsilsc\Desktop\OnlineClassificationInfo_20181023113558_3.mat');
+[files,path] = selectFiles('Select trained parameters...');
+
+classifierParameters = load(fullfile(path,files{1,1}));
 classifierParameters = classifierParameters.varargin{1,1};
 
 %% Initialization

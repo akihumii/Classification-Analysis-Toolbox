@@ -44,7 +44,7 @@ if displayInfo.showHistFit||displayInfo.saveHistFit||displayInfo.showAccuracy||d
         
         numCombination = size(featureIndex{i,1},1); % number of combination
         for j = 1:numCombination
-            classificationOutput{i,1}(j,1) = classification(featuresInfo.featuresAll,featureIndex{i,1}(j,:),signalInfo(i,1).signalClassification.trainingRatio,classifierFullTitle,parameters); % run the classification by using the features index etc
+            classificationOutput{i,1}(j,1) = classification(featuresInfo.featuresAll,featureIndex{i,1}(j,:),signalInfo(i,1).signalClassification.trainingRatio,classifierFullTitle,signalInfo(1,1).parameters.getBaselineFeatureFlag,parameters); % run the classification by using the features index etc
             accuracyBasicParameter{i,1}(j,1) = getBasicParameter(horzcat(classificationOutput{i,1}(j,1).accuracyAll)); % get the accuracy by checking the classification performances
         end
         accuracy{i,1} = vertcat(accuracyBasicParameter{i,1}.average);
