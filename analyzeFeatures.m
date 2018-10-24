@@ -14,6 +14,8 @@ parameters = struct(...
     'numPrinComp',0,... % number of principle component to use as features
     'threshPercentile',95,... % percentile to threshold the latent of principle component for data reconstruction
     ...
+    'trainSeparately',1,... % train the selected trials separately as they have the baseline already
+    ...
     'classificationRepetition',1,...; % number of repetition of the classification with randomly assigned training set and testing set
     'numFeaturesInCombination',1,... % array of nubmer of features used in combinations
     'featureIndexSelected',0,... % enter the index of the feature set for training, grouping in cells
@@ -28,7 +30,7 @@ parameters = struct(...
     ...
     'trimBursts',0,...
     'balanceBursts',1,...
-    'trimRange',repmat([0,1000],2,1,4)); 
+    'trimRange',repmat([0,1000],2,1,4));
 
 % for display
 displayInfo = struct(...
@@ -76,21 +78,35 @@ switch parameters.selectFile
 end
 
 for n = 1:numPairs
-%     try
-        if parameters.selectFile == 0 || parameters.selectFile == 2
-            for j = 1:numClass
-                files{1,j} = allFiles(allPairs(n,j),1).name;
-            end
-            path = [pwd,filesep];
+    %     try
+    if parameters.selectFile == 0 || parameters.selectFile == 2
+        for j = 1:numClass
+            files{1,j} = allFiles(allPairs(n,j),1).name;
+        end
+        path = [pwd,filesep];
+    end
+    
+    popMsg('Gathering features...');
+    
+    %% Read and Reconstruct
+    for i = 1:numClass
+        signalInfo(i,1) = getFeaturesInfo(path,files{1,i});
+    end
+    
+    %% Determine analysing it separately or not
+    if parameters.trainSeparately
+        numTraining = numClass;
+        numClass = 1;
+    else
+        numTraining = 1;
+    end
+    signalInfoRaw = signalInfo;
+    
+    for t = 1:numTraining
+        if parameters.trainSeparately
+            signalInfo = signalInfoRaw(t,1);
         end
         
-        popMsg('Gathering features...');
-        
-        %% Read and Reconstruct
-        for i = 1:numClass
-            signalInfo(i,1) = getFeaturesInfo(path,files{1,i});
-        end
-                
         %% Check burst intervals and then trim accordingly
         if parameters.trimBursts
             signalInfo = trimWithBurstIntervals(signalInfo,numClass,parameters.trimRange);
@@ -137,21 +153,21 @@ for n = 1:numPairs
             case 1
                 %% Train Classification
                 tTrain = tic;
-
+                
                 popMsg('Training classifiers...');
-
+                
                 classifierOutput = trainClassifier(featuresInfo, signalInfo, displayInfo, parameters);
                 
                 popMsg(['Training session takes ',num2str(toc(tTrain)),' seconds...']);
                 
                 % Plot features
-                        tPlot = tic;
-                        close all
+                tPlot = tic;
+                close all
                 
-                        % type can be 'Active EMG', 'Different Speed', 'Different Day'
-                        visualizeFeatures(numClass, path, classifierOutput, featuresInfo, signalInfo, displayInfo, pcaInfo, parameters.runPCA);
+                % type can be 'Active EMG', 'Different Speed', 'Different Day'
+                visualizeFeatures(numClass, path, classifierOutput, featuresInfo, signalInfo, displayInfo, pcaInfo, parameters.runPCA);
                 
-                        popMsg(['Plotting session takes ',num2str(toc(tPlot)),' seconds...']);
+                popMsg(['Plotting session takes ',num2str(toc(tPlot)),' seconds...']);
                 
                 %% Run through the entire signal and classify
                 if displayInfo.testClassifier
@@ -178,13 +194,14 @@ for n = 1:numPairs
             otherwise
                 popMsg('wrong classifier type... nothing was done...')
         end
-%     catch
-%         try
-%             warning(['Error while training the pair ',checkMNAddStr(allPairs(i,:),'_')]);
-%         catch
-%             warning('Error while training the pair ...');
-%         end
-%     end
+    end
+    %     catch
+    %         try
+    %             warning(['Error while training the pair ',checkMNAddStr(allPairs(i,:),'_')]);
+    %         catch
+    %             warning('Error while training the pair ...');
+    %         end
+    %     end
 end
 popMsg('Finish...')
 
