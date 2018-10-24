@@ -194,6 +194,9 @@ for n = 1:numPairs
             otherwise
                 popMsg('wrong classifier type... nothing was done...')
         end
+        if parameters.trainSeparately
+            classifierOutputAll(t,1) = classifierOutput;
+        end
     end
     %     catch
     %         try
@@ -207,7 +210,11 @@ popMsg('Finish...')
 
 % varargout
 if nargout > 0
-    varargout{1,1} = classifierOutput;
+    if parameters.trainSeparately
+        varargout{1,1} = classifierOutputAll;
+    else
+        varargout{1,1} = classifierOutput;
+    end
     if nargout > 1
         varargout{1,2} = numClass;
         if nargout > 2
