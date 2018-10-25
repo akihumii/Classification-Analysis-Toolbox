@@ -33,13 +33,13 @@ end
 thresholdsAverage = mean(thresholds,1);
 
 for i = 1:numClass
-    parameters{i,1}.featureClassification = 4;
+    parameters{i,1}.featureClassification = 5;
     parameters{i,1}.classifierMdl = classifierOutput(i,1).classificationOutput{1,1}(parameters{i,1}.featureClassification,1).Mdl{i,1};
     parameters{i,1}.thresholds = thresholdsAverage(1,i);
     parameters{i,1}.numStartConsecutivePoints = signalClassificationInfo(1,1).burstDetection.parameters.TKEOStartConsecutivePoints(1,i);
     parameters{i,1}.numEndConsecutivePoints = signalClassificationInfo(1,1).burstDetection.parameters.TKEOEndConsecutivePoints(1,i);
     parameters{i,1}.samplingFreq = signal(1,1).samplingFreq;
-    parameters{i,1}.numClass = numClass + 1;
+    parameters{i,1}.numClass = length(unique(classifierOutput(i,1).classificationOutput{1,1}(1,1).trainingClass{1,1}));
 end
 
 saveVar(fullfile(signal(1,1).path,'Info','onlineClassification'),'OnlineClassificationInfo',parameters);

@@ -16,6 +16,7 @@ classdef classFilterDataOnline < matlab.System
     end
 
     properties(Nontunable)
+        Hd
         Wpass = 1;
         Wstop = 100;
         order = 50;
@@ -26,21 +27,25 @@ classdef classFilterDataOnline < matlab.System
 
     % Pre-computed constants
     properties(Access = private)
-        Hd
     end
 
     methods
         function filterDataOnline(obj,dataRaw,samplingFreq,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,windowSize)
+            obj = setFilter(obj,samplingFreq,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,windowSize);
+            obj.dataFiltered = filter(obj.Hd,dataRaw);
+        end
+        
+        function obj = setFilter(obj,samplingFreq,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,windowSize)
             obj = insertParameters(obj,samplingFreq,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,windowSize);
             obj = checkSelectedFilter(obj,highPassCutoffFreq,lowPassCutoffFreq,notchFreq);
             obj = setFilterCoeff(obj);
             obj = getFilterHd(obj);
-            obj.dataFiltered = filter(obj.Hd,dataRaw);
         end
     end
     
     
     methods(Access = protected)
+        
         function obj = insertParameters(obj,varargin)
             for i = 1:nargin-1
                 obj.(inputname(i+1)) = varargin{1,i};
@@ -68,12 +73,12 @@ classdef classFilterDataOnline < matlab.System
                 
             elseif obj.highPassFilterEnabled
                 obj.targetArray = [0,0,1,1];
-                obj.freqArray = [0,Fstop1,obj.lowCutoffFreq,obj.samplingFreq/2] / (obj.samplingFreq/2);
+                obj.freqArray = [0,Fstop1,obj.lowPassCutoffFreq,obj.samplingFreq/2] / (obj.samplingFreq/2);
                 obj.weightArray = [obj.Wstop,obj.Wpass];
                 
             elseif obj.lowPassFilterEnabled
                 obj.targetArray = [1,1,0,0];
-                obj.freqArray = [0,obj.highCutoffFreq,Fstop2,obj.samplingFreq/2] / (obj.samplingFreq/2);
+                obj.freqArray = [0,obj.highPassCutoffFreq,Fstop2,obj.samplingFreq/2] / (obj.samplingFreq/2);
                 obj.weightArray = [obj.Wpass, obj.Wstop];
             end
 

@@ -3,23 +3,21 @@ function [] = onlineClassification()
 %prameters saved by onlineClassifierTraining
 %   Detailed explanation goes here
 
-% [files,path] = selectFiles('Select trained parameters...');
-% 
-% classifierParameters = load(fullfile(path,files{1,1}));
+close hidden all
 
 warning('off','all');
 
-%classifierParameters = load('C:\Users\lsilsc\Desktop\OnlineClassificationInfo_20181023113558_3.mat');
-[files,path] = selectFiles('Select trained parameters...');
-
-classifierParameters = load(fullfile(path,files{1,1}));
+classifierParameters = load('C:\Users\lsitsai\Desktop\Derek\FTDI\Info\onlineClassification\OnlineClassificationInfo_20181025163760.mat');
+% [files,path] = selectFiles('Select trained parameters...');
+% classifierParameters = load(fullfile(path,files{1,1}));
 classifierParameters = classifierParameters.varargin{1,1};
 
 %% Parameters
 parameters = struct(...
     'overlapWindowSize',50,...
     'numChannel',length(classifierParameters),...
-    'ports',[1345,1346]);
+    'ports',[1345]);
+%     'ports',[1345,1346]);
 
 for i = 1:parameters.numChannel
     classInfo{i,1} = classOnlineClassification();
@@ -33,22 +31,35 @@ for i = 1:parameters.numChannel
     openPort(classInfo{i,1});
 end
 
-while(1)
+clearvars -except parameters classInfo
+
+a = zeros(0,1);
+
+c = 1;
+
+for i = 1:parameters.numChannel
+    p(i,1) = figure;
+    h(i,1) = gca;
+end
+
+while c < 1000
     for i = 1:parameters.numChannel
         readSample(classInfo{i,1});
-            t = tic;
+        t = tic;
+        plot(h(i,1),classInfo{i,1}.dataFiltered)
+        pause(0.001)
         detectBurst(classInfo{i,1});
         classifyBurst(classInfo{i,1});
         
-        if classInfo{i,1}.readyClassify
-%             disp(['Class ',num2str(i),' prediction: ',num2str(classInfo{i,1}.predictClass)]);
-            classInfo{i,1}.readyClassify = 0; % to deactivate the readyClassify after the prediction
+        if i == 1
+            disp(['Class ',num2str(i),' prediction: ',num2str(classInfo{i,1}.predictClass)]);
+            a = [a;toc(t)];
         end
-            toc(t)
     end
+    c = c+1;
 end
 
-closePort(classInfo);
+% closePort(classInfo);
 
 end
 
