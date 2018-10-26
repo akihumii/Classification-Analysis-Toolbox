@@ -3,12 +3,12 @@ classdef classFilterDataOnline < matlab.System
     
     % Public, tunable properties
     properties
-        dataFiltered
         samplingFreq
         highPassCutoffFreq
         lowPassCutoffFreq
         notchFreq
         windowSize
+        PersistentMemoryFlag = 1
         lowPassFilterEnabled = 0
         highPassFilterEnabled = 0
         bandPassFilterEnabled = 0
@@ -30,9 +30,9 @@ classdef classFilterDataOnline < matlab.System
     end
 
     methods
-        function filterDataOnline(obj,dataRaw,samplingFreq,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,windowSize)
+        function dataFiltered = filterDataOnline(obj,dataRaw,samplingFreq,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,windowSize)
             obj = setFilter(obj,samplingFreq,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,windowSize);
-            obj.dataFiltered = filter(obj.Hd,dataRaw);
+            dataFiltered = filter(obj.Hd,dataRaw);
         end
         
         function obj = setFilter(obj,samplingFreq,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,windowSize)
@@ -49,6 +49,10 @@ classdef classFilterDataOnline < matlab.System
         function obj = insertParameters(obj,varargin)
             for i = 1:nargin-1
                 obj.(inputname(i+1)) = varargin{1,i};
+            end
+            
+            if obj.windowSize == 0
+                obj.windowSize = 100; % default value for dfilt.fftfir
             end
         end
         
@@ -97,9 +101,9 @@ classdef classFilterDataOnline < matlab.System
         end
         
         function obj = getFilterHd(obj)
-            b = firpm(obj.order,obj.freqArray,obj.targetArray,obj.weightArray);
+            b = firpm(obj.order,obj.freqArray,obj.targetArray,obj.weightArray);           
             obj.Hd = dfilt.fftfir(b,obj.windowSize);
-            obj.Hd.PersistentMemory = true;
+            obj.Hd.PersistentMemory = obj.PersistentMemoryFlag;
         end
         
     end

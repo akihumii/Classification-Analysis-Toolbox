@@ -18,6 +18,7 @@ classdef classOnlineClassification < matlab.System
         tcpipArg
         dataRaw = zeros(0,1)
         dataFiltered = zeros(0,1)
+        dataTKEO = zeros(0,1)
         highPassCutoffFreq = 30
         lowPassCutoffFreq = 450
         notchFreq = 50
@@ -28,6 +29,7 @@ classdef classOnlineClassification < matlab.System
     
     properties(Nontunable)
         filterHd % handle of Parks-McClellan FIR filter
+        readyClassify = 1
     end
     
     % Pre-computed constants
@@ -35,7 +37,9 @@ classdef classOnlineClassification < matlab.System
         t % instrument of port
         stepRead % number of sample to read and store per time
         startOverlapping = 0 % flag to indicte that the window is full and ready to start overlapping
-        readyClassify = 1
+%         filterHdTKEO1
+%         filterHdTKEO2
+%         filterHdTKEO3
         features = zeros(1,0)
         featureNames
         numFeature
@@ -65,7 +69,7 @@ classdef classOnlineClassification < matlab.System
             obj.featureNames = obj.featureNamesAll(obj.featureClassification);
             obj.numFeature = length(obj.featureClassification);
             
-            obj.filterHd = getFilterHd(obj);
+            obj = getFilterHd(obj);
         end
         
         function setTcpip(obj,host,port,varargin)
@@ -79,8 +83,12 @@ classdef classOnlineClassification < matlab.System
         end
         
         function openPort(obj)
-            fopen(obj.t);
-            disp(['Open port ',num2str(obj.port),'...']);
+            try
+                fopen(obj.t);
+                disp(['Open port ',num2str(obj.port),'...']);
+            catch
+                error(['Port ',num2str(obj.port),' is not open yet...'])
+            end
         end
         
 %         function closePort(obj)
@@ -108,8 +116,9 @@ classdef classOnlineClassification < matlab.System
         
         function detectBurst(obj)
             if ~obj.readyClassify
-                dataTKEO = TKEO(obj.dataRaw,obj.samplingFreq);
-                [peaks,~] = triggerSpikeDetection(dataTKEO,obj.thresholds,0,obj.numStartConsecutivePoints,0);
+                obj.dataTKEO = TKEO(obj.dataRaw,obj.samplingFreq);
+%                 obj.dataTKEO = getDataTKEO(obj);
+                [peaks,~] = triggerSpikeDetection(obj.dataTKEO,obj.thresholds,0,obj.numStartConsecutivePoints,0);
                 if ~isnan(peaks)
                     obj.readyClassify = 1; % activate flag for classify
                 end
@@ -133,9 +142,15 @@ classdef classOnlineClassification < matlab.System
     
     
     methods(Access = protected)
-        function Hd = getFilterHd(obj)
+        function obj = getFilterHd(obj)
             filterObj = setFilter(classFilterDataOnline,obj.samplingFreq,obj.highPassCutoffFreq,obj.lowPassCutoffFreq,obj.notchFreq,obj.windowSize); % initialize a filter object
-            Hd = filterObj.Hd;
+            obj.filterHd = filterObj.Hd;
+%             filterObj = setFilter(classFilterDataOnline,obj.samplingFreq,10,450,50,obj.windowSize); % bandpass filter of 10-500 Hz
+%             obj.filterHdTKEO1 = filterObj.Hd;
+%             filterObj = setFilter(classFilterDataOnline,obj.samplingFreq,30,300,50,obj.windowSize); % bandpass filter of 30-300 Hz)
+%             obj.filterHdTKEO2 = filterObj.Hd;
+%             filterObj = setFilter(classFilterDataOnline,obj.samplingFreq,0,50,50,obj.windowSize); % bandpass filter of 0-50 Hz)
+%             obj.filterHdTKEO3 = filterObj.Hd;
         end
 %         function output = setupMaxBurstLength(obj)
 %             output = max([obj.numStartConsecutivePoints(:); obj.numEndConsecutivePoints(:)]);
@@ -143,7 +158,6 @@ classdef classOnlineClassification < matlab.System
         
         function dataFiltered = filter(obj)
             dataFiltered = filter(obj.filterHd,obj.dataRaw);
-%             dataFiltered = filterData(obj.dataRaw,obj.samplingFreq,obj.highPassCutoffFreq,obj.lowPassCutoffFreq,obj.notchFreq);
         end
         
         function output = fixWindow(obj,dataRaw,sample)
@@ -158,5 +172,15 @@ classdef classOnlineClassification < matlab.System
             end
             obj.stepRead = i;
         end
+        
+%         function dataTKEO = getDataTKEO(obj)
+%             data = filter(obj.filterHdTKEO1,obj.dataRaw);
+%             data = filter(obj.filterHdTKEO2,data);
+%             for i = 2:obj.windowSize-1
+%                 dataTKEO(i,1) = data(i,1)^2 - data(i+1,1)*data(i-1,1);
+%             end
+%             dataTKEO = abs(dataTKEO);
+%             dataTKEO = filter(obj.filterHdTKEO3,dataTKEO);
+%         end
     end
 end

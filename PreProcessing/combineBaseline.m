@@ -11,7 +11,9 @@ numFeature = length(fieldNames);
 for i = numChannel/2+1 : numChannel
     numBaselineBurst = length(features(i,1).maxValue);
     channelSelected = transpose(randperm(numBaselineBurst));
-    channelSelected = channelSelected(1:numBurst,1);
+    if numBaselineBurst > numBurst
+        channelSelected = channelSelected(1:numBurst,1);
+    end
     for j = 1:numFeature
         features(i,1).(fieldNames{j,1}) = features(i,1).(fieldNames{j,1})(channelSelected);
     end

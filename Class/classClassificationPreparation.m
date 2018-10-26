@@ -117,8 +117,8 @@ classdef classClassificationPreparation
             clfp.grouping.targetField = targetField;
         end
         
-        function clfp = getBaselineFeature(clfp,samplingFreq)
-            baselineInfo = getBaselineFeature(clfp.burstDetection,samplingFreq);
+        function clfp = getBaselineFeature(clfp,samplingFreq,data,baselineType)
+            baselineInfo = getBaselineFeature(clfp.burstDetection,samplingFreq,data,baselineType);
             clfp = insertBaselineFeature(clfp,baselineInfo);
         end
 
