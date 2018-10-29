@@ -48,15 +48,15 @@ clearvars -except parameters classInfo tB
 predictClassAll = zeros(1, parameters.numChannel);
 sentPredictClassFlag = 0;
 
-c = 1;
-maxC = 1000;
+% c = 1;
+% maxC = inf;
 
-for i = 1:parameters.numChannel
+% for i = 1:parameters.numChannel
 %     p(i,1) = figure;
 %     h(i,1) = gca;
-end
+% end
 
-while c < maxC
+while 1
     
     for i = 1:parameters.numChannel
         readSample(classInfo{i,1});
@@ -77,13 +77,13 @@ while c < maxC
     end
     
     if sentPredictClassFlag
-        replyPrediction = bi2de(predictClassAll,'left-msb');
-        replyPrediction = checkPrediction(replyPrediction);
+        replyPrediction = checkPrediction(predictClassAll);
+        replyPrediction = bi2de(replyPrediction,'left-msb');
         fwrite(tB,[parameters.channelEnable,replyPrediction]); % to enable the channel
         sentPredictClassFlag = 0; % reset sending predicted class flag
     end
 
-    c = c+1;
+%     c = c+1;
 end
 
 
