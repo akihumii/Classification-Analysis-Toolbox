@@ -78,7 +78,7 @@ while c < maxC
     
     if sentPredictClassFlag
         replyPrediction = bi2de(predictClassAll,'left-msb');
-        disp(replyPrediction)
+        replyPrediction = checkPrediction(replyPrediction);
         fwrite(tB,[parameters.channelEnable,replyPrediction]); % to enable the channel
         sentPredictClassFlag = 0; % reset sending predicted class flag
     end
