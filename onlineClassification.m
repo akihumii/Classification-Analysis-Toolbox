@@ -17,8 +17,8 @@ parameters = struct(...
     'overlapWindowSize',50,...
     'numChannel',length(classifierParameters),...
     'ports',[1343,1344,1345,1346],...
-    'replyPort',1300);
-%     'ports',[1345,1346]);
+    'replyPort',1300,...
+    'channelEnable',251);
 
 for i = 1:parameters.numChannel
     classInfo{i,1} = classOnlineClassification();
@@ -27,18 +27,24 @@ for i = 1:parameters.numChannel
     setTcpip(classInfo{i,1},'127.0.0.1',parameters.ports(1,i),'NetworkRole','client');
     
     % Streaming data
-    tcpip(classInfo{i,1});
+    tcpip(classInfo{i,1}); % open channel port
     openPort(classInfo{i,1});
 end
 
 % open reply port
-tB = tcpip('127.0.0.1',parameters.replyPort,'NetworkRole','client');
-% fopen(tB);
+try
+    tB = tcpip('127.0.0.1',parameters.replyPort,'NetworkRole','client');
+    disp(['Opened port ',num2str(parameters.channelEnable),' as reply port...'])
+catch
+    disp(['Reply port ',num2str(parameters.channelEnable),' is not open yet...'])
+end
+
+fopen(tB);
 
 %%  Run the online classification
-clearvars -except parameters classInfo
+clearvars -except parameters classInfo tB
 
-elapsedTime = cell(parameters.numChannel,1);
+% elapsedTime = cell(parameters.numChannel,1);
 predictClassAll = zeros(1, parameters.numChannel);
 sentPredictClassFlag = 0;
 
@@ -46,15 +52,16 @@ c = 1;
 maxC = 1000;
 
 for i = 1:parameters.numChannel
-    p(i,1) = figure;
-    h(i,1) = gca;
+%     p(i,1) = figure;
+%     h(i,1) = gca;
 end
 
 while c < maxC
     
     for i = 1:parameters.numChannel
         readSample(classInfo{i,1});
-        t = tic;
+%         t = tic;
+
 %         plot(h(i,1),classInfo{i,1}.dataFiltered)
 %         pause(0.0001)
         detectBurst(classInfo{i,1});
@@ -65,22 +72,20 @@ while c < maxC
             predictClassAll(1,i) = classInfo{i,1}.predictClass;
         end
         
-%         if i == 1
 %             disp(['Class ',num2str(i),' prediction: ',num2str(classInfo{i,1}.predictClass)]);
-            elapsedTime{i,1} = [elapsedTime{i,1};toc(t)];
-%         end
+%             elapsedTime{i,1} = [elapsedTime{i,1};toc(t)];
     end
     
     if sentPredictClassFlag
-        replyPrediction = bi2de(predictClassAll,'left-msb')
-%         fwrite(tB,replyPrediction);
+        replyPrediction = bi2de(predictClassAll,'left-msb');
+        disp(replyPrediction)
+        fwrite(tB,[parameters.channelEnable,replyPrediction]); % to enable the channel
         sentPredictClassFlag = 0; % reset sending predicted class flag
     end
 
     c = c+1;
 end
 
-% closePort(classInfo);
 
 end
 
