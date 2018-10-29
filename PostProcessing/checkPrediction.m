@@ -10,7 +10,7 @@ if all(output(1,1:2))
     output(1,2) = 0;
 end
 
-if all(output(1,1:3))
+if all(output(1,3:4))
     output(1,4) = 0;
 end
 
