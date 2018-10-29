@@ -133,7 +133,10 @@ classdef classOnlineClassification < matlab.System
                     obj.features(1,i) = featuresTemp.(obj.featureNames{i,1});
                 end
                 obj.predictClass = predict(obj.classifierMdl, obj.features);
-                obj.readyClassify = obj.predictClass ~= obj.numClass;
+                if obj.predictClass == obj.numClass
+                    obj.predictClass = 0;
+                end
+%                 obj.readyClassify = obj.predictClass ~= obj.numClass;
             end
         end
         

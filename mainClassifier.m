@@ -16,7 +16,7 @@ delete(timerfindall)
 % General Parameters
 parameters = struct(...
     'dataType','sylphx',... % configurable types: ,'neutrino2','neutrino', 'intan', 'sylphx', 'sylphii'
-    'channel',6:7,... % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
+    'channel',4:7,... % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
     'channelPair',0,...; % input the pairs seperated in rows, eg:[1,2;3,4] means 1 pairs with 2 and 3 pairs with 4; input 0 if no differential data is needed.
     'samplingFreq',0,... % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 1798.2, sylphII: 1798.2)
     'neutrinoInputReferred',0,...; % input 1 to check input refer, otherwise input 0
@@ -47,7 +47,7 @@ parameters = struct(...
     'spikeDetectionType','TKEO',... % input 'local maxima' for local maxima, input 'trigger for first point exceeding parameters.threshold, input 'TKEO' for taking following consecutive points into account
     ...
     'threshold',[0],... % specified one parameters.threshold for spikes detection in all the channels; multiple thresholds are allowed for different channels; input 0 for default value (baseline + threshMult * baselineStandardDeviation) (baseline is obtained by calculating the mean of the data points spanned between 1/4 to 3/4 of the data array sorted by amplitudes)
-    'threshStdMult',[10,20],... % multiples of standard deviation above the baseline as the parameters.threshold for TKEO detection. All channels will use the same value if there is only one value, multiple values are allowed for different channels
+    'threshStdMult',[10,10,20,20],... % multiples of standard deviation above the baseline as the parameters.threshold for TKEO detection. All channels will use the same value if there is only one value, multiple values are allowed for different channels
     'sign',1,... % input 1 for threhoslding upwards, input -1 for thresholding downwards
     ...
     'windowSize',[0.03, 0.07],... % range of window starting from the detected peaks(in seconds)
@@ -55,7 +55,7 @@ parameters = struct(...
     'trainingRatio',0.7,... % training ratio for classifier
     ...
     'TKEOStartConsecutivePoints',[35],... % number of consecutive points over the parameters.threshold to be detected as burst
-    'TKEOEndConsecutivePoints',[100,200],... % number of consecutive points below the parameters.threshold to be detected as end of burst
+    'TKEOEndConsecutivePoints',[100,100,200,200],... % number of consecutive points below the parameters.threshold to be detected as end of burst
     'burstTrimming',0,... % to exclude the bursts by inputting the bursts indexes
     'burstTrimmingType',1,... % 1 to delete; 2 to pick
     ...
