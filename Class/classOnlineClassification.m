@@ -30,6 +30,7 @@ classdef classOnlineClassification < matlab.System
     properties(Nontunable)
         filterHd % handle of Parks-McClellan FIR filter
         readyClassify = 1
+        burstExistsFlag = 0
     end
     
     % Pre-computed constants
@@ -104,13 +105,14 @@ classdef classOnlineClassification < matlab.System
         end
         
         function detectBurst(obj)
-            if ~obj.readyClassify
+%             if ~obj.readyClassify
                 obj.dataTKEO = TKEO(obj.dataRaw,obj.samplingFreq);
-                [peaks,~] = triggerSpikeDetection(obj.dataTKEO,obj.thresholds,0,obj.numStartConsecutivePoints,0);
-                if ~isnan(peaks)
-                    obj.readyClassify = 1; % activate flag for classify
-                end
-            end
+                [peaks] = triggerSpikeDetection(obj.dataTKEO,obj.thresholds,0,obj.numStartConsecutivePoints,0);
+                [~,endLocs] = findEndPoint(obj.dataTKEO,obj.thresholds,0,obj.numStartConsecutivePoints);
+
+                obj.burstExistsFlag = ~isnan(peaks);
+                obj.burstExistsFlag = ~isempty(endLocs); % overlap the burstExistsFlag if there is a range of data has settled down
+%             end
         end
         
         function classifyBurst(obj)

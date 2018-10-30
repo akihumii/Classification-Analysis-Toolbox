@@ -4,7 +4,7 @@ function output = calculateAccuracy(predictClass, trueClass)
 % 
 % output:   accuracy, sensitivity, specificity, TP, TN, FP, FN
 % 
-%   output = calculateAccuracy(prediction, testingClass)
+%   output = calculateAccuracy(predictClass, trueClass)
 
 classes = unique(trueClass);
 numObservation = length(trueClass);
