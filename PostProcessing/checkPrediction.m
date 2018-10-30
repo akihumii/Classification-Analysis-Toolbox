@@ -14,9 +14,9 @@ if all(output(1,3:4))
     output(1,4) = 0;
 end
 
-% if ~isequal(output,data)
-%     disp(['Changed predicted class from ',num2str(bi2de(data,'left-msb')),' to ',num2str(bi2de(output,'left-msb')),'...'])
-% end
+if ~isequal(output,data)
+    disp(['Changed predicted class from ',num2str(bi2de(data,'left-msb')),' to ',num2str(bi2de(output,'left-msb')),'...'])
+end
 
 end
 

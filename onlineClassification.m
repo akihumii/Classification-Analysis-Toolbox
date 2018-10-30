@@ -42,11 +42,11 @@ end
 fopen(tB);
 
 %%  Run the online classification
-clearvars -except parameters classInfo tB
+% clearvars -except parameters classInfo tB
 
 % elapsedTime = cell(parameters.numChannel,1);
 % predictClassAll = zeros(1, parameters.numChannel);
-% sentPredictClassFlag = 0;
+sentPredictClassFlag = 0;
 
 c = 1;
 maxC = 1000;
@@ -61,7 +61,6 @@ burstExistsFlagAll = zeros(maxC,parameters.numChannel);
 dataRawAll = cell(maxC, parameters.numChannel);
 
 while c <= maxC
-    
     for i = 1:parameters.numChannel
         readSample(classInfo{i,1});
 %         t = tic;
@@ -70,29 +69,31 @@ while c <= maxC
 %         pause(0.0001)
         detectBurst(classInfo{i,1});
         classifyBurst(classInfo{i,1});
+
+        predictClassAll(c,i) = classInfo{i,1}.predictClass;
+        burstExistsFlagAll(c,i) = classInfo{i,1}.burstExistsFlag;
+        dataRawAll{c,i} = classInfo{i,1}.dataRaw;
         
-%         if predictClassAll(1,i) ~= classInfo{i,1}.predictClass % update if state changed
-%             sentPredictClassFlag = 1;
-            predictClassAll(c,i) = classInfo{i,1}.predictClass;
-            burstExistsFlagAll(c,i) = classInfo{i,1}.burstExistsFlag;
-            dataRawAll{c,i} = classInfo{i,1}.dataRaw;
-%         end
+        if predictClassAll(c,i) ~= classInfo{i,1}.predictClass % update if state changed
+            sentPredictClassFlag = 1;
+        end
         
 %             disp(['Class ',num2str(i),' prediction: ',num2str(classInfo{i,1}.predictClass)]);
 %             elapsedTime{i,1} = [elapsedTime{i,1};toc(t)];
     end
     
-%     if sentPredictClassFlag
-%         replyPrediction = checkPrediction(predictClassAll);
+    if sentPredictClassFlag
+        replyPrediction = checkPrediction(predictClassAll(c,:));
+        disp(replyPrediction)
 %         replyPrediction = bi2de(replyPrediction,'left-msb');
 %         fwrite(tB,[parameters.channelEnable,replyPrediction]); % to enable the channel
 %         sentPredictClassFlag = 0; % reset sending predicted class flag
-%     end
+    end
 
     c = c+1
 end
 
-output = checkOnlineAccuracy(burstExistsFlagAll, predictClassAll)
+output = checkOnlineAccuracy(burstExistsFlagAll, predictClassAll);
 
 end
 

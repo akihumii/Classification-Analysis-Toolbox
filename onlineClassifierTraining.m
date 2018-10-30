@@ -26,16 +26,10 @@ numClass = length(signal);
 % parameters.classifierMdl = classifierOutput.classificationOutput{1,1}(parameters.featureClassification,1);
 % parameters.numClass = numClass + 1;
 
-
-for i = 1:numClass
-    thresholds(i,:) = signalClassificationInfo(i,1).burstDetection.threshold;
-end
-thresholdsAverage = mean(thresholds,1);
-
 for i = 1:numClass
     parameters{i,1}.featureClassification = 5;
     parameters{i,1}.classifierMdl = classifierOutput(i,1).classificationOutput{1,1}(parameters{i,1}.featureClassification,1).Mdl{i,1};
-    parameters{i,1}.thresholds = thresholdsAverage(1,i);
+    parameters{i,1}.thresholds = signalClassificationInfo(i,1).burstDetection.threshold(i,1);
     parameters{i,1}.numStartConsecutivePoints = signalClassificationInfo(1,1).burstDetection.parameters.TKEOStartConsecutivePoints(1,i);
     parameters{i,1}.numEndConsecutivePoints = signalClassificationInfo(1,1).burstDetection.parameters.TKEOEndConsecutivePoints(1,i);
     parameters{i,1}.samplingFreq = signal(1,1).samplingFreq;
