@@ -9,7 +9,7 @@ close all
 
 %% Default Parameters
 parameters = struct(...
-    'useHPC',1,...
+    'selectFile',1,...
     'saveMatFile',0,...
     'saveHistFlag',0,...
     'plotHistFlag',1,...
@@ -21,12 +21,20 @@ if nargin > 0
 end
 
 %% Load data
-if parameters.useHPC
-    allFiles = dir('*.mat');
-    iters = length(allFiles);
-    path = [pwd,filesep];
-else
-    [files, path, iters] = selectFiles('select mat files for classifier''s training');
+switch parameters.selectFile 
+    case 0
+        [files, path, iter] = getCurrentFiles('*.mat'); % select files in current path
+    case 1
+        [files, path, iter] = selectFiles('select mat files for classifier''s training'); % select files to be analysed
+    case 2
+        [files, path, iter] = getCurrentFiles(parameters.specificTarget);
+    case 3
+        splittedStr = split(parameters.specificTarget);
+        files = splittedStr(end);
+        path = fullfile(splittedStr(1:end-1));
+        iter = 1;
+    otherwise
+        error('Invalid option for selectFile...')
 end
 
 %% Read and Reconstruct

@@ -1,21 +1,35 @@
-function output = classification(trials,featureIndex,trainingRatio,classifierTitle,numRepeat,classifierName)
+function output = classification(trials,featureIndex,trainingRatio,classifierTitle,parameters)
 %classification Perform lda classification with trials that are in cells.
 % The structure is like: [channel * feature * class]
 %
-%   output = classification(trials,featureIndex,trainingRatio,classifierTitle,numRepeat)
+%   output = classification(trials,featureIndex,trainingRatio,classifierTitle,parameters.classificationRepetition)
 
 [numClasses,~,numChannels] = size(trials);
+if parameters.mergeChannelFeatures
+    [d1,d2,d3] = size(trials);
+    trialsTemp = cell(d1,d2);
+    for i = 1:numChannels
+        for j = 1:d1
+            for k = 1:d2
+                trialsTemp{j,k,1} = cat(2, trialsTemp{j,k,1}, trials{j,k,i});
+            end
+        end
+    end
+    
+    trials = repmat(trialsTemp,1,1,numChannels);
+end
+
 numSelectedFeatures = length(featureIndex);
-accuracyAll = nan(numRepeat,numChannels);
+accuracyAll = nan(parameters.classificationRepetition,numChannels);
 
 for i = 1:numChannels
     accuracyHighest(:,i) = zeros(2,1); % initialize accuracy
     try
-        for r = 1:numRepeat
+        for r = 1:parameters.classificationRepetition
             
             groupedFeature = combineFeatureWithoutNan(trials(:,featureIndex(1,:),i),trainingRatio,numClasses);
             
-            switch classifierName
+            switch parameters.classifierName
                 case 'svm'
                     svmClassificationOutput = svmClassification(groupedFeature.training,groupedFeature.trainingClass,groupedFeature.testing);
                     accuracyTemp = calculateAccuracy(svmClassificationOutput.predictClass,groupedFeature.testingClass);
@@ -34,7 +48,7 @@ for i = 1:numChannels
             
             %         if accuracyTemp.accuracy > accuracyHighest(1,i) % record the result from the classifier that has the highest performance
             accuracyHighest(:,i) = accuracyTemp.accuracy;
-            switch classifierName
+            switch parameters.classifierName
                 case 'svm'
                     %                     class{i,1} = svmClassificationOutput.predictClass;
                     predictClass{r,i} = svmClassificationOutput.predictClass;

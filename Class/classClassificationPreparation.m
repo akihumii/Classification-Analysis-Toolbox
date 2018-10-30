@@ -52,28 +52,36 @@ classdef classClassificationPreparation
         
         function clfp = detectSpikes(clfp,targetClassData,parameters)
             % input: parameters: targetName,type,threshold,sign,threshStdMult,TKEOStartConsecutivePoints,TKEOEndConsecutivePoints,channelExtractStartingLocs
-            if isequal(parameters.targetName,'dataFiltered') || isequal(parameters.targetName,'dataTKEO')
-                parameters.targetName = [{parameters.targetName};{'values'}];
+            if isequal(parameters.dataToBeDetectedSpike,'dataFiltered') || isequal(parameters.dataToBeDetectedSpike,'dataTKEO')
+                parameters.dataToBeDetectedSpike = [{parameters.dataToBeDetectedSpike};{'values'}];
             end
-            [dataValue, dataName] = loadMultiLayerStruct(targetClassData,parameters.targetName);
+            [dataValue, dataName] = loadMultiLayerStruct(targetClassData,parameters.dataToBeDetectedSpike);
             minDistance = floor(clfp.window * targetClassData.samplingFreq);
-            clfp.burstDetection = detectSpikes(dataValue,minDistance,parameters.threshold,parameters.sign,parameters.type,parameters.threshStdMult,parameters.TKEOStartConsecutivePoints,parameters.TKEOEndConsecutivePoints);
+            clfp.burstDetection = detectSpikes(dataValue,minDistance,parameters);
             clfp.burstDetection.dataAnalysed = [targetClassData.file,' -> ',dataName];
-            clfp.burstDetection.detectionMethod = parameters.type;
+            clfp.burstDetection.detectionMethod = parameters.spikeDetectionType;
             clfp.burstDetection.channelExtractStartingLocs = parameters.channelExtractStartingLocs;
+            
+            burstInterval = getBurstInterval(clfp,targetClassData);
+            
+            burstIntervalAllSeconds = burstInterval / targetClassData.samplingFreq;
+            clfp.burstDetection.burstInterval = burstInterval;
+            clfp.burstDetection.burstIntervalSeconds = burstIntervalAllSeconds;
         end
         
         function clfp = classificationWindowSelection(clfp, targetClassData, parameters)
             % input: parameters: targetName,burstTrimming,burstTrimmingType
-            if isequal(parameters.targetName,'dataFiltered') || isequal(parameters.targetName,'dataTKEO')
-                parameters.targetName = [{parameters.targetName};{'values'}];
+            if isequal(parameters.overlappedWindow,'dataFiltered') || isequal(parameters.overlappedWindow,'dataTKEO')
+                parameters.overlappedWindow = [{parameters.overlappedWindow};{'values'}];
             end
-            [dataValue, dataName] = loadMultiLayerStruct(targetClassData,parameters.targetName);
+            [dataValue, dataName] = loadMultiLayerStruct(targetClassData,parameters.overlappedWindow);
             
             if parameters.burstTrimming % to trim the bursts
                 p = plotFig(targetClassData.time/targetClassData.samplingFreq,dataValue,'','','Time(s)','Amplitude(V)',0,1);
                 [clfp.burstDetection.spikePeaksValue,clfp.burstDetection.spikeLocs,clfp.burstDetection.burstEndValue,clfp.burstDetection.burstEndLocs,clfp.burstDetection.selectedBurstsIndex] =...
                     deleteBurst(parameters.burstTrimmingType, p, targetClassData.time, targetClassData.samplingFreq, clfp.burstDetection.spikePeaksValue,clfp.burstDetection.spikeLocs,clfp.burstDetection.burstEndValue,clfp.burstDetection.burstEndLocs);
+            else
+                clfp.burstDetection.selectedBurstsIndex = getSelectedBurstsIndex(clfp);
             end
             
             clfp.selectedWindows = getPointsWithinRange(...
@@ -106,10 +114,36 @@ classdef classClassificationPreparation
             end
             clfp.grouping = classificationGrouping(clfp.features, clfp.trainingRatio, class, targetField);
             clfp.grouping.class = class;
+            clfp.grouping.targetField = targetField;
         end
         
+        function clfp = getBaselineFeature(clfp,samplingFreq,data,baselineType)
+            baselineInfo = getBaselineFeature(clfp.burstDetection,samplingFreq,data,baselineType);
+            clfp = insertBaselineFeature(clfp,baselineInfo);
+        end
+
     end
     
     methods (Access = protected)
+        function burstInterval = getBurstInterval(clfp,targetClassData)
+            numChannel = length(targetClassData.channel);
+            burstInterval = diff(clfp.burstDetection.spikeLocs,1,1);
+            burstInterval = vertcat(burstInterval, nan(1,numChannel)); % for the last set of bursts
+            burstInterval(burstInterval<0 | burstInterval > 3*targetClassData.samplingFreq) = nan;
+        end
+        
+        function selectedBurstsIndex = getSelectedBurstsIndex(clfp)
+            numChannel = size(clfp.burstDetection.spikePeaksValue,2);
+            selectedBurstsIndex = cell(numChannel,1);
+            for i = 1:numChannel
+                spikePeaksValueTemp = clfp.burstDetection.spikePeaksValue(:,i);
+                if all(isnan(spikePeaksValueTemp))
+                    selectedBurstsIndex{i,1} = 0;
+                else
+                    selectedBurstsIndex{i,1} = 1:(sum(~isnan(spikePeaksValueTemp)));
+                end
+            end
+        end
+        
     end
 end

@@ -1,12 +1,20 @@
-function output = reconstructFeatures(features,numClass,numBursts)
+function output = reconstructFeatures(signalInfo,features,numClass,numChannel,numBursts,getBasleineFeatureFlag)
 %reconstructFeatures Reconstruct features loaded from the created mat file
-%after running mainClasifier.m
+%after running mainClasifier.m.
+% The original structure is [channel x 1] structure storing vertically
+% concatenated bursts from all the classes.
 %
 % output: featuresNames, featuresAll, featuresMean, featuresStd, featuresStde
 %
 %   output = reconstructFeatures(features,numClass)
 
-numChannel = length(features);
+% Combine the baseline channels if the option is enabled
+if getBasleineFeatureFlag
+    features = combineBaseline(signalInfo,features); % append the baseline features onto EMG bursts features
+    numBursts = [numBursts ; max(numBursts,[],1)]; % added one more row for the baseline bursts
+    numClass = numClass + 1; % added one more class for the baseline
+end
+
 output.featuresNames = fieldnames(features(1,1));
 numFeatures = length(output.featuresNames);
 
@@ -17,7 +25,7 @@ for i = 1:numFeatures
         
         for j = 1:numClass % different speed = different class
             featureNameTemp = output.featuresNames{i,1};
-            if numBursts(j,k) ~= 0 && ~isempty(features(k,1).(featureNameTemp))
+            if numBursts(j,k) ~= 0 && length(features(k,1).(featureNameTemp)) >= numBursts(j,k)
                 arrayTemp = arrayTemp(end)+1 : (arrayTemp(end) + numBursts(j,k));
                 output.featuresAll{j,i,k} = features(k,1).(featureNameTemp)(arrayTemp,:); % it is sorted in [bursts * classes * features * channels]
                 featuresTemp = output.featuresAll{j,i,k};

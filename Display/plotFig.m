@@ -150,7 +150,11 @@ for i = 1:numData
         switch plotWay
             case 'linePlot'
                 if any(size(x)==1)
-                    l(j,i) = plot(x,y(:,j,i));
+                    if length(x) == length(y(:,j,i)) 
+                        l(j,i) = plot(x,y(:,j,i));
+                    else
+                        l(j,i) = plot(x,repmat(y(:,j,i),1,length(x)));
+                    end
                 else
                     l(j,i) = plot(x(:,j,i),y(:,j,i));
                 end

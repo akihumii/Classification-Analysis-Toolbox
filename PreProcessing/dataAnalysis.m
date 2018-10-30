@@ -36,9 +36,9 @@ for i = 1:iter
     
     data(i,1) = filterData(data(i,1),parameters); % filter data
     
-    if parameters.saveOverlap || parameters.showOverlap
+%     if parameters.saveOverlap || parameters.showOverlap
         data(i,1) = TKEO(data(i,1),'dataRaw'); % TKEO 
-    end
+%     end
     
     if parameters.saveFFT || parameters.showFFT
         data(i,1) = fftDataConvert(data(i,1),parameters.dataToBeFFT); % do FFT

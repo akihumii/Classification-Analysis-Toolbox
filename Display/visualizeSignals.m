@@ -85,7 +85,7 @@ end
 
 %% Plot windows following stimulation artefacts
 if ~parameters.saveOverlap && ~parameters.showOverlap
-    windowsValues = nan;
+    windowsValues(i,1) = nan;
 else    
     for i = 1:length(signalClassification)
         %% Plot the data for peak detection
@@ -108,15 +108,15 @@ else
         end
         
         %% Plot Overlapping Signals
-        if isequal(parameters.selectedWindow, 'dataFiltered') || isequal(parameters.selectedWindow, 'dataTKEO')
-            parameters.selectedWindow = [{parameters.selectedWindow};{'values'}]; % reconstruct filtered vales, because the values lies in the field 'values' in the structure 'dataFiltered'
+        if isequal(parameters.overlappedWindow, 'dataFiltered') || isequal(parameters.overlappedWindow, 'dataTKEO')
+            parameters.overlappedWindow = [{parameters.overlappedWindow};{'values'}]; % reconstruct filtered vales, because the values lies in the field 'values' in the structure 'dataFiltered'
         end
         
-        [dataValues, dataName] = loadMultiLayerStruct(signal(i,1),parameters.selectedWindow); % get the values and the name of the selected window
+        [dataValues, dataName] = loadMultiLayerStruct(signal(i,1),parameters.overlappedWindow); % get the values and the name of the selected window
         
         maxBurstLength = max(signalClassification(i,1).burstDetection.burstEndLocs - signalClassification(i,1).burstDetection.spikeLocs,[],1);
         
-        windowsValues = getPointsWithinRange(...
+        windowsValues(i,1) = getPointsWithinRange(...
             signal(i,1).time/signal(i,1).samplingFreq,...
             dataValues,...
             signalClassification(i,1).burstDetection.spikeLocs,...
@@ -124,17 +124,17 @@ else
             parameters.windowSize, signal(i,1).samplingFreq, parameters.channelExtractStartingLocs);
         
         % Get all windows in same plots
-%         windowsValues.xAxisValues = reshape(windowsValues.xAxisValues,[],2*size(windowsValues.xAxisValues,2));
-%         windowsValues.burst = reshape(windowsValues.burst,[],2*size(windowsValues.burst,2));
+%         windowsValues(i,1).xAxisValues = reshape(windowsValues(i,1).xAxisValues,[],2*size(windowsValues(i,1).xAxisValues,2));
+%         windowsValues(i,1).burst = reshape(windowsValues(i,1).burst,[],2*size(windowsValues(i,1).burst,2));
         
         % Plot overlapping windows
-        plotFig(windowsValues.xAxisValues,windowsValues.burst,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],['Windows Following Artefacts ( ', dataName, ' )'],'Time (s)','Amplitude (V)',...
+        plotFig(windowsValues(i,1).xAxisValues,windowsValues(i,1).burst,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],['Windows Following Artefacts ( ', dataName, ' )'],'Time (s)','Amplitude (V)',...
             parameters.saveOverlap,... % save
             parameters.showOverlap,... % show
             signal(i,1).path,'overlap', signal(i,1).channelPair);
         
         % plot averaging overlapping windows
-        plotFig(windowsValues.xAxisValues,nanmean(windowsValues.burst,2),[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],['Average Windows Following Artefacts ( ', dataName, ' )'],'Time(s)','Amplitude (V)',...
+        plotFig(windowsValues(i,1).xAxisValues,nanmean(windowsValues(i,1).burst,2),[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],['Average Windows Following Artefacts ( ', dataName, ' )'],'Time(s)','Amplitude (V)',...
             parameters.saveOverlap,... % save
             parameters.showOverlap,... % show
             signal(i,1).path,'overlap', signal(i,1).channelPair);

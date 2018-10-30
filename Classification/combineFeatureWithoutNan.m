@@ -20,7 +20,7 @@ for i = 1:numClasses
     trials = zeros(1,0);
     notNanFeatures = zeros(1,0);
     
-    trials = catNanMat(data(i,:,1)',2,'all'); % concatanate the different classes into different columns including nan
+    trials = catNanMat(data(i,:,:)',2,'all'); % concatanate the different classes into different columns including nan
     
     notNanFeatures = omitNan(trials,2,'any'); % get rid of rows containing Nan
     

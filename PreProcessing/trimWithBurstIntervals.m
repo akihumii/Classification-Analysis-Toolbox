@@ -1,16 +1,19 @@
 function output = trimWithBurstIntervals(signalInfo,numClass,burstIntervalsThreshold)
 %TRIMWTIHBURSTINTERVALS Check the bursts intervals and then trim it
 %accordingly
-%   Detailed explanation goes here
+%   output = trimWithBurstIntervals(signalInfo,numClass,burstIntervalsThreshold)
 
 
-numChannel = size(signalInfo(1,1).signal.dataRaw,2);
+numChannel = size(signalInfo(1,1).signalClassification.burstDetection.spikePeaksValue,2);
 
 featureNames = fieldnames(signalInfo(1,1).signalClassification.features);
 featureNames(end) = [];
 numFeatures = length(featureNames);
 
 %% get the location
+if size(burstIntervalsThreshold,3) < numClass
+    error('Not enough burstIntervalsThreshold for all the classes...')
+end
 for i = 1:numClass
     burstIntervalTemp = omitNan(signalInfo(i).signalClassification.burstDetection.burstIntervalSeconds,2,'all');
     for j = 1:numChannel

@@ -1,29 +1,27 @@
-function output = balanceBursts(signalInfo,numClass)
+function output = balanceBursts(signalInfo,numClass,resetTrainRatio)
 %BALANCEBURSTS Balance the number of bursts from different classes in the
 %same channel.
 %
 %   output = balanceBursts(signalInfo,numClass)
 
-trainingRatio = 0.7;
+% trainingRatio = 0.7;
 
 numBurstsAll = zeros(0,0);
 for i = 1:numClass
     numBurstsAll = vertcat(numBurstsAll,checkSizeNTranspose(signalInfo(i,1).signalClassification.selectedWindows.numBursts,1));
-    signalInfo(i,1).signalClassification.trainingRatio = trainingRatio;
+    if resetTrainRatio
+        signalInfo(i,1).signalClassification.trainingRatio = trainingRatio;
+    end
 end
 
 [numBurstsMin, ~] = min(numBurstsAll,[],1);
 [~, numBurstsMaxChannel] = max(numBurstsAll,[],1);
 
-numChannel = length(numBurstsMin);
+numChannel = size(signalInfo(1,1).signalClassification.burstDetection.spikePeaksValue,2);
 
 featureNames = fieldnames(signalInfo(1,1).signalClassification.features);
 featureNames(end) = [];
 numFeatures = length(featureNames);
-
-featureNamesShort = fieldnames(signalInfo(1,1).features);
-featureNamesShort(end) = [];
-numFeaturesShort = length(featureNamesShort);
 
 for i = 1:numChannel
     changingClassTemp = numBurstsMaxChannel(1,i);
@@ -42,15 +40,18 @@ for i = 1:numChannel
         signalInfo(changingClassTemp,1).signalClassification.features.(featureNames{j,1})(numBurstsMin(1,i)+1:end,i) = nan;
     end
     
-    numTrain(i,1) = floor(numBurstsMin(1,i)*trainingRatio);
-    numTest(i,1) = numBurstsMin(1,i) - numTrain(i,1);
-    signalInfo(changingClassTemp,1).signalClassification.grouping.all(numBurstsMin(1,i)+1:end,1,i) = nan;
-    for j = 1:numClass
-        signalInfo(j,1).signalClassification.grouping.training(numTrain+1:end,1,i) = nan;
-        signalInfo(j,1).signalClassification.grouping.testing(numTest+1:end,1,i) = nan;
-        signalInfo(j,1).signalClassification.grouping.trainingClass(numTrain+1:end,1,i) = nan;
-        signalInfo(j,1).signalClassification.grouping.testingClass(numTest+1:end,1,i) = nan;
+    if resetTrainRatio
+        numTrain(i,1) = floor(numBurstsMin(1,i)*trainingRatio);
+        numTest(i,1) = numBurstsMin(1,i) - numTrain(i,1);
+        for j = 1:numClass
+            signalInfo(j,1).signalClassification.grouping.training(numTrain+1:end,1,i) = nan;
+            signalInfo(j,1).signalClassification.grouping.testing(numTest+1:end,1,i) = nan;
+            signalInfo(j,1).signalClassification.grouping.trainingClass(numTrain+1:end,1,i) = nan;
+            signalInfo(j,1).signalClassification.grouping.testingClass(numTest+1:end,1,i) = nan;
+        end
     end
+    
+    signalInfo(changingClassTemp,1).signalClassification.grouping.all(numBurstsMin(1,i)+1:end,1,i) = nan;
     
     signalInfo(changingClassTemp,1).windowsValues.burst(:,numBurstsMin(1,i)+1:end,i) = nan;
     signalInfo(changingClassTemp,1).windowsValues.burstMean = mean(signalInfo(changingClassTemp,1).windowsValues.burst,2);
@@ -60,7 +61,7 @@ for i = 1:numChannel
     for j = 1:numFeatures
         signalInfo(changingClassTemp,1).features.(featureNames{j,1})(numBurstsMin(1,i)+1:end,i) = nan;
     end
-
+    
     signalInfo(changingClassTemp,1).detectionInfo.spikePeaksValue(numBurstsMin(1,i)+1:end,i) = nan;
     signalInfo(changingClassTemp,1).detectionInfo.spikeLocs(numBurstsMin(1,i)+1:end,i) = nan;
     signalInfo(changingClassTemp,1).detectionInfo.burstEndValue(numBurstsMin(1,i)+1:end,i) = nan;
