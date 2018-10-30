@@ -43,18 +43,22 @@ for i = 1:numChannel
                         end
                         baselineBursts{i,1} = cell2nanMat(baselineBursts{i,1});
                     elseif numBursts == 1
-                        lengthData = size(data,1);
                         baselineStartLocs{i,1} = 1;
                         baselineEndLocs{i,1} = spikeLocsTemp(1,1);
                         
-                        for j = 1:2
-                            baselineBursts{i,1}{j,1} = data(baselineStartLocs{i,1}(j,1):baselineEndLocs{i,1}(j,1),i);
-                        end
+                        baselineBursts{i,1}{1,1} = data(baselineStartLocs{i,1}:baselineEndLocs{i,1},i);
                         baselineBursts{i,1} = cell2nanMat(baselineBursts{i,1});
                     else % when no burst is found
 %                         baselineBursts{i,1} = data(:,i);
                     end
                 end
+            else
+                lengthData = size(data,1);
+                baselineStartLocs{i,1} = 1;
+                baselineEndLocs{i,1} = lengthData;
+                
+                baselineBursts{i,1}{1,1} = data(baselineStartLocs{i,1}:baselineEndLocs{i,1},i);
+                baselineBursts{i,1} = cell2nanMat(baselineBursts{i,1});
             end
             
         otherwise

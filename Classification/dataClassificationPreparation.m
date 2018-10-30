@@ -35,7 +35,7 @@ output(i,1) = classificationGrouping(output(i,1),'maxValue',i,parameters.trainin
 
 % get a baseline as the third class
 if parameters.getBaselineFeatureFlag
-    [dataValues, ~] = loadMultiLayerStruct(signal,parameters.overlappedWindow);
+    [dataValues, ~] = loadMultiLayerStruct(signal(i,1),parameters.overlappedWindow);
     output(i,1) = getBaselineFeature(output(i,1),signal(i,1).samplingFreq,dataValues,parameters.baselineType);
 end
 
