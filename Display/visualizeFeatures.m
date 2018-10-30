@@ -23,7 +23,7 @@ switch titleName
         plotFileName = [fileName(1:6),fileName(12:17)];
         xScale = 'Speed';
         xTickValue = cat(1,signalInfo(:,1).fileSpeed);
-    case 'Different Day';
+    case 'Different Day'
         plotFileName = fileName(1:8);
         xScale = 'Week';
         xTickValue = cat(1,signalInfo(:,1).fileDate);
@@ -44,7 +44,10 @@ end
  
 %% Plot Accuracy and Synergy
 if displayInfo.showAccuracy || displayInfo.saveAccuracy
-    plotAccuracy(classifierOutput,featureIndex,plotFileName,path,numClass,xScale,xTickValue,displayInfo,numChannel,is2DClassification,channel,titleName);
+    legendName = {'forearm','biceps','chance performance'};
+%     legendName = 'channel 14','channel 16','chance performance';
+
+    plotAccuracy(classifierOutput,featureIndex,plotFileName,path,numClass,xScale,xTickValue,displayInfo,numChannel,is2DClassification,channel,titleName,legendName);
 end
  
 %% Plot histogram and distribution

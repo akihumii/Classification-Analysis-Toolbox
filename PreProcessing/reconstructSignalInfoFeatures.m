@@ -1,6 +1,9 @@
 function output = reconstructSignalInfoFeatures(signalInfo,parameters)
 %reconstructSignalInfoFeatures Reconstruct features in signalInfo to fit
-%the structure to run the reconstructFeatures later on.
+%the structure to run the reconstructFeatures later on. The original
+%structure of the feature is [burst x channel] stored in separate classes.
+%The new strucutre would be [class x 1] strucuter storing vertically
+%concantenated bursts from all the classes.
 %
 %   output = reconstructSignalInfoFeatures(signalInfo,parameters)
 
@@ -19,8 +22,6 @@ for i = 1:numChannel
         end
     end
 end
-        
-
 
 for i = 1:numClass
     for j = 1:numChannel

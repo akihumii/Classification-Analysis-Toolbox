@@ -7,7 +7,7 @@ function output = reconstructPCA(signalInfo,threshPercentile)
 cutoffThreshold = 0.5; % percentage to cutoff the bursts if it drops below this percentage of the maximum values
 
 numClass = length(signalInfo);
-numChannel = size(signalInfo(1,1).signalClassification.selectedWindows.burst,3);
+numChannel = size(signalInfo(1,1).windowsValues.burst,3);
 samplingFreq = signalInfo(1,1).signal.samplingFreq;
 
 for i = 1:numChannel

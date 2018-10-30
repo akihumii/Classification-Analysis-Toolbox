@@ -57,7 +57,7 @@ classdef classClassificationPreparation
             end
             [dataValue, dataName] = loadMultiLayerStruct(targetClassData,parameters.dataToBeDetectedSpike);
             minDistance = floor(clfp.window * targetClassData.samplingFreq);
-            clfp.burstDetection = detectSpikes(dataValue,minDistance,parameters.threshold,parameters.sign,parameters.spikeDetectionType,parameters.threshStdMult,parameters.TKEOStartConsecutivePoints,parameters.TKEOEndConsecutivePoints);
+            clfp.burstDetection = detectSpikes(dataValue,minDistance,parameters);
             clfp.burstDetection.dataAnalysed = [targetClassData.file,' -> ',dataName];
             clfp.burstDetection.detectionMethod = parameters.spikeDetectionType;
             clfp.burstDetection.channelExtractStartingLocs = parameters.channelExtractStartingLocs;
@@ -67,7 +67,6 @@ classdef classClassificationPreparation
             burstIntervalAllSeconds = burstInterval / targetClassData.samplingFreq;
             clfp.burstDetection.burstInterval = burstInterval;
             clfp.burstDetection.burstIntervalSeconds = burstIntervalAllSeconds;
-            
         end
         
         function clfp = classificationWindowSelection(clfp, targetClassData, parameters)
@@ -115,7 +114,14 @@ classdef classClassificationPreparation
             end
             clfp.grouping = classificationGrouping(clfp.features, clfp.trainingRatio, class, targetField);
             clfp.grouping.class = class;
+            clfp.grouping.targetField = targetField;
         end
+        
+        function clfp = getBaselineFeature(clfp,samplingFreq,data,baselineType)
+            baselineInfo = getBaselineFeature(clfp.burstDetection,samplingFreq,data,baselineType);
+            clfp = insertBaselineFeature(clfp,baselineInfo);
+        end
+
     end
     
     methods (Access = protected)

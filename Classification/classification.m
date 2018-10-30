@@ -5,6 +5,20 @@ function output = classification(trials,featureIndex,trainingRatio,classifierTit
 %   output = classification(trials,featureIndex,trainingRatio,classifierTitle,parameters.classificationRepetition)
 
 [numClasses,~,numChannels] = size(trials);
+if parameters.mergeChannelFeatures
+    [d1,d2,d3] = size(trials);
+    trialsTemp = cell(d1,d2);
+    for i = 1:numChannels
+        for j = 1:d1
+            for k = 1:d2
+                trialsTemp{j,k,1} = cat(2, trialsTemp{j,k,1}, trials{j,k,i});
+            end
+        end
+    end
+    
+    trials = repmat(trialsTemp,1,1,numChannels);
+end
+
 numSelectedFeatures = length(featureIndex);
 accuracyAll = nan(parameters.classificationRepetition,numChannels);
 

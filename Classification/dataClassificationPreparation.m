@@ -32,6 +32,13 @@ output(i,1) = featureExtraction(output(i,1),signal(i,1).samplingFreq,[{'selected
 
 % group features for classification
 output(i,1) = classificationGrouping(output(i,1),'maxValue',i,parameters.trainingRatio);
+
+% get a baseline as the third class
+if parameters.getBaselineFeatureFlag
+    [dataValues, ~] = loadMultiLayerStruct(signal,parameters.overlappedWindow);
+    output(i,1) = getBaselineFeature(output(i,1),signal(i,1).samplingFreq,dataValues,parameters.baselineType);
+end
+
 end
 
 end

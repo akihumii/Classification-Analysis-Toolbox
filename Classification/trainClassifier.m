@@ -29,7 +29,6 @@ classifierFullTitle = [classifierFullTitle,' )'];
 
 %% Run Classification
 if displayInfo.showHistFit||displayInfo.saveHistFit||displayInfo.showAccuracy||displayInfo.saveAccuracy||displayInfo.showReconstruction||displayInfo.saveReconstruction||displayInfo.showPrinComp||displayInfo.savePrinComp
-    disp('Training classifiers...');
     
     lengthumFeaturesInCombination = length(parameters.numFeaturesInCombination);
     
