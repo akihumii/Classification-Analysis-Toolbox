@@ -10,8 +10,8 @@ classdef classOnlineClassification < matlab.System
         thresholds
         numStartConsecutivePoints
         numEndConsecutivePoints
-        windowSize = 200
-        overlapWindowSize
+        windowSize = 200 % ms
+        overlapWindowSize = 50 % ms
         samplingFreq
         host
         port
@@ -36,7 +36,7 @@ classdef classOnlineClassification < matlab.System
     % Pre-computed constants
     properties(Access = private)
         t % instrument of port
-        stepRead % number of sample to read and store per time
+%         stepRead % number of sample to read and store per time
         startOverlapping = 0 % flag to indicte that the window is full and ready to start overlapping
         features = zeros(1,0)
         featureNames
@@ -62,12 +62,12 @@ classdef classOnlineClassification < matlab.System
             
             obj.overlapWindowSize = parameters.overlapWindowSize;
             
-            updateStepRead(obj); % update the step size to store the data from Qt
-            
+%             updateStepRead(obj); % update the step size to store the data from Qt
+%             
             obj.featureNames = obj.featureNamesAll(obj.featureClassification);
             obj.numFeature = length(obj.featureClassification);
             
-            obj = getFilterHd(obj);
+            getFilterHd(obj);
         end
         
         function setTcpip(obj,host,port,varargin)
@@ -91,12 +91,16 @@ classdef classOnlineClassification < matlab.System
         
         function readSample(obj)
             if ~obj.startOverlapping
-                for j = 1:obj.stepRead:obj.windowSize % store windowSize of data to make it full at the first time
+                stepRead = updateStepRead(obj,obj.windowSize);
+                for i = 1:stepRead:obj.windowSize % store windowSize of data to make it full at the first time
                     sample = fread(obj.t, obj.stepRead, 'double');
                     obj.dataRaw = [obj.dataRaw ; sample];
                 end
             else
-                for j = 1:obj.stepRead:obj.overlapWindowSize % store only overlapWindowSize of data as the update rate (overlapping window size)
+                while obj.t.BytesAvailable < obj.overlapWindowSize/(1000/obj.samplingFreq)
+                end
+                stepRead = updateStepRead(obj,obj.t.BytesAvailable);
+                for i = 1:stepRead:obj.t.BytesAvailable % store only overlapWindowSize of data as the update rate (overlapping window size)
                     sample = fread(obj.t, obj.stepRead, 'double');
                     obj.dataRaw = fixWindow(obj,obj.dataRaw,sample);
                 end
@@ -134,11 +138,10 @@ classdef classOnlineClassification < matlab.System
     
     
     methods(Access = protected)
-        function obj = getFilterHd(obj)
+        function getFilterHd(obj)
             filterObj = setFilter(classFilterDataOnline,obj.samplingFreq,obj.highPassCutoffFreq,obj.lowPassCutoffFreq,obj.notchFreq,obj.windowSize); % initialize a filter object
             obj.filterHd = filterObj.Hd;
         end
-
         
         function dataFiltered = filter(obj)
             dataFiltered = filter(obj.filterHd,obj.dataRaw);
@@ -148,13 +151,13 @@ classdef classOnlineClassification < matlab.System
             output = [dataRaw(obj.stepRead+1 : end, 1) ; sample];
         end
         
-        function updateStepRead(obj)
-            for i = 50:-10:1
-                if ~mod(obj.windowSize,i)
+        function stepRead = updateStepRead(~,windowSize)
+            for i = 60:-10:1
+                if ~mod(windowSize,i)
                     break
                 end
             end
-            obj.stepRead = i;
+            stepRead = i;
         end
     end
 end
