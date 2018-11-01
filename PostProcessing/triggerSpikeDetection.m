@@ -1,4 +1,4 @@
-function [selectedPeaks,selectedLocs] = triggerSpikeDetection(data,threshold,minDistance,numConsecutivePoint,varargin)
+function [selectedPeaks,selectedLocs] = triggerSpikeDetection(data,threshold,minDistance,numConsecutivePoint,findRemainingPeaks)
 %triggerSpikeDetection Find the values exceeding threshold then skip for a
 %window with the size of minDistance. Distance between two consecutive
 %starting points will not less than minDistance.
@@ -6,18 +6,13 @@ function [selectedPeaks,selectedLocs] = triggerSpikeDetection(data,threshold,min
 % numConsecutivePoint is the minimum number of the consecutive pionts
 % following the peaks that need to exceed the threshold. Default value is 0.
 %
-% input: varargin: (optional) to specify the trigger of finding more than
+% input: findRemainingPeaks: (optional) to specify the trigger of finding more than
 % one burst (1 or 0)
 %
-%   [selectedPeaks,selectedLocs] = triggerSpikeDetection(data,threshold,minDistance,numConsecutivePoint,varargin)
+%   [selectedPeaks,selectedLocs] = triggerSpikeDetection(data,threshold,minDistance,numConsecutivePoint,findRemainingPeaks)
 
 if nargin < 4
     numConsecutivePoint = 0;
-end
-
-if nargin == 5
-    findRemainingPeaks = varargin{1,1};
-else
     findRemainingPeaks = 1;
 end
 

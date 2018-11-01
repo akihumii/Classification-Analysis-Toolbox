@@ -77,7 +77,7 @@ classdef classClassificationPreparation
             [dataValue, dataName] = loadMultiLayerStruct(targetClassData,parameters.overlappedWindow);
             
             if parameters.burstTrimming % to trim the bursts
-                p = plotFig(targetClassData.time/targetClassData.samplingFreq,dataValue,'','','Time(s)','Amplitude(V)',0,1);
+                p = plotFig(targetClassData.time/targetClassData.samplingFreq,[dataValue,targetClassData.dataAll(:,12)],'','','Time(s)','Amplitude(V)',0,1);
                 [clfp.burstDetection.spikePeaksValue,clfp.burstDetection.spikeLocs,clfp.burstDetection.burstEndValue,clfp.burstDetection.burstEndLocs,clfp.burstDetection.selectedBurstsIndex] =...
                     deleteBurst(parameters.burstTrimmingType, p, targetClassData.time, targetClassData.samplingFreq, clfp.burstDetection.spikePeaksValue,clfp.burstDetection.spikeLocs,clfp.burstDetection.burstEndValue,clfp.burstDetection.burstEndLocs);
             else
@@ -117,8 +117,8 @@ classdef classClassificationPreparation
             clfp.grouping.targetField = targetField;
         end
         
-        function clfp = getBaselineFeature(clfp,samplingFreq,data,baselineType)
-            baselineInfo = getBaselineFeature(clfp.burstDetection,samplingFreq,data,baselineType);
+        function clfp = getBaselineFeature(clfp,samplingFreq,data,baselineType,dataForThreshChecking)
+            baselineInfo = getBaselineFeature(clfp.burstDetection,samplingFreq,data,baselineType,dataForThreshChecking);
             clfp = insertBaselineFeature(clfp,baselineInfo);
         end
 

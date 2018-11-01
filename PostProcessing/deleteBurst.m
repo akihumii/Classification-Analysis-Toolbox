@@ -12,7 +12,7 @@ function varargout = deleteBurst(type, p, time, samplingFreq, varargin)
 if ~any(type==1 | type==2)
     warning('Invalid type for burst trimming...');
 else
-    numAxes = length(p);
+    numAxes = size(varargin{1,1},2);
     for n = 1:numAxes
         onsetValuesTemp = varargin{1,1}(:,n);
         onsetLocsRaw = varargin{1,2}(:,n);
@@ -53,8 +53,10 @@ else
             outputTemp{n,1} = varargin{1,i-4}(:,n);
             if type == 1 % to delete selected indexes
                 outputTemp{n,1}(selectedBursts{n,1}) = [];
+                outputTemp{n,1} = squeezeNan(outputTemp{n,1},2);
             else % to pick selected indexes
                 outputTemp{n,1} = outputTemp{n,1}(selectedBursts{n,1});
+                outputTemp{n,1} = squeezeNan(outputTemp{n,1},2);
             end
         end
         varargout{1,i-4} = cell2nanMat(outputTemp);

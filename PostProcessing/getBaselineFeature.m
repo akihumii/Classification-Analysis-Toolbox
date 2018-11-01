@@ -1,4 +1,4 @@
-function output = getBaselineFeature(burstDetection,samplingFreq,data,type)
+function output = getBaselineFeature(burstDetection,samplingFreq,data,type,dataForThreshChecking)
 %GETBASELINEFEATURE Get the baseline feature by using the baseline defined
 %earlier
 % input: type = 'invert'; % 'invert' or 'sorted'
@@ -39,7 +39,13 @@ for i = 1:numChannel
                         
                         numBaselineBurst = length(baselineStartLocs{i,1});
                         for j = 1:numBaselineBurst
-                            baselineBursts{i,1}{j,1} = data(baselineStartLocs{i,1}(j,1):baselineEndLocs{i,1}(j,1),i);
+                            baselineBurstsTemp = dataForThreshChecking(baselineStartLocs{i,1}(j,1):baselineEndLocs{i,1}(j,1),i);
+                            [peakTemp,~] = triggerSpikeDetection(baselineBurstsTemp,burstDetection.threshold(i,1),0,burstDetection.parameters.TKEOStartConsecutivePoints(1,i),0);
+                            if isnan(peakTemp)
+                                baselineBursts{i,1}{j,1} = data(baselineStartLocs{i,1}(j,1):baselineEndLocs{i,1}(j,1),i);
+                            else
+                                baselineBursts{i,1}{j,1} = nan;
+                            end
                         end
                         baselineBursts{i,1} = cell2nanMat(baselineBursts{i,1});
                     elseif numBursts == 1
