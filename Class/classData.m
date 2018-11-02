@@ -142,5 +142,10 @@ classdef classData
             errorShow(targetName, 'targetName', 'char');
         end
         
+        function data = padZero(data)
+            data = editData(data,data(:,11),[0,255],3);
+        end
+
+        
     end
 end

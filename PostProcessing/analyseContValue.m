@@ -20,12 +20,16 @@ numSkipData = length(skipDataLocs);
 
 %% Plot
 pH = figure;
-histogram(skipDataArray,numSkipData); % plot number of occurence
+if ~isempty(skipDataLocs)
+    histogram(skipDataArray,numSkipData); % plot number of occurence
+end
 
 pC = figure;
 hold on
-plot(data); % plot counter
-plot(skipDataLocs,data(skipDataLocs),'ro'); % plot skipping point
+if ~isempty(skipDataLocs)
+    plot(data); % plot counter
+    plot(skipDataLocs,data(skipDataLocs),'ro'); % plot skipping point
+end
 
 %% Output
 output = makeStruct(skipDataArray,skipDataLocs,numSkipData,pH,pC);

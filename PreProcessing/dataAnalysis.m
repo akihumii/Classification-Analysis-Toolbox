@@ -44,6 +44,11 @@ for i = 1:iter
         data(i,1) = fftDataConvert(data(i,1),parameters.dataToBeFFT); % do FFT
     end
         
+    % pad zero
+    if parameters.padZeroFlag
+        data(i,1) = padZero(data(i,1));
+    end
+    
     dataName{i,1} = data(i,1).file;
     
     disp([data(i,1).file, ' has been analysed... '])
