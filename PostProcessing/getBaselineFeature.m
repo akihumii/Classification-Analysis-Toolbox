@@ -14,7 +14,7 @@ for i = 1:numChannel
     switch type
         case 'sorted'
 
-            baselineBursts{i,1} = v.baseline{i,1}.array;
+            baselineBursts{i,1} = burstDetection.baseline{i,1}.array;
             numSample = length(baselineBursts{i,1});
             
             % trim the baseline to make it divisible by numBurst
@@ -66,6 +66,11 @@ for i = 1:numChannel
                 baselineBursts{i,1}{1,1} = data(baselineStartLocs{i,1}:baselineEndLocs{i,1},i);
                 baselineBursts{i,1} = cell2nanMat(baselineBursts{i,1});
             end
+            
+        case 'movingWindow'
+            maxWindowSize = max(burstDetection.burstEndLocs-burstDetection.spikeLocs,[],1);
+            baselineBursts{i,1} = getMovingWindowBaseline(data(:,i),dataForThreshChecking(:,i),...
+                burstDetection.threshold(i,1),numBurst,maxWindowSize(1,2));
             
         otherwise
             error('Invalid method ot get the baseline feature...');

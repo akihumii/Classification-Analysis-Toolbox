@@ -32,7 +32,7 @@ switch lower(fileType)
         data(:,1:numTotalChannel) = data(:,1:numTotalChannel)*res; % convert data to Voltage, keep the counter and sync pulse unchanged
 
         % edit the lousy data
-        data = editData(data,data(:,11),[0,255],2);
+        data = editData(data,data(:,11),[0,255],3);
         timeIndex = 1:size(data,1);
         
     case 'intan'

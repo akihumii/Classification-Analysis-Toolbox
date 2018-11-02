@@ -1,12 +1,13 @@
 function output = editData(dataAll,dataRef,ref,type)
-%editData Cut the data that is not equal to the reference, assumed that the
+%EDITDATA Cut the data that is not equal to the reference, assumed that the
 %baseline is equal to zeros and the extra number that needs to be included
 %is saved in input 'ref'
 % 
 % input:    dataAll:    data-to-be-eidted
 %           dataRef:    data for checking the ref
 %           ref:        only get the data that has the correct ref
-%           type:       1 to cut only, 2 to pad zeros
+%           type:       1 to cut only, 2 to pad zeros on messy data, 
+%                       3 to pad zeros on cut data
 % 
 %   [] = editData(dataAll,dataRef,ref,maxRef)
 
@@ -35,6 +36,9 @@ switch type
     case 2
         dataAll(~locs,:) = 0;
         output = dataAll;
+    case 3
+        output = padZero(dataAll,0,0);
+end
 
 end
 

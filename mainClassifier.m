@@ -28,7 +28,7 @@ parameters = struct(...
     'constraintWindow',[-0.30075,6.9049],... % starting point and end point of constraint window, unit is in seconds. Input 0 for default (pre-select the whole signal). It can be found in signal.analysedDataTiming(2,:), the first row is the timing in seconds
     'markBurstInAllChannels',0,... % mark all the channels when one of the channels detects a burst
     'getBaselineFeatureFlag',1,... % get the features of the baseline, which is the data that are not marked as bursts
-    'baselineType','invert',... % either 'inverrt' or 'sorted', 'invert' will choose the sections that are not bursts, while 'sorted' will choose sort the data ascendingly and choose the middle part as baseline
+    'baselineType','invert',... % either 'inverrt', 'sorted', or 'movingWindow': 'invert' will choose the sections that are not bursts, while 'sorted' will choose sort the data ascendingly and choose the middle part as baseline, 'movingWindow' will use either the largest burst length or 500 ms as window size and sweeping through to search for the window that doesn't have points exceeding threshold
     ...
     ...% Filtering Parameters
     'dataToBeFiltered','dataRaw',...; % input 'dataRaw' for raw data; input 'dataDifferential' for differential data; input 'dataRectified' for rectified data

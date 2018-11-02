@@ -19,17 +19,16 @@ skipDataArray = diffData(skipDataLocs) - 1;
 numSkipData = length(skipDataLocs);
 
 %% Plot
-figure
+pH = figure;
 histogram(skipDataArray,numSkipData); % plot number of occurence
 
-figure
+pC = figure;
 hold on
 plot(data); % plot counter
 plot(skipDataLocs,data(skipDataLocs),'ro'); % plot skipping point
 
-output.skipDataArray = skipDataArray; 
-output.skipDataLocs = skipDataLocs;
-output.numSkipData = numSkipData;
+%% Output
+output = makeStruct(skipDataArray,skipDataLocs,numSkipData,pH,pC);
 
 end
 
