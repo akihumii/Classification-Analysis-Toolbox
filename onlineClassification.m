@@ -46,6 +46,7 @@ clearvars -except parameters classInfo tB
 
 % elapsedTime = cell(parameters.numChannel,1);
 predictClassAll = zeros(1, parameters.numChannel);
+replyPrediction = zeros(1, parameters.numChannel);
 sentPredictClassFlag = 0;
 
 % c = 1;
@@ -67,9 +68,9 @@ while 1
         detectBurst(classInfo{i,1});
         classifyBurst(classInfo{i,1});
         
-        if predictClassAll(1,i) ~= classInfo{i,1}.predictClass % update if state changed
+        if replyPrediction(1,i) ~= classInfo{i,1}.predictClass % update if state changed
             sentPredictClassFlag = 1;
-            predictClassAll(1,i) = classInfo{i,1}.predictClass;
+            replyPrediction(1,i) = classInfo{i,1}.predictClass;
         end
         
 %             disp(['Class ',num2str(i),' prediction: ',num2str(classInfo{i,1}.predictClass)]);

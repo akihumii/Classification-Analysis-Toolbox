@@ -33,7 +33,7 @@ for i = 1:numClass
     parameters{i,1}.numStartConsecutivePoints = signalClassificationInfo(1,1).burstDetection.parameters.TKEOStartConsecutivePoints(1,i);
     parameters{i,1}.numEndConsecutivePoints = signalClassificationInfo(1,1).burstDetection.parameters.TKEOEndConsecutivePoints(1,i);
     parameters{i,1}.samplingFreq = signal(1,1).samplingFreq;
-    parameters{i,1}.numClass = length(unique(classifierOutput(i,1).classificationOutput{1,1}(1,1).trainingClass{1,1}));
+    parameters{i,1}.numClass = length(unique(classifierOutput(i,1).classificationOutput{1,1}(1,1).trainingClass{1,i}));
 end
 
 saveVar(fullfile(signal(1,1).path,'Info','onlineClassification'),'OnlineClassificationInfo',parameters);

@@ -145,7 +145,7 @@ classdef classOnlineClassification < matlab.System
             dataFiltered = filter(obj.filterHd,obj.dataRaw);
         end
         
-        function output = fixWindow(obj,dataRaw,sample,stepRead)
+        function output = fixWindow(~,dataRaw,sample,stepRead)
             output = [dataRaw(stepRead+1 : end, 1) ; sample];
         end
         
