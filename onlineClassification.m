@@ -49,7 +49,7 @@ fopen(tB);
 sentPredictClassFlag = 0;
 
 c = 1;
-maxC = 1000;
+maxC = 2000;
 
 % for i = 1:parameters.numChannel
 %     p(i,1) = figure;
@@ -81,13 +81,14 @@ while c <= maxC
 %             disp(['Class ',num2str(i),' prediction: ',num2str(classInfo{i,1}.predictClass)]);
 %             elapsedTime{i,1} = [elapsedTime{i,1};toc(t)];
     end
-    
+
     if sentPredictClassFlag
+        disp(predictClassAll(c,:))
         replyPrediction = checkPrediction(predictClassAll(c,:));
         disp(replyPrediction)
 %         replyPrediction = bi2de(replyPrediction,'left-msb');
 %         fwrite(tB,[parameters.channelEnable,replyPrediction]); % to enable the channel
-%         sentPredictClassFlag = 0; % reset sending predicted class flag
+        sentPredictClassFlag = 0; % reset sending predicted class flag
     end
 
     c = c+1
