@@ -7,8 +7,8 @@ close all hidden
 
 %% User Input
 parameters = struct(...
-    'selectFile',1,... % 0 to select all the files in the current directories and pair them up, 1 to select files, 2 to use the specific path stored in specificPath
-    'specificTarget','',... % it will only be activated when selectFile is equal to 2
+    'selectFileType',1,... % 0 to select all the files in the current directories and pair them up, 1 to select files, 2 to use the specific path stored in specificPath
+    'specificTarget','',... % it will only be activated when selectFileType is equal to 2
     ...
     'runPCA',0,...
     'numPrinComp',0,... % number of principle component to use as features
@@ -56,7 +56,7 @@ parameters = varIntoStruct(parameters,varargin);
 displayInfo = varIntoStruct(displayInfo,varargin);
 
 %% Get features info
-switch parameters.selectFile
+switch parameters.selectFileType
     case 0
         allFiles = dir('*.mat');
         numTrial = length(allFiles);
@@ -66,20 +66,24 @@ switch parameters.selectFile
         [files, path, numClass] = selectFiles('select mat files for classifier''s training');
         numPairs = 1;
     case 2
+        numClass = length(parameters.specificTarget);
+        for i = 1:numClass
+            splittedStr = split(parameters.specificTarget{i},filesep);
+            files(1,i) = splittedStr(end);
+        end
+        path = fullfile(splittedStr{1:end-1});
+        numPairs = 1;
+    case 3
         allFiles = dir([parameters.specificPath,'*.mat']);
         numTrial = length(allFiles);
         allPairs = nchoosek(1:numTrial,2);
         [numPairs, numClass] = size(allPairs);
-    case 3
-        splittedStr = split(parameters.specificTarget);
-        files = splittedStr(end);
-        path = fullfile(splittedStr(1:end-1));
     otherwise
 end
 
 for n = 1:numPairs
     %     try
-    if parameters.selectFile == 0 || parameters.selectFile == 2
+    if parameters.selectFileType == 0 || parameters.selectFileType == 3
         for j = 1:numClass
             files{1,j} = allFiles(allPairs(n,j),1).name;
         end
