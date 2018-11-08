@@ -8,6 +8,8 @@ close hidden all
 warning('off','all');
 
 global stopFlag;
+global stopAllFlag;
+stopAllFlag = 0;
 stopFlag = 0;
 openPortFlag = 0;
 
@@ -108,7 +110,17 @@ while 1
         openPortFlag = 0;
         %     c = c+1;
     end
+    if stopAllFlag
+        break
+    end
     pause(0.001)
 end
+
+fclose(tB);
+for i = 1:parameters.numChannel
+    fclose(classInfo{i,1}.t);
+end
+
+% exit
 end
 

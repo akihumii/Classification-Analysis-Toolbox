@@ -4,6 +4,7 @@ function tNumber = dispPredictionDialog()
 close all
 
 global stopFlag
+global stopAllFlag
 
 a=[1,0,0,1];
 
@@ -35,7 +36,8 @@ wStop = uicontrol(gcf,'Style','push','String','Stop','FontSize',textSize,'Unit',
     end
 
     function closeProgram(~,~)
-        exit
+        stopAllFlag = 1;
+        close all
     end
 end
 
