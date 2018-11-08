@@ -25,6 +25,7 @@ classdef classOnlineClassification < matlab.System
         featureClassification;
         classifierMdl
         numClass
+        t % instrument of port
     end
     
     properties(Nontunable)
@@ -34,7 +35,6 @@ classdef classOnlineClassification < matlab.System
     
     % Pre-computed constants
     properties(Access = private)
-        t % instrument of port
 %         stepRead % number of sample to read and store per time
         startOverlapping = 0 % flag to indicte that the window is full and ready to start overlapping
         features = zeros(1,0)

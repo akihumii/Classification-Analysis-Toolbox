@@ -9,9 +9,8 @@ function [] = onlineClassifierTraining(varargin)
 prompt = {'Channel 1:','Channel 2:','Channel 3:','Channel 4:'};
 title = 'Input threshold multiplier';
 dims = [1 35];
-definput = {'170','170','95','65'};
+definput = {'190','180','95','60'};
 threshMult = inputdlg(prompt,title,dims,definput);
-threshMult = threshMult';
 threshMult = str2double(threshMult)';
 
 %% Pre-train
