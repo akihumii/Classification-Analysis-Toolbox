@@ -158,7 +158,7 @@ end
             end
             if ~parameters.showOverlap
                 close gcf
-                delete(overallP,overlapP)
+                delete overallP overlapP
             end
         end
     end

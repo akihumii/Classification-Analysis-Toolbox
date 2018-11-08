@@ -57,6 +57,8 @@ sentPredictClassFlag = 0;
 %     h(i,1) = gca;
 % end
 
+msgBoxFig = msgbox('Prediction Class: 0 0 0 0...');
+
 while 1
     
     for i = 1:parameters.numChannel
@@ -70,7 +72,7 @@ while 1
         
         if replyPrediction(1,i) ~= classInfo{i,1}.predictClass % update if state changed
             sentPredictClassFlag = 1;
-            replyPrediction(1,i) = classInfo{i,1}.predictClass;
+            predictClassAll(1,i) = classInfo{i,1}.predictClass;
         end
         
 %             disp(['Class ',num2str(i),' prediction: ',num2str(classInfo{i,1}.predictClass)]);
@@ -79,8 +81,11 @@ while 1
     
     if sentPredictClassFlag
         replyPrediction = checkPrediction(predictClassAll)
-        replyPrediction = bi2de(replyPrediction,'left-msb');
-        fwrite(tB,[parameters.channelEnable,replyPrediction]); % to enable the channel
+        delete(msgBoxFig);
+        msgBoxFig = msgbox(['Prediction Class: ',num2str(predictClassAll),'...']);
+%         set(findobj(msgBoxFig,'Tag','MessageBox'),'String',['Prediction Class: ',num2str(replyPrediction),' ...']);
+        replyPredictionDec = bi2de(replyPrediction,'left-msb');
+        fwrite(tB,[parameters.channelEnable,replyPredictionDec]); % to enable the channel
         sentPredictClassFlag = 0; % reset sending predicted class flag
     end
 

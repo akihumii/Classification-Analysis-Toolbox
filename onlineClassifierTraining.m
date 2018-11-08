@@ -6,7 +6,7 @@ function [] = onlineClassifierTraining(varargin)
 % put 'warning('query','all')' in ClassificationECOC>localFitECOC/loopBody
 
 %% Pre-train
-[signal,signalClassificationInfo,saveFileName] = mainClassifier('showOverlap',0,'saveOverlap',0); % to detect the bursts
+[signal,signalClassificationInfo,saveFileName] = mainClassifier('threshStdMult',[80,65,80,65],'showOverlap',0,'saveOverlap',0); % to detect the bursts
 
 [classifierOutput] = analyzeFeatures('selectFileType',2,'specificTarget',saveFileName,'showAccuracy',0,'saveAccuracy',0); % to train the classifier
 
