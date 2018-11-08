@@ -83,6 +83,8 @@ while 1
         replyPrediction = checkPrediction(predictClassAll)
         delete(msgBoxFig);
         msgBoxFig = msgbox(['Prediction Class: ',num2str(predictClassAll),'...']);
+%         th = findall(msgBoxFig,'Type','Text');
+%         th.FontSize = 14;
 %         set(findobj(msgBoxFig,'Tag','MessageBox'),'String',['Prediction Class: ',num2str(replyPrediction),' ...']);
         replyPredictionDec = bi2de(replyPrediction,'left-msb');
         fwrite(tB,[parameters.channelEnable,replyPredictionDec]); % to enable the channel
