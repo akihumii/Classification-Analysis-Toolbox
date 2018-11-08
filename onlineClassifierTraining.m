@@ -5,8 +5,17 @@ function [] = onlineClassifierTraining(varargin)
 
 % put 'warning('query','all')' in ClassificationECOC>localFitECOC/loopBody
 
+%% input threshold multiplier
+prompt = {'Channel 1:','Channel 2:','Channel 3:','Channel 4:'};
+title = 'Input threshold multiplier';
+dims = [1 35];
+definput = {'170','170','95','65'};
+threshMult = inputdlg(prompt,title,dims,definput);
+threshMult = threshMult';
+threshMult = str2double(threshMult)';
+
 %% Pre-train
-[signal,signalClassificationInfo,saveFileName] = mainClassifier('threshStdMult',[170,170,95,65],'showOverlap',0,'saveOverlap',0); % to detect the bursts
+[signal,signalClassificationInfo,saveFileName] = mainClassifier('threshStdMult',threshMult,'showOverlap',0,'saveOverlap',0); % to detect the bursts
 
 [classifierOutput] = analyzeFeatures('selectFileType',2,'specificTarget',saveFileName,'showAccuracy',0,'saveAccuracy',0); % to train the classifier
 
