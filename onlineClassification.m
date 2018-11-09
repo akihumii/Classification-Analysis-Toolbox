@@ -11,9 +11,9 @@ global stopFlag
 stopFlag = 0;
 openPortFlag = 0;
 
-classifierParameters = load('C:\Users\lsitsai\Desktop\Derek\Derek Bicep and Forearm\20181108\Info\onlineClassification\OnlineClassificationInfo_20181108162917.mat');
-% [files,path] = selectFiles('Select trained parameters...');
-% classifierParameters = load(fullfile(path,files{1,1}));
+% classifierParameters = load('C:\Users\lsitsai\Desktop\Derek\Derek Bicep and Forearm\20181108\Info\onlineClassification\OnlineClassificationInfo_20181108162917.mat');
+[files,path] = selectFiles('Select trained parameters .mat file...');
+classifierParameters = load(fullfile(path,files{1,1}));
 classifierParameters = classifierParameters.varargin{1,1};
 
 tNumber = dispPredictionDialog();
@@ -55,7 +55,6 @@ while 1
         
         % elapsedTime = cell(parameters.numChannel,1);
         predictClassAll = zeros(1, parameters.numChannel);
-        replyPrediction = zeros(1, parameters.numChannel);
         sentPredictClassFlag = 0;
         
         openPortFlag = 1;
