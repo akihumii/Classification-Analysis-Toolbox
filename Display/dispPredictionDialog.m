@@ -4,40 +4,48 @@ function tNumber = dispPredictionDialog()
 close all
 
 global stopFlag
-global stopAllFlag
 
-a=[1,0,0,1];
+warning('off','all');
+
+a=[0,0,0,0];
 
 textSize = 25;
-textSizePrediction = 35;
-buttonSize = [.3, .25];
+textSizePredictionClass = 50;
 screenSize = get(0,'Screensize');
-windowPosition = [1, screenSize(1,4)*.66, screenSize(1,3)*.25, screenSize(1,4)*.3];
+windowPosition = [1, screenSize(1,4)*.7, screenSize(1,3)*.25, screenSize(1,4)*.25];
 
 p = figure('CloseRequestFcn',@closeProgram);
 set(gcf, 'Position', windowPosition, 'MenuBar', 'none', 'ToolBar', 'none');
 
 
-tPC = uicontrol(gcf,'Style','text','String','Predicted Class:','FontSize',textSize,'Position',[1,250,300,50]);
+tStatus = uicontrol(gcf,'Style','text','String','Program started...','HorizontalAlignment','left','FontSize',textSize,'Unit','normalized','Position',[0.15,0.66,0.6,0.25]);
 
-tNumber = uicontrol(gcf,'Style','text','String',num2str(a),'FontSize',textSizePrediction,'Position',[80,155,300,50]);
+tNumber = uicontrol(gcf,'Style','text','String',num2str(a),'FontSize',textSizePredictionClass,'Unit','normalized','Position',[0.1,0.43,0.8,0.3]);
 
-wStart = uicontrol(gcf,'Style','push','String','Start','FontSize',textSize,'Unit','normalized','Position',[.1,.05,buttonSize],'CallBack',@startProgram);
-wStop = uicontrol(gcf,'Style','push','String','Stop','FontSize',textSize,'Unit','normalized','Position',[.6,.05,buttonSize],'CallBack',@stopProgram);
+button = uicontrol(gcf,'Style','push','String','Stop','FontWeight','bold','ForegroundColor','r','FontSize',textSize,'Unit','normalized','Position',[.15,0.1,.7, .25],'CallBack',@changeState);
 
-    function startProgram(~,~)
-        disp('Program started...')
-        stopFlag = 0;
-    end
-
-    function stopProgram(~,~)
-        disp('Program stopped...')
-        stopFlag = 1;
+    function changeState(~,~)
+        switch stopFlag
+            case 0
+                disp('Program stopped...')
+                tStatus.String = 'Program stopped...';
+                button.String = 'Start';
+                button.ForegroundColor = [0,190/256,0];
+                stopFlag = 1;
+            case 1
+                disp('Program started...')
+                tStatus.String = 'Program started...';
+                button.String = 'Stop';
+                button.ForegroundColor = 'r';
+                stopFlag = 0;
+            otherwise
+                disp('How did you get in here !?')
+        end
     end
 
     function closeProgram(~,~)
-        stopAllFlag = 1;
         close all
+        exit
     end
 end
 

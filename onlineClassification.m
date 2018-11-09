@@ -7,19 +7,17 @@ close hidden all
 
 warning('off','all');
 
-global stopFlag;
-global stopAllFlag;
-stopAllFlag = 0;
+global stopFlag
 stopFlag = 0;
 openPortFlag = 0;
 
-% classifierParameters = load('C:\Users\lsitsai\Desktop\Derek\FTDI\Info\onlineClassification\OnlineClassificationInfo_20181026180040.mat');
-[files,path] = selectFiles('Select trained parameters...');
-classifierParameters = load(fullfile(path,files{1,1}));
+classifierParameters = load('C:\Users\lsitsai\Desktop\Derek\Derek Bicep and Forearm\20181108\Info\onlineClassification\OnlineClassificationInfo_20181108162917.mat');
+% [files,path] = selectFiles('Select trained parameters...');
+% classifierParameters = load(fullfile(path,files{1,1}));
 classifierParameters = classifierParameters.varargin{1,1};
 
 tNumber = dispPredictionDialog();
-pause(0.01)
+drawnow
 
 while 1
     if ~stopFlag && ~openPortFlag
@@ -80,7 +78,7 @@ while 1
             detectBurst(classInfo{i,1});
             classifyBurst(classInfo{i,1});
             
-            if replyPrediction(1,i) ~= classInfo{i,1}.predictClass % update if state changed
+            if predictClassAll(1,i) ~= classInfo{i,1}.predictClass % update if state changed
                 sentPredictClassFlag = 1;
                 predictClassAll(1,i) = classInfo{i,1}.predictClass;
             end
@@ -90,37 +88,18 @@ while 1
         end
         
         if sentPredictClassFlag
-            replyPrediction = checkPrediction(predictClassAll)
             tNumber.String = num2str(predictClassAll);
-            pause(0.01)
-            %             delete(msgBoxFig);
-            %             msgBoxFig = msgbox(['Prediction Class: ',num2str(predictClassAll),'...']);
-            %         th = findall(msgBoxFig,'Type','Text');
-            %         th.FontSize = 14;
-            %         set(findobj(msgBoxFig,'Tag','MessageBox'),'String',['Prediction Class: ',num2str(replyPrediction),' ...']);
+            disp(predictClassAll)
+            replyPrediction = checkPrediction(predictClassAll);
             replyPredictionDec = bi2de(replyPrediction,'left-msb');
             fwrite(tB,[parameters.channelEnable,replyPredictionDec]); % to enable the channel
             sentPredictClassFlag = 0; % reset sending predicted class flag
         end
     else
-%         fclose(tB);
-%         for i = 1:parameters.numChannel
-%             fclose(classInfo{i,1}.t);
-%         end
         openPortFlag = 0;
         %     c = c+1;
     end
-    if stopAllFlag
-        break
-    end
-    pause(0.001)
+    drawnow
 end
-
-fclose(tB);
-for i = 1:parameters.numChannel
-    fclose(classInfo{i,1}.t);
-end
-
-% exit
 end
 
