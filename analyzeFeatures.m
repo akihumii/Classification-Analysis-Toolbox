@@ -7,8 +7,8 @@ close all hidden
 
 %% User Input
 parameters = struct(...
-    'selectFile',1,... % 0 to select all the files in the current directories and pair them up, 1 to select files, 2 to use the specific path stored in specificPath
-    'specificTarget','',... % it will only be activated when selectFile is equal to 2
+    'selectFileType',1,... % 0 to select all the files in the current directories and pair them up, 1 to select files, 2 to use the specific path stored in specificPath
+    'specificTarget','',... % it will only be activated when selectFileType is equal to 2
     ...
     'numClass',2,... % number of different class to classify, it only applies when selectFile is not 1 nor 2, i.e. there is no a pop up window to select the files for classification
     ...
@@ -42,14 +42,14 @@ displayInfo = struct(...
     'showSeparatedFigures',0,...
     'showFigures',0,...
     'showHistFit',0,...
-    'showAccuracy',0,...
+    'showAccuracy',1,...
     'showReconstruction',0,...
     'showPrinComp',0,...
     ...
     'saveSeparatedFigures',0,...
     'saveFigures',0,...
     'saveHistFit',0,...
-    'saveAccuracy',1,...
+    'saveAccuracy',0,...
     'saveReconstruction',0,...
     'savePrinComp',0);
 
@@ -58,7 +58,7 @@ parameters = varIntoStruct(parameters,varargin);
 displayInfo = varIntoStruct(displayInfo,varargin);
 
 %% Get features info
-switch parameters.selectFile
+switch parameters.selectFileType
     case 0
         allFiles = dir('*.mat');
         numTrial = length(allFiles);
@@ -68,20 +68,24 @@ switch parameters.selectFile
         [files, path, numClass] = selectFiles('select mat files for classifier''s training');
         numPairs = 1;
     case 2
+        numClass = length(parameters.specificTarget);
+        for i = 1:numClass
+            splittedStr = split(parameters.specificTarget{i},filesep);
+            files(1,i) = splittedStr(end);
+        end
+        path = fullfile(splittedStr{1:end-1});
+        numPairs = 1;
+    case 3
         allFiles = dir([parameters.specificPath,'*.mat']);
         numTrial = length(allFiles);
         allPairs = nchoosek(1:numTrial,parameters.numClass);
         [numPairs, numClass] = size(allPairs);
-    case 3
-        splittedStr = split(parameters.specificTarget);
-        files = splittedStr(end);
-        path = fullfile(splittedStr(1:end-1));
     otherwise
 end
 
 for n = 1:numPairs
     %     try
-    if parameters.selectFile == 0 || parameters.selectFile == 2
+    if parameters.selectFileType == 0 || parameters.selectFileType == 3
         for j = 1:numClass
             files{1,j} = allFiles(allPairs(n,j),1).name;
         end
