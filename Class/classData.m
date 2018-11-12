@@ -143,7 +143,13 @@ classdef classData
         end
         
         function data = padZero(data)
-            data = editData(data,data(:,11),[0,255],3);
+            counterRaw = data.dataAll(:,12);
+            data.dataAll = editData(data.dataAll,counterRaw,0,3);
+            data.dataRaw = editData(data.dataRaw,counterRaw,0,3);            
+            data.dataRectified = editData(data.dataRectified,counterRaw,0,3);
+            data.dataFiltered.values = editData(data.dataFiltered.values,counterRaw,0,3);    
+            data.dataTKEO.values = editData(data.dataFiltered.values,counterRaw,0,3);            
+
         end
 
         

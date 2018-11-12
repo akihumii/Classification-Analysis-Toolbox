@@ -1,8 +1,10 @@
-function newData = padZero(file,plotFlag,saveFlag)
+function newData = padZero(file,dataRef,plotFlag,saveFlag)
 %padZero Read the file and pad zeros at skipping point and save as csvfile at filePath
 %
-% input: file: Input file name to run the specific file. Input empty string
-% to select a file from a window. Multiple files can be selected.
+% input: file:  Input file name to run the specific file. Input empty string
+%               to select a file from a window. Multiple files can be selected.
+%        channelCounter:    index of the channel in dataAll that will be used
+%                           as the counter channel
 %
 %   [] = padZero(file)
 
@@ -17,7 +19,8 @@ end
 close all
 
 %% Parameters
-channelCounter = 12;
+counterRef = 12;
+
 notDiffValue = [1,-65535]; % correct counter difference
 
 popMsg(['Upper limit of the counter: ',num2str(notDiffValue(1,2)),'...']);
@@ -35,6 +38,7 @@ for i = 1:iter
     if ischar(file)
         data = reconstructData(file,'','sylphx'); % read and reconstruct the data
         fileName = file(1:end-4);
+        dataRef = data(:,counterRef);
     else
         data = file;
         fileName = 'PadZeroInfo';
@@ -42,7 +46,7 @@ for i = 1:iter
     
     [rowData,colData] = size(data);
     
-    counterInfo = analyseContValue(data(:,channelCounter),notDiffValue); % analyse counter
+    counterInfo = analyseContValue(dataRef,notDiffValue); % analyse counter
     
     %% Pad zero
     if ~isempty(counterInfo.skipDataLocs)
@@ -97,7 +101,7 @@ for i = 1:iter
     
     clear file
 end
-display(['The process runs for ',num2str(toc),' seconds...'])
+display(['The zero padding runs for ',num2str(toc),' seconds...'])
 
 popMsg('Finished all the process for padding zeros...'); % pop up a message box to show the end of the code
 

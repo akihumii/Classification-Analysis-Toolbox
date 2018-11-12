@@ -7,7 +7,7 @@ function baseline = baselineDetection(data)
 lowCutoff = 0.3;
 highCutoff = 0.7;
 
-dataSorted = sort(data,1);
+dataSorted = sort(data(data~=0),1);
 
 numSample = length(dataSorted);
 

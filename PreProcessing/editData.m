@@ -37,7 +37,7 @@ switch type
         dataAll(~locs,:) = 0;
         output = dataAll;
     case 3
-        output = padZero(dataAll,0,0);
+        output = padZero(dataAll,dataRef,0,0);
 end
 
 end
