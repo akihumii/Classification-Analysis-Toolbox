@@ -30,7 +30,7 @@ while 1
             'channelEnable',251);
         
         for i = 1:parameters.numChannel
-            classInfo{i,1} = classOnlineClassification();
+            classInfo{i,1} = classOnlineClassification(); % Initiatialize the object
             
             setBasicParameters(classInfo{i,1},classifierParameters{i,1},parameters);
             setTcpip(classInfo{i,1},'127.0.0.1',parameters.ports(1,i),'NetworkRole','client');
