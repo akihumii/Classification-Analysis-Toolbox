@@ -2,12 +2,11 @@ function [] = charateriseClassifier()
 %CHARACTERISCLASSIFIER Characterise the classifier
 %   [] = charateriseClassifier()
 
-close all
+% close all
 
 %% Parameters
 parameters = struct(...
-    'movingWindowSize',200,...
-    'endPartLength',35,...
+    'movingWindowSize',125,...
     'overlapWindowSize',50,...
     'featureIndex',5,...
     'samplingFreq',1000);
@@ -27,6 +26,7 @@ parameters.featureNamesAll = {...
 [filesClassifier,pathClassifier] = selectFiles('Select the classifier info .mat file...');
 
 %% Assignation
+% parameters.endPartLength = parameters.movingWindowSize / 4;
 for i = 1:iters
     signalInfo(i,1) = load(fullfile(pathSignal,filesSignal{1,i}));
     classifierInfo(i,1) = load(fullfile(pathClassifier,filesClassifier{1,i}));
@@ -43,7 +43,7 @@ end
 %% Check Delay and 
 accuracyInfo = checkOnlineAccuracy(predictClass, trueClass);
 
-checkLocsNPlot(dataFiltered{1,1},accuracyInfo.classifiedInd,parameters,threshold);
-
+pF = checkLocsNPlot(dataFiltered{1,1},accuracyInfo,parameters,threshold);
+pT = checkLocsNPlot(dataTKEO{1,1},accuracyInfo,parameters,threshold);
 end
 

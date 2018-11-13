@@ -4,23 +4,13 @@ function [trueClass,predictClass] = getTrueNPredictClass(dataTKEO,dataFiltered,t
 
 iters = length(dataTKEO);
 
-startPartLength = parameters.movingWindowSize - parameters.endPartLength;
-
 for i = 1:iters
     dataSize = length(dataTKEO{i,1});
     for j = 1 : parameters.overlapWindowSize : dataSize - parameters.movingWindowSize
         % Active window determination
         windowThreshTemp = dataTKEO{i,1}(j : j+parameters.movingWindowSize-1);
-        windowEndPartTemp = windowThreshTemp(end-parameters.endPartLength+1:end);
-        windowStartPartTemp = windowThreshTemp(1:end-parameters.endPartLength);
-        if all(windowEndPartTemp > threshold(i,1))
-            trueClass(j,i) = 1;
-        elseif all(windowEndPartTemp < threshold(i,1))
-            trueClass(j,i) = 0;
-        else % check the starting part, if half of it exceeds threshold, then this window is active state
-            checkStartPart = windowStartPartTemp > threshold(i,1);
-            trueClass(j,i) = sum(checkStartPart) >= startPartLength/2;
-        end
+        
+        trueClass(j,i) = sum(windowThreshTemp > threshold(i,1)) > parameters.movingWindowSize/2;
         
         % Classification
         windowFeatureTemp = dataFiltered{i,1}(j : j+parameters.movingWindowSize-1);
