@@ -10,7 +10,7 @@ classdef classOnlineClassification < matlab.System
         thresholds
         numStartConsecutivePoints
         numEndConsecutivePoints
-        windowSize = 200 % ms
+        windowSize = 100 % ms
         overlapWindowSize = 50 % ms
         samplingFreq
         host

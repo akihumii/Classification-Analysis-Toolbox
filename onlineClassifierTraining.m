@@ -14,7 +14,7 @@ threshMult = inputdlg(prompt,title,dims,definput);
 threshMult = str2double(threshMult)';
 
 %% Pre-train
-[signal,signalClassificationInfo,saveFileName] = mainClassifier('threshStdMult',threshMult,'showOverlap',1,'saveOverlap',0); % to detect the bursts
+[signal,signalClassificationInfo,saveFileName] = mainClassifier('threshStdMult',threshMult,'showOverlap',0,'saveOverlap',0); % to detect the bursts
 
 [classifierOutput] = analyzeFeatures('selectFileType',2,'specificTarget',saveFileName,'showAccuracy',0,'saveAccuracy',0); % to train the classifier
 

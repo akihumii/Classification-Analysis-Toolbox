@@ -88,7 +88,7 @@ while 1
         
         if sentPredictClassFlag
             tNumber.String = num2str(predictClassAll);
-            disp(predictClassAll)
+%             disp(predictClassAll)
             replyPrediction = checkPrediction(predictClassAll);
             replyPredictionDec = bi2de(replyPrediction,'left-msb');
             fwrite(tB,[parameters.channelEnable,replyPredictionDec]); % to enable the channel
