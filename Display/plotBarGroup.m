@@ -1,7 +1,8 @@
 close all
 
 %% Parameters
-channel = 4;
+channel = 5;
+savePlotFlag = 1;
 
 switch channel
     case 1
@@ -31,6 +32,14 @@ switch channel
             99.4, 22.6, 93.1;...
             100, 23.6, 93.0;...
             100, 23.6, 93];
+        
+    case 5
+        mat = [...
+            99.7, 12.8, 96.1;...
+            99.7, 10.6, 96.8;...
+            99.5, 16.5, 94.9;...
+            99.4, 22.6, 93.1];
+        
 end
 
 titleName = ['Comparison of different window size Channel ', num2str(channel)];
@@ -40,12 +49,20 @@ b = plotFig(1:size(mat,2),mat','',titleName,'','Accuracy',0,1,'','overlap',0,'ba
 b.XTick = 1:size(mat,2);
 b.XTickLabel = {'True Positive Rate','False Negative Rate','Accuracy'};
 
-legend({'50 ms Window','100 ms Window','150 ms Window','200 ms Window',},'Location','north')
+if channel ~= 5
+    legend({'50 ms Window','100 ms Window','150 ms Window','200 ms Window',},'Location','north')
+else
+    legend({'channel 1','channel 2','channel 3','channel 4'})
+end
+ylim([0,100])
+grid on
 
 %% Save plot
-savePlot('C:\Users\lsitsai\Desktop\Derek\Derek Bicep and Forearm\20181108\testing\Info\',...
-    'Comparison',...
-    titleName,...
-    titleName);
+if savePlotFlag
+    savePlot('C:\Users\lsitsai\Desktop\Derek\Derek Bicep and Forearm\20181108\testing\Info\',...
+        'Comparison',...
+        titleName,...
+        titleName);
+end
 
 popMsg('Finish...');
