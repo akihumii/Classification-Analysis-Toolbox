@@ -12,12 +12,12 @@ function classificationInfo = checkOnlineAccuracy(predictClass, trueClass)
 % 
 %   output = checkOnlineAccuracy(predictClass, burstExistsFlag)
 
-numChannel = size(trueClass,2);
+numChannel = length(trueClass);
 yLimit = [-1e-3; 1e-3];
 
 for i = 1:numChannel
-    predictClassMat = mat2confusionMat(predictClass(:,i));
-    burstExistsFlagMat = mat2confusionMat(trueClass(:,i));
+    predictClassMat = mat2confusionMat(predictClass{i,1});
+    burstExistsFlagMat = mat2confusionMat(trueClass{i,1});
     
     [misClassifiedPer, classifiedGroup, classifiedInd, classifiedPer] = ...
         confusion(burstExistsFlagMat, predictClassMat);

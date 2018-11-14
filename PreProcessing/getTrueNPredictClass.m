@@ -1,24 +1,32 @@
-function [trueClass,predictClass] = getTrueNPredictClass(dataTKEO,dataFiltered,threshold,classifierMdl,parameters)
+function [trueClass,predictClass] = getTrueNPredictClass(dataFiltered,classifierMdl,burstStartLocs,burstEndLocs,parameters)
 %GETTRUENPREDICTCLASS Summary of this function goes here
 %   Detailed explanation goes here
 
-iters = length(dataTKEO);
+iters = length(dataFiltered);
 
 for i = 1:iters
-    dataSize = length(dataTKEO{i,1});
-    for j = 1 : parameters.overlapWindowSize : dataSize - parameters.movingWindowSize
-        % Active window determination
-        windowThreshTemp = dataTKEO{i,1}(j : j+parameters.movingWindowSize-1);
-        
-        trueClass(j,i) = sum(windowThreshTemp > threshold(i,1)) > parameters.movingWindowSize/2;
-        
-        % Classification
-        windowFeatureTemp = dataFiltered{i,1}(j : j+parameters.movingWindowSize-1);
+    dataSize = length(dataFiltered{i,1});
+    numBursts = length(burstStartLocs{i,1});
+    
+    movingWindowArray = parameters.movingWindowSize : parameters.overlapWindowSize : dataSize;
+    numWindow = length(movingWindowArray);
+    trueClass{i,1} = zeros(numWindow,1);
+    predictClass{i,1} = zeros(numWindow,1);
+
+    % True Class
+    for j = 1:numBursts
+        locsTemp = movingWindowArray > burstStartLocs{i,1}(j,1) & movingWindowArray < burstEndLocs{i,1}(j,1);
+        trueClass{i,1}(locsTemp) = 1;
+    end
+    
+    % Classification
+    for j = 1:numWindow
+        windowFeatureTemp = dataFiltered{i,1}(movingWindowArray(1,j)-parameters.movingWindowSize+1 : movingWindowArray(1,j));
         featureTemp = featureExtraction(windowFeatureTemp,parameters.samplingFreq);
         featureTemp = featureTemp.(parameters.featureNamesAll{parameters.featureIndex});
-        predictClass(j,i) = predict(classifierMdl{i,1},featureTemp);
-        if predictClass(j,i) == 2
-            predictClass(j,i) = 0;
+        predictClass{i,1}(j,1) = predict(classifierMdl{i,1},featureTemp);
+        if predictClass{i,1}(j,1) == 2
+            predictClass{i,1}(j,1) = 0;
         end
     end
 end
