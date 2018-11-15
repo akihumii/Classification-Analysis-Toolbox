@@ -48,7 +48,7 @@ parameters = struct(...
     'spikeDetectionType','TKEO',... % input 'local maxima' for local maxima, input 'trigger for first point exceeding parameters.threshold, input 'TKEO' for taking following consecutive points into account
     ...
     'threshold',[0],... % specified one parameters.threshold for spikes detection in all the channels; multiple thresholds are allowed for different channels; input 0 for default value (baseline + threshMult * baselineStandardDeviation) (baseline is obtained by calculating the mean of the data points spanned between 1/4 to 3/4 of the data array sorted by amplitudes)
-    'threshStdMult',[10],... % multiples of standard deviation above the baseline as the parameters.threshold for TKEO detection. All channels will use the same value if there is only one value, multiple values are allowed for different channels
+    'threshStdMult',[25,20,20,20],... % multiples of standard deviation above the baseline as the parameters.threshold for TKEO detection. All channels will use the same value if there is only one value, multiple values are allowed for different channels
     'sign',1,... % input 1 for threhoslding upwards, input -1 for thresholding downwards
     ...
     'windowSize',[0.03, 0.07],... % range of window starting from the detected peaks(in seconds)
@@ -115,7 +115,7 @@ tic
 popMsg('Saving .mat files...')
 if parameters.saveUserInput
     for i = 1:length(signal)
-        saveVar([signal(i,1).path,filesep,'Info',filesep],signal(i,1).fileName,signal(i,1),signalClassification(i,1),windowsValues(i,1),parameters);
+        saveFileName{1,i} = saveVar([signal(i,1).path,filesep,'Info',filesep],signal(i,1).fileName,signal(i,1),signalClassification(i,1),windowsValues(i,1),parameters);
     end
 end
 popMsg([num2str(toc), ' seconds is used for saving info...'])
@@ -124,8 +124,10 @@ disp(' ')
 %% output
 if nargout >= 1; varargout{1,1} = signal;
     if nargout >= 2; varargout{1,2} = signalClassification;
-        if nargout >= 3; varargout{1,3} = windowsValues;
-            if nargout >=4; varargout{1,4} = parameters;
+        if nargout >= 3; varargout{1,3} = saveFileName;
+            if nargout >= 4; varargout{1,4} = windowsValues;
+                if nargout >=5; varargout{1,5} = parameters;
+                end
             end
         end
     end

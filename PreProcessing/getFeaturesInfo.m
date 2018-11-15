@@ -7,7 +7,7 @@ function output = getFeaturesInfo(path,files)
 %
 %   output = getFeaturesInfor(path,files
 
-info = load([path,files]);
+info = load(fullfile(path,files));
 output.saveFileName = files(1:end-4);
 output.signal = info.varargin{1,1};
 output.signalClassification = info.varargin{1,2};

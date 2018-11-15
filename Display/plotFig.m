@@ -97,7 +97,13 @@ else
 end
 
 %% Plot
-[numData, numPlot] = checkSize(y);
+if ~isequal(plotWay,'barGroupedPlot')
+    [numData, numPlot] = checkSize(y);
+else
+    numData = size(y,3);
+    numPlot = 1;
+end
+
 if isequal(plotWay,'barStackedPlot')
     numPlot = 1;
 end

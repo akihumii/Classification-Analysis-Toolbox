@@ -1,19 +1,23 @@
-function newAx = copyAxes(oldAx, newAx, titleName)
+function newAx = copyAxes(f,oldF, newAx, titleName)
 %copyAxes Copy the axes from oldAx to newAx
 %   [] = copyAxes(oldAx, newAx, titleName)
-copyobj(allchild(oldAx),newAx);
 
-if isempty(titleName)
-    copyobj(oldAx.Title,newAx);
-    set(newAx.Title,'FontSize',2);
-else
-    title(newAx,titleName);
+oldAx = findobj(oldF,'Type','axes');
+oldAx.Position = newAx.Position;
+
+if ~isempty(titleName)
+    title(oldAx,titleName);
 end
 
-copyobj(oldAx.XLabel,newAx);
-newAx.XLim = oldAx.XLim;
+drawnow
 
-copyobj(oldAx.YLabel,newAx);
-newAx.YLim = oldAx.YLim;
+copyobj(oldF.Children,f);
+delete(newAx);
+
+% copyobj(oldAx.XLabel,newAx);
+% newAx.XLim = oldAx.XLim;
+% 
+% copyobj(oldAx.YLabel,newAx);
+% newAx.YLim = oldAx.YLim;
 end
 

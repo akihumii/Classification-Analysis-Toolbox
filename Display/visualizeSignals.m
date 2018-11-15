@@ -84,9 +84,9 @@ else
 end
 
 %% Plot windows following stimulation artefacts
-if ~parameters.saveOverlap && ~parameters.showOverlap
-    windowsValues(i,1) = nan;
-else    
+% if ~parameters.saveOverlap && ~parameters.showOverlap
+%     windowsValues(i,1) = nan;
+% else    
     for i = 1:length(signalClassification)
         %% Plot the data for peak detection
         if isequal(parameters.dataToBeDetectedSpike, 'dataFiltered') || isequal(parameters.dataToBeDetectedSpike, 'dataTKEO')
@@ -128,7 +128,7 @@ else
 %         windowsValues(i,1).burst = reshape(windowsValues(i,1).burst,[],2*size(windowsValues(i,1).burst,2));
         
         % Plot overlapping windows
-        plotFig(windowsValues(i,1).xAxisValues,windowsValues(i,1).burst,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],['Windows Following Artefacts ( ', dataName, ' )'],'Time (s)','Amplitude (V)',...
+        overlapP = plotFig(windowsValues(i,1).xAxisValues,windowsValues(i,1).burst,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],['Windows Following Artefacts ( ', dataName, ' )'],'Time (s)','Amplitude (V)',...
             parameters.saveOverlap,... % save
             parameters.showOverlap,... % show
             signal(i,1).path,'overlap', signal(i,1).channelPair);
@@ -158,9 +158,10 @@ else
             end
             if ~parameters.showOverlap
                 close gcf
+                delete overallP overlapP
             end
         end
     end
-end
+% end
 end
 

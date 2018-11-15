@@ -28,7 +28,7 @@ end
 classifierFullTitle = [classifierFullTitle,' )'];
 
 %% Run Classification
-if displayInfo.showHistFit||displayInfo.saveHistFit||displayInfo.showAccuracy||displayInfo.saveAccuracy||displayInfo.showReconstruction||displayInfo.saveReconstruction||displayInfo.showPrinComp||displayInfo.savePrinComp
+% if displayInfo.showHistFit||displayInfo.saveHistFit||displayInfo.showAccuracy||displayInfo.saveAccuracy||displayInfo.showReconstruction||displayInfo.saveReconstruction||displayInfo.showPrinComp||displayInfo.savePrinComp
     
     lengthumFeaturesInCombination = length(parameters.numFeaturesInCombination);
     
@@ -54,11 +54,11 @@ if displayInfo.showHistFit||displayInfo.saveHistFit||displayInfo.showAccuracy||d
         maxFeatureCombo{i,1} = featureIndex{i,1}(maxAccuracyLocs,:);
     end
     
-else
-    classificationOutput = 0;
-    featureIndex = 0;
-    accuracyBasicParameter = 0;
-end
+% else
+%     classificationOutput = 0;
+%     featureIndex = 0;
+%     accuracyBasicParameter = 0;
+% end
 
 %% Output
 output = makeStruct(...
