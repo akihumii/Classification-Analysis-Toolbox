@@ -45,7 +45,7 @@ button = uicontrol(gcf,'Style','push','String','Stop','FontWeight','bold','Foreg
 
     function closeProgram(~,~)
         close all
-        exit
+%         exit
     end
 end
 

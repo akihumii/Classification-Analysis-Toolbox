@@ -78,21 +78,22 @@ while 1
             classifyBurst(classInfo{i,1});
             
             if predictClassAll(1,i) ~= classInfo{i,1}.predictClass % update if state changed
-                sentPredictClassFlag = 1;
                 predictClassAll(1,i) = classInfo{i,1}.predictClass;
+                switch i % check if conflict
+                    case 2 
+                        predictClassAll(1,2) = predictClassAll(1,2) && ~predictClassAll(1,1);
+                    case 4
+                        predictClassAll(1,4) = predictClassAll(1,4) && ~predictClassAll(1,3);
+                    otherwise
+                end
+                tNumber.String = num2str(predictClassAll);
+                replyPredictionDec = bi2de(predictClassAll,'left-msb');
+                fwrite(tB,[parameters.channelEnable,replyPredictionDec]); % to enable the channel
+                drawnow
             end
             
             %             disp(['Class ',num2str(i),' prediction: ',num2str(classInfo{i,1}.predictClass)]);
             %             elapsedTime{i,1} = [elapsedTime{i,1};toc(t)];
-        end
-        
-        if sentPredictClassFlag
-            tNumber.String = num2str(predictClassAll);
-%             disp(predictClassAll)
-            replyPrediction = checkPrediction(predictClassAll);
-            replyPredictionDec = bi2de(replyPrediction,'left-msb');
-            fwrite(tB,[parameters.channelEnable,replyPredictionDec]); % to enable the channel
-            sentPredictClassFlag = 0; % reset sending predicted class flag
         end
     else
         openPortFlag = 0;

@@ -105,9 +105,8 @@ classdef classOnlineClassification < matlab.System
                 stepRead = updateStepRead(obj,obj.t.BytesAvailable);
                 for i = 1:stepRead:obj.t.BytesAvailable % store only overlapWindowSize of data as the update rate (overlapping window size)
                     sample = fread(obj.t, stepRead, 'double');
-                    while isempty(sample)
+                    if isempty(sample)
                         disp('No data...')
-                        sample = fread(obj.t, stepRead, 'double');
                     end
                     obj.dataRaw = fixWindow(obj,obj.dataRaw,sample,stepRead);
                 end
@@ -127,14 +126,18 @@ classdef classOnlineClassification < matlab.System
         
         function classifyBurst(obj)
             if obj.readyClassify
-                obj.dataFiltered = filter(obj); % get the filtered data for each channel
-                featuresTemp = featureExtraction(obj.dataFiltered, obj.samplingFreq, obj.featureClassification);
-                for i = 1:obj.numFeature
-                    obj.features(1,i) = featuresTemp.(obj.featureNames{i,1});
-                end
-                obj.predictClass = predict(obj.classifierMdl, obj.features);
-                if obj.predictClass == obj.numClass
-                    obj.predictClass = 0;
+                try
+                    obj.dataFiltered = filter(obj); % get the filtered data for each channel
+                    featuresTemp = featureExtraction(obj.dataFiltered, obj.samplingFreq, obj.featureClassification);
+                    for i = 1:obj.numFeature
+                        obj.features(1,i) = featuresTemp.(obj.featureNames{i,1});
+                    end
+                    obj.predictClass = predict(obj.classifierMdl, obj.features);
+                    if obj.predictClass == obj.numClass
+                        obj.predictClass = 0;
+                    end
+                catch
+                    resetChannel(obj);
                 end
             end
         end
@@ -164,6 +167,12 @@ classdef classOnlineClassification < matlab.System
                 end
             end
             stepRead = i;
+        end
+        
+        function resetChannel(obj)
+            obj.startOverlapping = 0;
+            obj.dataRaw = zeros(0,1);
+            obj.dataFiltered = zeros(0,1);
         end
     end
 end
