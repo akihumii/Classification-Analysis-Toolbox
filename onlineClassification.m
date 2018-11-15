@@ -74,7 +74,7 @@ while 1
             
             %         plot(h(i,1),classInfo{i,1}.dataFiltered)
             %         pause(0.0001)
-            detectBurst(classInfo{i,1});
+%             detectBurst(classInfo{i,1});
             classifyBurst(classInfo{i,1});
             
             if predictClassAll(1,i) ~= classInfo{i,1}.predictClass % update if state changed

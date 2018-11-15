@@ -93,6 +93,10 @@ classdef classOnlineClassification < matlab.System
                 stepRead = updateStepRead(obj,obj.windowSize);
                 for i = 1:stepRead:obj.windowSize % store windowSize of data to make it full at the first time
                     sample = fread(obj.t, stepRead, 'double');
+                    while isempty(sample)
+                        disp('No data...')
+                        sample = fread(obj.t, stepRead, 'double');
+                    end
                     obj.dataRaw = [obj.dataRaw ; sample];
                 end
             else
@@ -101,6 +105,10 @@ classdef classOnlineClassification < matlab.System
                 stepRead = updateStepRead(obj,obj.t.BytesAvailable);
                 for i = 1:stepRead:obj.t.BytesAvailable % store only overlapWindowSize of data as the update rate (overlapping window size)
                     sample = fread(obj.t, stepRead, 'double');
+                    while isempty(sample)
+                        disp('No data...')
+                        sample = fread(obj.t, stepRead, 'double');
+                    end
                     obj.dataRaw = fixWindow(obj,obj.dataRaw,sample,stepRead);
                 end
             end
