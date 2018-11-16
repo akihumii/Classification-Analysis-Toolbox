@@ -40,7 +40,7 @@ while ~stopAll
                     classInfo{i,1} = classOnlineClassification(); % Initiatialize the object
                     
                     setBasicParameters(classInfo{i,1},classifierParameters{i,1},parameters);
-                    setTcpip(classInfo{i,1},'127.0.0.1',parameters.ports(1,i),'NetworkRole','client','Timeout',3);
+                    setTcpip(classInfo{i,1},'127.0.0.1',parameters.ports(1,i),'NetworkRole','client','Timeout',1);
                     
                     % Streaming data
                     tcpip(classInfo{i,1}); % open channel port
@@ -49,7 +49,7 @@ while ~stopAll
                 
                 % open reply port
                 try
-                    tB = tcpip('127.0.0.1',parameters.replyPort,'NetworkRole','client','Timeout',3);
+                    tB = tcpip('127.0.0.1',parameters.replyPort,'NetworkRole','client','Timeout',1);
                     disp(['Opened port ',num2str(parameters.channelEnable),' as reply port...'])
                 catch
                     disp(['Reply port ',num2str(parameters.channelEnable),' is not open yet...'])

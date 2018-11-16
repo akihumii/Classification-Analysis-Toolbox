@@ -89,15 +89,16 @@ classdef classOnlineClassification < matlab.System
         end
         
         function readSample(obj)
-            if ~obj.startOverlapping
-                stepRead = updateStepRead(obj,obj.windowSize);
-                for i = 1:stepRead:obj.windowSize % store windowSize of data to make it full at the first time
-                    sample = fread(obj.t, stepRead, 'double');
-                    if checkEmptyBuffer(obj); break; end
-                    obj.dataRaw = [obj.dataRaw ; sample];
-                end
-            else
-                if ~checkEmptyBuffer(obj)
+            if ~checkEmptyBuffer(obj)
+                if ~obj.startOverlapping
+                    stepRead = updateStepRead(obj,obj.windowSize);
+                    for i = 1:stepRead:obj.windowSize % store windowSize of data to make it full at the first time
+                        sample = fread(obj.t, stepRead, 'double');
+                        if checkEmptyBuffer(obj); break; end
+                        obj.dataRaw = [obj.dataRaw ; sample];
+                    end
+                    obj.startOverlapping = 1;
+                else
                     while obj.t.BytesAvailable < obj.overlapWindowSize/(1000/obj.samplingFreq)
                         drawnow
                     end
@@ -109,7 +110,6 @@ classdef classOnlineClassification < matlab.System
                     end
                 end
             end
-            obj.startOverlapping = 1;
         end
         
         function detectBurst(obj)
