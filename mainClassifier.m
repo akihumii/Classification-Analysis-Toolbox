@@ -8,7 +8,7 @@ function varargout = mainClassifier(varargin)
 % 
 % Coded by Tsai Chne Wuen
 
-close all hidden
+% close all
 delete(timerfindall)
 % clc
 
@@ -101,7 +101,7 @@ popMsg([num2str(toc),' seconds is used for classification preparation...'])
 disp(' ')
 
 %% Plot selected windows
-close all
+% close all
 
 tic
 popMsg('Visualizing signals...')

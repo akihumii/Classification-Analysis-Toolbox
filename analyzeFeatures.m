@@ -2,7 +2,7 @@
 % Load features from multiple mat files and plot the figures
 function varargout = analyzeFeatures(varargin)
 % clear
-close all hidden
+% close all
 % clc
 
 %% User Input
@@ -168,7 +168,7 @@ for n = 1:numPairs
                 
                 % Plot features
                 tPlot = tic;
-                close all
+%                 close all
                 
                 % type can be 'Active EMG', 'Different Speed', 'Different Day'
                 visualizeFeatures(numClass, path, classifierOutput, featuresInfo, signalInfo, displayInfo, pcaInfo, parameters.runPCA);

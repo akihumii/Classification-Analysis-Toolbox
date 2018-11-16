@@ -8,6 +8,8 @@ global stopFlag
 global openPortFlag
 global classifierParameters
 global tNumber
+global buttonStartStop
+global tStatus
 
 warning('off','all');
 
@@ -37,46 +39,42 @@ buttonTrain = uicontrol(gcf,'Style','push','String','Train','FontWeight','bold',
         switch stopFlag
             case 0
                     disp('Program stopped...')
-                    tStatus.String = 'Program stopped...';
-                    buttonStartStop.String = 'Start';
-                    buttonStartStop.ForegroundColor = [0,190/256,0];
-                    stopFlag = 1;
+                    resetAll();
             case 1
                 if startAllFlag
                     disp('Program started...')
+                    tNumber.String = num2str([0,0,0,0]);
                     tStatus.String = 'Program started...';
                     buttonStartStop.String = 'Stop';
                     buttonStartStop.ForegroundColor = 'r';
+                    openPortFlag = 0;
                     stopFlag = 0;
                 else
                     popMsg('Select a trained .mat file first...');
-                    drawnow
                 end
             otherwise
                 disp('How did you get in here !?')
         end
+        drawnow
     end
 
     function reselectFile(~,~)
         disp(' ')
         disp('Reselect training files...')
-        
-%         if startAllFlag
-%             stopFlag = 0;
-%             openPortFlag = 0;
-%         end
-%         
         try
             [files,path] = selectFiles('Select trained parameters .mat file...');
             classifierParameters = load(fullfile(path,files{1,1}));
             classifierParameters = classifierParameters.varargin{1,1};
-        
+            
             resetAll();
             
-        startAllFlag = 1;
+            startAllFlag = 1;
+            
+            popMsg('Trained file selected...');
         catch
             popMsg('Reselct failed...');
         end
+        drawnow
     end
 
     function trainClassifier(~,~)
@@ -89,20 +87,22 @@ buttonTrain = uicontrol(gcf,'Style','push','String','Train','FontWeight','bold',
             resetAll();
             popMsg('Training failed...');
         end
-        
-        startAllFlag = 0;
+        drawnow
     end
 
     function resetAll()
-        close hidden
-        dispPredictionDialog();
+        tNumber.String = num2str([0,0,0,0]);
+        tStatus.String = 'Program stopped...';
+        buttonStartStop.String = 'Start';
+        buttonStartStop.ForegroundColor = [0,190/256,0];
         stopFlag = 1;
         openPortFlag = 0;
     end
 
     function closeProgram(~,~)
+%         pause
         close all
-        exit
+%         exit
     end
 end
 

@@ -8,7 +8,7 @@ function output = pcaConverter(data,threshPercentile)
 %           mu: mean of the variables deducted before running pca
 % 
 %   output = pcaConverter(data,threshPercentile)
-close all
+% close all
 
 % [~,numCol] = size(data); % number of variables
 

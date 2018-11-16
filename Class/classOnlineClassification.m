@@ -93,22 +93,20 @@ classdef classOnlineClassification < matlab.System
                 stepRead = updateStepRead(obj,obj.windowSize);
                 for i = 1:stepRead:obj.windowSize % store windowSize of data to make it full at the first time
                     sample = fread(obj.t, stepRead, 'double');
-                    while isempty(sample)
-                        disp('No data...')
-                        sample = fread(obj.t, stepRead, 'double');
-                    end
+                    if checkEmptyBuffer(obj); break; end
                     obj.dataRaw = [obj.dataRaw ; sample];
                 end
             else
-                while obj.t.BytesAvailable < obj.overlapWindowSize/(1000/obj.samplingFreq)
-                end
-                stepRead = updateStepRead(obj,obj.t.BytesAvailable);
-                for i = 1:stepRead:obj.t.BytesAvailable % store only overlapWindowSize of data as the update rate (overlapping window size)
-                    sample = fread(obj.t, stepRead, 'double');
-                    if isempty(sample)
-                        disp('No data...')
+                if ~checkEmptyBuffer(obj)
+                    while obj.t.BytesAvailable < obj.overlapWindowSize/(1000/obj.samplingFreq)
+                        drawnow
                     end
-                    obj.dataRaw = fixWindow(obj,obj.dataRaw,sample,stepRead);
+                    stepRead = updateStepRead(obj,obj.t.BytesAvailable);
+                    for i = 1:stepRead:obj.t.BytesAvailable % store only overlapWindowSize of data as the update rate (overlapping window size)
+                        sample = fread(obj.t, stepRead, 'double');
+                        if checkEmptyBuffer(obj); break; end
+                        obj.dataRaw = fixWindow(obj,obj.dataRaw,sample,stepRead);
+                    end
                 end
             end
             obj.startOverlapping = 1;
@@ -167,6 +165,16 @@ classdef classOnlineClassification < matlab.System
                 end
             end
             stepRead = i;
+        end
+        
+        function emptyFlag = checkEmptyBuffer(obj)
+            if isempty(fread(obj.t, 1, 'double'))
+                disp('No data...')
+                drawnow
+                emptyFlag = true;
+            else
+                emptyFlag = false;
+            end
         end
         
         function resetChannel(obj)
