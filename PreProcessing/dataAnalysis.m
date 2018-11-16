@@ -12,9 +12,9 @@ switch parameters.selectFile
     case 2
         [files, path, iter] = getCurrentFiles(parameters.specificTarget);
     case 3
-        splittedStr = split(parameters.specificTarget);
+        splittedStr = split(parameters.specificTarget,filesep);
         files = splittedStr(end);
-        path = fullfile(splittedStr(1:end-1));
+        path = fullfile(splittedStr{1:end-1});
         iter = 1;
     otherwise
         error('Invalid option for selectFile...')

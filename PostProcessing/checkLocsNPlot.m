@@ -40,6 +40,8 @@ for i = 1:iters
         delete(pS)
     end
     
+    hold off
+    
     %% Confusion matrix
     pC = plotconfusion(accuracyInfo(i,1).predictClassMat,accuracyInfo(i,1).burstExistsFlagMat);
     title(titleNameConfusionMat)
