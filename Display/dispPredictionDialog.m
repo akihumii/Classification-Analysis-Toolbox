@@ -22,7 +22,7 @@ textSizePredictionClass = 50;
 screenSize = get(0,'Screensize');
 windowPosition = [1, screenSize(1,4)*.7, screenSize(1,3)*.25, screenSize(1,4)*.25];
 
-p = figure('CloseRequestFcn',@closeProgram);
+p = figure('Name','SINAPSE CAT V1','NumberTitle','off','CloseRequestFcn',@closeProgram);
 set(gcf, 'Position', windowPosition, 'MenuBar', 'none', 'ToolBar', 'none');
 
 

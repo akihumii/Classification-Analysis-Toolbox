@@ -35,7 +35,7 @@ classdef classOnlineClassification < matlab.System
     
     % Pre-computed constants
     properties(Access = private)
-%         stepRead % number of sample to read and store per time
+        stepRead = 50        
         startOverlapping = 0 % flag to indicte that the window is full and ready to start overlapping
         features = zeros(1,0)
         featureNames
@@ -61,8 +61,6 @@ classdef classOnlineClassification < matlab.System
             
             obj.overlapWindowSize = parameters.overlapWindowSize;
             
-%             updateStepRead(obj); % update the step size to store the data from Qt
-%             
             obj.featureNames = obj.featureNamesAll(obj.featureClassification);
             obj.numFeature = length(obj.featureClassification);
             
@@ -91,9 +89,8 @@ classdef classOnlineClassification < matlab.System
         function readSample(obj)
             if ~checkEmptyBuffer(obj)
                 if ~obj.startOverlapping
-                    stepRead = updateStepRead(obj,obj.windowSize);
-                    for i = 1:stepRead:obj.windowSize % store windowSize of data to make it full at the first time
-                        sample = fread(obj.t, stepRead, 'double');
+                    for i = 1:obj.stepRead:obj.windowSize % store windowSize of data to make it full at the first time
+                        sample = fread(obj.t, obj.stepRead, 'double');
                         if checkEmptyBuffer(obj); break; end
                         obj.dataRaw = [obj.dataRaw ; sample];
                     end
@@ -102,25 +99,24 @@ classdef classOnlineClassification < matlab.System
                     while obj.t.BytesAvailable < obj.overlapWindowSize/(1000/obj.samplingFreq)
                         drawnow
                     end
-                    stepRead = updateStepRead(obj,obj.t.BytesAvailable);
-                    for i = 1:stepRead:obj.t.BytesAvailable % store only overlapWindowSize of data as the update rate (overlapping window size)
-                        sample = fread(obj.t, stepRead, 'double');
+                    for i = 1:obj.stepRead:obj.t.BytesAvailable % store only overlapWindowSize of data as the update rate (overlapping window size)
+                        sample = fread(obj.t, obj.stepRead, 'double');
                         if checkEmptyBuffer(obj); break; end
-                        obj.dataRaw = fixWindow(obj,obj.dataRaw,sample,stepRead);
+                        obj.dataRaw = fixWindow(obj,obj.dataRaw,sample);
                     end
                 end
             end
         end
         
-        function detectBurst(obj)
-            if ~obj.readyClassify
-                obj.dataTKEO = TKEO(obj.dataRaw,obj.samplingFreq);
-                [peaks,~] = triggerSpikeDetection(obj.dataTKEO,obj.thresholds,0,obj.numStartConsecutivePoints,0);
-                if ~isnan(peaks)
-                    obj.readyClassify = 1; % activate flag for classify
-                end
-            end
-        end
+%         function detectBurst(obj)
+%             if ~obj.readyClassify
+%                 obj.dataTKEO = TKEO(obj.dataRaw,obj.samplingFreq);
+%                 [peaks,~] = triggerSpikeDetection(obj.dataTKEO,obj.thresholds,0,obj.numStartConsecutivePoints,0);
+%                 if ~isnan(peaks)
+%                     obj.readyClassify = 1; % activate flag for classify
+%                 end
+%             end
+%         end
         
         function classifyBurst(obj)
             if obj.readyClassify
@@ -154,21 +150,13 @@ classdef classOnlineClassification < matlab.System
             dataFiltered = filter(obj.filterHd,obj.dataRaw);
         end
         
-        function output = fixWindow(~,dataRaw,sample,stepRead)
-            output = [dataRaw(stepRead+1 : end, 1) ; sample];
-        end
-        
-        function stepRead = updateStepRead(~,windowSize)
-            for i = 60:-10:1
-                if ~mod(windowSize,i)
-                    break
-                end
-            end
-            stepRead = i;
+        function output = fixWindow(obj,dataRaw,sample)
+            output = [dataRaw(obj.stepRead+1 : end, 1) ; sample];
         end
         
         function emptyFlag = checkEmptyBuffer(obj)
             if isempty(fread(obj.t, 1, 'double'))
+                resetChannel(obj);
                 disp('No data...')
                 drawnow
                 emptyFlag = true;
