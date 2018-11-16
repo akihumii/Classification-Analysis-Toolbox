@@ -10,6 +10,7 @@ global classifierParameters
 global tNumber
 global buttonStartStop
 global tStatus
+global stopAll
 
 warning('off','all');
 
@@ -102,7 +103,7 @@ buttonTrain = uicontrol(gcf,'Style','push','String','Train','FontWeight','bold',
     function closeProgram(~,~)
 %         pause
         close all
-%         exit
+        stopAll = 1;
     end
 end
 
