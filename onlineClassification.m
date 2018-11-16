@@ -14,15 +14,17 @@ global classifierParameters
 global tNumber
 global tStatus
 global buttonStartStop
+global stopAll
 
 startAllFlag = 0;
 stopFlag = 1;
 openPortFlag = 0;
+stopAll = 0;
 
 dispPredictionDialog();
 drawnow
 
-while 1
+while ~stopAll
     if startAllFlag
         try
             if ~stopFlag && ~openPortFlag

@@ -10,6 +10,7 @@ global classifierParameters
 global tNumber
 global buttonStartStop
 global tStatus
+global stopAll
 
 warning('off','all');
 
@@ -32,7 +33,7 @@ tNumber = uicontrol(gcf,'Style','text','String',num2str(a),'FontSize',textSizePr
 buttonStartStop = uicontrol(gcf,'Style','push','String','Start','FontWeight','bold','ForegroundColor',[0,190/256,0],'FontSize',textSize,'Unit','normalized','Position',[.15,0.1,0.7,0.25],'CallBack',@changeState);
 
 buttonReselect = uicontrol(gcf,'Style','push','String','Reselect','FontWeight','bold','ForegroundColor','k','FontSize',textReselectSize,'Unit','normalized','Position',[.78,0.855,0.2,0.1],'CallBack',@reselectFile);
-buttonTrain = uicontrol(gcf,'Style','push','String','Train','FontWeight','bold','ForegroundColor','k','FontSize',textReselectSize,'Unit','normalized','Position',[.78,0.755,0.2,0.1],'CallBack',@trainClassifier);
+% buttonTrain = uicontrol(gcf,'Style','push','String','Train','FontWeight','bold','ForegroundColor','k','FontSize',textReselectSize,'Unit','normalized','Position',[.78,0.755,0.2,0.1],'CallBack',@trainClassifier);
 
 
     function changeState(~,~)
@@ -77,19 +78,19 @@ buttonTrain = uicontrol(gcf,'Style','push','String','Train','FontWeight','bold',
         drawnow
     end
 
-    function trainClassifier(~,~)
-        disp(' ')
-        try
-            onlineClassifierTraining();
-            resetAll();
-            popMsg('Training done...');
-        catch
-            resetAll();
-            popMsg('Training failed...');
-        end
-        drawnow
-    end
-
+%     function trainClassifier(~,~)
+%         disp(' ')
+%         try
+%             onlineClassifierTraining();
+%             resetAll();
+%             popMsg('Training done...');
+%         catch
+%             resetAll();
+%             popMsg('Training failed...');
+%         end
+%         drawnow
+%     end
+% 
     function resetAll()
         tNumber.String = num2str([0,0,0,0]);
         tStatus.String = 'Program stopped...';
@@ -102,7 +103,7 @@ buttonTrain = uicontrol(gcf,'Style','push','String','Train','FontWeight','bold',
     function closeProgram(~,~)
 %         pause
         close all
-%         exit
+        stopAll = 1;
     end
 end
 
