@@ -62,6 +62,10 @@ classdef classClassificationPreparation
             clfp.burstDetection.detectionMethod = parameters.spikeDetectionType;
             clfp.burstDetection.channelExtractStartingLocs = parameters.channelExtractStartingLocs;
             
+            if parameters.padZeroFlag
+                clfp = trimShortenedBursts(clfp,dataValue,targetClassData.samplingFreq);
+            end
+            
             burstInterval = getBurstInterval(clfp,targetClassData);
             
             burstIntervalAllSeconds = burstInterval / targetClassData.samplingFreq;
@@ -125,6 +129,36 @@ classdef classClassificationPreparation
     end
     
     methods (Access = protected)
+        function clfp = trimShortenedBursts(clfp,dataValue,samplingFreq)
+            minDistance = round(0.5 * samplingFreq); % minimum distance surrounding the bursts that need to be not zero
+            
+            numChannel = size(clfp.burstDetection.spikePeaksValue,2);
+            dataSize = size(dataValue,1);
+            
+            for i = 1:numChannel
+                numBursts = sum(~isnan(clfp.burstDetection.spikePeaksValue(:,i)));
+                deleteFlagTemp = false(numBursts,1);
+                for j = 1:numBursts
+                    windowCheck = clfp.burstDetection.spikeLocs(j,i) - minDistance :...
+                        clfp.burstDetection.burstEndLocs(j,i) + minDistance;
+                    windowCheck(windowCheck <= 0 | windowCheck > dataSize) = [];
+                    if all(windowCheck <= dataSize) &&...
+                            any(dataValue(windowCheck,i) == 0)
+                        deleteFlagTemp(j,1) = true;
+                    end
+                end
+                spikePeaksValueTemp{i,1} = clfp.burstDetection.spikePeaksValue(~deleteFlagTemp(:,1),i);
+                spikeLocsTemp{i,1} = clfp.burstDetection.spikeLocs(~deleteFlagTemp(:,1),i);
+                burstEndValueTemp{i,1} = clfp.burstDetection.burstEndValue(~deleteFlagTemp(:,1),i);
+                burstEndLocsTemp{i,1} = clfp.burstDetection.burstEndLocs(~deleteFlagTemp(:,1),i);
+            end
+            
+            clfp.burstDetection.spikePeaksValue = cell2nanMat(spikePeaksValueTemp);
+            clfp.burstDetection.spikeLocs = cell2nanMat(spikeLocsTemp);
+            clfp.burstDetection.burstEndValue = cell2nanMat(burstEndValueTemp);
+            clfp.burstDetection.burstEndLocs = cell2nanMat(burstEndLocsTemp);
+        end
+        
         function burstInterval = getBurstInterval(clfp,targetClassData)
             numChannel = length(targetClassData.channel);
             burstInterval = diff(clfp.burstDetection.spikeLocs,1,1);

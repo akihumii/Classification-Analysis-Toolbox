@@ -148,8 +148,8 @@ classdef classData
             data.dataRaw = editData(data.dataRaw,counterRaw,0,3);            
             data.dataRectified = editData(data.dataRectified,counterRaw,0,3);
             data.dataFiltered.values = editData(data.dataFiltered.values,counterRaw,0,3);    
-            data.dataTKEO.values = editData(data.dataFiltered.values,counterRaw,0,3);            
-
+            data.dataTKEO.values = editData(data.dataTKEO.values,counterRaw,0,3);           
+            data.time = 1:size(data.dataAll,1);
         end
 
         

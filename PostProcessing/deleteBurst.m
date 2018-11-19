@@ -30,10 +30,12 @@ else
         for i = 1:burstNumTemp
             pStart = plot(time(onsetLocsTemp(i,1))/samplingFreq, onsetValuesTemp(i,1), 'ro'); % onset points
             pEnd = plot(time(offsetLocsTemp(i,1))/samplingFreq, offsetValuesTemp(i,1), 'rx'); % offset points
-            legend([pStart,pEnd],'starting points','end points');
             t = text(time(onsetLocsTemp(i,1))/samplingFreq, yLimit(1)/1e4, num2str(i));
             t.FontSize = 13;
         end
+        
+        legend([pStart,pEnd],'starting points','end points');
+
         hold off
         
         %% Input bursts index
