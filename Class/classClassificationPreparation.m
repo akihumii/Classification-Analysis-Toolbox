@@ -83,7 +83,7 @@ classdef classClassificationPreparation
             if parameters.burstTrimming % to trim the bursts
                 p = plotFig(targetClassData.time/targetClassData.samplingFreq,[dataValue,targetClassData.dataAll(:,12)],'','','Time(s)','Amplitude(V)',0,1);
                 [clfp.burstDetection.spikePeaksValue,clfp.burstDetection.spikeLocs,clfp.burstDetection.burstEndValue,clfp.burstDetection.burstEndLocs,clfp.burstDetection.selectedBurstsIndex] =...
-                    deleteBurst(parameters.burstTrimmingType, p, targetClassData.time, targetClassData.samplingFreq, clfp.burstDetection.spikePeaksValue,clfp.burstDetection.spikeLocs,clfp.burstDetection.burstEndValue,clfp.burstDetection.burstEndLocs);
+                    deleteBurst(parameters.burstTrimmingType, parameters.burstTrimmingWay, p, targetClassData.time, targetClassData.samplingFreq, clfp.burstDetection.spikePeaksValue,clfp.burstDetection.spikeLocs,clfp.burstDetection.burstEndValue,clfp.burstDetection.burstEndLocs);
             else
                 clfp.burstDetection.selectedBurstsIndex = getSelectedBurstsIndex(clfp);
             end

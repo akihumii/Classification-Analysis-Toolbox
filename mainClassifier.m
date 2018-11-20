@@ -58,6 +58,7 @@ parameters = struct(...
     'TKEOStartConsecutivePoints',[35],... % number of consecutive points over the parameters.threshold to be detected as burst
     'TKEOEndConsecutivePoints',[100],... % number of consecutive points below the parameters.threshold to be detected as end of burst
     'burstTrimming',0,... % to exclude the bursts by inputting the bursts indexes
+    'burstTrimmingWay','drag',... % 'key' to key in zeros, end the process by entering 0; 'drag' to drag the area that containst the burst, end the process by hitting 'Enter'
     'burstTrimmingType',1,... % 1 to delete; 2 to pick
     ...
     ...% Show & Save Plots Parameters. Input 1 to save/show, otherwise input 0.
