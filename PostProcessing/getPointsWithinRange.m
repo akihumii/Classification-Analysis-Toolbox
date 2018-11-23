@@ -11,7 +11,7 @@ function output = getPointsWithinRange(timeAxis,data,startLocs,endLocs,windowSiz
 [numRow,numColumn] = size(data);
 
 for i = 1:numColumn
-    if ~isnan(startLocs(1,i)) % if there is peak found in the channel
+    if ~isempty(startLocs) && ~isnan(startLocs(1,i)) % if there is peak found in the channel
         % if channelExtractStartingLocs is not zero, use that particular
         % channel to extract the data and put into the matrix
         if channelExtractStartingLocs ~= 0
@@ -91,6 +91,11 @@ end
 
 burstAll = cell2nanMat(burstAll);
 xAxisValuesAll = cell2nanMat(xAxisValuesAll);
+
+if size(burstAll,3) ~= numColumn
+    burstAll = permute(burstAll,[1,3,2]);
+    xAxisValuesAll = permute(xAxisValuesAll,[1,3,2]);
+end
 
 output.burst = burstAll;
 output.burstMean = nanmean(burstAll,2); % get the mean of the windows

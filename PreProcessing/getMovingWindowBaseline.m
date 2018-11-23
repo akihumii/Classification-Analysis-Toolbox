@@ -4,10 +4,16 @@ function burst = getMovingWindowBaseline(data,dataForThreshold,threshold,numBurs
 %number numBurst
 % input: windowSize: input desire size, otherwise input 0 for default value (300 sample points)
 % 
-%   Detailed explanation goes here
+%   burst = getMovingWindowBaseline(data,dataForThreshold,threshold,numBurst,windowSize)
 
-if windowSize == 0
+if all(isnan(windowSize)) || windowSize(1,2) == 0
     windowSize = 300;
+else
+    windowSize = windowSize(1,2);
+end
+
+if numBurst == 0
+    numBurst = 1;
 end
 
 %% Parameters

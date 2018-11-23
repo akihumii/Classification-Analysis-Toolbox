@@ -28,7 +28,8 @@ for i = 1:numFeatureCombination
         errorbar(getErrorBarXAxisValues(numCombination(i,1),numChannel),meanTemp{i,1},stdeTemp,'r*'); % error bar
     end
     
-    legend([pA.Children(end-2),pA.Children(end-3),pA.Children(end-4)],legendName);
+    legend([findobj(pA,'Type','bar');findobj(pA,'Type','line')],legendName);
+%     legend([pA.Children(end-2),pA.Children(end-3),pA.Children(end-4)],legendName);
     
     if displayInfo.saveAccuracy
 %         savePlot(path,'Accuracy of Features Combination',plotFileName,['Accuracy of ',titleName,' with ',num2str(i),' features in combinations with ',xScale,' ',checkMatNAddStr(xTickValue,',')])

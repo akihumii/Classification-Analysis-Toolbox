@@ -38,49 +38,56 @@ else
             t.FontSize = 13;
         end
         
-        legend([pStart,pEnd],'starting points','end points');
-
-        hold off
-        
-        %% Input bursts index
-        selectedBursts{n,1} = zeros(0,1);
-        
-        switch way
-            case 'key'
-                disp('Input bursts index:')
-                selectedBursts{n,1} = [selectedBursts{n,1};input('')];
-                while selectedBursts{n,1}(end) ~= 0
+        if burstNumTemp > 0
+            legend([pStart,pEnd],'starting points','end points');
+            
+            hold off
+            
+            %% Input bursts index
+            selectedBursts{n,1} = zeros(0,1);
+            
+            disp(' ')
+            disp('Start selecting bursts:')
+            switch way
+                case 'key'
+                    disp('Input bursts index:')
                     selectedBursts{n,1} = [selectedBursts{n,1};input('')];
-                end
-                selectedBursts{n,1}(end) = [];
-                
-            case 'drag'
-                while true
-                    selectedBurstsTemp = getrbboxData(p(n),...
-                        time(onsetLocsTemp)/samplingFreq,time(offsetLocsTemp(~isnan(offsetLocsTemp)))/samplingFreq);
-                    if selectedBurstsTemp == -1
-                        break
-                    elseif ~isempty(selectedBurstsTemp)
-                        disp(num2str(selectedBurstsTemp))
-                        selectedBursts{n,1} = [selectedBursts{n,1};selectedBurstsTemp'];
+                    while selectedBursts{n,1}(end) ~= 0
+                        selectedBursts{n,1} = [selectedBursts{n,1};input('')];
                     end
-                end
-            otherwise
+                    selectedBursts{n,1}(end) = [];
+                    
+                case 'drag'
+                    while true
+                        selectedBurstsTemp = getrbboxData(p(n),...
+                            time(onsetLocsTemp)/samplingFreq,time(offsetLocsTemp(~isnan(offsetLocsTemp)))/samplingFreq);
+                        if selectedBurstsTemp == -1
+                            break
+                        elseif ~isempty(selectedBurstsTemp)
+                            disp(num2str(selectedBurstsTemp))
+                            selectedBursts{n,1} = [selectedBursts{n,1};selectedBurstsTemp'];
+                        end
+                    end
+                otherwise
+            end
+        else
+            selectedBursts{n,1} = nan;
         end
     end
     %% Delete unwatned bursts
-    for i = 5:nargin
+    for i = 6:nargin
         for n = 1:numAxes
-            outputTemp{n,1} = varargin{1,i-4}(:,n);
-            if type == 1 % to delete selected indexes
-                outputTemp{n,1}(selectedBursts{n,1}) = [];
-                outputTemp{n,1} = squeezeNan(outputTemp{n,1},2);
-            else % to pick selected indexes
-                outputTemp{n,1} = outputTemp{n,1}(selectedBursts{n,1});
-                outputTemp{n,1} = squeezeNan(outputTemp{n,1},2);
+            outputTemp{n,1} = varargin{1,i-5}(:,n);
+            if ~isempty(selectedBursts{n,1}) && all(~isnan(selectedBursts{n,1}))
+                if type == 1 % to delete selected indexes
+                    outputTemp{n,1}(selectedBursts{n,1}) = [];
+                else % to pick selected indexes
+                    outputTemp{n,1} = outputTemp{n,1}(selectedBursts{n,1});
+                end
             end
+            outputTemp{n,1} = squeezeNan(outputTemp{n,1},2);
         end
-        varargout{1,i-4} = cell2nanMat(outputTemp);
+        varargout{1,i-5} = cell2nanMat(outputTemp);
         clear outputTemp
     end
     close

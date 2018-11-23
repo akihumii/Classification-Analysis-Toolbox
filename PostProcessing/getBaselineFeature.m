@@ -69,8 +69,8 @@ for i = 1:numChannel
             
         case 'movingWindow'
             maxWindowSize = max(burstDetection.burstEndLocs-burstDetection.spikeLocs,[],1);
-            baselineBursts{i,1} = getMovingWindowBaseline(data(:,i),dataForThreshChecking(:,i),...
-                burstDetection.threshold(i,1),numBurst,maxWindowSize(1,2));
+            baselineBursts{i,1} = getMovingWindowBaseline(data(data(:,i)~=0,i),dataForThreshChecking(:,i),...
+                burstDetection.threshold(i,1),numBurst,maxWindowSize);
             
         otherwise
             error('Invalid method ot get the baseline feature...');
@@ -78,6 +78,10 @@ for i = 1:numChannel
 end
 
 baselineBursts = cell2nanMat(baselineBursts);
+
+if size(baselineBursts,3) ~= numChannel
+    baselineBursts = permute(baselineBursts,[1,3,2]);
+end
 
 baselineFeature = featureExtraction(baselineBursts,samplingFreq);
 

@@ -35,6 +35,7 @@ classdef classClassificationPreparation
     end
     
     properties (Access = private)
+        trimMinDistance = 0.3 % seconds
     end
     
     methods
@@ -66,11 +67,6 @@ classdef classClassificationPreparation
                 clfp = trimShortenedBursts(clfp,dataValue,targetClassData.samplingFreq);
             end
             
-            burstInterval = getBurstInterval(clfp,targetClassData);
-            
-            burstIntervalAllSeconds = burstInterval / targetClassData.samplingFreq;
-            clfp.burstDetection.burstInterval = burstInterval;
-            clfp.burstDetection.burstIntervalSeconds = burstIntervalAllSeconds;
         end
         
         function clfp = classificationWindowSelection(clfp, targetClassData, parameters)
@@ -82,12 +78,15 @@ classdef classClassificationPreparation
             
             if parameters.burstTrimming % to trim the bursts
                 p = plotFig(targetClassData.time/targetClassData.samplingFreq,[dataValue,targetClassData.dataAll(:,12)],'','','Time(s)','Amplitude(V)',0,1);
+                                
                 [clfp.burstDetection.spikePeaksValue,clfp.burstDetection.spikeLocs,clfp.burstDetection.burstEndValue,clfp.burstDetection.burstEndLocs,clfp.burstDetection.selectedBurstsIndex] =...
                     deleteBurst(parameters.burstTrimmingType, parameters.burstTrimmingWay, p, targetClassData.time, targetClassData.samplingFreq, clfp.burstDetection.spikePeaksValue,clfp.burstDetection.spikeLocs,clfp.burstDetection.burstEndValue,clfp.burstDetection.burstEndLocs);
             else
                 clfp.burstDetection.selectedBurstsIndex = getSelectedBurstsIndex(clfp);
             end
             
+            clfp = getBurstInterval(clfp,targetClassData);            
+
             clfp.selectedWindows = getPointsWithinRange(...
                 targetClassData.time,...
                 dataValue,...
@@ -130,7 +129,7 @@ classdef classClassificationPreparation
     
     methods (Access = protected)
         function clfp = trimShortenedBursts(clfp,dataValue,samplingFreq)
-            minDistance = round(0.5 * samplingFreq); % minimum distance surrounding the bursts that need to be not zero
+            minDistance = round(clfp.trimMinDistance * samplingFreq); % minimum distance surrounding the bursts that need to be not zero
             
             numChannel = size(clfp.burstDetection.spikePeaksValue,2);
             dataSize = size(dataValue,1);
@@ -151,6 +150,11 @@ classdef classClassificationPreparation
                 spikeLocsTemp{i,1} = clfp.burstDetection.spikeLocs(~deleteFlagTemp(:,1),i);
                 burstEndValueTemp{i,1} = clfp.burstDetection.burstEndValue(~deleteFlagTemp(:,1),i);
                 burstEndLocsTemp{i,1} = clfp.burstDetection.burstEndLocs(~deleteFlagTemp(:,1),i);
+                
+                if isempty(spikePeaksValueTemp{i,1}); spikePeaksValueTemp{i,1} = nan; end
+                if isempty(spikeLocsTemp{i,1}); spikeLocsTemp{i,1} = nan; end
+                if isempty(burstEndValueTemp{i,1}); burstEndValueTemp{i,1} = nan; end
+                if isempty(burstEndLocsTemp{i,1}); burstEndLocsTemp{i,1} = nan; end
             end
             
             clfp.burstDetection.spikePeaksValue = cell2nanMat(spikePeaksValueTemp);
@@ -159,11 +163,15 @@ classdef classClassificationPreparation
             clfp.burstDetection.burstEndLocs = cell2nanMat(burstEndLocsTemp);
         end
         
-        function burstInterval = getBurstInterval(clfp,targetClassData)
+        function clfp = getBurstInterval(clfp,targetClassData)
             numChannel = length(targetClassData.channel);
             burstInterval = diff(clfp.burstDetection.spikeLocs,1,1);
             burstInterval = vertcat(burstInterval, nan(1,numChannel)); % for the last set of bursts
             burstInterval(burstInterval<0 | burstInterval > 3*targetClassData.samplingFreq) = nan;
+
+            burstIntervalAllSeconds = burstInterval / targetClassData.samplingFreq;
+            clfp.burstDetection.burstInterval = burstInterval;
+            clfp.burstDetection.burstIntervalSeconds = burstIntervalAllSeconds;
         end
         
         function selectedBurstsIndex = getSelectedBurstsIndex(clfp)
