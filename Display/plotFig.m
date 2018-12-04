@@ -157,7 +157,11 @@ for i = 1:numData
             case 'linePlot'
                 if any(size(x)==1)
                     if length(x) == length(y(:,j,i)) 
-                        l(j,i) = plot(x,y(:,j,i));
+                        if size(x,3) == 1
+                            l(j,i) = plot(x,y(:,j,i));
+                        else
+                            l(j,i) = plot(x(:,1,i),y(:,j,i));
+                        end
                     else
                         try
                             l(j,i) = plot(x,repmat(y(:,j,i),1,length(x)));
