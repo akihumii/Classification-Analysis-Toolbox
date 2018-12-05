@@ -17,6 +17,7 @@ parameters = struct(...
     'threshPercentile',95,... % percentile to threshold the latent of principle component for data reconstruction
     ...
     'trainSeparately',1,... % train the selected trials separately as they have the baseline already
+    'getBaselineFeatureFlag',1,... % Use the basleine feature in the classification
     ...
     'classificationRepetition',1,...; % number of repetition of the classification with randomly assigned training set and testing set
     'numFeaturesInCombination',1,... % array of nubmer of features used in combinations
@@ -33,6 +34,9 @@ parameters = struct(...
     'trimBursts',0,...
     'balanceBursts',1,...
     'trimRange',repmat([0,1000],2,1,4));
+
+
+    parameters.legendName = {'forearm','biceps','chance performance'};
 
 % for display
 displayInfo = struct(...
@@ -147,7 +151,7 @@ for n = 1:numPairs
         else
             %% Reconstruct features
             % matrix of one feature = [bursts x class x features x channel]
-            featuresInfo = reconstructFeatures(signalInfo,featuresRaw,numClass,size(signalInfo(1,1).windowsValues.burst,3),pcaInfo.numBursts,signalInfo(1,1).parameters.getBaselineFeatureFlag); % as the raw features still contains Nan, so number of bursts should not be trimmed too
+            featuresInfo = reconstructFeatures(signalInfo,featuresRaw,numClass,size(signalInfo(1,1).windowsValues.burst,3),pcaInfo.numBursts,parameters.getBaselineFeatureFlag); % as the raw features still contains Nan, so number of bursts should not be trimmed too
         end
         
         %% Adding PCA info as one feature
@@ -171,7 +175,7 @@ for n = 1:numPairs
                 close all
                 
                 % type can be 'Active EMG', 'Different Speed', 'Different Day'
-                visualizeFeatures(numClass, path, classifierOutput, featuresInfo, signalInfo, displayInfo, pcaInfo, parameters.runPCA);
+                visualizeFeatures(numClass, path, classifierOutput, featuresInfo, signalInfo, displayInfo, pcaInfo, parameters);
                 
                 popMsg(['Plotting session takes ',num2str(toc(tPlot)),' seconds...']);
                 

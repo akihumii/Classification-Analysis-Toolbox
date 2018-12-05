@@ -3,6 +3,10 @@ function data = insertBaselineFeature(data,baseline)
 %   Detailed explanation goes here
 [numSampleBurst, numBurst, numChannel] = size(data.selectedWindows.burst);
 
+% if all(isnan(data.selectedWindows.burst(:,:,1:end/2)))
+%     numBurst = 0;
+% end
+
 lengthBaselineBurst = size(baseline.baselineBursts,1);
 
 if lengthBaselineBurst > numSampleBurst
@@ -30,7 +34,8 @@ end
 trainingThreshold = floor(numBurst*data.trainingRatio); % baseline threshold
 baselineClass = 100; % baseline class
 
-data.grouping.all = cat(3,data.grouping.all,permute(baseline.baselineFeature.(data.grouping.targetField),[1,3,2]));
+featureTemp = permute(baseline.baselineFeature.(data.grouping.targetField),[1,3,2]);
+data.grouping.all = cat(3,data.grouping.all,featureTemp);
 data.grouping.training = data.grouping.all(1:trainingThreshold,:,:);
 data.grouping.testing = data.grouping.all(trainingThreshold+1,:,:);
 data.grouping.trainingClass = cat(3,data.grouping.trainingClass,repmat(baselineClass,trainingThreshold,1,numChannel));

@@ -71,7 +71,7 @@ for i = 1:colData % channel
             [burstEndValue{i,1},burstEndLocs{i,1}] = pointAfterAWindow(data(:,i),minDistance(2),spikeLocs{i,1});
         case 'TKEO'
             if length(parameters.TKEOStartConsecutivePoints) >= colData
-            [spikePeaksValue{i,1},spikeLocs{i,1}] = triggerSpikeDetection(data(minDistance(1):end-minDistance(2)-1,i),parameters.thresholdValue,minDistance(2),parameters.TKEOStartConsecutivePoints(1,i)); % the last value is the number of consecutive point that needs to exceed parameters.threshold to be detected as spikes
+            [spikePeaksValue{i,1},spikeLocs{i,1}] = triggerSpikeDetection(data(minDistance(1):end-minDistance(2)-1,i),parameters.thresholdValue,minDistance(2),parameters.TKEOStartConsecutivePoints(1,i),1); % the last value is the number of consecutive point that needs to exceed parameters.threshold to be detected as spikes
 %             [spikePeaksValue{i,1},spikeLocs{i,1}] = triggerSpikeDetection(data(minDistance(1):end-minDistance(2),i),parameters.thresholdValue,minDistance(2),parameters.TKEOStartConsecutivePoints); % the last value is the number of consecutive point that needs to exceed parameters.threshold to be detected as spikes
             spikeLocs{i,1} = spikeLocs{i,1} + minDistance(1); % compensate the skipped window
             [burstEndValue{i,1},burstEndLocs{i,1}] = findEndPoint(data(:,i), parameters.thresholdValue, spikeLocs{i,1}, parameters.TKEOEndConsecutivePoints(1,i));

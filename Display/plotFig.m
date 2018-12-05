@@ -157,9 +157,17 @@ for i = 1:numData
             case 'linePlot'
                 if any(size(x)==1)
                     if length(x) == length(y(:,j,i)) 
-                        l(j,i) = plot(x,y(:,j,i));
+                        if size(x,3) == 1
+                            l(j,i) = plot(x,y(:,j,i));
+                        else
+                            l(j,i) = plot(x(:,1,i),y(:,j,i));
+                        end
                     else
-                        l(j,i) = plot(x,repmat(y(:,j,i),1,length(x)));
+                        try
+                            l(j,i) = plot(x,repmat(y(:,j,i),1,length(x)));
+                        catch % x has more than 2 dimensions
+                            l(j,i) = plot(permute(x,[1,3,2]),repmat(y(:,j,i),1,length(x)));
+                        end
                     end
                 else
                     l(j,i) = plot(x(:,j,i),y(:,j,i));

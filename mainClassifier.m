@@ -23,12 +23,13 @@ parameters = struct(...
     'neutrinoBit',1,...; % input 1 for 8 bit mode, input 0 for 10 bit mode
     'selectFile',1,... % 1 to select file manually, 0 to select all the files in the current directories, 2 to use the specific path stored in specificPath, 3 to specify a file
     'specificTarget','',... % it will only be activated when selectFile is equal to 2
+    'padZeroFlag',1,... % 1 to pad zero
     ...
     'partialDataSelection',0,...; % input 1 to select partial data to analyse, otherwise input 0
     'constraintWindow',[-0.30075,6.9049],... % starting point and end point of constraint window, unit is in seconds. Input 0 for default (pre-select the whole signal). It can be found in signal.analysedDataTiming(2,:), the first row is the timing in seconds
     'markBurstInAllChannels',0,... % mark all the channels when one of the channels detects a burst
     'getBaselineFeatureFlag',1,... % get the features of the baseline, which is the data that are not marked as bursts
-    'baselineType','invert',... % either 'inverrt' or 'sorted', 'invert' will choose the sections that are not bursts, while 'sorted' will choose sort the data ascendingly and choose the middle part as baseline
+    'baselineType','invert',... % either 'inverrt', 'sorted', or 'movingWindow': 'invert' will choose the sections that are not bursts, while 'sorted' will choose sort the data ascendingly and choose the middle part as baseline, 'movingWindow' will use either the largest burst length or 500 ms as window size and sweeping through to search for the window that doesn't have points exceeding threshold
     ...
     ...% Filtering Parameters
     'dataToBeFiltered','dataRaw',...; % input 'dataRaw' for raw data; input 'dataDifferential' for differential data; input 'dataRectified' for rectified data
@@ -57,6 +58,7 @@ parameters = struct(...
     'TKEOStartConsecutivePoints',[35],... % number of consecutive points over the parameters.threshold to be detected as burst
     'TKEOEndConsecutivePoints',[100],... % number of consecutive points below the parameters.threshold to be detected as end of burst
     'burstTrimming',0,... % to exclude the bursts by inputting the bursts indexes
+    'burstTrimmingWay','drag',... % 'key' to key in zeros, end the process by entering 0; 'drag' to drag the area that containst the burst, end the process by hitting 'Enter'
     'burstTrimmingType',1,... % 1 to delete; 2 to pick
     ...
     ...% Show & Save Plots Parameters. Input 1 to save/show, otherwise input 0.

@@ -1,10 +1,16 @@
-function [] = combineFeatures(saveFile)
+function [] = combineFeatures(varargin)
 %combineFeatures Combine features from two info files created by
 %mainClassifier.m
 % 
 % input:    saveFile: input 1 to save the combined features with the remaining data in the first mat file, otherwise input 0;
 % 
 %   [combinedInfo] = combineFeatures(saveFileIndex)
+
+if nargin == 0
+    saveFileFlag = 1;
+else
+    saveFileFlag = varargin{1,1};
+end
 
 %% Read files
 [files,path,iter] = selectFiles('Select the mat files to combine their features');
@@ -32,6 +38,9 @@ combinedSpikePeaksValue = zeros(0,1);
 combinedSpikeLocs = zeros(0,1);
 combinedBurstEndValue = zeros(0,1);
 combinedEndLocs = zeros(0,1);
+combinedBurstInterval = zeros(0,1);
+combinedBurstIntervalSeconds = zeros(0,1);
+
 combinedNumBursts = zeros(size(signalClassification(1,1).selectedWindows.numBursts));
 combinedGroupingAll = zeros(0,0,1);
 combinedTraining = zeros(0,0,1);
@@ -48,6 +57,11 @@ for i = 1:iter % different classes
     combinedSpikeLocs = [combinedSpikeLocs; signalClassification(i,1).burstDetection.spikeLocs];
     combinedBurstEndValue = [combinedBurstEndValue; signalClassification(i,1).burstDetection.burstEndValue];
     combinedEndLocs = [combinedEndLocs; signalClassification(i,1).burstDetection.burstEndLocs];
+    try
+        combinedBurstInterval = [combinedBurstInterval; signalClassification(i,1).burstDetection.burstInterval];
+        combinedBurstIntervalSeconds = [combinedBurstIntervalSeconds; signalClassification(i,1).burstDetection.burstIntervalSeconds];
+    catch
+    end
     
     combinedGroupingAll = [combinedGroupingAll; signalClassification(i,1).grouping.all];
     combinedTraining = [combinedTraining; signalClassification(i,1).grouping.training];
@@ -65,6 +79,11 @@ combinedSpikePeaksValue = omitNan(combinedSpikePeaksValue,2,'all');
 combinedSpikeLocs = omitNan(combinedSpikeLocs,2,'all');
 combinedBurstEndValue = omitNan(combinedBurstEndValue,2,'all');
 combinedEndLocs = omitNan(combinedEndLocs,2,'all');
+if ~isempty(combinedBurstInterval)
+    combinedBurstInterval = omitNan(combinedBurstInterval,2,'all');
+    combinedBurstIntervalSeconds = omitNan(combinedBurstIntervalSeconds,2,'all');
+end
+
 combinedGroupingAll = omitNan(combinedGroupingAll,2,'all');
 combinedTraining = omitNan(combinedTraining,2,'all');
 combinedTesting = omitNan(combinedTesting,2,'all');
@@ -86,7 +105,7 @@ combinedNumBursts = sum(numBurstsTemp,1);
     
 %% Save it into one of the files, depending on saveFileIndex
 clear windowsValues
-if saveFile == 1
+if saveFileFlag == 1
     combinedFeatures.dataAnalysed = signalClassification(1,1).features.dataAnalysed;
     signalClassification(1,1).features = combinedFeatures;
     signalClassification(1,1).selectedWindows.burst = combinedBursts;
@@ -97,6 +116,10 @@ if saveFile == 1
     signalClassification(1,1).burstDetection.spikeLocs = combinedSpikeLocs;
     signalClassification(1,1).burstDetection.burstEndValue = combinedBurstEndValue;
     signalClassification(1,1).burstDetection.burstEndLocs = combinedEndLocs;
+    if ~isempty(combinedBurstInterval)
+        signalClassification(1,1).burstDetection.burstInterval = combinedBurstInterval;
+        signalClassification(1,1).burstDetection.burstIntervalSeconds = combinedBurstIntervalSeconds;
+    end
     signalClassification(1,1).grouping.all = combinedGroupingAll;
     signalClassification(1,1).grouping.training = combinedTraining;
     signalClassification(1,1).grouping.testing = combinedTesting;
@@ -107,7 +130,8 @@ if saveFile == 1
     windowsValues.xAxisValues = combinedXAxisValues2;
     windowsValues.numBursts = combinedNumBursts;
     
-    saveVar(path,horzcat(signal(:,1).fileName),signal(1,1),signalClassification(1,1),windowsValues)
+    infoParameters = info(1).varargin{1,4};
+    saveVar(path,horzcat(signal([1,end],1).fileName),signal(1,1),signalClassification(1,1),windowsValues,infoParameters)
 else
     warning('No file is saved because input ''saveFle'' is not 1')
 end

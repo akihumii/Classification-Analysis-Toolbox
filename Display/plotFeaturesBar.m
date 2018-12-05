@@ -25,7 +25,8 @@ for i = 1:parameters.numChannel % plot burst height across weeks
             yLimitBursts = ylim; % ylim
             
             % Legend
-            barObjBursts = vertcat(p(i,1).Children(end-2),p(i,1).Children(end-3));
+            barObjBursts = flipud(findobj(p(i,1),'Type','bar'));
+%             barObjBursts = vertcat(p(i,1).Children(end-2),p(i,1).Children(end-3));
             legend(barObjBursts,fileSpeedOnly,'Location','SouthEast')
             
         case 'medianPlot'

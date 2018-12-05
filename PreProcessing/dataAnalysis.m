@@ -12,9 +12,9 @@ switch parameters.selectFile
     case 2
         [files, path, iter] = getCurrentFiles(parameters.specificTarget);
     case 3
-        splittedStr = split(parameters.specificTarget);
+        splittedStr = split(parameters.specificTarget,filesep);
         files = splittedStr(end);
-        path = fullfile(splittedStr(1:end-1));
+        path = fullfile(splittedStr{1:end-1});
         iter = 1;
     otherwise
         error('Invalid option for selectFile...')
@@ -44,6 +44,11 @@ for i = 1:iter
         data(i,1) = fftDataConvert(data(i,1),parameters.dataToBeFFT); % do FFT
     end
         
+    % pad zero
+    if parameters.padZeroFlag
+        data(i,1) = padZero(data(i,1));
+    end
+    
     dataName{i,1} = data(i,1).file;
     
     disp([data(i,1).file, ' has been analysed... '])

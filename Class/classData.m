@@ -142,5 +142,16 @@ classdef classData
             errorShow(targetName, 'targetName', 'char');
         end
         
+        function data = padZero(data)
+            counterRaw = data.dataAll(:,12);
+            data.dataAll = editData(data.dataAll,counterRaw,0,3);
+            data.dataRaw = editData(data.dataRaw,counterRaw,0,3);            
+            data.dataRectified = editData(data.dataRectified,counterRaw,0,3);
+            data.dataFiltered.values = editData(data.dataFiltered.values,counterRaw,0,3);    
+            data.dataTKEO.values = editData(data.dataTKEO.values,counterRaw,0,3);           
+            data.time = 1:size(data.dataAll,1);
+        end
+
+        
     end
 end

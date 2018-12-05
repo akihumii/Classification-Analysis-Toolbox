@@ -9,7 +9,7 @@ parameters = struct(...
     'numClass',2,...
     'lowerPercThresh',25,...
     'upperPercThresh',75,...
-    'saveFigures',0);
+    'saveFigures',1);
 
 parameters = varIntoStruct(parameters,varargin);
 
@@ -25,11 +25,13 @@ fileDate = cell(0,0); % dates contained in the file
 for i = 1:iters
     dataTemp = load(fullfile(path,files{1,i}));
     output(i,1) = getMaxAccuracy(dataTemp,parameters);
-    fileSpeed{i,1} = [files{1,i}(5:6),'_',files{1,i}(8),' vs ',files{1,i}(55:56),'_',files{1,i}(58)];
+    fileSpeed{i,1} = [files{1,i}(5:6),' vs ',files{1,i}(68:69)];
+%     fileSpeed{i,1} = [files{1,i}(5:6),'_',files{1,i}(8),' vs ',files{1,i}(55:56),'_',files{1,i}(58)];
     fileDate{i,1} = files{1,i}(10:17);
 end
 fileSpeedOnly{1,1} = [fileSpeed{1,1}(1:2),'cm/s'];
-fileSpeedOnly{2,1} = [fileSpeed{1,1}(9:10),'cm/s'];
+fileSpeedOnly{2,1} = [fileSpeed{1,1}(7:8),'cm/s'];
+% fileSpeedOnly{2,1} = [fileSpeed{1,1}(9:10),'cm/s'];
     
         
 %% separate accuracy and features ID according to their dimensions

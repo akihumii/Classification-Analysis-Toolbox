@@ -18,7 +18,11 @@ if iscell(files)
     iter = length(files);
 else
     iter = 1;
-    files = cellstr(files);
+    if files
+        files = cellstr(files);
+    else
+        error('File selection is canceled...')
+    end
 end
 
 varargout{1} = files;

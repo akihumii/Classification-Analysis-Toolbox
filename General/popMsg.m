@@ -15,7 +15,7 @@ timeClose = 3000; % auto close the window once this timing has passed
 t = timer;
 set(t,'Tag','box');
 set(t,'StartFcn', {@startTimerFcn, content});
-set(t,'TimerFcn', {@runTimerFcn, content});
+set(t,'TimerFcn', @runTimerFcn);
 set(t,'StartDelay', timeClose);
 set(t,'StopFcn', @stopTimerFcn);
 set(t,'Tag','box');
@@ -25,11 +25,12 @@ end
 
 function startTimerFcn(obj,~,content)
 box = msgbox(content);
+disp(content)
+disp(' ')
 set(obj,'UserData',box);
 end
 
-function runTimerFcn(~,~,content)
-disp(content)
+function runTimerFcn(~,~)
 end
 
 function stopTimerFcn(obj,~)

@@ -13,6 +13,8 @@ if getBasleineFeatureFlag
     features = combineBaseline(signalInfo,features); % append the baseline features onto EMG bursts features
     numBursts = [numBursts ; max(numBursts,[],1)]; % added one more row for the baseline bursts
     numClass = numClass + 1; % added one more class for the baseline
+else
+    features = features(1:numChannel,1);
 end
 
 output.featuresNames = fieldnames(features(1,1));
