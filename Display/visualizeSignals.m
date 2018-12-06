@@ -1,4 +1,4 @@
-function windowsValues = visualizeSignals(signal, signalClassification, selectedWindow, windowSize, partialDataSelection, channelExtractStartingLocs, dataToBeDetectedSpike, saveRaw, showRaw, saveDifferential, showDifferential, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT)
+function windowsValues = visualizeSignals(signal, signalClassification, odinparam, selectedWindow, windowSize, partialDataSelection, channelExtractStartingLocs, dataToBeDetectedSpike, saveRaw, showRaw, saveDifferential, showDifferential, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT)
 %visualizeSignal Visualize needed signals. Raw, filtered, differential,
 %overlapping windows, average windows, and overall signal with indicated
 %spikes can be plotted.
@@ -30,11 +30,9 @@ else
                 signal(i,1).path,'subplot', signal(i,1).channel);
         else
             % Generate square pulse
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            horzLineValue = 0.00; % plot a threshold on pressure sensor plot
-            specialNumbers = [16,17,18,19,81,82,65,97]; % special number for inspecting
-            
-            outputSW = generateSquarePulse(signal(i,1).dataAll(:,13:14), signal(i,1).samplingFreq); 
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%            
+            %% Plotting
+            outputSW = generateSquarePulse(signal(i,1).dataAll(:,[13:15]), signal(i,1).samplingFreq, odinparam); 
             shortTimeTemp = repmat(signal(i,1).time/signal(i,1).samplingFreq,length(signal(i,1).channel(signal(i,1).channel<16)),1);
             timeTemp = cell(0,1);
             dataTemp = cell(0,1);
@@ -43,7 +41,7 @@ else
                 dataTemp = [dataTemp;{signal(i,1).dataRaw(:,j)}];
             end
             
-            if outputSW.showPlot
+            if odinparam.squareAmplitudePlot
                 for j = 1:size(outputSW.squareWave,2)
                     timeTemp = [timeTemp;{outputSW.squareWaveTime}];
                     dataTemp = [dataTemp;{outputSW.squareWave(:,j)}];
@@ -67,44 +65,65 @@ else
             numPlot = length(pSW);
             
             % plot the colors for special numbers while changing commands
-            numSpecialNumber = length(specialNumbers);
-            for j = 1:numSpecialNumber
-                locsTemp = find(signal(i,1).dataAll(:,13) == specialNumbers(j));
-                axes(pSW(2,1));
-                pStem(j,1) = stem(locsTemp/signal(i,1).samplingFreq,255*ones(length(locsTemp),1),'Color',colorArray(j,:));
-                hold on
+            numSpecialNumber = length(odinparam.specialNumbers);
+            if odinparam.plotStem
+                for j = 1:numSpecialNumber
+                    locsTemp = find(signal(i,1).dataAll(:,13) == odinparam.specialNumbers(j));
+                    axes(pSW(2,1));
+                    pStem(j,1) = stem(locsTemp/signal(i,1).samplingFreq,255*ones(length(locsTemp),1),'Color',colorArray(j,:));
+                    hold on
+                end
             end
             
             % Replot 2nd subplot
             axes(pSW(2,1))
-            plot(pSW(2,1).Children(end,1).XData,pSW(2,1).Children(end,1).YData,'Color','k')
+            plot(pSW(2,1).Children(end,1).XData,pSW(2,1).Children(end,1).YData,'Color','k');
 
-            for j = 1:numPlot-outputSW.showPlot*4
+            % Add lines into the plots except the simulation plots
+            numLines = size(outputSW.changeLocs,1);
+            
+            for j = 1:numPlot-odinparam.squareAmplitudePlot*4                
                 axes(pSW(j,1));
-                yLimitTemp = ylim;
+                if j == 2
+                    ylim([0,300])
+                end
+                yLimit = ylim;
+
                 hold on
                 grid minor
-                line{1,1} = plot(repmat(outputSW.chStartingTime(:,1)',2,1),ylim,'-.','color',colorArray(1,:),'lineWidth',1.5);
-                plot(repmat(outputSW.chEndTime(:,1)',2,1),ylim,'-.','color',colorArray(1,:),'lineWidth',1.5);
-                for k = 2:4
-                    line{k,1} = plot(repmat(outputSW.chStartingTime(:,k)',2,1),ylim,'-.','color',colorArray(k,:),'lineWidth',1.5);
+%                 line{1,j} = plot(repmat(outputSW.chStartingTime(:,1)',2,1),ylim,'-.','color',colorArray(1,:),'lineWidth',1.5);
+%                 plot(repmat(outputSW.chEndTime(:,1)',2,1),ylim,'-.','color',colorArray(1,:),'lineWidth',1.5);
+
+                % start channels colorful lines
+                for k = 1:4
+                    line{k,j} = plot(repmat(outputSW.chStartingTime(:,k)',2,1),ylim,'-.','color',colorArray(k,:),'lineWidth',1.5);
                     plot(repmat(outputSW.chEndTime(:,k)',2,1),ylim,'-.','color',colorArray(k,:),'lineWidth',1.5);
+                end
+                
+                if numLines > 0
+                    % changing amplitude lines
+                    lineAmp{j,1} = plot(repmat(outputSW.changeLocsTime(:,1)',2,1),ylim,'-.','color',[0,100/255,0],'lineWidth',1.5);
+                    
+                    % Text
+                    for k = 1:numLines
+                        text(repmat(outputSW.changeLocsTime(k,1)',2,1)+1e-3,repmat(yLimit(1),1,2),num2str(outputSW.amplitude(k,1)));
+                    end
                 end
             end
             
             
-            for j = 1:numPlot-2 % pressure sensor plot
-                axes(pSW(j))
-                pHorzLine = plot(xlim,[horzLineValue,horzLineValue], 'k'); % plot a threshold
+%             for j = 1:numPlot-2 % pressure sensor plot
+                axes(pSW(1))
+                pHorzLine = plot(xlim,[odinparam.horzLineValue,odinparam.horzLineValue], 'k'); % plot a threshold
 %                 legend(pHorzLine,'threshold');
-            end
+%             end
             
             for j = numPlot-1 : numPlot % to select sync pulses plots when no channels plots showing
                 axes(pSW(j))
                 ylabel('Decimal Value')
             end
             
-            if outputSW.showPlot % channel plots
+            if odinparam.squareAmplitudePlot % channel plots
                 for j = length(pSW)-4+1 : length(pSW)
                     axes(pSW(j,1));
                     grid minor;
@@ -112,8 +131,12 @@ else
                 end
             end
             
-            axes(pSW(1,1))
-            legend(pStem,[{'A0'},{'A1'},{'A2'},{'A3'},{'Up'},{'Down'},{'Enable'},{'Threshold'}]);
+            axes(pSW(2,1))
+            
+            for j = 1:size(line,1)
+                legendLine(j,1) = line{j,2}(1,1);
+            end
+            legend(legendLine,odinparam.legendName(1:length(odinparam.specialNumbers)));
         end
     end
 end
