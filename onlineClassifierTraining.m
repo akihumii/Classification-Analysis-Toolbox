@@ -9,12 +9,13 @@ function [] = onlineClassifierTraining(varargin)
 prompt = {'Channel 1:','Channel 2:','Channel 3:','Channel 4:'};
 title = 'Input threshold multiplier';
 dims = [1 35];
-definput = {'190','180','95','60'};
+% definput = {'190','180','95','60'};
+definput = {'30','15','30','15'};
 threshMult = inputdlg(prompt,title,dims,definput);
 threshMult = str2double(threshMult)';
 
 %% Pre-train
-[signal,signalClassificationInfo,saveFileName] = mainClassifier('threshStdMult',threshMult,'showOverlap',1,'saveOverlap',0); % to detect the bursts
+[signal,signalClassificationInfo,saveFileName] = mainClassifier('threshStdMult',threshMult,'showOverlap',0,'saveOverlap',0); % to detect the bursts
 
 [classifierOutput] = analyzeFeatures('selectFileType',2,'specificTarget',saveFileName,'showAccuracy',0,'saveAccuracy',0); % to train the classifier
 

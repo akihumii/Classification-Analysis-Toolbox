@@ -10,7 +10,7 @@ classdef classOnlineClassification < matlab.System
         thresholds
         numStartConsecutivePoints
         numEndConsecutivePoints
-        windowSize = 200 % ms
+        windowSize = 100 % ms
         overlapWindowSize = 50 % ms
         samplingFreq
         host
@@ -35,7 +35,7 @@ classdef classOnlineClassification < matlab.System
     
     % Pre-computed constants
     properties(Access = private)
-%         stepRead % number of sample to read and store per time
+        stepRead = 50        
         startOverlapping = 0 % flag to indicte that the window is full and ready to start overlapping
         features = zeros(1,0)
         featureNames
@@ -61,8 +61,6 @@ classdef classOnlineClassification < matlab.System
             
             obj.overlapWindowSize = parameters.overlapWindowSize;
             
-%             updateStepRead(obj); % update the step size to store the data from Qt
-%             
             obj.featureNames = obj.featureNamesAll(obj.featureClassification);
             obj.numFeature = length(obj.featureClassification);
             
@@ -89,44 +87,51 @@ classdef classOnlineClassification < matlab.System
         end
         
         function readSample(obj)
-            if ~obj.startOverlapping
-                stepRead = updateStepRead(obj,obj.windowSize);
-                for i = 1:stepRead:obj.windowSize % store windowSize of data to make it full at the first time
-                    sample = fread(obj.t, stepRead, 'double');
-                    obj.dataRaw = [obj.dataRaw ; sample];
-                end
-            else
-                while obj.t.BytesAvailable < obj.overlapWindowSize/(1000/obj.samplingFreq)
-                end
-                stepRead = updateStepRead(obj,obj.t.BytesAvailable);
-                for i = 1:stepRead:obj.t.BytesAvailable % store only overlapWindowSize of data as the update rate (overlapping window size)
-                    sample = fread(obj.t, stepRead, 'double');
-                    obj.dataRaw = fixWindow(obj,obj.dataRaw,sample,stepRead);
+            if ~checkEmptyBuffer(obj)
+                if ~obj.startOverlapping
+                    for i = 1:obj.stepRead:obj.windowSize % store windowSize of data to make it full at the first time
+                        sample = fread(obj.t, obj.stepRead, 'double');
+                        if checkEmptyBuffer(obj); break; end
+                        obj.dataRaw = [obj.dataRaw ; sample];
+                    end
+                    obj.startOverlapping = 1;
+                else
+                    while obj.t.BytesAvailable < obj.overlapWindowSize/(1000/obj.samplingFreq)
+                        drawnow
+                    end
+                    for i = 1:obj.stepRead:obj.t.BytesAvailable % store only overlapWindowSize of data as the update rate (overlapping window size)
+                        sample = fread(obj.t, obj.stepRead, 'double');
+                        if checkEmptyBuffer(obj); break; end
+                        obj.dataRaw = fixWindow(obj,obj.dataRaw,sample);
+                    end
                 end
             end
-            obj.startOverlapping = 1;
         end
         
-        function detectBurst(obj)
-            if ~obj.readyClassify
-                obj.dataTKEO = TKEO(obj.dataRaw,obj.samplingFreq);
-                [peaks,~] = triggerSpikeDetection(obj.dataTKEO,obj.thresholds,0,obj.numStartConsecutivePoints,0);
-                if ~isnan(peaks)
-                    obj.readyClassify = 1; % activate flag for classify
-                end
-            end
-        end
+%         function detectBurst(obj)
+%             if ~obj.readyClassify
+%                 obj.dataTKEO = TKEO(obj.dataRaw,obj.samplingFreq);
+%                 [peaks,~] = triggerSpikeDetection(obj.dataTKEO,obj.thresholds,0,obj.numStartConsecutivePoints,0);
+%                 if ~isnan(peaks)
+%                     obj.readyClassify = 1; % activate flag for classify
+%                 end
+%             end
+%         end
         
         function classifyBurst(obj)
             if obj.readyClassify
-                obj.dataFiltered = filter(obj); % get the filtered data for each channel
-                featuresTemp = featureExtraction(obj.dataFiltered, obj.samplingFreq, obj.featureClassification);
-                for i = 1:obj.numFeature
-                    obj.features(1,i) = featuresTemp.(obj.featureNames{i,1});
-                end
-                obj.predictClass = predict(obj.classifierMdl, obj.features);
-                if obj.predictClass == obj.numClass
-                    obj.predictClass = 0;
+                try
+                    obj.dataFiltered = filter(obj); % get the filtered data for each channel
+                    featuresTemp = featureExtraction(obj.dataFiltered, obj.samplingFreq, obj.featureClassification);
+                    for i = 1:obj.numFeature
+                        obj.features(1,i) = featuresTemp.(obj.featureNames{i,1});
+                    end
+                    obj.predictClass = predict(obj.classifierMdl, obj.features);
+                    if obj.predictClass == obj.numClass
+                        obj.predictClass = 0;
+                    end
+                catch
+                    resetChannel(obj);
                 end
             end
         end
@@ -145,17 +150,25 @@ classdef classOnlineClassification < matlab.System
             dataFiltered = filter(obj.filterHd,obj.dataRaw);
         end
         
-        function output = fixWindow(~,dataRaw,sample,stepRead)
-            output = [dataRaw(stepRead+1 : end, 1) ; sample];
+        function output = fixWindow(obj,dataRaw,sample)
+            output = [dataRaw(obj.stepRead+1 : end, 1) ; sample];
         end
         
-        function stepRead = updateStepRead(~,windowSize)
-            for i = 60:-10:1
-                if ~mod(windowSize,i)
-                    break
-                end
+        function emptyFlag = checkEmptyBuffer(obj)
+            if isempty(fread(obj.t, 1, 'double'))
+                resetChannel(obj);
+                disp('No data...')
+                drawnow
+                emptyFlag = true;
+            else
+                emptyFlag = false;
             end
-            stepRead = i;
+        end
+        
+        function resetChannel(obj)
+            obj.startOverlapping = 0;
+            obj.dataRaw = zeros(0,1);
+            obj.dataFiltered = zeros(0,1);
         end
     end
 end
