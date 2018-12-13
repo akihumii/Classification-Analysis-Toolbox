@@ -23,7 +23,12 @@ for i = 1:parameters.maxNumFeatureUsed
     for j = 1:parameters.numChannel
         clear sensitivityTemp
         
-        accuracyMedianAllLocs{i,j} = find(accuracyMedianAll{i,1}(:,j) == max(accuracyMedianAll{i,1}(:,j)));
+        switch parameters.specificFeature
+            case 0
+                accuracyMedianAllLocs{i,j} = find(accuracyMedianAll{i,1}(:,j) == max(accuracyMedianAll{i,1}(:,j)));
+            otherwise
+                accuracyMedianAllLocs{i,j} = parameters.specificFeature;
+        end
         
         % find the most suitable feature set to visualize
         accuracyPercRangeLeast{i,j} = accuracyPercRange{i,1}(accuracyMedianAllLocs{i,j},j); % all the range that corresponds to the accuracy that is maximum
