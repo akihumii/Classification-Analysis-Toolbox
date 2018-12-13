@@ -25,6 +25,12 @@ end
 
 function startTimerFcn(obj,~,content)
 box = msgbox(content);
+try
+    if isequal(content,'Finished...')
+        playSound('gong',20);
+    end
+catch
+end
 disp(content)
 disp(' ')
 set(obj,'UserData',box);

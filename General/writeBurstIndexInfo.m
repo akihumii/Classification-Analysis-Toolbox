@@ -37,7 +37,8 @@ for i = 1:numData
         xlswrite([signal(i,1).path,'info.xlsx'],{checkMatNAddStr(signal(i,1).analysedDataTiming(1,:),' - ',1)},1,[col,'2']); % parameters.channel
     end
     xlswrite([signal(i,1).path,'info.xlsx'],{signal(i,1).file(5:8)},1,[col,'3']); % parameters.channel
-    xlswrite([signal(i,1).path,'info.xlsx'],cell2nanMat(signalClassification(i,1).burstDetection.selectedBurstsIndex),1,[col,'4']);
+    xlswrite([signal(i,1).path,'info.xlsx'],...
+        [cell2nanMat(signalClassification(i,1).burstDetection.selectedBurstsIndex);nan(1,length(signalClassification(i,1).burstDetection.selectedBurstsIndex))],1,[col,'4']);
 end
 
 end
