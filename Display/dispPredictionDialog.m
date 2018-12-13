@@ -6,7 +6,8 @@ close hidden
 global startAllFlag
 global stopFlag
 global openPortFlag
-global classifierParameters
+global toggleInterval
+global stimulationDuration
 global tNumber
 global buttonStartStop
 global tStatus
@@ -32,8 +33,8 @@ tNumber = uicontrol(gcf,'Style','text','String',num2str(a),'FontSize',textSizePr
 
 buttonStartStop = uicontrol(gcf,'Style','push','String','Start','FontWeight','bold','ForegroundColor',[0,190/256,0],'FontSize',textSize,'Unit','normalized','Position',[.15,0.1,0.7,0.25],'CallBack',@changeState);
 
-buttonReselect = uicontrol(gcf,'Style','push','String','Reselect','FontWeight','bold','ForegroundColor','k','FontSize',textReselectSize,'Unit','normalized','Position',[.78,0.855,0.2,0.1],'CallBack',@reselectFile);
-buttonTrain = uicontrol(gcf,'Style','push','String','Train','FontWeight','bold','ForegroundColor','k','FontSize',textReselectSize,'Unit','normalized','Position',[.78,0.755,0.2,0.1],'CallBack',@trainClassifier);
+buttonReselect = uicontrol(gcf,'Style','edit','String','','FontWeight','bold','ForegroundColor','k','FontSize',textReselectSize,'Unit','normalized','Position',[.78,0.855,0.2,0.1],'CallBack',@reselectFile);
+buttonTrain = uicontrol(gcf,'Style','edit','String','','FontWeight','bold','ForegroundColor','k','FontSize',textReselectSize,'Unit','normalized','Position',[.78,0.755,0.2,0.1],'CallBack',@trainClassifier);
 
 
     function changeState(~,~)
@@ -59,34 +60,36 @@ buttonTrain = uicontrol(gcf,'Style','push','String','Train','FontWeight','bold',
         drawnow
     end
 
-    function reselectFile(~,~)
+    function reselectFile(obj,~)
         disp(' ')
-        disp('Reselect training files...')
+        disp('Change toggle interval...')
         try
-            [files,path] = selectFiles('Select trained parameters .mat file...');
-            classifierParameters = load(fullfile(path,files{1,1}));
-            classifierParameters = classifierParameters.varargin{1,1};
-            
+            toggleInterval = str2double(obj.String) / 1000; % ms to  seconds
+
             resetAll();
             
             startAllFlag = 1;
             
-            popMsg('Trained file selected...');
+            popMsg('Finished changing toggle interval...');
         catch
-            popMsg('Reselct failed...');
+            popMsg('Change toggle interval failed...');
         end
         drawnow
     end
 
-    function trainClassifier(~,~)
+    function trainClassifier(obj,~)
         disp(' ')
+        disp('Change stimulation duration...')
         try
-            onlineClassifierTraining();
+            stimulationDuration = str2double(obj.String);
+
             resetAll();
-            popMsg('Training done...');
+            
+            startAllFlag = 1;
+            
+            popMsg('Finished changing stimulation duration...');
         catch
-            resetAll();
-            popMsg('Training failed...');
+            popMsg('Change stimulation duration failed...');
         end
         drawnow
     end

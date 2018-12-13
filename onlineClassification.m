@@ -10,42 +10,28 @@ warning('off','all');
 global startAllFlag
 global stopFlag
 global openPortFlag
-global classifierParameters
 global tNumber
 global tStatus
 global buttonStartStop
 global stopAll
+global toggleInterval
+global stimulationDuration
 
 startAllFlag = 0;
 stopFlag = 1;
 openPortFlag = 0;
 stopAll = 0;
+currentElapsedTime = 0;
 
 dispPredictionDialog();
 drawnow
 
-while ~stopAll
+while ~stopAll 
     if startAllFlag
-        try
+%         try
             if ~stopFlag && ~openPortFlag
                 %% Parameters
-                parameters = struct(...
-                    'overlapWindowSize',50,... % ms
-                    'numChannel',length(classifierParameters),...
-                    'ports',[1343,1344,1345,1346],...
-                    'replyPort',1300,...
-                    'channelEnable',251);
-                
-                for i = 1:parameters.numChannel
-                    classInfo{i,1} = classOnlineClassification(); % Initiatialize the object
-                    
-                    setBasicParameters(classInfo{i,1},classifierParameters{i,1},parameters);
-                    setTcpip(classInfo{i,1},'127.0.0.1',parameters.ports(1,i),'NetworkRole','client','Timeout',1);
-                    
-                    % Streaming data
-                    tcpip(classInfo{i,1}); % open channel port
-                    openPort(classInfo{i,1});
-                end
+                parameters = struct('replyPort',1300,'channelEnable',251,'numChannel',4);
                 
                 % open reply port
                 try
@@ -58,64 +44,62 @@ while ~stopAll
                 fopen(tB);
                 
                 %%  Run the online classification
-                %     clearvars -except parameters classInfo tB
-                
-                % elapsedTime = cell(parameters.numChannel,1);
-                predictClassAll = zeros(1, parameters.numChannel);
-                
+                % Initialization
+                stimulationCh = zeros(1, parameters.numChannel);
                 openPortFlag = 1;
-                % c = 1;
-                % maxC = inf;
+                pair = 1;
+                currentElapsedTime = 0; % seconds
                 
-                % for i = 1:parameters.numChannel
-                %     p(i,1) = figure;
-                %     h(i,1) = gca;
-                % end
             elseif ~stopFlag && openPortFlag
-                %     msgBoxFig = msgbox('Prediction Class: 0 0 0 0...');
+                % Send stimulation
+                startingTime = tic;
+                switch pair % pair channels stimulation 
+                    case 1 % stimulate channel 1 & 3
+                        stimulationCh = [1,0,1,0];
+                        pair = 2;
+                        
+                    case 2 % stimulate channel 2 & 4
+                        stimulationCh = [0,1,0,1];
+                        pair = 1;
+                        
+                    otherwise
+                end
                 
-                for i = 1:parameters.numChannel
-                    readSample(classInfo{i,1});
-                    %         t = tic;
-                    
-                    %         plot(h(i,1),classInfo{i,1}.dataFiltered)
-                    %         pause(0.0001)
-                    %             detectBurst(classInfo{i,1});
-                    classifyBurst(classInfo{i,1});
-                    
-                    if predictClassAll(1,i) ~= classInfo{i,1}.predictClass % update if state changed
-                        predictClassAll(1,i) = classInfo{i,1}.predictClass;
-                        switch i % check if conflict
-                            case 2
-                                predictClassAll(1,2) = predictClassAll(1,2) && ~predictClassAll(1,1);
-                            case 4
-                                predictClassAll(1,4) = predictClassAll(1,4) && ~predictClassAll(1,3);
-                            otherwise
-                        end
-                        tNumber.String = num2str(predictClassAll);
-                        replyPredictionDec = bi2de(predictClassAll,'left-msb');
-                        fwrite(tB,[parameters.channelEnable,replyPredictionDec]); % to enable the channel
-                        drawnow
-                    end
-                    
-                    %             disp(['Class ',num2str(i),' prediction: ',num2str(classInfo{i,1}.predictClass)]);
-                    %             elapsedTime{i,1} = [elapsedTime{i,1};toc(t)];
+                replyPredictionDec = bi2de(stimulationCh,'left-msb');
+                fwrite(tB,[parameters.channelEnable,replyPredictionDec]); % to enable the channel
+                tNumber.String = num2str(stimulationCh);
+                drawnow
+            
+                stopTime = toc(startingTime);
+                
+                pause(toggleInterval - stopTime)
+                
+                currentElapsedTime = currentElapsedTime + toggleInterval;
+
+                if currentElapsedTime > stimulationDuration
+                    tNumber.String = num2str([0,0,0,0]);
+                    tStatus.String = 'Program stopped...';
+                    buttonStartStop.String = 'Start';
+                    buttonStartStop.ForegroundColor = [0,190/256,0];
+                    stopFlag = 1;
+                    openPortFlag = 0;
+                    drawnow
                 end
             else
                 openPortFlag = 0;
-                %     c = c+1;
             end
-        catch
-            startAllFlag = 0;
-            tNumber.String = num2str([0,0,0,0]);
-            tStatus.String = 'Program stopped...';
-            buttonStartStop.String = 'Start';
-            buttonStartStop.ForegroundColor = [0,190/256,0];
-            stopFlag = 1;
-            openPortFlag = 0;
-            popMsg('Wrong selection, please start over...');
-            drawnow
-        end
+            
+%         catch
+%             startAllFlag = 0;
+%             tNumber.String = num2str([0,0,0,0]);
+%             tStatus.String = 'Program stopped...';
+%             buttonStartStop.String = 'Start';
+%             buttonStartStop.ForegroundColor = [0,190/256,0];
+%             stopFlag = 1;
+%             openPortFlag = 0;
+%             popMsg('Wrong selection, please start over...');
+%             drawnow
+%         end
     end
     drawnow
 end
