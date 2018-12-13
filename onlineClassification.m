@@ -28,7 +28,7 @@ drawnow
 
 while ~stopAll 
     if startAllFlag
-%         try
+        try
             if ~stopFlag && ~openPortFlag
                 %% Parameters
                 parameters = struct('replyPort',1300,'channelEnable',251,'numChannel',4);
@@ -89,17 +89,17 @@ while ~stopAll
                 openPortFlag = 0;
             end
             
-%         catch
-%             startAllFlag = 0;
-%             tNumber.String = num2str([0,0,0,0]);
-%             tStatus.String = 'Program stopped...';
-%             buttonStartStop.String = 'Start';
-%             buttonStartStop.ForegroundColor = [0,190/256,0];
-%             stopFlag = 1;
-%             openPortFlag = 0;
-%             popMsg('Wrong selection, please start over...');
-%             drawnow
-%         end
+        catch
+            startAllFlag = 0;
+            tNumber.String = num2str([0,0,0,0]);
+            tStatus.String = 'Program stopped...';
+            buttonStartStop.String = 'Start';
+            buttonStartStop.ForegroundColor = [0,190/256,0];
+            stopFlag = 1;
+            openPortFlag = 0;
+            popMsg('Wrong selection, please start over...');
+            drawnow
+        end
     end
     drawnow
 end
