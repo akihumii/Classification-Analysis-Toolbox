@@ -33,8 +33,8 @@ tNumber = uicontrol(gcf,'Style','text','String',num2str(a),'FontSize',textSizePr
 
 buttonStartStop = uicontrol(gcf,'Style','push','String','Start','FontWeight','bold','ForegroundColor',[0,190/256,0],'FontSize',textSize,'Unit','normalized','Position',[.15,0.1,0.7,0.25],'CallBack',@changeState);
 
-buttonReselect = uicontrol(gcf,'Style','edit','String','','FontWeight','bold','ForegroundColor','k','FontSize',textReselectSize,'Unit','normalized','Position',[.78,0.855,0.2,0.1],'CallBack',@reselectFile);
-buttonTrain = uicontrol(gcf,'Style','edit','String','','FontWeight','bold','ForegroundColor','k','FontSize',textReselectSize,'Unit','normalized','Position',[.78,0.755,0.2,0.1],'CallBack',@trainClassifier);
+buttonReselect = uicontrol(gcf,'Style','edit','String','1000','FontWeight','bold','ForegroundColor','k','FontSize',textReselectSize,'Unit','normalized','Position',[.78,0.855,0.2,0.1],'CallBack',@reselectFile);
+buttonTrain = uicontrol(gcf,'Style','edit','String','60','FontWeight','bold','ForegroundColor','k','FontSize',textReselectSize,'Unit','normalized','Position',[.78,0.755,0.2,0.1],'CallBack',@trainClassifier);
 
 
     function changeState(~,~)
