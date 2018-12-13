@@ -27,6 +27,11 @@ switch lower(fileType)
         
     case 'sylphx'
         %% For EMG Wireless Newest Format
+%         dataLength = length(dlmread(fullfile(path,files),',',[0,0,-1,0]));
+%         numParts = 10;
+%         parts = floor(0:dataLength/10:dataLength-1);
+%         partId = 2;
+%         data = dlmread(fullfile(path,files),',',[parts(partId),0,parts(partId+3),12]);
         data = csvread(fullfile(path,files));
         numTotalChannel = 10;
         data(:,1:numTotalChannel) = data(:,1:numTotalChannel)*res; % convert data to Voltage, keep the counter and sync pulse unchanged

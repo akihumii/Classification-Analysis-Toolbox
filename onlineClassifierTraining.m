@@ -13,9 +13,21 @@ dims = [1 35];
 definput = {'30','15','30','15'};
 threshMult = inputdlg(prompt,title,dims,definput);
 threshMult = str2double(threshMult)';
+targetSubject = 'NHP'; % inupt either 'Derek' for biceps NRF demo set; or NHP for monkey device
 
 %% Pre-train
-[signal,signalClassificationInfo,saveFileName] = mainClassifier('threshStdMult',threshMult,'showOverlap',0,'saveOverlap',0); % to detect the bursts
+switch targetSubject
+    case 'Derek'
+        [signal,signalClassificationInfo,saveFileName] = mainClassifier('threshStdMult',threshMult,'showOverlap',0,'saveOverlap',0); % to detect the bursts
+        
+    case 'NHP'
+        [signal,signalClassificationInfo,saveFileName] = mainClassifier('threshStdMult',threshMult,'showOverlap',0,'baselineType','movingWindow',...
+            'saveOverlap',0,'showRaw',0,'showFilt',0,'saveRaw',0,'saveFilt',0,'saveOverlap',0,...
+            'threshStdMult',[25,10,10,30],'TKEOStartConsecutivePoints',[25,45,45,45],'saveUserInput',1,'padZeroFlag',0,'burstTrimming',0); % to detect the bursts
+        
+    otherwise
+        error('Invalid input targetSubject...')
+end
 
 [classifierOutput] = analyzeFeatures('selectFileType',2,'specificTarget',saveFileName,'showAccuracy',0,'saveAccuracy',0); % to train the classifier
 
