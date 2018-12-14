@@ -55,11 +55,11 @@ while ~stopAll
                 startingTime = tic;
                 switch pair % pair channels stimulation 
                     case 1 % stimulate channel 1 & 3
-                        stimulationCh = [1,0,1,0];
+                        stimulationCh = [0,1,0,1];
                         pair = 2;
                         
                     case 2 % stimulate channel 2 & 4
-                        stimulationCh = [0,1,0,1];
+                        stimulationCh = [1,0,1,0];
                         pair = 1;
                         
                     otherwise
@@ -78,6 +78,9 @@ while ~stopAll
 
                 if currentElapsedTime > stimulationDuration
                     tNumber.String = num2str([0,0,0,0]);
+                    stimulationCh = [0,0,0,0];
+                    replyPredictionDec = bi2de(stimulationCh,'left-msb');
+                    fwrite(tB,[parameters.channelEnable,replyPredictionDec]); % to enable the channel
                     tStatus.String = 'Program stopped...';
                     buttonStartStop.String = 'Start';
                     buttonStartStop.ForegroundColor = [0,190/256,0];
