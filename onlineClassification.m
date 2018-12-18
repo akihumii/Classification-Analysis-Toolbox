@@ -15,7 +15,7 @@ global tStatus
 global buttonStartStop
 global stopAll
 global toggleInterval
-global stimulationDuration
+% global stimulationDuration
 
 startAllFlag = 0;
 stopFlag = 1;
@@ -76,18 +76,18 @@ while ~stopAll
                 
                 currentElapsedTime = currentElapsedTime + toggleInterval;
 
-                if currentElapsedTime > stimulationDuration
-                    tNumber.String = num2str([0,0,0,0]);
-                    stimulationCh = [0,0,0,0];
-                    replyPredictionDec = bi2de(stimulationCh,'left-msb');
-                    fwrite(tB,[parameters.channelEnable,replyPredictionDec]); % to enable the channel
-                    tStatus.String = 'Program stopped...';
-                    buttonStartStop.String = 'Start';
-                    buttonStartStop.ForegroundColor = [0,190/256,0];
-                    stopFlag = 1;
-                    openPortFlag = 0;
-                    drawnow
-                end
+%                 if currentElapsedTime > stimulationDuration
+%                     tNumber.String = num2str([0,0,0,0]);
+%                     stimulationCh = [0,0,0,0];
+%                     replyPredictionDec = bi2de(stimulationCh,'left-msb');
+%                     fwrite(tB,[parameters.channelEnable,replyPredictionDec]); % to enable the channel
+%                     tStatus.String = 'Program stopped...';
+%                     buttonStartStop.String = 'Start';
+%                     buttonStartStop.ForegroundColor = [0,190/256,0];
+%                     stopFlag = 1;
+%                     openPortFlag = 0;
+%                     drawnow
+%                 end
             else
                 openPortFlag = 0;
             end
