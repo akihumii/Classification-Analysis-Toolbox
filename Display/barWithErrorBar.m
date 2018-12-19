@@ -13,14 +13,18 @@ set(gcf, 'Position', get(0,'Screensize')-[0 0 0 80],'PaperPositionMode', 'auto')
 if size(dataStde,3)==1
     errorbar(getErrorBarXAxisValues(numBar,numClass),dataBar,dataStde,'r*');
 else
-    errorbar(getErrorBarXAxisValues(numBar,numClass),dataBar,dataStde(:,:,1),dataStde(:,:,2),'r*');
+    if all(isnan(dataBar(2,:)))
+        errorbar(getErrorBarXAxisValues(1,numClass),dataBar(1,:),dataStde(1,:,1),dataStde(1,:,2),'r*');
+    else
+        errorbar(getErrorBarXAxisValues(numBar,numClass),dataBar,dataStde(:,:,1),dataStde(:,:,2),'r*');
+    end
 end
 if dataStar ~= 0
     plot(getErrorBarXAxisValues(numBar,numClass),dataStar,'g^')
 end
 title(titleName)
 
-legend(legendNames);
+legend(legendNames,'Interpreter','none');
 
 if nargout > 1
     varargout{2} = h;

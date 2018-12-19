@@ -120,10 +120,15 @@ for j = 1:parameters.numChannel
             BLStde{1,1}(k,j) = data.varargin{1,2}.featureStde(BLIndex,k,j);
             
             % duration between bursts
-            spikeLocsTemp = data.varargin{1,3}(k,1).detectionInfo.spikeLocs(:,j); % get the corresponding burst onset location
-            spikeLocsTemp = spikeLocsTemp(~isnan(spikeLocsTemp)); % ommit the NaN
-            spikeLocsTemp = [spikeLocsTemp;spikeLocsTemp(end)]; % repeat the last location one more time to compensate the one missing location after doing the differential
-            durationBtwBursts{1,1}{k,j} = diff(spikeLocsTemp); % duration between bursts
+            try
+                spikeLocsTemp = data.varargin{1,3}(k,1).detectionInfo.spikeLocs(:,j); % get the corresponding burst onset location
+                spikeLocsTemp = spikeLocsTemp(~isnan(spikeLocsTemp)); % ommit the NaN
+                spikeLocsTemp = [spikeLocsTemp;spikeLocsTemp(end)]; % repeat the last location one more time to compensate the one missing location after doing the differential
+                durationBtwBursts{1,1}{k,j} = diff(spikeLocsTemp); % duration between bursts
+            catch
+                durationBtwBursts{1,1}{k,j} = durationBtwBursts{1,1}{1,j};
+            end
+                
         catch
 %             % get number of bursts
 %             numTrainBurst{1,1}(k,j) = nan;

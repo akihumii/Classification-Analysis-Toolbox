@@ -12,7 +12,8 @@ parameters = struct(...
     'yLabelText','Accuracy',...
     'saveBarPlot',1);
 parameters.trimId = {0};
-parameters.legendArray = {'10';'20'};
+parameters.legendArray = {'Bursts';'Baseline'};
+% parameters.legendArray = {'10';'20'};
 % parameters.legendArray = {'TA';'GC'};
 
 % parameters.xTickLabel = {...
@@ -46,7 +47,7 @@ for i = 1:iters
     % first layer separates different number of feature used in
     % classification, second layer consists of different figures
     for j = 1:parameters.numBarShown
-        lineFeature{j,1}{i,1} = h(i,1).Children(end-(j+parameters.numBarActual-1)).YData;
+        lineFeature{j,1}{i,1} = h(i,1).Children(end-(j+parameters.numBarActual-2)).YData;
         barFeature{j,1}{i,1} = barTemp(end-j+1).YData;
 %         meanFeature{j,1}{i,1} = h(i,1).Children(end-(j+parameters.numBarActual*2-1)).YData;
         errorBarFeature{j,1}{i,1} = errorbarTemp.YNegativeDelta(errorReferTable(j,:));
@@ -79,19 +80,27 @@ end
 close all
 % legendName = [legendName; reshape(repmat({'Median','Mean'},2,1),[],1)];
 for i = 1:parameters.numBarShown
-    titleName = ['Comparison between 1-feature and 2-feature sensitivity accuracies of muscle GC speed ',parameters.legendArray{i,1}];
+    titleName = ['All average amplitudes of ',parameters.legendArray{i,1}];
+%     titleName = ['Comparison between 1-feature and 2-feature sensitivity accuracies of muscle GC speed ',parameters.legendArray{i,1}];
 %     titleName = ['All Classification Acuracies across Days Muscle ',parameters.legendArray{i,1}];
 %     titleName = ['Comparison between Raw and ROC accuracies with ',num2str(i),'-D classification'];
     dataBar = transpose(vertcat(barFeature{i,1}{:,1}));
     dataStde = cat(3,transpose(vertcat(errorBarFeature{i,1}{:,1})),transpose(vertcat(errorBarFeature{i,1}{:,2})));
     dataMean = transpose(vertcat(lineFeature{i,1}{:,1}));
+    
+%     if all(isnan(dataBar(2,:))) % when there is only one bar in the original bar plot 
+%         [dataBar, dataStde, dataMean] = removeNanRow(dataBar, dataStde, dataMean);
+%     end
+    
     [p,h] = barWithErrorBar(dataBar,dataStde,0,...
         titleName,legendName);
-    ylim([0,1])
+%     ylim([0,1])
     xlabel(parameters.xLabelText)
     ylabel(parameters.yLabelText)
-    h.XTick = 1:size(dataBar,1);
+    numBar = size(dataBar(all(~isnan(dataBar),2), :),1);
+    h.XTick = 1:numBar;
     h.XTickLabel = parameters.xTickLabel;
+    xlim([0,numBar+1])
 %     h.XTickLabel = XNames{i,1};
     
     if parameters.saveBarPlot
@@ -105,3 +114,8 @@ popMsg('Done :D')
 
 end
 
+function [dataBar, dataStde, dataMean] = removeNanRow(dataBar, dataStde, dataMean)
+dataBar = dataBar(1,:);
+dataStde = dataStde(:,:,1);
+dataMean = dataMean(1,:);
+end
