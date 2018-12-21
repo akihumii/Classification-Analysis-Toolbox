@@ -9,7 +9,7 @@ function varargout = mainClassifier(varargin)
 % Coded by Tsai Chne Wuen
 
 % close all
-delete(timerfindall)
+deleteMsgBox(); % delete all the message boxes
 % clc
 
 %% User's Input

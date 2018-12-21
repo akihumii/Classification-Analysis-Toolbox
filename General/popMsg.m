@@ -2,16 +2,9 @@ function popMsg(content)
 %popMsg Pop the message box to show the popping content
 %   [] = popMsg(content)
 warning('off','all')
-boxesT = timerfind('Tag','box');
-if ~isempty(boxesT)
-    try
-    close(boxesT(:).UserData); % close the box window
-    catch
-    end
-    delete(boxesT)
-end
+deleteMsgBox(); % delete all the opened messge boxes
 
-timeClose = 3000; % auto close the window once this timing has passed
+timeClose = 5; % auto close the window once this timing has passed
 t = timer;
 set(t,'Tag','box');
 set(t,'StartFcn', {@startTimerFcn, content});
