@@ -96,14 +96,17 @@ class Processing(threading.Thread):
         threading.Thread.__init__(self)
         # Filtering.__init__(self, hp_thresh, lp_thresh, notch_thresh)
         self.data_orig = []
-        self.data_channel = []
+        self.data_processed = []
         self.buffer_process = []
-        self.loc_start =[]
+        self.loc_start = []
         self.loc_start_orig = []
 
         self.__flag_start_bit = 165
         self.__flag_end_bit = 90
+        self.__flag_counter = [0, 255]
         self.__sample_len = 25
+        self.__channel_len = 10
+        self.__counter_len = 1
 
         now = datetime.datetime.now()
         self.__saving_dir = "%d%02d%02d" % (now.year, now.month, now.day)
@@ -118,7 +121,8 @@ class Processing(threading.Thread):
 
         self.loc_start = [x[0] for x in self.loc_start_orig
                           if x + self.__sample_len < len(buffer_read)
-                          and buffer_read[x + self.__sample_len - 1] == self.__flag_end_bit]
+                          and buffer_read[x + self.__sample_len - 1] == self.__flag_end_bit
+                          and np.isin(buffer_read[x+self.__sample_len-(self.__counter_len*2)-2], self.__flag_counter)]
 
         [self.buffer_process, buffer_leftover] = np.split(buffer_read, [self.loc_start[-1]+self.__sample_len-1])
 
@@ -128,11 +132,23 @@ class Processing(threading.Thread):
         data_all = [self.buffer_process[x:x + self.__sample_len-1] for x in self.loc_start]
         data_all = np.vstack(data_all)  # stack the arrays into one column
 
-        self.data_channel = data_all[:, 1:self.__sample_len-1]
+        self.data_processed = data_all[:, 1:self.__sample_len-1]
 
     def get_data_channel(self):
-        self.data_channel = np.ndarray(shape=(len(self.data_channel), 5), dtype='>u2',
-                                       buffer=np.array(self.data_channel, dtype=np.uint8).tobytes)
+        len_data = len(self.data_processed)
+
+        [data_channel, data_rest] = np.hsplit(self.data_processed, [self.__channel_len*2])
+        [data_sync_pulse, data_counter] = np.hsplit(data_rest, [1])
+
+        data_channel = np.roll(data_channel, 2)  # roll the data as the original matrix starts from channel 3
+
+        # convert two bytes into one 16-bit integer
+        data_channel = np.ndarray(shape=(len_data, self.__channel_len), dtype='>u2',
+                                  buffer=np.array(data_channel, dtype=np.uint8))
+        data_counter = np.ndarray(shape=(len_data, self.__counter_len), dtype='>u2',
+                                  buffer=np.array(data_counter, dtype=np.uint8))
+
+        self.data_processed = np.concatenate((data_channel, data_sync_pulse, data_counter), axis=1)
 
     def save(self, data):  # save the data
         np.savetxt(self.__saving_file_obj, data, fmt="%d", delimiter=",")
@@ -158,8 +174,8 @@ class ReadNDemultiplex(threading.Thread):
             ring_buffer = self.tcp_ip_obj.read(ring_buffer)
             ring_buffer = self.data_obj.get_buffer(ring_buffer)
             self.data_obj.demultiplex()  # demultiplex and get the channel data
-            # self.data_obj.get_data_channel()
-            self.data_obj.save(data_obj.data_channel)
+            self.data_obj.get_data_channel()
+            self.data_obj.save(data_obj.data_processed)
 
 
 IP_ADD = "127.0.0.1"
