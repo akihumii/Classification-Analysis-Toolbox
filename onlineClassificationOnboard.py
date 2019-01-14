@@ -165,15 +165,16 @@ class Demultiplex(Saving):
 
         self.data_processed = np.hstack([data_channel, data_sync_pulse, data_counter])
 
-    def fill_ring_data(self):
+    def fill_ring_data(self, ring_lock):
         global ring_data
         # for x in range(self.__ring_column_len):
         #     for y in range(np.size(self.data_processed, axis=0)):
         #         ring_data[x].append(np.array(self.data_processed)[y, x])
 
         if (ring_data[0].maxlen - len(ring_data[0])) >= self.__sample_len:
-            for x in range(self.__ring_column_len):
-                ring_data[x].extend(np.array(self.data_processed)[:, x])
+            with ring_lock:  # lock the ring data while filling in
+                for x in range(self.__ring_column_len):
+                    ring_data[x].extend(np.array(self.data_processed)[:, x])
         else:
             print("buffer full...")
 
@@ -181,7 +182,7 @@ class Demultiplex(Saving):
 
 
 class ProcessClassification(threading.Thread, Saving):
-    def __init__(self, window_class, window_overlap, sampling_freq):
+    def __init__(self, window_class, window_overlap, sampling_freq, ring_lock):
         global ring_data
         threading.Thread.__init__(self)
         Saving.__init__(self)
@@ -190,9 +191,10 @@ class ProcessClassification(threading.Thread, Saving):
         self.window_overlap = window_overlap  # seconds
         self.sampling_freq = sampling_freq
         self.counter = -1
+        self.ring_lock = ring_lock
         self.__channel_len = len(ring_data)
 
-        self.data_raw = [RingBuffer(capacity=int(self.sampling_freq * self.window_class), dtype=np.float64)
+        self.data_raw = [RingBuffer(capacity=int(self.window_class * self.sampling_freq), dtype=np.float64)
                          for x in range(self.__channel_len)]
 
     def run(self):
@@ -205,16 +207,16 @@ class ProcessClassification(threading.Thread, Saving):
 
     def get_ring_data(self):
         global ring_data
-        for x in range(self.__channel_len):
-            if len(ring_data[x]) >= (self.window_overlap * self.sampling_freq):
-                if x == 11:
-                    print("getting ring data 1...: %d" % len(ring_data[x]))
-                    # self.flag_channel_same_len = True
-                self.data_raw[x].extend(np.array(ring_data[x]))
-                ring_data[x] = RingBuffer(capacity=ring_data[x].maxlen, dtype=np.float)
-                if x == 11:
-                    print("getting ring data 2...: %d" % len(self.data_raw[x]))
-                    print("getting ring data 3...: %d" % len(ring_data[x]))
+        if len(ring_data[0]) >= (self.window_overlap * self.sampling_freq):
+            with self.ring_lock:
+                for x in range(self.__channel_len):
+                    if x == 11:  # before fetching
+                        print("getting ring data 1...: %d" % len(ring_data[x]))
+                    self.data_raw[x].extend(np.array(ring_data[x]))  # fetch the data from ring buffer
+                    ring_data[x] = RingBuffer(capacity=ring_data[x].maxlen, dtype=np.float)  # clear the ring buffer
+                    if x == 11:  # after fetching
+                        print("getting ring data 2...: %d" % len(self.data_raw[x]))
+                        print("getting ring data 3...: %d" % len(ring_data[x]))
 
     def check_data_raw(self):
         check_len = [len(self.data_raw[x]) for x in range(10)]
@@ -233,10 +235,11 @@ class ProcessClassification(threading.Thread, Saving):
 
 
 class ReadNDemultiplex(threading.Thread):
-    def __init__(self, tcp_ip_obj, data_obj):
+    def __init__(self, tcp_ip_obj, data_obj, ring_lock):
         threading.Thread.__init__(self, target=ReadNDemultiplex)
         self.tcp_ip_obj = tcp_ip_obj
         self.data_obj = data_obj
+        self.ring_lock = ring_lock
 
     def run(self):
         self.tcp_ip_obj.connect()
@@ -248,7 +251,7 @@ class ReadNDemultiplex(threading.Thread):
             buffer_leftover = self.data_obj.get_buffer(buffer_read)
             self.data_obj.get_data_channel()  # demultiplex and get the channel data
             self.data_obj.save(self.data_obj.data_processed, "a")
-            self.data_obj.fill_ring_data()  # fill the ring buffer
+            self.data_obj.fill_ring_data(self.ring_lock)  # fill the ring buffer
 
 
 IP_ADD = "127.0.0.1"
@@ -256,7 +259,7 @@ PORT = 8888
 BUFFER_SIZE = 25 * 65  # about 50 ms
 RINGBUFFER_SIZE = 40960
 
-WINDOW_CLASS = 0.1  # second
+WINDOW_CLASS = 0.2  # second
 WINDOW_OVERLAP = 0.05  # second
 SAMPLING_FREQ = 1250  # sample/second
 
@@ -265,13 +268,13 @@ LP_THRESH = 3500
 NOTCH_THRESH = 50
 
 if __name__ == "__main__":
-    buffer_obj = threading.Lock()
+    ring_lock = threading.Lock()
 
     tcp_ip_obj = TcpIp(IP_ADD, PORT, BUFFER_SIZE)  # create port object
     data_obj = Demultiplex(RINGBUFFER_SIZE, HP_THRESH, LP_THRESH, NOTCH_THRESH)  # create data class
 
-    thread_read_and_demultiplex = ReadNDemultiplex(tcp_ip_obj, data_obj)  # thread 1: reading buffer and demultiplex
-    thread_process_classification = ProcessClassification(WINDOW_CLASS, WINDOW_OVERLAP, SAMPLING_FREQ)  # thread 2: filter, extract features, classify
+    thread_read_and_demultiplex = ReadNDemultiplex(tcp_ip_obj, data_obj, ring_lock)  # thread 1: reading buffer and demultiplex
+    thread_process_classification = ProcessClassification(WINDOW_CLASS, WINDOW_OVERLAP, SAMPLING_FREQ, ring_lock)  # thread 2: filter, extract features, classify
 
     thread_read_and_demultiplex.start()  # start thread 1
     thread_process_classification.start()  # start thread 2
