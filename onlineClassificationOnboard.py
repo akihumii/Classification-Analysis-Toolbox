@@ -22,6 +22,24 @@ from time import sleep
 #         # self.data =
 #
 #
+class Saving:  # save the data
+    def __init__(self):
+        now = datetime.datetime.now()
+        self.__saving_dir = "%d%02d%02d" % (now.year, now.month, now.day)
+        self.__saving_filename = "data%s%02d%02d%02d%02d" % (
+            self.__saving_dir, now.hour, now.minute, now.second, now.microsecond)
+        self.__saving_full_filename = os.path.join(self.__saving_dir, self.__saving_filename) + ".csv"
+
+        self.__create_saving_dir()  # create saving directory, skip if the file exists
+
+    def __create_saving_dir(self):
+        if not os.path.exists(self.__saving_dir):
+            os.makedirs(self.__saving_dir)
+
+    def save(self, data, *args):  # save the data
+        saving_file_obj = open(self.__saving_full_filename, *args)
+        np.savetxt(saving_file_obj, data, fmt="%f", delimiter=",")
+        saving_file_obj.close()
 
 
 class Filtering:
@@ -50,9 +68,8 @@ class Filtering:
         # self.data_filtered = signal.lfilter(self.filter_obj, 1, data_buffer_all, zi=self.filter_z)
 
 
-class TcpIp(threading.Thread):
+class TcpIp:
     def __init__(self, ip_add, port, buffer_size):
-        threading.Thread.__init__(self)
         self.ip_add = ip_add
         self.port = port
 
@@ -91,9 +108,10 @@ class TcpIp(threading.Thread):
         return np.append(buffer_leftover, buffer_read)
 
 
-class Processing(threading.Thread):
-    def __init__(self, hp_thresh, lp_thresh, notch_thresh):
-        threading.Thread.__init__(self)
+class Demultiplex(Saving):
+    def __init__(self, ringbuffer_size, hp_thresh, lp_thresh, notch_thresh):
+        global ring_data
+        Saving.__init__(self)
         # Filtering.__init__(self, hp_thresh, lp_thresh, notch_thresh)
         self.data_orig = []
         self.data_processed = []
@@ -106,15 +124,11 @@ class Processing(threading.Thread):
         self.__flag_counter = [0, 255]
         self.__sample_len = 25
         self.__channel_len = 10
+        self.__sync_pulse_len = 1
         self.__counter_len = 1
+        self.__ring_column_len = self.__channel_len + self.__sync_pulse_len + self.__counter_len
 
-        now = datetime.datetime.now()
-        self.__saving_dir = "%d%02d%02d" % (now.year, now.month, now.day)
-        self.__saving_filename = "data%s%02d%02d%02d%02d" % (self.__saving_dir, now.hour, now.minute, now.second, now.microsecond)
-        self.__saving_full_filename = os.path.join(self.__saving_dir, self.__saving_filename) + ".csv"
-
-        self.__create_saving_dir()  # create saving directory, skip if the file exists
-        self.__saving_file_obj = open(self.__saving_full_filename, "a")
+        ring_data = [RingBuffer(capacity=ringbuffer_size, dtype=np.float) for x in range(self.__ring_column_len)]
 
     def get_buffer(self, buffer_read):
         self.loc_start_orig = np.argwhere(np.array(buffer_read) == self.__flag_start_bit)
@@ -128,59 +142,116 @@ class Processing(threading.Thread):
 
         return buffer_leftover
 
-    def demultiplex(self):  # obtain complete samples and form a matrix ( data_channel )
+    def get_data_channel(self):  # obtain complete samples and form a matrix ( data_channel )
         data_all = [self.buffer_process[x:x + self.__sample_len-1] for x in self.loc_start]
         data_all = np.vstack(data_all)  # stack the arrays into one column
 
         self.data_processed = data_all[:, 1:self.__sample_len-1]
 
-    def get_data_channel(self):
         len_data = len(self.data_processed)
 
         [data_channel, data_rest] = np.hsplit(self.data_processed, [self.__channel_len*2])
-        [data_sync_pulse, data_counter] = np.hsplit(data_rest, [1])
+        [data_sync_pulse, data_counter] = np.hsplit(data_rest, [self.__sync_pulse_len])
 
         data_channel = np.roll(data_channel, 2)  # roll the data as the original matrix starts from channel 3
 
         # convert two bytes into one 16-bit integer
         data_channel = np.ndarray(shape=(len_data, self.__channel_len), dtype='>u2',
-                                  buffer=np.array(data_channel, dtype=np.uint8))
+                                  buffer=data_channel.astype(np.uint8))
         data_counter = np.ndarray(shape=(len_data, self.__counter_len), dtype='>u2',
-                                  buffer=np.array(data_counter, dtype=np.uint8))
+                                  buffer=data_counter.astype(np.uint8))
 
-        self.data_processed = np.concatenate((data_channel, data_sync_pulse, data_counter), axis=1)
+        data_channel = (data_channel.astype(np.float64) - 32768) * 0.000195  # convert to integer
 
-    def save(self, data):  # save the data
-        np.savetxt(self.__saving_file_obj, data, fmt="%d", delimiter=",")
+        self.data_processed = np.hstack([data_channel, data_sync_pulse, data_counter])
 
-    def __create_saving_dir(self):
-        if not os.path.exists(self.__saving_dir):
-            os.makedirs(self.__saving_dir)
+    def fill_ring_data(self):
+        global ring_data
+        for x in range(self.__ring_column_len):
+            for y in range(np.size(self.data_processed, axis=0)):
+                ring_data[x].append(np.array(self.data_processed)[y, x])
+
+        # if (ring_data[0].maxlen - len(ring_data[0])) >= self.__sample_len:
+        #     for x in range(self.__ring_column_len):
+        #         for y in range(len(self.data_processed[0])):
+        #             ring_data[x].append(np.array(self.data_processed)[y, x])
+        # else:
+        #     print("buffer full...")
+
+        print("running thread for demultiplexing")
+        print(len(ring_data))
+        print(len(ring_data[-1]))
+
+
+class ProcessClassification(threading.Thread, Saving):
+    def __init__(self, buffer_size):
+        global ring_data
+        threading.Thread.__init__(self)
+        Saving.__init__(self)
+        self.flag_channel_same_len = False
+        self.counter = -1
+        self.__channel_len = len(ring_data)
+
+        self.data_raw = [np.array([], dtype=np.float64) for x in range(self.__channel_len)]
+        self.buffer_size = buffer_size
+
+    def run(self):
+        while True:
+            self.get_ring_data()
+            self.check_new_data()
+            if self.flag_channel_same_len:
+                self.save(np.vstack(self.data_raw).transpose(), "w")
+
+    def get_ring_data(self):
+        global ring_data
+        len_data = 0
+        for x in range(self.__channel_len):
+            len_data += len(ring_data[x])
+
+        # append when enough data in ring buffer and when all the ring buffers have same length of data
+        if len_data >= self.buffer_size and len_data % self.__channel_len == 0:
+            for x in range(self.__channel_len):
+                self.data_raw[x] = np.append(self.data_raw[x], [ring_data[x].popleft() for y in range(len(ring_data[x]))])
+
+    def check_new_data(self):
+        check_len = [len(self.data_raw[x]) for x in range(10)]
+
+        # flag is true when raw data has data, when all the ring buffers have same length of data and when
+        # counter has increased
+        if len(self.data_raw[0]) > 0 and \
+                all(x == check_len[0] for x in check_len) and \
+                self.counter != self.data_raw[-1][-1]:
+            print("running thread for process classification")
+            self.counter = self.data_raw[-1][-1]
+            self.flag_channel_same_len = True
+            print(check_len)
+        else:
+            self.flag_channel_same_len = False
 
 
 class ReadNDemultiplex(threading.Thread):
     def __init__(self, tcp_ip_obj, data_obj):
-        threading.Thread.__init__(self)
+        threading.Thread.__init__(self, target=ReadNDemultiplex)
         self.tcp_ip_obj = tcp_ip_obj
         self.data_obj = data_obj
-        self.start()
-        self.join()
 
     def run(self):
         self.tcp_ip_obj.connect()
-        ring_buffer = []
+        buffer_leftover = []
         # ring_buffer = RingBuffer(capacity=40960, dtype=np.uint8)
         while True:
-            ring_buffer = self.tcp_ip_obj.read(ring_buffer)
-            ring_buffer = self.data_obj.get_buffer(ring_buffer)
-            self.data_obj.demultiplex()  # demultiplex and get the channel data
-            self.data_obj.get_data_channel()
-            self.data_obj.save(data_obj.data_processed)
+            global ring_data
+            buffer_read = self.tcp_ip_obj.read(buffer_leftover)
+            buffer_leftover = self.data_obj.get_buffer(buffer_read)
+            self.data_obj.get_data_channel()  # demultiplex and get the channel data
+            self.data_obj.save(self.data_obj.data_processed, "a")
+            self.data_obj.fill_ring_data()  # fill the ring buffer
 
 
 IP_ADD = "127.0.0.1"
 PORT = 8888
 BUFFER_SIZE = 25 * 65  # about 50 ms
+RINGBUFFER_SIZE = 40960
 
 HP_THRESH = 50
 LP_THRESH = 3500
@@ -188,11 +259,17 @@ NOTCH_THRESH = 50
 
 if __name__ == "__main__":
     buffer_obj = threading.Lock()
-    buffer_leftover = []
 
     tcp_ip_obj = TcpIp(IP_ADD, PORT, BUFFER_SIZE)  # create port object
-    data_obj = Processing(HP_THRESH, LP_THRESH, NOTCH_THRESH)  # create data class
+    data_obj = Demultiplex(RINGBUFFER_SIZE, HP_THRESH, LP_THRESH, NOTCH_THRESH)  # create data class
 
-    ReadNDemultiplex(tcp_ip_obj, data_obj)  # use one thread to do reading buffer and demultiplex
+    thread_read_and_demultiplex = ReadNDemultiplex(tcp_ip_obj, data_obj)  # thread 1: reading buffer and demultiplex
+    thread_process_classification = ProcessClassification(BUFFER_SIZE)  # thread 2: filter, extract features, classify
+
+    thread_read_and_demultiplex.start()  # start thread 1
+    thread_process_classification.start()  # start thread 2
+
+    thread_read_and_demultiplex.join()  # join thread 1
+    thread_process_classification.join()  # join thread 2
 
     # print("Finished...")
