@@ -26,9 +26,11 @@ end
 
 pC = figure;
 hold on
+
+plot(data); % plot counter
 if ~isempty(skipDataLocs)
-    plot(data); % plot counter
-    plot(skipDataLocs,data(skipDataLocs),'ro'); % plot skipping point
+    dataDrop = plot(skipDataLocs,data(skipDataLocs),'ro'); % plot skipping point
+    legend(dataDrop, ['No. of Drop data: ', num2str(numSkipData)])
 end
 
 %% Output
