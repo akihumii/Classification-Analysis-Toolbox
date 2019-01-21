@@ -1,4 +1,5 @@
 import threading
+import globals
 from tcpip import TcpIp
 from demultiplex import Demultiplex
 from read_n_demultiplex import ReadNDemultiplex
@@ -21,6 +22,8 @@ LP_THRESH = 3500
 NOTCH_THRESH = 50
 
 if __name__ == "__main__":
+    globals.initialize()  # initialize global variable ring data
+
     ring_lock = threading.Lock()
 
     tcp_ip_obj = TcpIp(IP_ADD, PORT, BUFFER_SIZE)  # create port object

@@ -21,7 +21,7 @@ class Training:
         self.file_class = [f for f in os.listdir(self.target_dir)
                            if f.startswith('classCh') and target_file in f]
 
-        clf = SVC(kernel='poly', degree=3, gamma='auto')
+        self.clf = SVC(kernel='poly', degree=3, gamma='auto')
 
     def train(self):
             for i in range(len(self.file_class)):
