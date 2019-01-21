@@ -78,12 +78,14 @@ classdef classOnlineClassification < matlab.System
         end
         
         function openPort(obj)
-            try
-                fopen(obj.t);
-                disp(['Opened port ',num2str(obj.port),' as channel port...']);
-            catch
+            checkFopen = fopen(obj.t);
+            
+            while checkFopen == -1
                 error(['Port ',num2str(obj.port),' is not open yet...'])
+                checkFopen = fopen(obj.t);
             end
+            
+            disp(['Opened port ',num2str(obj.port),' as channel port...']);
         end
         
         function readSample(obj)

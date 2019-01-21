@@ -54,6 +54,7 @@ for i = 1:numChannels
                     predictClass{r,i} = svmClassificationOutput.predictClass;
                     if accuracyTemp.accuracy >= accuracyHighest(1,i)
                         Mdl{i,1} = svmClassificationOutput.Mdl;
+                        posteriorRegion{i,1} = svmClassificationOutput.posteriorRegion;
                     end
                 case 'lda'
                     %                     class{i,1} = classTemp;
@@ -109,7 +110,8 @@ output = makeStruct(...
     testing,...
     trainingClass,...
     testingClass,...
-    predictClass);
+    predictClass,...
+    posteriorRegion);
 end
 
 
