@@ -13,19 +13,23 @@ def train(target_file):
     print(target_file)
 
     if os.path.exists(target_dir):
-        data_features_all = [np.genfromtxt(os.path.join(target_dir, f), delimiter=',')
-                             for f in os.listdir(target_dir) 
-                             if f.startswith('featuresTmp') and target_file in f]
+        file_feature = [f for f in os.listdir(target_dir)
+                        if f.startswith('featuresCh') and target_file in f]
 
-        data_class_all = [np.genfromtxt(os.path.join(target_dir, f), delimiter=',')
-                          for f in os.listdir(target_dir) 
-                          if f.startswith('classTmp') and target_file in f]
+        file_class = [f for f in os.listdir(target_dir)
+                      if f.startswith('classCh') and target_file in f]
 
         clf = SVC(kernel='poly', degree=3, gamma='auto')
 
-        for i, x in enumerate(data_features_all):
-            classifiers = clf.fit(x.astype(np.float), data_class_all[i].astype(np.float))
-            filename = 'classifierTmp%d.sav' % i
+        for i in range(len(file_class)):
+            features_tmp = np.genfromtxt(os.path.join(target_dir, file_feature[i]), delimiter=',')
+            
+            class_tmp = np.genfromtxt(os.path.join(target_dir, file_class[i]), delimiter=',')
+
+            classifiers = clf.fit(features_tmp.astype(np.float), class_tmp.astype(np.float))
+            
+            filename = 'classifierCh%s.sav' % file_feature[i][file_feature[i].find('Ch')+2]
+
             pickle.dump(classifiers, open(os.path.join(target_dir, filename), 'wb'))
             print("%s%d has been saved..." % (os.path.join(target_dir, filename), i))
 

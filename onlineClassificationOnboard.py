@@ -1,27 +1,14 @@
-from numpy_ringbuffer import RingBuffer
-from scipy import signal
 import threading
 import os
 import datetime
 import socket
 import numpy as np
+import pickle
+from numpy_ringbuffer import RingBuffer
+from scipy import signal
 from time import sleep
 
 
-# class Parameters(object):
-#     def __init__(self):
-#         self.trained_mdl =
-#
-#
-# class GetWindow(object):
-#     def __init__(self):
-#         self.window_size = 100
-#         self.window_size_overlap = 50
-#
-#     def read_sample(self):
-#         # self.data =
-#
-#
 class Saving:  # save the data
     def __init__(self):
         now = datetime.datetime.now()
@@ -108,8 +95,64 @@ class TcpIp:
         return np.append(buffer_leftover, buffer_read)
 
 
+class Features:
+    def __init__(self, data, sampling_freq, *args):
+        self.data = data
+        self.data_absolute = np.absolute(data)
+        self.sampling_freq = sampling_freq
+        self.run_list = args
+
+    def extract_features(self):
+        output = []
+        if not self.run_list:  # if input arg is zero, run all.
+            self.run_list = range(1, 9)
+
+        if np.isin(1, self.run_list):
+            output = np.append(output, self.get_min_value())
+        if np.isin(2, self.run_list):
+            output = np.append(output, self.get_max_value())
+        if np.isin(3, self.run_list):
+            output = np.append(output, self.get_mean_value())
+        if np.isin(4, self.run_list):
+            output = np.append(output, self.get_burst_len())
+        if np.isin(5, self.run_list):
+            output = np.append(output, self.get_area_under_curve())
+        if np.isin(6, self.run_list):
+            output = np.append(output, self.get_sum_diff())
+        if np.isin(7, self.run_list):
+            output = np.append(output, self.get_num_zero_crossing())
+        if np.isin(8, self.run_list):
+            output = np.append(output, self.get_num_sign_changes())
+
+        return output
+
+    def get_min_value(self):
+        return np.min(self.data)
+
+    def get_max_value(self):
+        return np.max(self.data)
+
+    def get_mean_value(self):
+        return np.mean(self.data_absolute)
+
+    def get_burst_len(self):
+        return len(self.data) / self.sampling_freq
+
+    def get_area_under_curve(self):
+        return np.sum(self.data_absolute)
+
+    def get_sum_diff(self):
+        return np.sum(np.diff(self.data))
+
+    def get_num_zero_crossing(self):
+        return np.count_nonzero(np.diff(np.sign(self.data)))
+
+    def get_num_sign_changes(self):
+        return np.count_nonzero(np.diff(np.sign(np.diff(self.data))))
+
+
 class Demultiplex(Saving):
-    def __init__(self, ringbuffer_size, hp_thresh, lp_thresh, notch_thresh):
+    def __init__(self, ringbuffer_size, channel_len, hp_thresh, lp_thresh, notch_thresh):
         global ring_data
         Saving.__init__(self)
         # Filtering.__init__(self, hp_thresh, lp_thresh, notch_thresh)
@@ -123,12 +166,12 @@ class Demultiplex(Saving):
         self.__flag_end_bit = 90
         self.__flag_counter = [0, 255]
         self.__sample_len = 25
-        self.__channel_len = 10
+        self.__channel_len = channel_len
         self.__sync_pulse_len = 1
         self.__counter_len = 1
         self.__ring_column_len = self.__channel_len + self.__sync_pulse_len + self.__counter_len
 
-        ring_data = [RingBuffer(capacity=ringbuffer_size, dtype=np.float) for x in range(self.__ring_column_len)]
+        ring_data = [RingBuffer(capacity=ringbuffer_size, dtype=np.float) for __ in range(self.__ring_column_len)]
 
     def get_buffer(self, buffer_read):
         self.loc_start_orig = np.argwhere(np.array(buffer_read) == self.__flag_start_bit)
@@ -178,45 +221,69 @@ class Demultiplex(Saving):
         else:
             print("buffer full...")
 
-        print("running thread for demultiplexing %d: " % len(ring_data[-1]))
+        # print("running thread for demultiplexing %d: " % len(ring_data[-1]))
 
 
 class ProcessClassification(threading.Thread, Saving):
-    def __init__(self, window_class, window_overlap, sampling_freq, ring_lock):
+    def __init__(self, channel_len, window_class, window_overlap, sampling_freq, ring_lock):
         global ring_data
         threading.Thread.__init__(self)
         Saving.__init__(self)
-        self.flag_channel_same_len = False
+
+        self.clf = None
         self.window_class = window_class  # seconds
         self.window_overlap = window_overlap  # seconds
         self.sampling_freq = sampling_freq
         self.counter = -1
         self.ring_lock = ring_lock
-        self.__channel_len = len(ring_data)
+        self.flag_channel_same_len = False
+
+        self.__ring_channel_len = len(ring_data)
+        self.__channel_len = channel_len
 
         self.data_raw = [RingBuffer(capacity=int(self.window_class * self.sampling_freq), dtype=np.float64)
-                         for x in range(self.__channel_len)]
+                         for __ in range(self.__ring_channel_len)]
+
+        self.channel_decode = []
+
+        self.prediction = []
+        # self.prediction = [[] for __ in range(self.__channel_len)]
 
     def run(self):
+        self.load_classifier()
         while True:
             self.get_ring_data()
             # self.check_data_raw()
-            if self.flag_channel_same_len:
-                self.save(np.vstack(np.array(self.data_raw)).transpose(), "a")
-                self.flag_channel_same_len = False
+            self.classify()
+            self.save(np.vstack(np.array(self.data_raw)).transpose(), "a")
 
     def get_ring_data(self):
         global ring_data
-        if len(ring_data[0]) >= (self.window_overlap * self.sampling_freq):
-            with self.ring_lock:
-                for x in range(self.__channel_len):
-                    if x == 11:  # before fetching
-                        print("getting ring data 1...: %d" % len(ring_data[x]))
-                    self.data_raw[x].extend(np.array(ring_data[x]))  # fetch the data from ring buffer
-                    ring_data[x] = RingBuffer(capacity=ring_data[x].maxlen, dtype=np.float)  # clear the ring buffer
-                    if x == 11:  # after fetching
-                        print("getting ring data 2...: %d" % len(self.data_raw[x]))
-                        print("getting ring data 3...: %d" % len(ring_data[x]))
+        while len(ring_data[0]) <= (self.window_overlap * self.sampling_freq):
+            continue
+
+        # when ring data has enough sample
+        with self.ring_lock:
+            for x in range(self.__ring_channel_len):
+                self.data_raw[x].extend(np.array(ring_data[x]))  # fetch the data from ring buffer
+                ring_data[x] = RingBuffer(capacity=ring_data[x].maxlen, dtype=np.float)  # clear the ring buffer
+
+    def load_classifier(self):
+        filename = sorted(x for x in os.listdir('classificationTmp') if x.startswith('classifier'))
+
+        self.channel_decode = [x[x.find('Ch')+2] for x in filename]
+
+        self.clf = [pickle.load(open(os.path.join('classificationTmp', x), 'rb')) for x in filename]
+
+        self.prediction = [[] for __ in range(len(self.channel_decode))]
+
+    def classify(self):
+        for i, x in enumerate(self.channel_decode):
+            feature_obj = Features(self.data_raw[int(x)-1], self.sampling_freq, [3, 7])
+            features = feature_obj.extract_features()
+            self.prediction[i] = self.clf[i].predict([features])
+
+        print(self.prediction)
 
     def check_data_raw(self):
         check_len = [len(self.data_raw[x]) for x in range(10)]
@@ -226,7 +293,7 @@ class ProcessClassification(threading.Thread, Saving):
         if len(self.data_raw[0]) > 0 and \
                 all(x == check_len[0] for x in check_len) and \
                 self.counter != self.data_raw[-1][-1]:
-            print("running thread for process classification")
+            # print("running thread for process classification")
             self.counter = self.data_raw[-1][-1]
             self.flag_channel_same_len = True
             print(check_len)
@@ -258,6 +325,8 @@ IP_ADD = "127.0.0.1"
 PORT = 8888
 BUFFER_SIZE = 25 * 65  # about 50 ms
 RINGBUFFER_SIZE = 40960
+CHANNEL_LEN = 10
+CHANNEL_DECODE = [4, 5, 6, 7]
 
 WINDOW_CLASS = 0.2  # second
 WINDOW_OVERLAP = 0.05  # second
@@ -271,10 +340,10 @@ if __name__ == "__main__":
     ring_lock = threading.Lock()
 
     tcp_ip_obj = TcpIp(IP_ADD, PORT, BUFFER_SIZE)  # create port object
-    data_obj = Demultiplex(RINGBUFFER_SIZE, HP_THRESH, LP_THRESH, NOTCH_THRESH)  # create data class
+    data_obj = Demultiplex(RINGBUFFER_SIZE, CHANNEL_LEN, HP_THRESH, LP_THRESH, NOTCH_THRESH)  # create data class
 
     thread_read_and_demultiplex = ReadNDemultiplex(tcp_ip_obj, data_obj, ring_lock)  # thread 1: reading buffer and demultiplex
-    thread_process_classification = ProcessClassification(WINDOW_CLASS, WINDOW_OVERLAP, SAMPLING_FREQ, ring_lock)  # thread 2: filter, extract features, classify
+    thread_process_classification = ProcessClassification(CHANNEL_LEN, WINDOW_CLASS, WINDOW_OVERLAP, SAMPLING_FREQ, ring_lock)  # thread 2: filter, extract features, classify
 
     thread_read_and_demultiplex.start()  # start thread 1
     thread_process_classification.start()  # start thread 2
