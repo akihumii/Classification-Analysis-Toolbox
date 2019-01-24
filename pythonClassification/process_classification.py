@@ -32,7 +32,6 @@ class ProcessClassification(threading.Thread, Saving, Output):
         self.channel_decode = []
 
         self.prediction = 0
-        # self.prediction = [[] for __ in range(self.__channel_len)]
 
     def run(self):
         self.load_classifier()
@@ -41,7 +40,8 @@ class ProcessClassification(threading.Thread, Saving, Output):
                 self.get_ring_data()
                 # self.check_data_raw()
                 self.classify()
-                self.save(np.vstack(np.array(self.data_raw)).transpose(), "a")
+                self.save([np.array(self.data_raw[0])], "a")
+                # self.save(np.vstack(np.array(self.data_raw)).transpose(), "a")
         finally:
             self.switchoff()
 

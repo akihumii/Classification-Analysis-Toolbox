@@ -27,6 +27,11 @@ class Output:
         self.state = state
         self.value = value
 
+        if self.state:
+            self.result = self.set_bit(self.value, self.channel_index)
+        else:
+            self.result = self.clear_bit(self.value, self.channel_index)
+
         self.switcher_output.get(self.mode)()  # switch to the function and then execute it
 
         return self.result
@@ -40,16 +45,12 @@ class Output:
                 GPIO.output(x, GPIO.LOW)
 
     def __output_serial(self):
-        print('creating output...')
-        if self.state:
-            self.result = self.set_bit(self.value, self.channel_index)
-        else:
-            self.result = self.clear_bit(self.value, self.channel_index)
-
         self.ser.write('%d\n' % self.result)
         print('Sent %d...' % self.result)
 
     def __setup_GPIO(self):
+        GPIO.cleanup()  # clear RPi GPIO pins
+
         print("setup GPIO...")
         self.led_pin = [[18, 4],
                         [17, 27],
@@ -57,6 +58,8 @@ class Output:
                         [6, 13]]
 
         GPIO.setmode(GPIO.BCM)  # Use "GPIO" pin numbering
+
+        GPIO.setwarnings(False)  # suppress the warnings
 
         try:
             for x in np.reshape(self.led_pin, np.size(self.led_pin)):
@@ -72,12 +75,14 @@ class Output:
                 baudrate=19200,
                 timeout=1
             )
-        except serial.serialutil.SerialException:
             self.ser = serial.Serial(
                 port='/dev/ttyACM1',  # Replace ttyS0 with ttyAM0 for Pi1,Pi2,Pi0
                 baudrate=19200,
                 timeout=1
             )
+        except serial.serialutil.SerialException:
+            print('No serial port is activated...')
+            raise
 
     def set_bit(self, value, index):
         return value | 1 << index

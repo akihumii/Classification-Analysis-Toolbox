@@ -2,12 +2,12 @@ import numpy as np
 import globals
 from numpy_ringbuffer import RingBuffer
 from saving import Saving
+from filtering import Filtering
 
 
-class Demultiplex(Saving):
-    def __init__(self, ringbuffer_size, channel_len, hp_thresh, lp_thresh, notch_thresh):
+class Demultiplex(Saving, Filtering):
+    def __init__(self, ringbuffer_size, channel_len, sampling_freq, hp_thresh, lp_thresh, notch_thresh):
         Saving.__init__(self)
-        # Filtering.__init__(self, hp_thresh, lp_thresh, notch_thresh)
         self.data_orig = []
         self.data_processed = []
         self.buffer_process = []
@@ -24,6 +24,7 @@ class Demultiplex(Saving):
         self.__ring_column_len = self.__channel_len + self.__sync_pulse_len + self.__counter_len
 
         globals.ring_data = [RingBuffer(capacity=ringbuffer_size, dtype=np.float) for __ in range(self.__ring_column_len)]
+        self.filter_obj = [Filtering(sampling_freq, hp_thresh, lp_thresh, notch_thresh) for __ in range(self.__channel_len)]
 
     def get_buffer(self, buffer_read):
         self.loc_start_orig = np.argwhere(np.array(buffer_read) == self.__flag_start_bit)
@@ -57,6 +58,12 @@ class Demultiplex(Saving):
                                   buffer=data_counter.astype(np.uint8))
 
         data_channel = (data_channel.astype(np.float64) - 32768) * 0.000195  # convert to integer
+
+        data_channel = np.transpose(np.vstack([self.filter_obj[x].filter(data_channel[:, x])
+                                               for x in range(self.__channel_len)]))
+
+        # data_channel = np.hstack([np.vstack([self.filter_obj[x].filter(data_channel[:, x])])
+        #                           for x in range(self.__channel_len)])
 
         self.data_processed = np.hstack([data_channel, data_sync_pulse, data_counter])
 
