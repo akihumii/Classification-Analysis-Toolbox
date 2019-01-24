@@ -4,16 +4,16 @@ import numpy as np
 import pickle
 import globals
 from saving import Saving
-from display import Display
+from output import Output
 from features import Features
 from numpy_ringbuffer import RingBuffer
 
 
-class ProcessClassification(threading.Thread, Saving, Display):
-    def __init__(self, channel_len, window_class, window_overlap, sampling_freq, ring_lock):
+class ProcessClassification(threading.Thread, Saving, Output):
+    def __init__(self, mode, channel_len, window_class, window_overlap, sampling_freq, ring_lock):
         threading.Thread.__init__(self)
         Saving.__init__(self)
-        Display.__init__(self)
+        Output.__init__(self, mode)
 
         self.clf = None
         self.window_class = window_class  # seconds
@@ -31,7 +31,7 @@ class ProcessClassification(threading.Thread, Saving, Display):
 
         self.channel_decode = []
 
-        self.prediction = []
+        self.prediction = 0
         # self.prediction = [[] for __ in range(self.__channel_len)]
 
     def run(self):
@@ -62,22 +62,17 @@ class ProcessClassification(threading.Thread, Saving, Display):
 
         self.clf = [pickle.load(open(os.path.join('classificationTmp', x), 'rb')) for x in filename]
 
-        self.prediction = np.zeros(len(self.channel_decode), dtype=bool)
-
     def classify(self):
         for i, x in enumerate(self.channel_decode):
             feature_obj = Features(self.data_raw[int(x)-1], self.sampling_freq, [3, 7])
             features = feature_obj.extract_features()
             try:
-                prediction = bool(self.clf[i].predict([features]) - 1)
-                if prediction != self.prediction[i]:
-                    self.display(i, prediction)
-                    self.prediction[i] = prediction
-                    print(prediction)
+                prediction = self.clf[i].predict([features]) - 1
+                if prediction != (self.prediction >> i & 1):  # if prediction changes
+                    self.prediction = self.output(i, prediction, self.prediction)
+                    print('Prediction: %s' % self.prediction)
             except ValueError:
                 print('prediction failed...')
-
-        print('Prediction: %s' % self.prediction)
 
     def check_data_raw(self):
         check_len = [len(self.data_raw[x]) for x in range(10)]

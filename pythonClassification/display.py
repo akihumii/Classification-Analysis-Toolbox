@@ -24,7 +24,10 @@ class Display:
         GPIO.cleanup()
 
     def __setup(self):
-        for x in np.reshape(self.led_pin, np.size(self.led_pin)):
-            GPIO.setup(x, GPIO.OUT)
+        try:
+            for x in np.reshape(self.led_pin, np.size(self.led_pin)):
+                GPIO.setup(x, GPIO.OUT)
+        except RuntimeWarning:
+            pass
 
 
