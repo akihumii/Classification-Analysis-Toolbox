@@ -4,16 +4,16 @@ import numpy as np
 import pickle
 import globals
 from saving import Saving
-from output import Output
+from classification_decision import ClassificationDecision
 from features import Features
 from numpy_ringbuffer import RingBuffer
 
 
-class ProcessClassification(threading.Thread, Saving, Output):
-    def __init__(self, mode, channel_len, window_class, window_overlap, sampling_freq, ring_lock):
+class ProcessClassification(threading.Thread, Saving, ClassificationDecision):
+    def __init__(self, method, pin_led, channel_len, window_class, window_overlap, sampling_freq, ring_lock, ring_event):
         threading.Thread.__init__(self)
         Saving.__init__(self)
-        Output.__init__(self, mode)
+        ClassificationDecision.__init__(self, method, pin_led, 'out')
 
         self.clf = None
         self.window_class = window_class  # seconds
@@ -21,6 +21,7 @@ class ProcessClassification(threading.Thread, Saving, Output):
         self.sampling_freq = sampling_freq
         self.counter = -1
         self.ring_lock = ring_lock
+        self.ring_event = ring_event
         self.flag_channel_same_len = False
 
         self.__ring_channel_len = len(globals.ring_data)
@@ -34,16 +35,20 @@ class ProcessClassification(threading.Thread, Saving, Output):
         self.prediction = 0
 
     def run(self):
-        self.load_classifier()
-        try:
-            while True:
+            self.ring_event.wait()  # wait for classifier switch to be on (GPIO pin 24)
+            self.setup()  # setup GPIO/serial classification display output
+            self.load_classifier()
+            count = 1
+            while self.ring_event.isSet():
+                print('PC: %d ...' % count)
+                count += 1
                 self.get_ring_data()
                 # self.check_data_raw()
                 self.classify()
                 self.save([np.array(self.data_raw[0])], "a")
                 # self.save(np.vstack(np.array(self.data_raw)).transpose(), "a")
-        finally:
-            self.switchoff()
+
+            print('pause processing...')
 
     def get_ring_data(self):
         while len(globals.ring_data[0]) <= (self.window_overlap * self.sampling_freq):
@@ -53,7 +58,8 @@ class ProcessClassification(threading.Thread, Saving, Output):
         with self.ring_lock:
             for x in range(self.__ring_channel_len):
                 self.data_raw[x].extend(np.array(globals.ring_data[x]))  # fetch the data from ring buffer
-                globals.ring_data[x] = RingBuffer(capacity=globals.ring_data[x].maxlen, dtype=np.float)  # clear the ring buffer
+
+            self.__clear_ring_data()  # clear the ring buffer
 
     def load_classifier(self):
         filename = sorted(x for x in os.listdir('classificationTmp') if x.startswith('classifier'))
@@ -88,5 +94,10 @@ class ProcessClassification(threading.Thread, Saving, Output):
             print(check_len)
         else:
             self.flag_channel_same_len = False
+
+    def __clear_ring_data(self):
+        for x in range(self.__ring_channel_len):
+            globals.ring_data[x] = RingBuffer(capacity=globals.ring_data[x].maxlen, dtype=np.float)  # clear the ring buffer
+
 
 
