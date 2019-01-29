@@ -10,21 +10,18 @@ class TcpIp:
 
         self.buffer_size = buffer_size
         self.socket_obj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket_obj.settimeout(2)
 
-        self.__connected = False
+        self.connected = True
 
     def connect(self):  # connect to port
-        count = 1
-        while not self.__connected:
-            try:
-                self.socket_obj.connect((self.ip_add, self.port))
-                self.__connected = True
-                print("Successfully connected...")
-            except socket.error:
-                self.__connected = False
-                print("Connection failed... reconnecting %d time..." % count)
-                count += 1
-                sleep(2)
+        try:
+            self.socket_obj.connect((self.ip_add, self.port))
+            print("Successfully connected...")
+        except socket.error:  # connection failed...
+            self.connected = False
+
+        return self.connected
 
     def close(self):
         self.socket_obj.close()
@@ -35,7 +32,6 @@ class TcpIp:
         while num_bytes_recorded < self.buffer_size:
             buffer_part = self.socket_obj.recv(self.buffer_size - num_bytes_recorded)
             if buffer_part == '':
-                # raise RuntimeError("socket connection broken")
                 print('Not received anything...')
                 sleep(1)
             else:

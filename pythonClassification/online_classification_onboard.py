@@ -57,9 +57,6 @@ if __name__ == "__main__":
                 thread_read_and_demultiplex.start()  # start thread 1
                 thread_process_classification.start()  # start thread 2
 
-                # thread_read_and_demultiplex.join()  # join thread 1
-                # thread_process_classification.join()  # join thread 2
-                #
                 # print('join threads...')
                 while process_obj.input_GPIO():
                     print('Sub main waiting for connection: %d...' % count2)
@@ -67,6 +64,10 @@ if __name__ == "__main__":
                     sleep(3)
 
                 ring_event.clear()
+
+                thread_read_and_demultiplex.join()  # terminate thread 1
+                thread_process_classification.join()  # terminate thread 2
+
                 print('ring event cleared...')
         else:
             print('Main waiting for connection: %d...' % count)

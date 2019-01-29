@@ -26,6 +26,7 @@ class ProcessClassification(threading.Thread, Saving, ClassificationDecision):
 
         self.__ring_channel_len = len(globals.ring_data)
         self.__channel_len = channel_len
+        self.__classify_flag = False
 
         self.data_raw = [RingBuffer(capacity=int(self.window_class * self.sampling_freq), dtype=np.float64)
                          for __ in range(self.__ring_channel_len)]
@@ -35,31 +36,31 @@ class ProcessClassification(threading.Thread, Saving, ClassificationDecision):
         self.prediction = 0
 
     def run(self):
-            self.ring_event.wait()  # wait for classifier switch to be on (GPIO pin 24)
-            self.setup()  # setup GPIO/serial classification display output
-            self.load_classifier()
-            count = 1
-            while self.ring_event.isSet():
-                print('PC: %d ...' % count)
-                count += 1
-                self.get_ring_data()
-                # self.check_data_raw()
+        self.setup()  # setup GPIO/serial classification display output
+        self.load_classifier()
+        while True:
+            if not self.ring_event.isSet():
+                print('pause processing...')
+                break
+
+            self.get_ring_data()
+
+            if self.__classify_flag:
                 self.classify()
                 self.save([np.array(self.data_raw[0])], "a")
                 # self.save(np.vstack(np.array(self.data_raw)).transpose(), "a")
 
-            print('pause processing...')
-
     def get_ring_data(self):
-        while len(globals.ring_data[0]) <= (self.window_overlap * self.sampling_freq):
-            continue
+        if len(globals.ring_data) > 0 and len(globals.ring_data[0]) >= (self.window_overlap * self.sampling_freq):
+            with self.ring_lock:
+                for x in range(self.__ring_channel_len):
+                    self.data_raw[x].extend(np.array(globals.ring_data[x]))  # fetch the data from ring buffer
 
-        # when ring data has enough sample
-        with self.ring_lock:
-            for x in range(self.__ring_channel_len):
-                self.data_raw[x].extend(np.array(globals.ring_data[x]))  # fetch the data from ring buffer
+                self.__clear_ring_data()  # clear the ring buffer
 
-            self.__clear_ring_data()  # clear the ring buffer
+            self.__classify_flag = True
+        else:
+            self.__classify_flag = False
 
     def load_classifier(self):
         filename = sorted(x for x in os.listdir('classificationTmp') if x.startswith('classifier'))

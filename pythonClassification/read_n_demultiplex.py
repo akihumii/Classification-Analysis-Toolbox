@@ -12,26 +12,32 @@ class ReadNDemultiplex(threading.Thread, ClassificationDecision):
         self.ring_lock = ring_lock
         self.ring_event = ring_event
 
+        self.connected_flag = False
+
     def run(self):
             buffer_leftover = []
             try:
-                self.ring_event.set()
                 print('on...')
-                count = 1
-                while self.ring_event.isSet():
-                    print('RND: %d ...' % count)
-                    count += 1
-                    self.tcp_ip_sylph.connect()
-                    self.tcp_ip_odin.connect()
+                while True:
+                    if not self.ring_event.isSet():
+                        print('stop processing...')
+                        break
 
-                    buffer_read = self.tcp_ip_sylph.read(buffer_leftover)
-                    buffer_leftover = self.data_obj.get_buffer(buffer_read)
-                    self.data_obj.get_data_channel()  # demultiplex and get the channel data
-                    self.data_obj.save(self.data_obj.data_processed, "a")
-                    self.data_obj.fill_ring_data(self.ring_lock)  # fill the ring buffer
+                    if not self.connected_flag:
+                        self.connected_flag = self.tcp_ip_sylph.connect()
+                        self.connected_flag = self.tcp_ip_odin.connect()
 
-                print('off...')
-                print('closing port...')
+                    if self.connected_flag:
+                        buffer_read = self.tcp_ip_sylph.read(buffer_leftover)
+
+                        buffer_leftover = self.data_obj.get_buffer(buffer_read)
+
+                        self.data_obj.get_data_channel()  # demultiplex and get the channel data
+
+                        self.data_obj.save(self.data_obj.data_processed, "a")
+
+                        self.data_obj.fill_ring_data(self.ring_lock)  # fill the ring buffer
+
                 self.tcp_ip_odin.close()
                 self.tcp_ip_sylph.close()
             except RuntimeError:  # if GPIO is just nice cleared off by thread 2
