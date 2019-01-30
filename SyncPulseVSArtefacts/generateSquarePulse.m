@@ -20,23 +20,41 @@ numSamplePoints = size(dataRef,1); % length of the signal in sample points
 clear chLocs chStartingPoint chEndPoint numStartingPoint squareWave lengthSW SWTemp
 
 for i = 1:numChannel
-    preLocs = find(dataRef(:,1) == odinparam.chStartingRef(i));
+    preLocs = find(dataRef(:,1) == odinparam.chStartingRef(i));  % find starting point of stimulation for electrodes channels in channel 13
     preLocsDiff = diff(preLocs);
-%     if ~isempty(preLocsDiff)
+    if ~isempty(preLocsDiff)
         chLocs{i,1} = preLocs([true;preLocsDiff~=1]);
-%     else
-%         chLocs{i,1} = [];
-%     end
+    else
+        warning(sprintf('Couldn''t find %d...', odinparam.chStartingRef(i)));
+        chLocs{i,1} = [];
+    end
+    
+    preLocs = find(dataRef(:,2) == 0);  % find 0 in channel 14 == stop stimulation
+    preLocsDiff = diff(preLocs);
+    if ~isempty(preLocsDiff)
+        chLocs{i,1} = [chLocs{i,1}; preLocs([true;preLocsDiff~=1])];
+    else
+        warning(sprintf('Couldn''t find %d...', odinparam.chStartingRef(i)));
+        chLocs{i,1} = chLocs{i,1};
+    end
+
 end
 chLocs = cell2nanMat(chLocs);
 
 for i = 1:numChannel
-    chLocs(isnan(chLocs(:,i)),i) = chLocs(find(~isnan(chLocs(:,i)),1,'last'),i);
+    locTemp = chLocs(find(~isnan(chLocs(:,i)),1,'last'),i);
+    if ~isempty(locTemp)
+        chLocs(isnan(chLocs(:,i)),i) = locTemp;
+    else
+        chLocs(isnan(chLocs(:,i)),i) = 1;
+    end
 end
     
     
 endLocs = reshape((dataRef(chLocs,2)==0),size(chLocs));
-endLocs(1,end) = 1;  % hack job cos it looks like it's always in this case XO
+if ~isempty(chLocs) % hack job for coudln't find anything in all channels
+    endLocs(1,end) = 1;  % hack job cos it looks like it's always in this case XO
+end
 endLocsAny = any(endLocs,2); % for reference to see if any of the channel changed to zero
 
 chStartingPoint = chLocs;

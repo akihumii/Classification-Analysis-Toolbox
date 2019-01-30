@@ -65,8 +65,8 @@ else
             numPlot = length(pSW);
             
             % plot the colors for special numbers while changing commands
-            numSpecialNumber = length(odinparam.specialNumbers);
             if odinparam.plotStem
+                numSpecialNumber = length(odinparam.specialNumbers);
                 for j = 1:numSpecialNumber
                     locsTemp = find(signal(i,1).dataAll(:,13) == odinparam.specialNumbers(j));
                     axes(pSW(2,1));
@@ -96,8 +96,12 @@ else
 
                 % start channels colorful lines
                 for k = 1:4
-                    line{k,j} = plot(repmat(outputSW.chStartingTime(:,k)',2,1),ylim,'-.','color',colorArray(k,:),'lineWidth',1.5);
-                    plot(repmat(outputSW.chEndTime(:,k)',2,1),ylim,'-.','color',colorArray(k,:),'lineWidth',1.5);
+                    if ~isempty(outputSW.chStartingTime(:,k)')
+                        line{k,j} = plot(repmat(outputSW.chStartingTime(:,k)',2,1),ylim,'-.','color',colorArray(k,:),'lineWidth',1.5);
+                        plot(repmat(outputSW.chEndTime(:,k)',2,1),ylim,'-.','color',colorArray(k,:),'lineWidth',1.5);
+                    else
+                        line{k,j} = [];
+                    end
                 end
                 
                 if numLines > 0
@@ -135,9 +139,13 @@ else
             axes(pSW(2,1))
             
             for j = 1:size(line,1)
-                legendLine(j,1) = line{j,2}(1,1);
+                if ~isempty(line{j,2})
+                    legendLine(j,1) = line{j,2}(1,1);
+                end
             end
-            legend(legendLine,odinparam.legendName(1:length(odinparam.specialNumbers)));
+            if ~isempty(line{1,2})
+                legend(legendLine,odinparam.legendName(1:length(odinparam.chStartingRef)));
+            end
         end
     end
 end
