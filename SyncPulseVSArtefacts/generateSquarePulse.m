@@ -22,7 +22,11 @@ clear chLocs chStartingPoint chEndPoint numStartingPoint squareWave lengthSW SWT
 for i = 1:numChannel
     preLocs = find(dataRef(:,1) == odinparam.chStartingRef(i));
     preLocsDiff = diff(preLocs);
-    chLocs{i,1} = preLocs([true;preLocsDiff~=1]);
+%     if ~isempty(preLocsDiff)
+        chLocs{i,1} = preLocs([true;preLocsDiff~=1]);
+%     else
+%         chLocs{i,1} = [];
+%     end
 end
 chLocs = cell2nanMat(chLocs);
 
@@ -32,6 +36,7 @@ end
     
     
 endLocs = reshape((dataRef(chLocs,2)==0),size(chLocs));
+endLocs(1,end) = 1;  % hack job cos it looks like it's always in this case XO
 endLocsAny = any(endLocs,2); % for reference to see if any of the channel changed to zero
 
 chStartingPoint = chLocs;
@@ -40,7 +45,8 @@ chEndPoint = chLocs(endLocsAny,:);
 %% Add in more starting points by checking channel 15
 for i = 1:numChannel
     changeLocs{i,1} = zeros(0,1);
-    for j = 1:2:size(chStartingPoint,1)
+    for j = 1:size(chStartingPoint,1)-1
+%     for j = 1:2:size(chStartingPoint,1)
         diffTemp = diff(dataRef(chStartingPoint(j,1):chStartingPoint(j+1,1) , 3));
         changeLocs{i,1} = [changeLocs{i,1}; find(diffTemp ~= 0)];
         changeLocs{i,1} = changeLocs{i,1} + chStartingPoint(j,1) - 1;

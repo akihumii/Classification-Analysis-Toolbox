@@ -109,6 +109,7 @@ else
                         text(repmat(outputSW.changeLocsTime(k,1)',2,1)+1e-3,repmat(yLimit(1),1,2),num2str(outputSW.amplitude(k,1)));
                     end
                 end
+                
             end
             
             
