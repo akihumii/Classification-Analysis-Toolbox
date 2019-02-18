@@ -20,7 +20,7 @@ Mdl = fitcecoc(trainingGroup,trainingClassGroup,'Learners',templateMdl,'FitPoste
 % oosLoss = kfoldLoss(CVMdl); % generalization error
 
 %% Prediction
-predictClass = predict(Mdl,testingGroup); % predict
+[predictClass,~,~,posteriorRegion] = predict(Mdl,testingGroup); % predict
 
 % oofLabel = kfoldPredict(CVMdl); % predicted class, similar as the output of the function predict
 
@@ -29,6 +29,7 @@ output.Mdl = Mdl;
 % output.CVMdl = CVMdl;
 % output.oosLoss = oosLoss;
 output.predictClass = predictClass;
+output.posteriorRegion = posteriorRegion;
 
 end
 
