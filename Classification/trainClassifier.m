@@ -37,7 +37,7 @@ classifierFullTitle = [classifierFullTitle,' )'];
         
         try
             if all(parameters.featureIndexSelected{i,1} > 0)
-                featureIndex{i,1} = featureIndex{i,1}(parameters.featureIndexSelected{i,1});
+                featureIndex{i,1} = parameters.featureIndexSelected{i,1};
             end
         catch
         end

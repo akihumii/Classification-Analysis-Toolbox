@@ -29,7 +29,7 @@ switch targetSubject
         error('Invalid input targetSubject...')
 end
 
-[classifierOutput] = analyzeFeatures('selectFileType',2,'specificTarget',saveFileName,'showAccuracy',0,'saveAccuracy',0); % to train the classifier
+[classifierOutput] = analyzeFeatures('numFeaturesInCombination',2,'featureIndexSelected',{[5,7]},'selectFileType',2,'specificTarget',saveFileName,'showAccuracy',0,'saveAccuracy',0); % to train the classifier
 
 %% Save required information for online classification
 numClass = length(signal);
@@ -50,8 +50,8 @@ numClass = length(signal);
 % saveInfo.numClass = numClass + 1;
 
 for i = 1:numClass
-    saveInfo{i,1}.featureClassification = 5;
-    saveInfo{i,1}.classifierMdl = classifierOutput(i,1).classificationOutput{1,1}(saveInfo{i,1}.featureClassification,1).Mdl{i,1};
+    saveInfo{i,1}.featureClassification = classifierOutput(1).featureIndex{1,1};
+    saveInfo{i,1}.classifierMdl = classifierOutput(i,1).classificationOutput{1,1}(1,1).Mdl{i,1};
     saveInfo{i,1}.thresholds = signalClassificationInfo(i,1).burstDetection.threshold(i,1);
     saveInfo{i,1}.numStartConsecutivePoints = signalClassificationInfo(1,1).burstDetection.parameters.TKEOStartConsecutivePoints(1,i);
     saveInfo{i,1}.numEndConsecutivePoints = signalClassificationInfo(1,1).burstDetection.parameters.TKEOEndConsecutivePoints(1,i);
