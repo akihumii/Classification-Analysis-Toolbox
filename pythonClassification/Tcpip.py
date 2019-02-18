@@ -41,4 +41,8 @@ class TcpIp:
 
         return np.append(buffer_leftover, buffer_read)
 
+    def write_disconnect(self):
+        msg = 'DISCONNECT!!!!!!'  # 16 char
+        self.socket_obj.send(msg)
+
 

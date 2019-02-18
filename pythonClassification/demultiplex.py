@@ -1,13 +1,12 @@
 import numpy as np
 import globals
 from numpy_ringbuffer import RingBuffer
-from saving import Saving
 from filtering import Filtering
 
 
-class Demultiplex(Saving, Filtering):
+class Demultiplex(Filtering):
     def __init__(self, ringbuffer_size, channel_len, sampling_freq, hp_thresh, lp_thresh, notch_thresh):
-        Saving.__init__(self)
+        Filtering.__init__(self, sampling_freq, hp_thresh, lp_thresh, notch_thresh)
         self.data_orig = []
         self.data_processed = []
         self.buffer_process = []
@@ -36,10 +35,12 @@ class Demultiplex(Saving, Filtering):
 
         if len(self.loc_start) > 0:
             [self.buffer_process, buffer_leftover] = np.split(buffer_read, [self.loc_start[-1]+self.__sample_len-1])
+            empty_buffer_flag = False
         else:
             buffer_leftover = buffer_read
+            empty_buffer_flag = True
 
-        return buffer_leftover
+        return buffer_leftover, empty_buffer_flag
 
     def get_data_channel(self):  # obtain complete samples and form a matrix ( data_channel )
         data_all = [self.buffer_process[x:x + self.__sample_len-1] for x in self.loc_start]

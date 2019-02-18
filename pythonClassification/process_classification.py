@@ -47,8 +47,10 @@ class ProcessClassification(threading.Thread, Saving, ClassificationDecision):
 
             if self.__classify_flag:
                 self.classify()
-                self.save([np.array(self.data_raw[0])], "a")
+                self.save([np.array(self.data_raw[3])], "a")
                 # self.save(np.vstack(np.array(self.data_raw)).transpose(), "a")
+
+        self.stop()  # stop GPIO/serial classification display output
 
     def get_ring_data(self):
         if len(globals.ring_data) > 0 and len(globals.ring_data[0]) >= (self.window_overlap * self.sampling_freq):
@@ -77,7 +79,7 @@ class ProcessClassification(threading.Thread, Saving, ClassificationDecision):
                 prediction = self.clf[i].predict([features]) - 1
                 if prediction != (self.prediction >> i & 1):  # if prediction changes
                     self.prediction = self.output(i, prediction, self.prediction)
-                    print('Prediction: %s' % self.prediction)
+                    print('Prediction: %s' % format(self.prediction, 'b'))
             except ValueError:
                 print('prediction failed...')
 

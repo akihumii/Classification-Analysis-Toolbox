@@ -20,7 +20,8 @@ class ConfigGPIO:
         return GPIO.input(self.pin)
 
     def stop_GPIO(self):
-        GPIO.cleanup()
+        for x in np.reshape(self.pin, [np.size(self.pin)]):
+            GPIO.cleanup(x)
 
     def setup_GPIO(self):
         GPIO.setmode(GPIO.BCM)  # Use "GPIO" pin numbering
