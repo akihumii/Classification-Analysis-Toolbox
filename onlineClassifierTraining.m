@@ -11,8 +11,8 @@ title = 'Input threshold multiplier';
 dims = [1 35];
 % definput = {'190','180','95','60'};
 definput = {'30','15','30','15'};
-threshMult = inputdlg(prompt,title,dims,definput);
-threshMult = str2double(threshMult)';
+threshMultStr = inputdlg(prompt,title,dims,definput);
+threshMult = str2double(threshMultStr)';
 targetSubject = 'NHP'; % inupt either 'Derek' for biceps NRF demo set; or NHP for monkey device
 
 %% Pre-train
@@ -57,6 +57,7 @@ for i = 1:numClass
     saveInfo{i,1}.numEndConsecutivePoints = signalClassificationInfo(1,1).burstDetection.parameters.TKEOEndConsecutivePoints(1,i);
     saveInfo{i,1}.samplingFreq = signal(1,1).samplingFreq;
     saveInfo{i,1}.numClass = length(unique(classifierOutput(i,1).classificationOutput{1,1}(1,1).trainingClass{1,i}));
+    saveInfo{i,1}.threshMultStr = threshMultStr;
 end
 
 saveVar(fullfile(signal(1,1).path,'Info','onlineClassification'),'OnlineClassificationInfo',saveInfo);

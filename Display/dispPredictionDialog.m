@@ -10,6 +10,7 @@ global classifierParameters
 global tNumber
 global buttonStartStop
 global tStatus
+global tMult
 global stopAll
 
 warning('off','all');
@@ -29,6 +30,8 @@ set(gcf, 'Position', windowPosition, 'MenuBar', 'none', 'ToolBar', 'none');
 tStatus = uicontrol(gcf,'Style','text','String','Program stopped...','HorizontalAlignment','left','FontSize',textSize,'Unit','normalized','Position',[0.15,0.66,0.6,0.25]);
 
 tNumber = uicontrol(gcf,'Style','text','String',num2str(a),'FontSize',textSizePredictionClass,'Unit','normalized','Position',[0.1,0.43,0.8,0.3]);
+
+tMult = uicontrol(gcf,'Style','text','String',[{'threshMult'};{num2str(a')}],'FontSize',textReselectSize,'Unit','normalized','Position',[.001,.45,.16,.3]);
 
 buttonStartStop = uicontrol(gcf,'Style','push','String','Start','FontWeight','bold','ForegroundColor',[0,190/256,0],'FontSize',textSize,'Unit','normalized','Position',[.15,0.1,0.7,0.25],'CallBack',@changeState);
 
@@ -66,10 +69,12 @@ buttonTrain = uicontrol(gcf,'Style','push','String','Train','FontWeight','bold',
             [files,path] = selectFiles('Select trained parameters .mat file...');
             classifierParameters = load(fullfile(path,files{1,1}));
             classifierParameters = classifierParameters.varargin{1,1};
-            
+                        
             resetAll();
             
             startAllFlag = 1;
+            
+            tMult.String = [{'threshMult'};classifierParameters{1,1}.threshMultStr];
             
             popMsg('Trained file selected...');
         catch
