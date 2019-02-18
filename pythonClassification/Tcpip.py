@@ -1,0 +1,48 @@
+import numpy as np
+import socket
+from time import sleep
+
+
+class TcpIp:
+    def __init__(self, ip_add, port, buffer_size):
+        self.ip_add = ip_add
+        self.port = port
+
+        self.buffer_size = buffer_size
+        self.socket_obj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket_obj.settimeout(2)
+
+        self.connected = True
+
+    def connect(self):  # connect to port
+        try:
+            self.socket_obj.connect((self.ip_add, self.port))
+            print("Successfully connected...")
+        except socket.error:  # connection failed...
+            self.connected = False
+
+        return self.connected
+
+    def close(self):
+        self.socket_obj.close()
+
+    def read(self, buffer_leftover):  # read data from port
+        num_bytes_recorded = 0
+        buffer_read = np.array([], dtype=np.uint8)
+        while num_bytes_recorded < self.buffer_size:
+            buffer_part = self.socket_obj.recv(self.buffer_size - num_bytes_recorded)
+            if buffer_part == '':
+                print('Not received anything...')
+                sleep(1)
+            else:
+                buffer_read = np.append(buffer_read, np.frombuffer(buffer_part, dtype=np.uint8))
+
+                num_bytes_recorded = num_bytes_recorded + len(buffer_part)
+
+        return np.append(buffer_leftover, buffer_read)
+
+    def write_disconnect(self):
+        msg = 'DISCONNECT!!!!!!'  # 16 char
+        self.socket_obj.send(msg)
+
+
