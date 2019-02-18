@@ -7,7 +7,7 @@ function data = insertBaselineFeature(data,baseline)
 %     numBurst = 0;
 % end
 
-lengthBaselineBurst = size(baseline.baselineBursts,1);
+[lengthBaselineBurst, numBaselineBursts] = size(baseline.baselineBursts);
 
 if lengthBaselineBurst > numSampleBurst
     baseline.baselineBursts(numSampleBurst+1:end, :, :) = []; % remove extra sample points in baseline bursts
@@ -15,6 +15,10 @@ else
     baselineBurstTemp = nan(size(data.selectedWindows.burst));
     baselineBurstTemp(1:lengthBaselineBurst, 1:numBurst, 1:numChannel) = baseline.baselineBursts;
     baseline.baselineBursts = baselineBurstTemp;
+end
+
+if numBaselineBursts > numBurst
+    baseline.baselineBursts(:, numBurst+1:end, :) = []; % remove extra baseline windows
 end
 
 % change the data.selectedWindows

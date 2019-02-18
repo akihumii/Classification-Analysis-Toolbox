@@ -32,10 +32,12 @@ classdef classClassificationPreparation
         features
         trainingRatio
         grouping
+        baselineInfo
     end
     
     properties (Access = private)
         trimMinDistance = 0.3 % seconds
+        sortedBaselineMultiplier = [4,3]
     end
     
     methods
@@ -58,7 +60,18 @@ classdef classClassificationPreparation
             end
             [dataValue, dataName] = loadMultiLayerStruct(targetClassData,parameters.dataToBeDetectedSpike);
             minDistance = floor(clfp.window * targetClassData.samplingFreq);
-            clfp.burstDetection = detectSpikes(dataValue,minDistance,parameters);
+            
+            baseline = getSortedDataBaseline(clfp, dataValue, parameters.signData);
+            thresholdValue = getThresholdValue(clfp,baseline, parameters.threshold, clfp.sortedBaselineMultiplier, parameters.signData);
+            
+            clfp.burstDetection = detectSpikes(dataValue,minDistance,parameters,baseline,thresholdValue); % use middle stream of sorted data to get a rough burst detection threshold
+            clfp.baselineInfo = getBaselineFeature(clfp.burstDetection,targetClassData.samplingFreq,targetClassData.dataFiltered.values,parameters.baselineType,targetClassData.dataTKEO.values);  % get the more reliable baseline by using the roughly detected bursts
+            
+            thresholdValue = getThresholdValue(clfp,clfp.baselineInfo.baselineInfo, parameters.threshold, parameters.threshStdMult, parameters.signData);
+            clfp.burstDetection = detectSpikes(dataValue,minDistance,parameters,clfp.baselineInfo.baselineInfo,thresholdValue); % overwrite the roughly gauged ones with the more accurate one 
+                        
+            clfp.baselineInfo = getBaselineFeature(clfp.burstDetection,targetClassData.samplingFreq,targetClassData.dataFiltered.values,parameters.baselineType,targetClassData.dataTKEO.values);  % update the number of baseline chunks and their corresponding features
+            
             clfp.burstDetection.dataAnalysed = [targetClassData.file,' -> ',dataName];
             clfp.burstDetection.detectionMethod = parameters.spikeDetectionType;
             clfp.burstDetection.channelExtractStartingLocs = parameters.channelExtractStartingLocs;
@@ -119,15 +132,40 @@ classdef classClassificationPreparation
             clfp.grouping.class = class;
             clfp.grouping.targetField = targetField;
         end
-        
-        function clfp = getBaselineFeature(clfp,samplingFreq,data,baselineType,dataForThreshChecking)
-            baselineInfo = getBaselineFeature(clfp.burstDetection,samplingFreq,data,baselineType,dataForThreshChecking);
-            clfp = insertBaselineFeature(clfp,baselineInfo);
-        end
+%         
+%         function clfp = insertBaselineFeature(clfp)
+%             clfp = insertBaselineFeature(clfp,clfp.baselineInfo);
+%         end
 
     end
     
+    %% Procted methods
     methods (Access = protected)
+        function baseline = getSortedDataBaseline(~, data, dataSign)
+            colData = size(data,2);
+            
+            for i = 1:colData
+                baseline{i,1} = baselineDetection(dataSign * data(:,i)); % the mean of the data points spanned from 1/4 to 3/4 of the data sorted by amplitude is obtained as baseline
+            end
+        end
+        
+        function thresholdValue = getThresholdValue(~, baseline, threshold, threshStdMult, signData)
+            colData = length(baseline);
+            for i = 1:colData
+                if threshold == 0 % if no user input, baseline + parameters.threshStdMult * baselineStandardDeviation will be used as parameters.threshold value
+                    if length(threshStdMult) < colData
+                        error('Not enough parameters.threshStdMult for all the channels...');
+                    else
+                        thresholdValue(i,1) = signData * baseline{i,1}.average + threshStdMult(1,i) * baseline{i,1}.stD;
+                    end
+                elseif length(parameters.threshold) == 1
+                    thresholdValue(i,1) = signData * threshold(1,1);
+                else
+                    thresholdValue(i,1) = signData * threshold(1,i);
+                end
+            end
+        end
+        
         function clfp = trimShortenedBursts(clfp,dataValue,samplingFreq)
             minDistance = round(clfp.trimMinDistance * samplingFreq); % minimum distance surrounding the bursts that need to be not zero
             

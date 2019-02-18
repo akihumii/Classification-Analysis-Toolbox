@@ -16,8 +16,8 @@ baselineMean = mean(baselineArray); % mean value of the samples that appears the
 baselineStd = std(baselineArray); % standard deviation of baseline
 
 baseline.array = baselineArray;
-baseline.mean = baselineMean;
-baseline.std = baselineStd;
+baseline.average = baselineMean;
+baseline.stD = baselineStd;
 
 %% For odin Dyno
 % baseline = mean(dataSorted(1:floor(numSample/80))); % mean value of the samples that appears the most

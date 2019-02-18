@@ -1,4 +1,4 @@
-function output = detectSpikes(data, minDistance, parameters)
+function output = detectSpikes(data, minDistance, parameters, baseline, thresholdValue)
 %detectSpikes After taking baseline into account, any sample point exceeds
 %3/5 of the maximum value of the parameters.signal will be considered as a spike. No 2
 %spikes will be detected in one window.
@@ -24,7 +24,7 @@ if nargin < 2
 end    
 
 %% Find Peaks
-data = parameters.sign*data;
+data = parameters.signData*data;
 
 [rowData, colData] = size(data);
 
@@ -32,6 +32,9 @@ if minDistance(2) > rowData
     error('Error found in User Input: windowSize is too large, which exceeds overall recording time of parameters.signal')
 end
 
+if length(thresholdValue) == 1
+    thresholdValue = repmat(thresholdValue,colData,1);
+end
 if length(parameters.threshStdMult) == 1
     parameters.threshStdMult = repmat(parameters.threshStdMult,1,colData);
 end
@@ -46,40 +49,28 @@ minDistance = floor(minDistance);
 
 for i = 1:colData % channel
     maxPeak = max(data(:,i));
-    baseline{i,1} = baselineDetection(parameters.sign * data(:,i)); % the mean of the data points spanned from 1/4 to 3/4 of the data sorted by amplitude is obtained as baseline
-    if parameters.threshold == 0 % if no user input, baseline + parameters.threshStdMult * baselineStandardDeviation will be used as parameters.threshold value
-        if length(parameters.threshStdMult) < colData
-            error('Not enough parameters.threshStdMult for all the channels...');
-        else
-            parameters.thresholdValue = parameters.sign * baseline{i,1}.mean + parameters.threshStdMult(1,i) * baseline{i,1}.std;
-        end
-    elseif length(parameters.threshold) == 1
-        parameters.thresholdValue = parameters.sign * parameters.threshold(1,1);
-    else
-        parameters.thresholdValue = parameters.sign * parameters.threshold(1,i);
-    end
     
     switch parameters.spikeDetectionType
         case 'local maxima'
             [spikePeaksValue{i,1}, spikeLocs{i,1}] = findpeaks(data(minDistance(1):end-minDistance(2)-1,i),'minPeakHeight',... % find peaks starting from minDistance of the data onwards
-                parameters.thresholdValue,'minPeakDistance',minDistance(2));
+                thresholdValue(i,1),'minPeakDistance',minDistance(2));
             spikeLocs{i,1} = spikeLocs{i,1} + minDistance(1); % compensate the skipped window
             [burstEndValue{i,1},burstEndLocs{i,1}] = pointAfterAWindow(data(:,i),minDistance(2),spikeLocs{i,1});
         case 'trigger'
-            [spikePeaksValue{i,1},spikeLocs{i,1}] = triggerSpikeDetection(data(minDistance(1):end-minDistance(2)-1,i),parameters.thresholdValue,minDistance(2));
+            [spikePeaksValue{i,1},spikeLocs{i,1}] = triggerSpikeDetection(data(minDistance(1):end-minDistance(2)-1,i),thresholdValue(i,1),minDistance(2));
             spikeLocs{i,1} = spikeLocs{i,1} + minDistance(1); % compensate the skipped window
             [burstEndValue{i,1},burstEndLocs{i,1}] = pointAfterAWindow(data(:,i),minDistance(2),spikeLocs{i,1});
         case 'TKEO'
             if length(parameters.TKEOStartConsecutivePoints) >= colData
-            [spikePeaksValue{i,1},spikeLocs{i,1}] = triggerSpikeDetection(data(minDistance(1):end-minDistance(2)-1,i),parameters.thresholdValue,minDistance(2),parameters.TKEOStartConsecutivePoints(1,i),1); % the last value is the number of consecutive point that needs to exceed parameters.threshold to be detected as spikes
-%             [spikePeaksValue{i,1},spikeLocs{i,1}] = triggerSpikeDetection(data(minDistance(1):end-minDistance(2),i),parameters.thresholdValue,minDistance(2),parameters.TKEOStartConsecutivePoints); % the last value is the number of consecutive point that needs to exceed parameters.threshold to be detected as spikes
+            [spikePeaksValue{i,1},spikeLocs{i,1}] = triggerSpikeDetection(data(minDistance(1):end-minDistance(2)-1,i),thresholdValue(i,1),minDistance(2),parameters.TKEOStartConsecutivePoints(1,i),1); % the last value is the number of consecutive point that needs to exceed parameters.threshold to be detected as spikes
+%             [spikePeaksValue{i,1},spikeLocs{i,1}] = triggerSpikeDetection(data(minDistance(1):end-minDistance(2),i),thresholdValue,minDistance(2),parameters.TKEOStartConsecutivePoints); % the last value is the number of consecutive point that needs to exceed parameters.threshold to be detected as spikes
             spikeLocs{i,1} = spikeLocs{i,1} + minDistance(1); % compensate the skipped window
-            [burstEndValue{i,1},burstEndLocs{i,1}] = findEndPoint(data(:,i), parameters.thresholdValue, spikeLocs{i,1}, parameters.TKEOEndConsecutivePoints(1,i));
+            [burstEndValue{i,1},burstEndLocs{i,1}] = findEndPoint(data(:,i), thresholdValue(i,1), spikeLocs{i,1}, parameters.TKEOEndConsecutivePoints(1,i));
             [spikePeaksValue{i,1},spikeLocs{i,1},burstEndValue{i,1},burstEndLocs{i,1}] =...
                 trimBurstLocations(spikePeaksValue{i,1},spikeLocs{i,1},burstEndValue{i,1},burstEndLocs{i,1});
             % another way to detect TKEO bursts
 %             [spikePeaksValue{i,1},spikeLocs{i,1},burstEndValue{i,1},burstEndLocs{i,1}] = ...
-%                 TKEOSpikeDetection(data(skipWindow:end-skipWindow,i),parameters.thresholdValue,parameters.TKEOStartConsecutivePoints,parameters.TKEOEndConsecutivePoints); % the last value is the number of consecutive point that needs to exceed parameters.threshold to be detected as spikes
+%                 TKEOSpikeDetection(data(skipWindow:end-skipWindow,i),thresholdValue,parameters.TKEOStartConsecutivePoints,parameters.TKEOEndConsecutivePoints); % the last value is the number of consecutive point that needs to exceed parameters.threshold to be detected as spikes
 %             spikeLocs{i,1} = spikeLocs{i,1} + skipWindow - 1; % compensate the skipped window
 %             burstEndLocs{i,1} = burstEndLocs{i,1} + skipWindow -1; % compensate the skipped window
             else
@@ -88,9 +79,9 @@ for i = 1:colData % channel
         otherwise
             error('Invalid spike detection parameters.spikeDetectionType')
     end
-        
-    parameters.thresholdAll(i,1) = parameters.thresholdValue;
 end
+
+parameters.thresholdAll = thresholdValue;
 
 %% reconstruct spikePeaksValue and spikeLocs
 if isempty(spikePeaksValue{1,1})
@@ -102,9 +93,9 @@ spikeLocs = cell2nanMat(spikeLocs);
 burstEndValue = cell2nanMat(burstEndValue);
 burstEndLocs = cell2nanMat(burstEndLocs);
 
-output.spikePeaksValue = parameters.sign * spikePeaksValue;
+output.spikePeaksValue = parameters.signData * spikePeaksValue;
 output.spikeLocs = spikeLocs;
-output.threshold = parameters.sign * parameters.thresholdAll;
+output.threshold = parameters.signData * parameters.thresholdAll;
 output.baseline = baseline;
 output.burstEndValue = burstEndValue;
 output.burstEndLocs = burstEndLocs;

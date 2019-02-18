@@ -75,6 +75,8 @@ for i = 1:numChannel
         otherwise
             error('Invalid method ot get the baseline feature...');
     end
+    
+    baselineInfo{i,1} = getBasicParameter(reshape(baselineBursts{i,1},[],1));
 end
 
 baselineBursts = cell2nanMat(baselineBursts);
@@ -88,7 +90,8 @@ baselineFeature = featureExtraction(baselineBursts,samplingFreq);
 %% output
 output = makeStruct(...
     baselineBursts,...
-    baselineFeature);
+    baselineFeature,...
+    baselineInfo);
 
 
 end
