@@ -1,5 +1,8 @@
 function dispPredictionDialog()
-%DISPPREDICTIONDIALOG Summary of this function goes here
+%DISPPREDICTIONDIALOG GUI for online classification
+% IMPORTANT: If you are using Windows, install pscp to transfer files to
+% raspberry pi via scp.
+% 
 %   Detailed explanation goes here
 close hidden
 
@@ -155,8 +158,18 @@ buttonSaveFeature = uicontrol(gcf,'Style','push','String','SaveFeatures','FontWe
         cd(cwd)
         
         for i = 1:length(savedClassifier)
-            systemCmd = sprintf('pscp -pw raspberry -scp %s pi@192.168.4.3:~/classificationTmp/', fullfile(filepath, savedClassifier(i,1).name));
-            system(systemCmd)
+            % IMPORTANT! download pscp in order to use this command
+            try  % for Windows
+                systemCmd = sprintf('pscp -pw raspberry -scp %s pi@192.168.4.3:~/classificationTmp/', fullfile(filepath, savedClassifier(i,1).name));
+                system(systemCmd)
+            catch
+                try  % for Linux
+                    systemCmd = sprintf('sshpass -p raspberry scp %s pi@192.168.4.3:~/classificationTmp/', fullfile(filepath, savedClassifier(i,1).name));
+                    system(systemCmd)
+                catch
+                    warning('failed to transfer file...')
+                end
+            end
         end
 
     end
