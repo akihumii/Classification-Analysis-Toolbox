@@ -25,6 +25,7 @@ classdef classOnlineClassification < matlab.System
         featureClassification;
         classifierMdl
         numClass
+        threshMultStr
         t % instrument of port
     end
     

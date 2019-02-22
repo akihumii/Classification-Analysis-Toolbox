@@ -38,7 +38,7 @@ for i = 1:numClass
     saveInfo{i,1}.threshMultStr = threshMultStr;
 end
 
-saveVar(fullfile(signal(1,1).path,'Info','onlineClassification'),'OnlineClassificationInfo',saveInfo);
+saveVar(fullfile(signal(1,1).path,'Info','onlineClassification'),['OnlineClassificationInfo_',cell2mat(join(threshMultStr,'n'))],saveInfo);
 
 popMsg('Training finished...');
 
