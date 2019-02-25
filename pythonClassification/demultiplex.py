@@ -42,7 +42,7 @@ class Demultiplex(Filtering):
 
         return buffer_leftover, empty_buffer_flag
 
-    def get_data_channel(self):  # obtain complete samples and form a matrix ( data_channel )
+    def get_data_channel(self, x):  # obtain complete samples and form a matrix ( data_channel )
         data_all = [self.buffer_process[x:x + self.__sample_len-1] for x in self.loc_start]
         data_all = np.vstack(data_all)  # stack the arrays into one column
 

@@ -14,11 +14,14 @@ class TcpIp:
 
         self.connected = True
 
+        self.connect()
+
     def connect(self):  # connect to port
         try:
             self.socket_obj.connect((self.ip_add, self.port))
             print("Successfully connected...")
         except socket.error:  # connection failed...
+            print("connection failed...")
             self.connected = False
 
         return self.connected

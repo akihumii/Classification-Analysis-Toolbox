@@ -52,21 +52,20 @@ if __name__ == "__main__":
                 data_obj = Demultiplex(RINGBUFFER_SIZE, CHANNEL_LEN, SAMPLING_FREQ, HP_THRESH, LP_THRESH, NOTCH_THRESH)  # create data class
 
                 thread_read_and_demultiplex = ReadNDemultiplex(tcp_ip_odin, tcp_ip_sylph, data_obj, PIN_OFF, ring_lock, ring_event)  # thread 1: reading buffer and demultiplex
-                thread_process_classification = ProcessClassification(METHOD, PIN_LED, CHANNEL_LEN, WINDOW_CLASS, WINDOW_OVERLAP, SAMPLING_FREQ, ring_lock, ring_event)  # thread 2: filter, extract features, classify
+                # thread_process_classification = ProcessClassification(METHOD, PIN_LED, CHANNEL_LEN, WINDOW_CLASS, WINDOW_OVERLAP, SAMPLING_FREQ, ring_lock, ring_event)  # thread 2: filter, extract features, classify
 
-                thread_read_and_demultiplex.start()  # start thread 1
-                thread_process_classification.start()  # start thread 2
+                # thread_process_classification.start()  # start thread 2
 
                 # print('join threads...')
                 while process_obj.input_GPIO():
-                    print('Sub main waiting for connection: %d...' % count2)
-                    count2 += 1
-                    sleep(3)
+                    thread_read_and_demultiplex.run()
 
                 ring_event.clear()
 
-                thread_read_and_demultiplex.join()  # terminate thread 1
-                thread_process_classification.join()  # terminate thread 2
+                tcp_ip_odin.write_disconnect()  # write 16 char to odin socket
+                tcp_ip_sylph.write_disconnect()
+
+                # thread_process_classification.join()  # terminate thread 2
 
                 print('ring event cleared...')
         else:
