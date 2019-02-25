@@ -25,6 +25,7 @@ classdef classOnlineClassification < matlab.System
         featureClassification;
         classifierMdl
         numClass
+        threshMultStr
         t % instrument of port
     end
     
@@ -35,7 +36,7 @@ classdef classOnlineClassification < matlab.System
     
     % Pre-computed constants
     properties(Access = private)
-        stepRead = 50        
+        stepRead = 50
         startOverlapping = 0 % flag to indicte that the window is full and ready to start overlapping
         features = zeros(1,0)
         featureNames
@@ -72,7 +73,7 @@ classdef classOnlineClassification < matlab.System
             obj.port = port;
             obj.tcpipArg = varargin;
         end
-                
+        
         function tcpip(obj)
             obj.t = tcpip(obj.host,obj.port,obj.tcpipArg{:});
         end
@@ -91,7 +92,8 @@ classdef classOnlineClassification < matlab.System
                 
                 disp(['Opened port ',num2str(obj.port),' as channel port...']);
             end
-            
+        end
+        
         function readSample(obj)
             if ~checkEmptyBuffer(obj)
                 if ~obj.startOverlapping
@@ -114,15 +116,15 @@ classdef classOnlineClassification < matlab.System
             end
         end
         
-%         function detectBurst(obj)
-%             if ~obj.readyClassify
-%                 obj.dataTKEO = TKEO(obj.dataRaw,obj.samplingFreq);
-%                 [peaks,~] = triggerSpikeDetection(obj.dataTKEO,obj.thresholds,0,obj.numStartConsecutivePoints,0);
-%                 if ~isnan(peaks)
-%                     obj.readyClassify = 1; % activate flag for classify
-%                 end
-%             end
-%         end
+        %         function detectBurst(obj)
+        %             if ~obj.readyClassify
+        %                 obj.dataTKEO = TKEO(obj.dataRaw,obj.samplingFreq);
+        %                 [peaks,~] = triggerSpikeDetection(obj.dataTKEO,obj.thresholds,0,obj.numStartConsecutivePoints,0);
+        %                 if ~isnan(peaks)
+        %                     obj.readyClassify = 1; % activate flag for classify
+        %                 end
+        %             end
+        %         end
         
         function classifyBurst(obj)
             if obj.readyClassify

@@ -30,7 +30,12 @@ class TcpIp:
         num_bytes_recorded = 0
         buffer_read = np.array([], dtype=np.uint8)
         while num_bytes_recorded < self.buffer_size:
-            buffer_part = self.socket_obj.recv(self.buffer_size - num_bytes_recorded)
+            try:
+                buffer_part = self.socket_obj.recv(self.buffer_size - num_bytes_recorded)
+            except socket.timeout:
+                print("Data receive timeout...")
+                break
+
             if buffer_part == '':
                 print('Not received anything...')
                 sleep(1)
@@ -43,6 +48,9 @@ class TcpIp:
 
     def write_disconnect(self):
         msg = 'DISCONNECT!!!!!!'  # 16 char
-        self.socket_obj.send(msg)
+        try:
+            self.socket_obj.send(msg)
+        except socket.timeout:
+            print("No connection has been established due to timeout...")
 
 
