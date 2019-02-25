@@ -1,11 +1,12 @@
 import numpy as np
-import globals
+import multiprocessing as mp
+# import globals
 from numpy_ringbuffer import RingBuffer
 from filtering import Filtering
 
 
 class Demultiplex(Filtering):
-    def __init__(self, ringbuffer_size, channel_len, sampling_freq, hp_thresh, lp_thresh, notch_thresh):
+    def __init__(self, ringbuffer_size, channel_len, sync_puse_len, counter_len, sampling_freq, hp_thresh, lp_thresh, notch_thresh, ring_data):
         Filtering.__init__(self, sampling_freq, hp_thresh, lp_thresh, notch_thresh)
         self.data_orig = []
         self.data_processed = []
@@ -17,12 +18,14 @@ class Demultiplex(Filtering):
         self.__flag_end_bit = 90
         self.__flag_counter = [0, 255]
         self.__sample_len = 25
+        self.__ringbuffer_size = ringbuffer_size
         self.__channel_len = channel_len
-        self.__sync_pulse_len = 1
-        self.__counter_len = 1
+        self.__sync_pulse_len = sync_puse_len
+        self.__counter_len = counter_len
         self.__ring_column_len = self.__channel_len + self.__sync_pulse_len + self.__counter_len
 
-        globals.ring_data = [RingBuffer(capacity=ringbuffer_size, dtype=np.float) for __ in range(self.__ring_column_len)]
+        # self.ring_data = [RingBuffer(capacity=self.__ringbuffer_size, dtype=np.float) for __ in range(self.__ring_column_len)]
+        self.ring_data = ring_data
         self.filter_obj = [Filtering(sampling_freq, hp_thresh, lp_thresh, notch_thresh) for __ in range(self.__channel_len)]
 
     def get_buffer(self, buffer_read):
@@ -71,11 +74,35 @@ class Demultiplex(Filtering):
 
         self.data_processed = np.hstack([data_channel, data_sync_pulse, data_counter])
 
-    def fill_ring_data(self, ring_lock):
-        if (globals.ring_data[0].maxlen - len(globals.ring_data[0])) >= self.__sample_len:
-            with ring_lock:  # lock the ring data while filling in
-                for x in range(self.__ring_column_len):
-                    globals.ring_data[x].extend(np.array(self.data_processed)[:, x])
-        else:
-            print("buffer full...")
+    def fill_ring_data(self, ring_lock, get_ring_event, window_overlap):
+        try:
+            # print("filling ring buffer...")
+            for i in range(np.size(self.data_processed, 0)):
+                for j in range(self.__ring_column_len):
+                    # try:
+                    # print(self.data_processed[i, j])
+                    # try:
+                    self.ring_data[j].put_nowait(self.data_processed[i, j])
+                    # except mp.queue.Full:
+                    #     print("buffer full...")
 
+            # print(self.ring_data[0].qsize())
+
+            # for x in range(self.__ring_column_len):
+            #     self.ring_data[x].extend(np.array(self.data_processed)[:, x])
+
+            # print("checking condition to open get_ring_event lock")
+            # if self.ring_data.qsize() > window_overlap:
+            #     with ring_lock:
+            #         print("filling in ring data size: %d" % np.size(self.ring_data[0]))
+            #         get_ring_event.set()
+            #     print("demultiplex after lock")
+        except IndexError:
+            pass
+
+            # if self.ring_data[0].full:
+            #     print("filling full buffer...")
+
+    # def __clear_ring_data(self):
+    #     for x in range(self.__ring_column_len):
+    #         self.ring_data[x] = RingBuffer(capacity=self.ring_data[x].maxlen, dtype=np.float)  # clear the ring buffer

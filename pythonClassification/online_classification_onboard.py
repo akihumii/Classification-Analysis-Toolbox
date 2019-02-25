@@ -1,4 +1,4 @@
-import threading
+import multiprocessing as mp
 import globals
 import RPi.GPIO as GPIO
 from time import sleep
@@ -16,6 +16,9 @@ PORT_ODIN = 30000
 BUFFER_SIZE = 25 * 65  # about 50 ms
 RINGBUFFER_SIZE = 40960
 CHANNEL_LEN = 10
+SYNC_PULSE_LEN = 1
+COUNTER_LEN = 1
+RINGBUFFER_COLUMN_LEN = sum([CHANNEL_LEN, SYNC_PULSE_LEN, COUNTER_LEN])
 CHANNEL_DECODE = [4, 5, 6, 7]
 PIN_LED = [[18, 4],
            [17, 27],
@@ -42,30 +45,40 @@ if __name__ == "__main__":
         if process_obj.input_GPIO():
                 globals.initialize()  # initialize global variable ring data
 
-                ring_lock = threading.Lock()
-                ring_event = threading.Event()
+                ring_lock = mp.Lock()
+                ring_event = mp.Event()
                 ring_event.set()
+                get_ring_event = mp.Event()
+
+                ring_data = [mp.Queue(40960) for __ in range(RINGBUFFER_COLUMN_LEN)]
 
                 tcp_ip_sylph = TcpIp(IP_SYLPH, PORT_SYLPH, BUFFER_SIZE)  # create sylph socket object
                 tcp_ip_odin = TcpIp(IP_ODIN, PORT_ODIN, BUFFER_SIZE)  # create odin socket object
 
-                data_obj = Demultiplex(RINGBUFFER_SIZE, CHANNEL_LEN, SAMPLING_FREQ, HP_THRESH, LP_THRESH, NOTCH_THRESH)  # create data class
+                data_obj = Demultiplex(RINGBUFFER_SIZE, CHANNEL_LEN, SYNC_PULSE_LEN, COUNTER_LEN, SAMPLING_FREQ, HP_THRESH, LP_THRESH, NOTCH_THRESH, ring_data)  # create data class
 
-                thread_read_and_demultiplex = ReadNDemultiplex(tcp_ip_odin, tcp_ip_sylph, data_obj, PIN_OFF, ring_lock, ring_event)  # thread 1: reading buffer and demultiplex
-                thread_process_classification = ProcessClassification(METHOD, PIN_LED, CHANNEL_LEN, WINDOW_CLASS, WINDOW_OVERLAP, SAMPLING_FREQ, ring_lock, ring_event)  # thread 2: filter, extract features, classify
+                read_and_demultiplex = ReadNDemultiplex(tcp_ip_odin, tcp_ip_sylph, data_obj, PIN_OFF, ring_lock, ring_event, get_ring_event, int(WINDOW_OVERLAP*SAMPLING_FREQ))  # thread 1: reading buffer and demultiplex
+                thread_process_classification = ProcessClassification(METHOD, PIN_LED, CHANNEL_LEN, WINDOW_CLASS, WINDOW_OVERLAP, SAMPLING_FREQ, ring_lock, ring_event, get_ring_event, ring_data)  # thread 2: filter, extract features, classify
 
-                thread_read_and_demultiplex.start()  # start thread 1
+                # thread_read_and_demultiplex.start()  # start thread 1
                 thread_process_classification.start()  # start thread 2
 
                 # print('join threads...')
+                # count = 1
                 while process_obj.input_GPIO():
-                    print('Sub main waiting for connection: %d...' % count2)
-                    count2 += 1
-                    sleep(3)
+                    read_and_demultiplex.run()
+                    # count += 1
 
                 ring_event.clear()
+                for i in range(RINGBUFFER_COLUMN_LEN):
+                    ring_data[i].close()
 
-                thread_read_and_demultiplex.join()  # terminate thread 1
+                read_and_demultiplex.tcp_ip_odin.write_disconnect()  # write 16 char to odin socket
+                read_and_demultiplex.tcp_ip_sylph.write_disconnect()
+                read_and_demultiplex.tcp_ip_odin.close()
+                read_and_demultiplex.tcp_ip_sylph.close()
+
+                # thread_read_and_demultiplex.join()  # terminate thread 1
                 thread_process_classification.join()  # terminate thread 2
 
                 print('ring event cleared...')
