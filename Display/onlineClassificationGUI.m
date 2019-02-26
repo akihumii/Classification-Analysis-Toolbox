@@ -22,7 +22,7 @@ function varargout = onlineClassificationGUI(varargin)
 
 % Edit the above text to modify the response to help onlineClassificationGUI
 
-% Last Modified by GUIDE v2.5 26-Feb-2019 14:51:10
+% Last Modified by GUIDE v2.5 26-Feb-2019 15:21:41
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -55,21 +55,8 @@ function onlineClassificationGUI_OpeningFcn(hObject, eventdata, handles, varargi
 % Choose default command line output for onlineClassificationGUI
 handles.output = hObject;
 
-% setup the flags
-handles.UserData = setupUserData();
-
-% change enablity of inputThresh
-if strcmp('Threshold', handles.panelClassificationMethod.SelectedObject.String)
-    handles.inputThresh.Enable = 'on';
-else
-    handles.inputThresh.Enable = 'off';
-end
-
 % Update handles structure
 guidata(hObject, handles);
-
-warning('off','all');
-
 
 
 % UIWAIT makes onlineClassificationGUI wait for user response (see UIRESUME)
@@ -86,6 +73,23 @@ function varargout = onlineClassificationGUI_OutputFcn(hObject, eventdata, handl
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 varargout{1,2} = handles;
+
+% setup the flags
+handles.UserData = setupUserData();
+
+% change enablity of inputThresh
+if strcmp('Threshold', handles.panelClassificationMethod.SelectedObject.String)
+    handles.tableThresh.Enable = 'on';
+else
+    handles.tableThresh.Enable = 'off';
+end
+
+handles.tableThresh.Data = cell(1,4);
+
+% Update handles structure
+guidata(hObject, handles);
+
+warning('off','all');
 
 
 % --- Executes during object creation, after setting all properties.
@@ -179,20 +183,6 @@ end
 guidata(hObject, handles);
 
 
-function inputThresh_Callback(hObject, eventdata, handles)
-% Hints: get(hObject,'String') returns contents of inputThresh as text
-%        str2double(get(hObject,'String')) returns contents of inputThresh as a double
-resetAll(hObject, handles);
-
-
-function inputThresh_CreateFcn(hObject, eventdata, handles)
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
 % --- Executes when user attempts to close bgOnlineClassificationGUI.
 function bgOnlineClassificationGUI_CloseRequestFcn(hObject, eventdata, handles)
 handles.UserData.stopAll = 1;
@@ -203,9 +193,9 @@ delete(hObject);
 
 function panelClassificationMethod_SelectionChangedFcn(hObject, eventdata, handles)
 if strcmp('Threshold', handles.panelClassificationMethod.SelectedObject.String)
-    handles.inputThresh.Enable = 'on';
+    handles.tableThresh.Enable = 'on';
 else
-    handles.inputThresh.Enable = 'off';
+    handles.tableThresh.Enable = 'off';
 end
 resetAll(hObject, handles)
 
@@ -355,7 +345,7 @@ for i = 1:parameters.numChannel
         case 'Features'
             setBasicParameters(classInfo{i,1},handles.UserData.classifierParameters{i,1},parameters,handles.panelClassificationMethod.SelectedObject.String);
         case 'SimpleThresholding'
-            setBasicParameters(classInfo{i,1},handles.UserData.classifierParameters{i,1},parameters,handles.panelClassificationMethod.SelectedObject,str2double(handles.inputThresh.String));
+            setBasicParameters(classInfo{i,1},handles.UserData.classifierParameters{i,1},parameters,handles.panelClassificationMethod.SelectedObject,str2double(handles.tableThresh.Data{1,i}));
     end
             
     setTcpip(classInfo{i,1},'127.0.0.1',parameters.ports(1,i),'NetworkRole','client','Timeout',1);
@@ -388,3 +378,16 @@ handles.UserData.tB = tB;
 
 % --- Executes during object creation, after setting all properties.
 function bgOnlineClassificationGUI_CreateFcn(hObject, eventdata, handles)
+
+
+% --- Executes when entered data in editable cell(s) in tableThresh.
+function tableThresh_CellEditCallback(hObject, eventdata, handles)
+% hObject    handle to tableThresh (see GCBO)
+% eventdata  structure with the following fields (see MATLAB.UI.CONTROL.TABLE)
+%	Indices: row and column indices of the cell(s) edited
+%	PreviousData: previous data for the cell(s) edited
+%	EditData: string(s) entered by the user
+%	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
+%	Error: error string when failed to convert EditData to appropriate value for Data
+% handles    structure with handles and user data (see GUIDATA)
+guidata(hObject, handles);
