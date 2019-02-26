@@ -85,6 +85,7 @@ else
 end
 
 handles.tableThresh.Data = cell(1,4);
+handles.inputThreshMult.Data = cell(1,4);
 
 % Update handles structure
 guidata(hObject, handles);
@@ -147,7 +148,7 @@ try
     
     handles.UserData.startAllFlag = 1;
     
-    handles.inputThreshMult.String = checkMatNAddStr(classifierParameters{1,1}.threshMultStr, ', ', 2);
+    handles.inputThreshMult.Data = checkSizeNTranspose(classifierParameters{1,1}.threshMultStr, 1);
     
     handles.UserData.classifierParameters = classifierParameters;
     
@@ -176,7 +177,7 @@ disp(' ')
 try
     [threshMultStr, signal, signalClassificationInfo, saveFileName] = onlineClassifierDetectBursts();
     saveBurstsInfo(signal, signalClassificationInfo, saveFileName);
-    handles.inputThreshMult.String = checkMatNAddStr(threshMultStr, ', ', 2);
+    handles.inputThreshMult.Data = checkSizeNTranspose(threshMultStr, 1);
 catch
     handles.UserData.threshMultStr = '';
 end
