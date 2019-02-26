@@ -22,7 +22,7 @@ function varargout = onlineClassificationGUI(varargin)
 
 % Edit the above text to modify the response to help onlineClassificationGUI
 
-% Last Modified by GUIDE v2.5 26-Feb-2019 15:21:41
+% Last Modified by GUIDE v2.5 26-Feb-2019 15:47:07
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
