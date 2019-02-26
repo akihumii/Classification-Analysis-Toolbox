@@ -26,6 +26,7 @@ classdef classOnlineClassification < matlab.System
         classifierMdl
         numClass
         threshMultStr
+        predictionMethod
         t % instrument of port
     end
     
@@ -53,7 +54,7 @@ classdef classOnlineClassification < matlab.System
     end
     
     methods
-        function setBasicParameters(obj,data,parameters)
+        function setBasicParameters(obj,data,parameters,predictionMethod, varargin)
             fieldNames = fieldnames(data);
             numField = length(fieldNames);
             for i = 1:numField
@@ -61,6 +62,11 @@ classdef classOnlineClassification < matlab.System
             end
             
             obj.overlapWindowSize = parameters.overlapWindowSize;
+            
+            obj.predictionMethod = predictionMethod;
+            if nargin > 3
+                obj.thresholds = varargin{1,1};
+            end
             
             obj.featureNames = obj.featureNamesAll(obj.featureClassification);
             obj.numFeature = length(obj.featureClassification);
@@ -130,14 +136,10 @@ classdef classOnlineClassification < matlab.System
             if obj.readyClassify
                 try
                     obj.dataFiltered = filter(obj); % get the filtered data for each channel
-                    featuresTemp = featureExtraction(obj.dataFiltered, obj.samplingFreq, obj.featureClassification);
-                    for i = 1:obj.numFeature
-                        obj.features(1,i) = featuresTemp.(obj.featureNames{i,1});
-                    end
-                    obj.predictClass = predict(obj.classifierMdl, obj.features);
-                    if obj.predictClass == obj.numClass
-                        obj.predictClass = 0;
-                    end
+                    
+%                     extractFeatures(obj); % get the features
+%                     
+                    predictClasses(obj); % predict the classes
                 catch
                     resetChannel(obj);
                 end
@@ -147,8 +149,29 @@ classdef classOnlineClassification < matlab.System
     end
     
     
-    
     methods(Access = protected)
+        function extractFeatures(obj)
+            featuresTemp = featureExtraction(obj.dataFiltered, obj.samplingFreq, obj.featureClassification);
+            for i = 1:obj.numFeature
+                obj.features(1,i) = featuresTemp.(obj.featureNames{i,1});
+            end
+        end
+        
+        function predictClasses(obj)
+            switch obj.predictionMethod
+                case 'Features'
+                    obj.predictClass = predict(obj.classifierMdl, obj.features);
+                case 'SimpleThresholding'
+                    obj.predictClass = any(obj.dataFiltered > obj.thresholds);
+                otherwise
+                    popMsg('Invalid predictionMethod...')
+            end
+            
+            if obj.predictClass == obj.numClass
+                obj.predictClass = 0;
+            end
+        end
+        
         function getFilterHd(obj)
             filterObj = setFilter(classFilterDataOnline,obj.samplingFreq,obj.highPassCutoffFreq,obj.lowPassCutoffFreq,obj.notchFreq,obj.windowSize); % initialize a filter object
             obj.filterHd = filterObj.Hd;
