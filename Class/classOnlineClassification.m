@@ -64,7 +64,7 @@ classdef classOnlineClassification < matlab.System
             obj.overlapWindowSize = parameters.overlapWindowSize;
             
             obj.predictionMethod = predictionMethod;
-            if nargin > 3
+            if nargin > 4
                 obj.thresholds = varargin{1,1};
             end
             

@@ -22,7 +22,7 @@ function varargout = onlineClassificationGUI(varargin)
 
 % Edit the above text to modify the response to help onlineClassificationGUI
 
-% Last Modified by GUIDE v2.5 26-Feb-2019 10:01:47
+% Last Modified by GUIDE v2.5 26-Feb-2019 14:51:10
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -55,7 +55,15 @@ function onlineClassificationGUI_OpeningFcn(hObject, eventdata, handles, varargi
 % Choose default command line output for onlineClassificationGUI
 handles.output = hObject;
 
+% setup the flags
 handles.UserData = setupUserData();
+
+% change enablity of inputThresh
+if strcmp('Threshold', handles.panelClassificationMethod.SelectedObject.String)
+    handles.inputThresh.Enable = 'on';
+else
+    handles.inputThresh.Enable = 'off';
+end
 
 % Update handles structure
 guidata(hObject, handles);
@@ -80,12 +88,14 @@ varargout{1} = handles.output;
 varargout{1,2} = handles;
 
 
+% --- Executes during object creation, after setting all properties.
+function panelOption_CreateFcn(hObject, eventdata, handles)
+
+
 function buttonStartStop_Callback(hObject, eventdata, handles)
 switch handles.UserData.stopFlag
     case 0
-        disp('Program stopped...')
-        handles = resetAll(handles);
-        guidata(hObject, handles);
+        resetAll(hObject, handles);
     case 1
         if handles.UserData.startAllFlag
             disp('Program started...')
@@ -129,7 +139,7 @@ try
     classifierParameters = load(fullfile(path,files{1,1}));
     classifierParameters = classifierParameters.varargin{1,1};
     
-    handles = resetAll(handles);
+    resetAll(hObject, handles);
     
     handles.UserData.startAllFlag = 1;
     
@@ -148,10 +158,10 @@ function buttonTrain_Callback(hObject, eventdata, handles)
 disp(' ')
 try
     onlineClassifierTraining();
-    handles = resetAll(handles);
+    resetAll(hObject, handles);
     popMsg('Training done...');
 catch
-    handles = resetAll(handles);
+    resetAll(hObject, handles);
     popMsg('Training failed...');
 end
 guidata(hObject, handles);
@@ -172,10 +182,7 @@ guidata(hObject, handles);
 function inputThresh_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of inputThresh as text
 %        str2double(get(hObject,'String')) returns contents of inputThresh as a double
-disp('Program stopped...')
-handles = resetAll(handles);
-guidata(hObject, handles);
-
+resetAll(hObject, handles);
 
 
 function inputThresh_CreateFcn(hObject, eventdata, handles)
@@ -186,8 +193,24 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% --- Executes during object creation, after setting all properties.
-function panelOption_CreateFcn(hObject, eventdata, handles)
+% --- Executes when user attempts to close bgOnlineClassificationGUI.
+function bgOnlineClassificationGUI_CloseRequestFcn(hObject, eventdata, handles)
+handles.UserData.stopAll = 1;
+guidata(hObject, handles);
+% Hint: delete(hObject) closes the figure
+delete(hObject);
+
+
+function panelClassificationMethod_SelectionChangedFcn(hObject, eventdata, handles)
+if strcmp('Threshold', handles.panelClassificationMethod.SelectedObject.String)
+    handles.inputThresh.Enable = 'on';
+else
+    handles.inputThresh.Enable = 'off';
+end
+resetAll(hObject, handles)
+
+
+function panelClassificationMethod_CreateFcn(hObject, eventdata, handles)
 
 
 function output = setupUserData(handles)
@@ -261,13 +284,17 @@ for i = 1:length(savedClassifier)
 end
 
 
-function handles = resetAll(handles)
+function resetAll(hObject, handles)
+disp('Program stopped...')
+
 handles.dispPrediciton.String = num2str([0,0,0,0]);
 handles.dispStatus.String = 'Program stopped...';
 handles.buttonStartStop.String = 'Start';
 handles.buttonStartStop.ForegroundColor = [0,190/256,0];
 handles.UserData.stopFlag = 1;
 handles.UserData.openPortFlag = 0;
+
+guidata(hObject, handles);
 
 
 function predictClassAll = runProgram(handles, predictClassAll)
@@ -313,8 +340,6 @@ drawnow
     
 
 function handles = setupClassifier(handles)
-predictionMethod = 'SimpleThresholding';  % either 'Features' or 'SimpleThresholding'
-
 %% Parameters
 parameters = struct(...
     'overlapWindowSize',50,... % ms
@@ -326,11 +351,11 @@ parameters = struct(...
 for i = 1:parameters.numChannel
     classInfo{i,1} = classOnlineClassification(); % Initiatialize the object
 
-    switch predictionMethod
+    switch handles.panelClassificationMethod.SelectedObject.String
         case 'Features'
-            setBasicParameters(classInfo{i,1},handles.UserData.classifierParameters{i,1},parameters,predictionMethod);
+            setBasicParameters(classInfo{i,1},handles.UserData.classifierParameters{i,1},parameters,handles.panelClassificationMethod.SelectedObject.String);
         case 'SimpleThresholding'
-            setBasicParameters(classInfo{i,1},handles.UserData.classifierParameters{i,1},parameters,predictionMethod,str2double(handles.inputThresh.String));
+            setBasicParameters(classInfo{i,1},handles.UserData.classifierParameters{i,1},parameters,handles.panelClassificationMethod.SelectedObject,str2double(handles.inputThresh.String));
     end
             
     setTcpip(classInfo{i,1},'127.0.0.1',parameters.ports(1,i),'NetworkRole','client','Timeout',1);
@@ -361,10 +386,5 @@ handles.UserData.parameters = parameters;
 handles.UserData.tB = tB;
 
 
-
-% --- Executes when user attempts to close bgOnlineClassificationGUI.
-function bgOnlineClassificationGUI_CloseRequestFcn(hObject, eventdata, handles)
-handles.UserData.stopAll = 1;
-guidata(hObject, handles);
-% Hint: delete(hObject) closes the figure
-delete(hObject);
+% --- Executes during object creation, after setting all properties.
+function bgOnlineClassificationGUI_CreateFcn(hObject, eventdata, handles)
