@@ -176,11 +176,27 @@ function buttonSaveFeatures_Callback(hObject, eventdata, handles)
 disp(' ')
 try
     [threshMultStr, signal, signalClassificationInfo, saveFileName] = onlineClassifierDetectBursts();
-    saveBurstsInfo(signal, signalClassificationInfo, saveFileName);
+    filepath = saveBurstsInfo(signal, signalClassificationInfo, saveFileName);
+    getPythonClassifier(filepath);
     handles.inputThreshMult.Data = checkSizeNTranspose(threshMultStr, 1);
 catch
     handles.UserData.threshMultStr = '';
 end
+guidata(hObject, handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function bgOnlineClassificationGUI_CreateFcn(hObject, eventdata, handles)
+
+
+% --- Executes when entered data in editable cell(s) in tableThresh.
+function tableThresh_CellEditCallback(hObject, eventdata, handles)
+% eventdata  structure with the following fields (see MATLAB.UI.CONTROL.TABLE)
+%	Indices: row and column indices of the cell(s) edited
+%	PreviousData: previous data for the cell(s) edited
+%	EditData: string(s) entered by the user
+%	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
+%	Error: error string when failed to convert EditData to appropriate value for Data
 guidata(hObject, handles);
 
 
@@ -211,7 +227,7 @@ output = struct(...
     'openPortFlag', 0,...
     'stopAll', 0);
 
-function saveBurstsInfo(signal, signalClassificationInfo, saveFileName)
+function filepath = saveBurstsInfo(signal, signalClassificationInfo, saveFileName)
 featuresForClassification = [5,7];  % selected features for classification        
 numChannel = length(signalClassificationInfo);
 
@@ -249,9 +265,13 @@ end
 
 popMsg('Features and Classes saving finished...');
 
+
+function getPythonClassifier(filepath)
 % train python classifier
 systemCmd = sprintf('python %s %s', fullfile('C:', 'classificationTraining.py'), filepath);
 system(systemCmd)
+
+popMsg('Saved Classifier...');
 
 % transfer classifier to rpi
 cwd = pwd;
@@ -263,16 +283,24 @@ for i = 1:length(savedClassifier)
     % IMPORTANT! download pscp in order to use this command
     try  % for Windows
         systemCmd = sprintf('pscp -pw raspberry -scp %s pi@192.168.4.3:~/classificationTmp/', fullfile(filepath, savedClassifier(i,1).name));
-        system(systemCmd)
+        status = system(systemCmd);
+        if ~status  % failed to transfer
+            popMsg('Successfully transfered file...');
+        else
+            popMsg('failed to transfer file...');
+            break
+        end
     catch
         try  % for Linux
             systemCmd = sprintf('sshpass -p raspberry scp %s pi@192.168.4.3:~/classificationTmp/', fullfile(filepath, savedClassifier(i,1).name));
             system(systemCmd)
         catch
-            warning('failed to transfer file...')
+            popMsg('failed to transfer file...')
+            break
         end
     end
 end
+
 
 
 function resetAll(hObject, handles)
@@ -377,18 +405,3 @@ handles.UserData.parameters = parameters;
 handles.UserData.tB = tB;
 
 
-% --- Executes during object creation, after setting all properties.
-function bgOnlineClassificationGUI_CreateFcn(hObject, eventdata, handles)
-
-
-% --- Executes when entered data in editable cell(s) in tableThresh.
-function tableThresh_CellEditCallback(hObject, eventdata, handles)
-% hObject    handle to tableThresh (see GCBO)
-% eventdata  structure with the following fields (see MATLAB.UI.CONTROL.TABLE)
-%	Indices: row and column indices of the cell(s) edited
-%	PreviousData: previous data for the cell(s) edited
-%	EditData: string(s) entered by the user
-%	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
-%	Error: error string when failed to convert EditData to appropriate value for Data
-% handles    structure with handles and user data (see GUIDATA)
-guidata(hObject, handles);
