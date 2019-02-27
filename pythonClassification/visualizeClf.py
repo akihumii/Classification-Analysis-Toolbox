@@ -1,19 +1,31 @@
 import numpy as np
+import ntpath
 from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
 import pickle
 
+num_class = 7
+
 # load classifier
-filename_clf = 'C:\\Users\\lsitsai\\Desktop\\Marshal\\20190131_Chronic_NHP_wireless_implant_Alvin\\Info\\classificationTmp\\classifierCh4.sav'
+filename_clf = 'C:\\Users\\lsitsai\\Desktop\\Marshal\\20190131_Chronic_NHP_wireless_implant_Alvin\\Info\\classificationTmp\\classifierCh%d.sav' % num_class
 clf = pickle.load(open(filename_clf, 'rb'))
 
 # load features
-filename_feature = 'C:\\Users\\lsitsai\\Desktop\\Marshal\\20190131_Chronic_NHP_wireless_implant_Alvin\\Info\\classificationTmp\\featuresCh4_data 20190131 134012_20190219131803_20190219132220.csv'
+filename_feature = 'C:\\Users\\lsitsai\\Desktop\\Marshal\\20190131_Chronic_NHP_wireless_implant_Alvin\\Info\\classificationTmp\\featuresCh%d_data 20190131 134012_20190219131803_20190219132220.csv' % num_class
 features = np.genfromtxt(filename_feature, delimiter=',', defaultfmt='%f')
 
 # load classes
-filename_class = 'C:\\Users\\lsitsai\\Desktop\\Marshal\\20190131_Chronic_NHP_wireless_implant_Alvin\\Info\\classificationTmp\\classCh4_data 20190131 134012_20190219131803_20190219132220.csv'
+filename_class = 'C:\\Users\\lsitsai\\Desktop\\Marshal\\20190131_Chronic_NHP_wireless_implant_Alvin\\Info\\classificationTmp\\classCh%d_data 20190131 134012_20190219131803_20190219132220.csv' % num_class
 classes = np.genfromtxt(filename_class, delimiter=',', defaultfmt='%f')
+
+# axes labels
+label_x = 'meanValue'
+label_y = 'numZeroCrossings'
+label_title = ntpath.basename(filename_class)
+
+plt.xlabel(label_x)
+plt.ylabel(label_y)
+plt.title(label_title)
 
 # # we create 40 separable points
 # X, y = make_blobs(n_samples=40, centers=2, random_state=6)
