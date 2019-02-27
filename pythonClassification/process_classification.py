@@ -47,7 +47,7 @@ class ProcessClassification(threading.Thread, Saving, ClassificationDecision):
 
             if self.__classify_flag:
                 self.classify()
-                self.save([np.array(self.data_raw[3])], "a")
+                # self.save([np.array(self.data_raw[3])], "a")
                 # self.save(np.vstack(np.array(self.data_raw)).transpose(), "a")
 
         self.stop()  # stop GPIO/serial classification display output
