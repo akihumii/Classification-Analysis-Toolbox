@@ -7,39 +7,28 @@ close hidden all
 
 warning('off','all');
 
-global startAllFlag
-global stopFlag
-global openPortFlag
-global classifierParameters
-global tNumber
-global tStatus
-global buttonStartStop
-global stopAll
-
-startAllFlag = 0;
-stopFlag = 1;
-openPortFlag = 0;
-stopAll = 0;
-
-dispPredictionDialog();
+[~, hGUI] = onlineClassificationGUI();
+% dispPredictionDialog();
 drawnow
 
-while ~stopAll
-    if startAllFlag
+predictionMethod = 'SimpleThresholding';  % either 'Features' or 'SimpleThresholding'
+
+while ~hGUI.UserData.stopAll
+    if hGUI.UserData.startAllFlag
         try
-            if ~stopFlag && ~openPortFlag
+            if ~hGUI.UserData.stopFlag && ~hGUI.UserData.openPortFlag
                 %% Parameters
                 parameters = struct(...
                     'overlapWindowSize',50,... % ms
                     'ports',[1343,1344,1345,1346],...
                     'replyPort',1300,...
                     'channelEnable',251,...
-                    'numChannel',length(classifierParameters));
+                    'numChannel',length(hGUI.UserData.classifierParameters));
                 
                 for i = 1:parameters.numChannel
                     classInfo{i,1} = classOnlineClassification(); % Initiatialize the object
                     
-                    setBasicParameters(classInfo{i,1},classifierParameters{i,1},parameters);
+                    setBasicParameters(classInfo{i,1},hGUI.UserData.classifierParameters{i,1},parameters,predictionMethod);
                     setTcpip(classInfo{i,1},'127.0.0.1',parameters.ports(1,i),'NetworkRole','client','Timeout',1);
                     
                     % Streaming data
@@ -63,7 +52,7 @@ while ~stopAll
                 % elapsedTime = cell(parameters.numChannel,1);
                 predictClassAll = zeros(1, parameters.numChannel);
                 
-                openPortFlag = 1;
+                hGUI.UserData.openPortFlag = 1;
                 % c = 1;
                 % maxC = inf;
                 
@@ -71,7 +60,7 @@ while ~stopAll
                 %     p(i,1) = figure;
                 %     h(i,1) = gca;
                 % end
-            elseif ~stopFlag && openPortFlag
+            elseif ~hGUI.UserData.stopFlag && hGUI.UserData.openPortFlag
                 %     msgBoxFig = msgbox('Prediction Class: 0 0 0 0...');
                 
                 for i = 1:parameters.numChannel
@@ -92,7 +81,7 @@ while ~stopAll
                                 predictClassAll(1,4) = predictClassAll(1,4) && ~predictClassAll(1,3);
                             otherwise
                         end
-                        tNumber.String = num2str(predictClassAll);
+                        hGUI.dispPrediction.String = num2str(predictClassAll);
                         replyPredictionDec = bi2de(predictClassAll,'left-msb');
                         fwrite(tB,[parameters.channelEnable,replyPredictionDec]); % to enable the channel
                         drawnow
@@ -102,17 +91,17 @@ while ~stopAll
                     %             elapsedTime{i,1} = [elapsedTime{i,1};toc(t)];
                 end
             else
-                openPortFlag = 0;
+                hGUI.UserData.openPortFlag = 0;
                 %     c = c+1;
             end
         catch
-            startAllFlag = 0;
-            tNumber.String = num2str([0,0,0,0]);
-            tStatus.String = 'Program stopped...';
-            buttonStartStop.String = 'Start';
-            buttonStartStop.ForegroundColor = [0,190/256,0];
-            stopFlag = 1;
-            openPortFlag = 0;
+            hGUI.UserData.startAllFlag = 0;
+            hGUI.dispPrediction.String = num2str([0,0,0,0]);
+            hGUI.dispStatus.String = 'Program stopped...';
+            hGUI.buttonStartStop.String = 'Start';
+            hGUI.buttonStartStop.ForegroundColor = [0,190/256,0];
+            hGUI.UserData.stopFlag = 1;
+            hGUI.UserData.openPortFlag = 0;
             popMsg('Wrong selection, please start over...');
             drawnow
         end
