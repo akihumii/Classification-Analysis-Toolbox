@@ -113,15 +113,14 @@ switch handles.UserData.stopFlag
             
             guidata(hObject, handles);
             
-            
-            if ~handles.UserData.stopFlag && ~handles.UserData.openPortFlag
+            if ~handles.UserData.openPortFlag
                 handles = setupClassifier(handles);
                 guidata(hObject, handles);
             end
             
             predictClassAll = zeros(1, handles.UserData.parameters.numChannel);
             
-            while ~handles.UserData.stopFlag && handles.UserData.openPortFlag
+            while handles.UserData.openPortFlag
                 predictClassAll = runProgram(handles, predictClassAll);  % run classification
                 handles = guidata(hObject);    
             end
@@ -197,6 +196,14 @@ function tableThresh_CellEditCallback(hObject, eventdata, handles)
 %	EditData: string(s) entered by the user
 %	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
 %	Error: error string when failed to convert EditData to appropriate value for Data
+
+try
+    for i = 1:length(handles.UserData.classInfo)
+        handles.UserData.classInfo{i,1}.thresholds = handles.tableThresh.Data{1,i};
+    end
+catch
+end
+
 guidata(hObject, handles);
 
 
@@ -214,7 +221,7 @@ if strcmp('Threshold', handles.panelClassificationMethod.SelectedObject.String)
 else
     handles.tableThresh.Enable = 'off';
 end
-resetAll(hObject, handles)
+resetAll(hObject, handles);
 
 
 function panelClassificationMethod_CreateFcn(hObject, eventdata, handles)
@@ -306,13 +313,19 @@ end
 function resetAll(hObject, handles)
 disp('Program stopped...')
 
-handles.dispPrediciton.String = num2str([0,0,0,0]);
+handles.dispPrediction.String = num2str([0,0,0,0]);
 handles.dispStatus.String = 'Program stopped...';
 handles.buttonStartStop.String = 'Start';
 handles.buttonStartStop.ForegroundColor = [0,190/256,0];
 handles.UserData.stopFlag = 1;
 handles.UserData.openPortFlag = 0;
 
+try
+    fwrite(handles.UserData.tB,[handles.UserData.parameters.channelEnable,0]); % to disable all channels
+catch
+end
+
+drawnow
 guidata(hObject, handles);
 
 
@@ -327,14 +340,15 @@ try
         
         if predictClassAll(1,i) ~= handles.UserData.classInfo{i,1}.predictClass % update if state changed
             predictClassAll(1,i) = handles.UserData.classInfo{i,1}.predictClass;
+            predictClassTemp = predictClassAll;
             if all(predictClassAll(1:2))
-                predictClassAll(2) = 0;
+                predictClassTemp(2) = 0;
             end
             if all(predictClassAll(3:4))
-                predictClassAll(4) = 0;
+                predictClassTemp(4) = 0;
             end
-            handles.dispPrediction.String = num2str(predictClassAll);
-            replyPredictionDec = bi2de(predictClassAll,'left-msb');
+            handles.dispPrediction.String = num2str(predictClassTemp);
+            replyPredictionDec = bi2de(predictClassTemp,'right-msb');
             fwrite(handles.UserData.tB,[handles.UserData.parameters.channelEnable,replyPredictionDec]); % to enable the channel
             drawnow
         end
@@ -344,13 +358,7 @@ try
     end
     
 catch
-    handles.UserData.startAllFlag = 0;
-    handles.dispPrediction.String = num2str([0,0,0,0]);
-    handles.dispStatus.String = 'Program stopped...';
-    handles.buttonStartStop.String = 'Start';
-    handles.buttonStartStop.ForegroundColor = [0,190/256,0];
-    handles.UserData.stopFlag = 1;
-    handles.UserData.openPortFlag = 0;
+    resetAll(hObject, handles)
     handles.UserData.startAllFlag = 0;
     popMsg('Wrong selection, please start over...');
     drawnow
@@ -373,8 +381,10 @@ for i = 1:parameters.numChannel
     switch handles.panelClassificationMethod.SelectedObject.String
         case 'Features'
             setBasicParameters(classInfo{i,1},handles.UserData.classifierParameters{i,1},parameters,handles.panelClassificationMethod.SelectedObject.String);
-        case 'SimpleThresholding'
-            setBasicParameters(classInfo{i,1},handles.UserData.classifierParameters{i,1},parameters,handles.panelClassificationMethod.SelectedObject,str2double(handles.tableThresh.Data{1,i}));
+        case 'Threshold'
+            setBasicParameters(classInfo{i,1},handles.UserData.classifierParameters{i,1},parameters,handles.panelClassificationMethod.SelectedObject.String,handles.tableThresh.Data{1,i});
+        otherwise
+            error('Invalid selection of classification method...')
     end
             
     setTcpip(classInfo{i,1},'127.0.0.1',parameters.ports(1,i),'NetworkRole','client','Timeout',1);
