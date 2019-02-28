@@ -1,5 +1,6 @@
 import threading
 import globals
+import multiprocessing
 import RPi.GPIO as GPIO
 from time import sleep
 from tcpip import TcpIp
@@ -42,8 +43,8 @@ if __name__ == "__main__":
         if process_obj.input_GPIO():
                 globals.initialize()  # initialize global variable ring data
 
-                ring_lock = threading.Lock()
-                ring_event = threading.Event()
+                ring_lock = multiprocessing.Lock()
+                ring_event = multiprocessing.Event()
                 ring_event.set()
 
                 tcp_ip_sylph = TcpIp(IP_SYLPH, PORT_SYLPH, BUFFER_SIZE)  # create sylph socket object
@@ -65,8 +66,10 @@ if __name__ == "__main__":
 
                 ring_event.clear()
 
-                tcp_ip_odin.write_disconnect()  # write 16 char to odin socket
                 tcp_ip_sylph.write_disconnect()
+                # tcp_ip_odin.write_disconnect()  # write 16 char to odin socket
+                tcp_ip_sylph.close()
+                tcp_ip_odin.close()
 
                 thread_process_classification.join()  # terminate thread 2
 

@@ -1,4 +1,4 @@
-import threading
+import multiprocessing
 import os
 import numpy as np
 import pickle
@@ -9,9 +9,9 @@ from features import Features
 from numpy_ringbuffer import RingBuffer
 
 
-class ProcessClassification(threading.Thread, Saving, ClassificationDecision):
+class ProcessClassification(multiprocessing.Process, Saving, ClassificationDecision):
     def __init__(self, method, pin_led, channel_len, window_class, window_overlap, sampling_freq, ring_lock, ring_event):
-        threading.Thread.__init__(self)
+        multiprocessing.Process.__init__(self)
         Saving.__init__(self)
         ClassificationDecision.__init__(self, method, pin_led, 'out')
 
@@ -39,7 +39,7 @@ class ProcessClassification(threading.Thread, Saving, ClassificationDecision):
         self.setup()  # setup GPIO/serial classification display output
         self.load_classifier()
         while True:
-            if not self.ring_event.isSet():
+            if not self.ring_event.is_set():
                 print('pause processing...')
                 break
 
@@ -53,6 +53,8 @@ class ProcessClassification(threading.Thread, Saving, ClassificationDecision):
         self.stop()  # stop GPIO/serial classification display output
 
     def get_ring_data(self):
+        # print('ring data in process classification: %d' % len(globals.ring_data[0]))
+
         if len(globals.ring_data) > 0 and len(globals.ring_data[0]) >= (self.window_overlap * self.sampling_freq):
             with self.ring_lock:
                 for x in range(self.__ring_channel_len):

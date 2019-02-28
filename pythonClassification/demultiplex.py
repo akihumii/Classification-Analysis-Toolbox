@@ -72,10 +72,13 @@ class Demultiplex(Filtering):
         self.data_processed = np.hstack([data_channel, data_sync_pulse, data_counter])
 
     def fill_ring_data(self, ring_lock):
-        if (globals.ring_data[0].maxlen - len(globals.ring_data[0])) >= self.__sample_len:
-            with ring_lock:  # lock the ring data while filling in
-                for x in range(self.__ring_column_len):
-                    globals.ring_data[x].extend(np.array(self.data_processed)[:, x])
-        else:
+        if globals.ring_data[0].is_full:
             print("buffer full...")
+
+        with ring_lock:  # lock the ring data while filling in
+            for x in range(self.__ring_column_len):
+                globals.ring_data[x].extend(np.array(self.data_processed)[:, x])
+
+        # print('ring data in demultiplex: %d' % len(globals.ring_data[0]))
+
 
