@@ -79,6 +79,6 @@ class Demultiplex(Filtering):
             for x in range(self.__ring_column_len):
                 globals.ring_data[x].extend(np.array(self.data_processed)[:, x])
 
-        # print('ring data in demultiplex: %d' % len(globals.ring_data[0]))
+        print('ring data in demultiplex: %d' % len(globals.ring_data[0]))
 
 

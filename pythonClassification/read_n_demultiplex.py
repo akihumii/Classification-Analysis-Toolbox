@@ -24,7 +24,7 @@ class ReadNDemultiplex(ClassificationDecision, Saving):
 
                 # print(self.data_obj.data_processed[-1, -1])
 
-                self.save(self.data_obj.data_processed, "a")
+                # self.save(self.data_obj.data_processed, "a")
 
                 self.data_obj.fill_ring_data(self.ring_lock)  # fill the ring buffer
 

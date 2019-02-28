@@ -53,7 +53,7 @@ class ProcessClassification(multiprocessing.Process, Saving, ClassificationDecis
         self.stop()  # stop GPIO/serial classification display output
 
     def get_ring_data(self):
-        # print('ring data in process classification: %d' % len(globals.ring_data[0]))
+        print('ring data in process classification: %d' % len(globals.ring_data[0]))
 
         if len(globals.ring_data) > 0 and len(globals.ring_data[0]) >= (self.window_overlap * self.sampling_freq):
             with self.ring_lock:
