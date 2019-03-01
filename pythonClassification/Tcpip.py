@@ -12,16 +12,9 @@ class TcpIp:
         self.socket_obj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket_obj.settimeout(2)
 
-        self.connected = True
-
     def connect(self):  # connect to port
-        try:
-            self.socket_obj.connect((self.ip_add, self.port))
-            print("Successfully connected...")
-        except socket.error:  # connection failed...
-            self.connected = False
-
-        return self.connected
+        self.socket_obj.connect((self.ip_add, self.port))
+        print("Successfully connected...")
 
     def close(self):
         self.socket_obj.close()
@@ -52,5 +45,3 @@ class TcpIp:
             self.socket_obj.send(msg)
         except socket.timeout:
             print("No connection has been established due to timeout...")
-
-

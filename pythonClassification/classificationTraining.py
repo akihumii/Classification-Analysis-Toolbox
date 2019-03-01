@@ -27,7 +27,7 @@ def train(target_file):
 
             gamma_value = 1./(np.size(features_tmp, 1)*features_tmp.std())
 
-            clf = SVC(kernel='poly', degree=3, gamma=gamma_value)
+            clf = SVC(kernel='poly', gamma=gamma_value)
 
             classifiers = clf.fit(features_tmp, class_tmp)
 

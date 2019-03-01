@@ -161,7 +161,7 @@ classdef classOnlineClassification < matlab.System
             switch obj.predictionMethod
                 case 'Features'
                     obj.predictClass = predict(obj.classifierMdl, obj.features);
-                case 'SimpleThresholding'
+                case 'Threshold'
                     obj.predictClass = any(obj.dataFiltered > obj.thresholds);
                 otherwise
                     popMsg('Invalid predictionMethod...')

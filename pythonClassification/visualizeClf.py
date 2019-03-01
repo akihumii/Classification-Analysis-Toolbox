@@ -1,64 +1,64 @@
 import numpy as np
-import ntpath
-from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
 import pickle
+import os
 
-num_class = 7
+target_dir = 'C:\\Users\\lsitsai\\Desktop\\Marshal\\20190131_Chronic_NHP_wireless_implant_Alvin\\Info\\classificationTmp'
 
-# load classifier
-filename_clf = 'C:\\Users\\lsitsai\\Desktop\\Marshal\\20190131_Chronic_NHP_wireless_implant_Alvin\\Info\\classificationTmp\\classifierCh%d.sav' % num_class
-clf = pickle.load(open(filename_clf, 'rb'))
+file_feature = [f for f in os.listdir(target_dir) if f.startswith('featuresCh')]
 
-# load features
-filename_feature = 'C:\\Users\\lsitsai\\Desktop\\Marshal\\20190131_Chronic_NHP_wireless_implant_Alvin\\Info\\classificationTmp\\featuresCh%d_data 20190131 134012_20190219131803_20190219132220.csv' % num_class
-features = np.genfromtxt(filename_feature, delimiter=',', defaultfmt='%f')
+file_class = [f for f in os.listdir(target_dir) if f.startswith('classCh')]
 
-# load classes
-filename_class = 'C:\\Users\\lsitsai\\Desktop\\Marshal\\20190131_Chronic_NHP_wireless_implant_Alvin\\Info\\classificationTmp\\classCh%d_data 20190131 134012_20190219131803_20190219132220.csv' % num_class
-classes = np.genfromtxt(filename_class, delimiter=',', defaultfmt='%f')
+file_clf = [f for f in os.listdir(target_dir) if f.startswith('classifierCh')]
 
-# axes labels
-label_x = 'meanValue'
-label_y = 'numZeroCrossings'
-label_title = ntpath.basename(filename_class)
+for i in range(len(file_feature)):
+    # load classifier
+    clf = pickle.load(open(os.path.join(target_dir, file_clf[i]), 'rb'))
 
-plt.xlabel(label_x)
-plt.ylabel(label_y)
-plt.title(label_title)
+    # load features
+    features = np.genfromtxt(os.path.join(target_dir, file_feature[i]), delimiter=',', defaultfmt='%f')
 
-# # we create 40 separable points
-# X, y = make_blobs(n_samples=40, centers=2, random_state=6)
-#
-# # fit the model, don't regularize for illustration purposes
-# clf = svm.SVC(kernel='linear', C=1000)
-# clf.fit(X, y)
-#
-plt.scatter(features[:, 0], features[:, 1], c=classes, s=30, cmap=plt.cm.Paired)
+    # load classes
+    classes = np.genfromtxt(os.path.join(target_dir, file_class[i]), delimiter=',', defaultfmt='%f')
 
-# change x limit
-ax = plt.gca()
+    plt.figure(i)
+    plt.clf()
 
-x_min = min(features[:, 0])
-x_max = max(features[:, 0])
+    plt.scatter(clf.support_vectors_[:, 0], clf.support_vectors_[:, 1], s=80,
+                facecolors='none', zorder=10, edgecolors='k')
+    plt.scatter(features[:, 0], features[:, 1], c=classes, zorder=10, cmap=plt.cm.Paired,
+                edgecolors='k')
 
-ax.set_xlim([x_min, x_max])
+    plt.axis('tight')
+    x_min = min(features[:, 0])
+    x_max = max(features[:, 0])
+    y_min = min(features[:, 1])
+    y_max = max(features[:, 1])
 
-# plot the decision function
-xlim = ax.get_xlim()
-ylim = ax.get_ylim()
+    XX, YY = np.mgrid[x_min:x_max:200j, y_min:y_max:200j]
+    Z = clf.decision_function(np.c_[XX.ravel(), YY.ravel()])
 
-# create grid to evaluate model
-xx = np.linspace(xlim[0], xlim[1], 30)
-yy = np.linspace(ylim[0], ylim[1], 30)
-YY, XX = np.meshgrid(yy, xx)
-xy = np.vstack([XX.ravel(), YY.ravel()]).T
-Z = clf.decision_function(xy).reshape(XX.shape)
+    # Put the result into a color plot
+    Z = Z.reshape(XX.shape)
+    plt.pcolormesh(XX, YY, Z > 0, cmap=plt.cm.Paired)
+    plt.contour(XX, YY, Z, colors=['k', 'k', 'k'], linestyles=['--', '-', '--'],
+                levels=[-.5, 0, .5])
 
-# plot decision boundary and margins
-ax.contour(XX, YY, Z, colors='k', levels=[-1, 0, 1], alpha=0.5,
-           linestyles=['--', '-', '--'])
-# plot support vectors
-ax.scatter(clf.support_vectors_[:, 0], clf.support_vectors_[:, 1], s=100,
-           linewidth=1, facecolors='none', edgecolors='k')
+    plt.xlim(x_min, x_max)
+    plt.ylim(y_min, y_max)
+
+    plt.xticks(())
+    plt.yticks(())
+
+    # axes labels
+    label_x = 'meanValue'
+    label_y = 'numZeroCrossings'
+    label_title = file_class[i]
+
+    plt.xlabel(label_x)
+    plt.ylabel(label_y)
+    plt.title(label_title)
+
 plt.show()
+
+

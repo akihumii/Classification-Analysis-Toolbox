@@ -1,11 +1,11 @@
 import numpy as np
-import globals
-from numpy_ringbuffer import RingBuffer
 from filtering import Filtering
+from saving import Saving
 
 
-class Demultiplex(Filtering):
-    def __init__(self, ringbuffer_size, channel_len, sampling_freq, hp_thresh, lp_thresh, notch_thresh):
+class DataHandler(Saving, Filtering):
+    def __init__(self, channel_len, sampling_freq, hp_thresh, lp_thresh, notch_thresh):
+        Saving.__init__(self)
         Filtering.__init__(self, sampling_freq, hp_thresh, lp_thresh, notch_thresh)
         self.data_orig = []
         self.data_processed = []
@@ -15,14 +15,13 @@ class Demultiplex(Filtering):
 
         self.__flag_start_bit = 165
         self.__flag_end_bit = 90
-        self.__flag_counter = [0, 255]
+        self.__flag_sync_pulse = [0, 255]
         self.__sample_len = 25
         self.__channel_len = channel_len
         self.__sync_pulse_len = 1
         self.__counter_len = 1
         self.__ring_column_len = self.__channel_len + self.__sync_pulse_len + self.__counter_len
 
-        globals.ring_data = [RingBuffer(capacity=ringbuffer_size, dtype=np.float) for __ in range(self.__ring_column_len)]
         self.filter_obj = [Filtering(sampling_freq, hp_thresh, lp_thresh, notch_thresh) for __ in range(self.__channel_len)]
 
     def get_buffer(self, buffer_read):
@@ -30,8 +29,9 @@ class Demultiplex(Filtering):
 
         self.loc_start = [x[0] for x in self.loc_start_orig
                           if x + self.__sample_len < len(buffer_read)
-                          and buffer_read[x + self.__sample_len - 1] == self.__flag_end_bit
-                          and np.isin(buffer_read[x+self.__sample_len-(self.__counter_len*2)-2], self.__flag_counter)]
+                          and buffer_read[x + self.__sample_len - 1] == self.__flag_end_bit  # check end bit
+                          and np.isin(buffer_read[x+self.__sample_len-(self.__counter_len*2)-2], self.__flag_sync_pulse)  # check sync pulse
+                          and buffer_read[x + self.__sample_len] == self.__flag_start_bit]  # check the next start bit
 
         if len(self.loc_start) > 0:
             [self.buffer_process, buffer_leftover] = np.split(buffer_read, [self.loc_start[-1]+self.__sample_len-1])
@@ -66,16 +66,13 @@ class Demultiplex(Filtering):
         data_channel = np.transpose(np.vstack([self.filter_obj[x].filter(data_channel[:, x])
                                                for x in range(self.__channel_len)]))
 
-        # data_channel = np.hstack([np.vstack([self.filter_obj[x].filter(data_channel[:, x])])
-        #                           for x in range(self.__channel_len)])
-
         self.data_processed = np.hstack([data_channel, data_sync_pulse, data_counter])
 
-    def fill_ring_data(self, ring_lock):
-        if (globals.ring_data[0].maxlen - len(globals.ring_data[0])) >= self.__sample_len:
-            with ring_lock:  # lock the ring data while filling in
-                for x in range(self.__ring_column_len):
-                    globals.ring_data[x].extend(np.array(self.data_processed)[:, x])
-        else:
+    def fill_ring_data(self, ring_queue):
+        if ring_queue.full():
             print("buffer full...")
+        else:
+            ring_queue.put_nowait(self.data_processed)
+
+
 
