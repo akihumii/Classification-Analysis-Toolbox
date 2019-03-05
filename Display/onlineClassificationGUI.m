@@ -173,8 +173,9 @@ guidata(hObject, handles);
 
 function buttonSaveFeatures_Callback(hObject, eventdata, handles)
 disp(' ')
+multiChannelFlag = 1;
 try
-    [threshMultStr, signal, signalClassificationInfo, saveFileName] = onlineClassifierDetectBursts();
+    [threshMultStr, signal, signalClassificationInfo, saveFileName] = onlineClassifierDetectBursts(multiChannelFlag);
     filepath = saveBurstsInfo(signal, signalClassificationInfo, saveFileName);
     getPythonClassifier(filepath);
     handles.inputThreshMult.Data = checkSizeNTranspose(threshMultStr, 1);
@@ -246,6 +247,8 @@ if ~exist(filepath,'file')
 end
 
 for i = 1:numChannel
+    numClass = 2;
+    
     timeStamps = time2string();
     [~, filename] = fileparts(saveFileName{1,1});
     fullfilenameFeature = fullfile(filepath,sprintf('featuresCh%d_%s_%s.csv', signal(i,1).channel(1,i), filename, timeStamps));
@@ -255,14 +258,18 @@ for i = 1:numChannel
     featureStruct = rmfield(featureStruct, 'dataAnalysed');  % to make it able to build a full table
     featureTable = struct2table(featureStruct);
 
-    feature = table2array(featureTable(:,featuresForClassification));  % get the target features
-    feature = feature(:,i:numChannel:end);  % get the target class
-    feature = reshape(feature,[],2);  % reshape into columns of different features
-
+    featureRaw = table2array(featureTable(:,featuresForClassification));  % get the target features
+    featureRaw = featureRaw(:,i:numChannel:end);  % get the target class
+    feature = reshape(featureRaw,[],2);  % reshape into columns of different features
     feature = omitNan(feature,2,'any');
-    numBursts = size(feature,1);
-    class = reshape(repmat([1,2], numBursts/2, 1), [], 1);
-
+    
+    % get corresponding class
+    class = [];
+    for j = 1:numClass
+        featureTemp = featureRaw(:,j);
+        class = vertcat(class, repmat(j, sum(all([~isnan(featureTemp), featureTemp ~= 0], 2)), 1));
+    end
+    
     % save features and classes
     csvwrite(fullfilenameFeature, feature)
     disp(['Saved ', fullfilenameFeature, '...']);

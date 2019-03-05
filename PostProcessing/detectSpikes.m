@@ -113,7 +113,7 @@ output.parameters.TKEOStartConsecutivePoints = parameters.TKEOStartConsecutivePo
 output.parameters.TKEOEndConsecutivePoints = parameters.TKEOEndConsecutivePoints;
 
 if parameters.markBurstInAllChannels
-    output = mergeChannelsInfo(data,output);
+    output = mergeChannelsInfo(data,output,colData);
 end
 
 % if parameters.getBaselineFeatureFlag
