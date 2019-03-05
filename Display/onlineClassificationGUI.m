@@ -180,6 +180,7 @@ try
     getPythonClassifier(filepath);
     handles.inputThreshMult.Data = checkSizeNTranspose(threshMultStr, 1);
 catch
+    popMsg('Error while saving features...');
     handles.UserData.threshMultStr = '';
 end
 guidata(hObject, handles);

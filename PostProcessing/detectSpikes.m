@@ -21,6 +21,7 @@ if nargin < 2
     parameters.TKEOStartConsecutivePoints = 1;
     parameters.TKEOEndConsecutivePoints = 1;
     parameters.markBurstInAllChannels = 0;
+    parameters.fixBurstLength = 0;
 end    
 
 %% Find Peaks
@@ -112,8 +113,16 @@ output.parameters.threshStdMult = parameters.threshStdMult;
 output.parameters.TKEOStartConsecutivePoints = parameters.TKEOStartConsecutivePoints;
 output.parameters.TKEOEndConsecutivePoints = parameters.TKEOEndConsecutivePoints;
 
+if parameters.burstLen
+    [output.spikeLocs, output.spikePeaksValue, output.burstEndLocs, output.burstEndValue] = ...
+        editBurstLen(data, parameters.burstLen, output.spikeLocs, output.spikePeaksValue);
+    mergeType = 'first';
+else
+    mergeType = 'merge';
+end
+
 if parameters.markBurstInAllChannels
-    output = mergeChannelsInfo(data,output,colData);
+    output = mergeChannelsInfo(data,output,colData,mergeType);
 end
 
 % if parameters.getBaselineFeatureFlag
