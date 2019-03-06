@@ -11,7 +11,7 @@ lengthBaselineBurst = size(baseline.baselineBursts,1);
 
 if lengthBaselineBurst > numSampleBurst
     baseline.baselineBursts(numSampleBurst+1:end, :, :) = []; % remove extra sample points in baseline bursts
-else
+elseif lengthBaselineBurst < numSampleBurst
     baselineBurstTemp = nan(size(data.selectedWindows.burst));
     baselineBurstTemp(1:lengthBaselineBurst, 1:numBurst, 1:numChannel) = baseline.baselineBursts;
     baseline.baselineBursts = baselineBurstTemp;

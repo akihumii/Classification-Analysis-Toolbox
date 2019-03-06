@@ -24,9 +24,9 @@ sizeData = length(data);
 
 %% Run
 while windowEndPoint <= sizeData
-    windowTemp = windowEndPoint-windowSize+1:windowEndPoint;
+    windowTemp = windowEndPoint-windowSize+1:windowEndPoint+1;
     
-    if dataForThreshold(windowTemp) < threshold
+    if all(dataForThreshold(windowTemp) < threshold)
         windowEndPoint = windowEndPoint + windowSize;
         burst = [burst,data(windowTemp)];
     else
@@ -39,7 +39,7 @@ while windowEndPoint <= sizeData
 end
 
 if size(burst,2) < numBurst
-    burst = [burst,nan(windowSize, numBurst-size(burst,2))];
+    burst = [burst,nan(windowSize+1, numBurst-size(burst,2))];
 end
 
 

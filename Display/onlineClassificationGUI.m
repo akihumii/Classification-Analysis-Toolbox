@@ -22,7 +22,7 @@ function varargout = onlineClassificationGUI(varargin)
 
 % Edit the above text to modify the response to help onlineClassificationGUI
 
-% Last Modified by GUIDE v2.5 26-Feb-2019 15:47:07
+% Last Modified by GUIDE v2.5 05-Mar-2019 15:10:20
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -173,10 +173,10 @@ guidata(hObject, handles);
 
 function buttonSaveFeatures_Callback(hObject, eventdata, handles)
 disp(' ')
-multiChannelFlag = 1;
+handles.UserData.multiChannelFlag = 0;
 try
-    [threshMultStr, signal, signalClassificationInfo, saveFileName] = onlineClassifierDetectBursts(multiChannelFlag);
-    filepath = saveBurstsInfo(signal, signalClassificationInfo, saveFileName);
+    [threshMultStr, signal, signalClassificationInfo, saveFileName, parameters] = onlineClassifierDetectBursts(handles);
+    filepath = saveBurstsInfo(signal, signalClassificationInfo, saveFileName, parameters.markBurstInAllChannels);
     getPythonClassifier(filepath);
     handles.inputThreshMult.Data = checkSizeNTranspose(threshMultStr, 1);
 catch
@@ -236,9 +236,9 @@ output = struct(...
     'openPortFlag', 0,...
     'stopAll', 0);
 
-function filepath = saveBurstsInfo(signal, signalClassificationInfo, saveFileName)
+function filepath = saveBurstsInfo(signal, signalClassificationInfo, saveFileName, markBurstInAllChannels)
 featuresForClassification = [5,7];  % selected features for classification        
-numChannel = length(signalClassificationInfo);
+numFile = length(signalClassificationInfo);
 
 % Make a folder to store the features and corresponding classes
 filepath = fileparts(saveFileName{1,1});
@@ -247,36 +247,47 @@ if ~exist(filepath,'file')
     mkdir(filepath);
 end
 
-for i = 1:numChannel
-    numClass = 2;
-    
-    timeStamps = time2string();
-    [~, filename] = fileparts(saveFileName{1,1});
-    fullfilenameFeature = fullfile(filepath,sprintf('featuresCh%d_%s_%s.csv', signal(i,1).channel(1,i), filename, timeStamps));
-    fullfilenameClass = fullfile(filepath,sprintf('classCh%d_%s_%s.csv', signal(i,1).channel(1,i), filename, timeStamps));
+[~, filename] = fileparts(saveFileName{1,1});
 
-    featureStruct = signalClassificationInfo(i,1).features;
-    featureStruct = rmfield(featureStruct, 'dataAnalysed');  % to make it able to build a full table
-    featureTable = struct2table(featureStruct);
-
-    featureRaw = table2array(featureTable(:,featuresForClassification));  % get the target features
-    featureRaw = featureRaw(:,i:numChannel:end);  % get the target class
-    feature = reshape(featureRaw,[],2);  % reshape into columns of different features
-    feature = omitNan(feature,2,'any');
-    
-    % get corresponding class
-    class = [];
-    for j = 1:numClass
-        featureTemp = featureRaw(:,j);
-        class = vertcat(class, repmat(j, sum(all([~isnan(featureTemp), featureTemp ~= 0], 2)), 1));
+% if markBurstInAllChannels
+%     timeStamps = time2string();
+%     for i = 1:numFile
+%         fullfilenameFeature = fullfile(filepath,sprintf('featuresMv%d_%s_%s.csv', signal(i,1).channel(1,i), filename, timeStamps));
+%         fullfilenameClass = fullfile(filepath,sprintf('classMv%d_%s_%s.csv', signal(i,1).channel(1,i), filename, timeStamps));
+% 
+%     end
+% 
+% else
+    for i = 1:numFile
+        numClass = 2;
+        
+        timeStamps = time2string();
+        fullfilenameFeature = fullfile(filepath,sprintf('featuresCh%d_%s_%s.csv', signal(i,1).channel(1,i), filename, timeStamps));
+        fullfilenameClass = fullfile(filepath,sprintf('classCh%d_%s_%s.csv', signal(i,1).channel(1,i), filename, timeStamps));
+        
+        featureStruct = signalClassificationInfo(i,1).features;
+        featureStruct = rmfield(featureStruct, 'dataAnalysed');  % to make it able to build a full table
+        featureTable = struct2table(featureStruct);
+        
+        featureRaw = table2array(featureTable(:,featuresForClassification));  % get the target features
+        featureRaw = featureRaw(:,i:numFile:end);  % get the target channel
+        feature = reshape(featureRaw,[],2);  % reshape into columns of different features
+        feature = omitNan(feature,2,'any');
+        
+        % get corresponding class
+        class = [];
+        for j = 1:numClass
+            featureTemp = featureRaw(:,j);
+            class = vertcat(class, repmat(j, sum(all([~isnan(featureTemp), featureTemp ~= 0], 2)), 1));
+        end
+        
+        % save features and classes
+        csvwrite(fullfilenameFeature, feature)
+        disp(['Saved ', fullfilenameFeature, '...']);
+        csvwrite(fullfilenameClass, class)
+        disp(['Saved ', fullfilenameClass, '...']);
     end
-    
-    % save features and classes
-    csvwrite(fullfilenameFeature, feature)
-    disp(['Saved ', fullfilenameFeature, '...']);
-    csvwrite(fullfilenameClass, class)
-    disp(['Saved ', fullfilenameClass, '...']);
-end
+% end
 
 popMsg('Features and Classes saving finished...');
 
@@ -423,3 +434,27 @@ handles.UserData.parameters = parameters;
 handles.UserData.tB = tB;
 
 
+
+
+
+function inputBurstLen_Callback(hObject, eventdata, handles)
+% hObject    handle to inputBurstLen (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of inputBurstLen as text
+%        str2double(get(hObject,'String')) returns contents of inputBurstLen as a double
+guidata(hObject, handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function inputBurstLen_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to inputBurstLen (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
