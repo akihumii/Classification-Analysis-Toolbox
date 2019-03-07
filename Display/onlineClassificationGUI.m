@@ -22,7 +22,7 @@ function varargout = onlineClassificationGUI(varargin)
 
 % Edit the above text to modify the response to help onlineClassificationGUI
 
-% Last Modified by GUIDE v2.5 07-Mar-2019 18:29:21
+% Last Modified by GUIDE v2.5 07-Mar-2019 21:21:19
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -320,6 +320,17 @@ output = struct(...
     'stopAll', 0,...
     'bionicHandConnection',0,...
     'portHand','COM15');
+output.chPorts = struct(...
+    'Ch1',1339,...
+    'Ch2',1340,...
+    'Ch3',1341,...
+    'Ch4',1342,...
+    'Ch5',1343,...
+    'Ch6',1344,...
+    'Ch7',1345,...
+    'Ch8',1346,...
+    'Ch9',1347,...
+    'Ch10',1348);
 
 function filepath = saveBurstsInfo(signal, signalClassificationInfo, saveFileName, markBurstInAllChannels)
 featuresForClassification = [5,7];  % selected features for classification        
@@ -440,7 +451,7 @@ guidata(hObject, handles);
 
 
 function predictClassAll = runProgram(hObject, handles, predictClassAll)
-try
+% try
     for i = 1:handles.UserData.parameters.numChannel
         readSample(handles.UserData.classInfo{i,1});
         %         plot(h(i,1),handles.UserData.classInfo{i,1}.dataFiltered)
@@ -451,12 +462,12 @@ try
         if predictClassAll(1,i) ~= handles.UserData.classInfo{i,1}.predictClass % update if state changed
             predictClassAll(1,i) = handles.UserData.classInfo{i,1}.predictClass;
             predictClassTemp = predictClassAll;
-            if all(predictClassAll(1:2))
-                predictClassTemp(2) = 0;
-            end
-            if all(predictClassAll(3:4))
-                predictClassTemp(4) = 0;
-            end
+%             if all(predictClassAll(1:2))
+%                 predictClassTemp(2) = 0;
+%             end
+%             if all(predictClassAll(3:4))
+%                 predictClassTemp(4) = 0;
+%             end
             handles.dispPrediction.String = num2str(predictClassTemp);
             replyPredictionDec = bi2de(predictClassTemp,'right-msb');
             fwrite(handles.UserData.tB,[handles.UserData.parameters.channelEnable,replyPredictionDec]); % to enable the channel
@@ -468,12 +479,12 @@ try
         %             elapsedTime{i,1} = [elapsedTime{i,1};toc(t)];
     end
     
-catch
-    resetAll(hObject, handles)
-    handles.UserData.startAllFlag = 0;
-    popMsg('Wrong selection, please start over...');
-    drawnow
-end
+% catch
+%     resetAll(hObject, handles)
+%     handles.UserData.startAllFlag = 0;
+%     popMsg('Wrong selection, please start over...');
+%     drawnow
+% end
 drawnow
     
 
@@ -481,10 +492,12 @@ function handles = setupClassifier(handles)
 %% Parameters
 parameters = struct(...
     'overlapWindowSize',50,... % ms
-    'ports',[1343,1344,1345,1346],...
+    'ports',[handles.UserData.chPorts.(handles.chPopup1.String{handles.chPopup1.Value,1}),...
+             handles.UserData.chPorts.(handles.chPopup2.String{handles.chPopup2.Value,1})],...
     'replyPort',1300,...
-    'channelEnable',251,...
-    'numChannel',length(handles.UserData.classifierParameters));
+    'channelEnable',251);
+
+parameters.numChannel = length(parameters.ports);
 
 for i = 1:parameters.numChannel
     classInfo{i,1} = classOnlineClassification(); % Initiatialize the object
@@ -525,3 +538,69 @@ handles.UserData.classInfo = classInfo;
 handles.UserData.parameters = parameters;
 handles.UserData.tB = tB;
 
+
+
+% --- Executes during object deletion, before destroying properties.
+function inputBlankSize_DeleteFcn(hObject, eventdata, handles)
+% hObject    handle to inputBlankSize (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+disp('hi')
+try
+fclose(handles.UserData.tB);
+for i = 1:length(handles.UserData.classInfo)
+    fwrite(handles.UserData.classInfo{i,1}.t,'CONNECT!!!!!!!!');
+    fclose(handles.UserData.classInfo{i,1}.t);
+end
+catch
+end
+
+
+
+
+% --- Executes on selection change in chPopup1.
+function chPopup1_Callback(hObject, eventdata, handles)
+% hObject    handle to chPopup1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns chPopup1 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from chPopup1
+resetAll(hObject, handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function chPopup1_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to chPopup1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in chPopup2.
+function chPopup2_Callback(hObject, eventdata, handles)
+% hObject    handle to chPopup2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns chPopup2 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from chPopup2
+resetAll(hObject, handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function chPopup2_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to chPopup2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
