@@ -85,12 +85,12 @@ else
 end
 
 numChannel = 4;
-handles.tableThresh.Data = cell(1,numChannel);
+handles.tableThresh.Data = cell(numChannel,1);
 handles.inputThreshMult.Data = cell(1,numChannel);
-handles.inputArtefact.Data = cell(1,numChannel);
+handles.inputArtefact.Data = cell(numChannel,1);
 for i = 1:numChannel
-    handles.tableThresh.Data{1,i} = Inf;
-    handles.inputArtefact.Data{1,i} = nan;
+    handles.tableThresh.Data{i,1} = Inf;
+    handles.inputArtefact.Data{i,1} = nan;
 end
 
 % Update handles structure
@@ -208,7 +208,7 @@ function tableThresh_CellEditCallback(hObject, eventdata, handles)
 
 try
     for i = 1:length(handles.UserData.classInfo)
-        handles.UserData.classInfo{i,1}.thresholds = handles.tableThresh.Data{1,i};
+        handles.UserData.classInfo{i,1}.thresholds = handles.tableThresh.Data{i,1};
     end
 catch
 end
@@ -222,7 +222,15 @@ if str2num(get(hObject,'String')) < 50
     handles.inputWindowSize.String = 50;
 end
 
-resetAll(hObject, handles);
+try
+    for i = 1:length(handles.UserData.classInfo)
+        handles.UserData.classInfo{i,1}.windowSize = str2num(handles.inputWindowSize.String);
+    end
+catch
+end
+
+guidata(hObject, handles);
+
 
 
 % --- Executes during object creation, after setting all properties.
@@ -237,7 +245,15 @@ end
 function inputBlankSize_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of inputBlankSize as text
 %        str2double(get(hObject,'String')) returns contents of inputBlankSize as a double
-resetAll(hObject, handles);
+try
+    for i = 1:length(handles.UserData.classInfo)
+        handles.UserData.classInfo{i,1}.blankSize = str2num(handles.inputBlankSize.String);
+    end
+catch
+end
+
+guidata(hObject, handles);
+
 
 
 % --- Executes during object creation, after setting all properties.
@@ -274,7 +290,15 @@ function inputArtefact_CellEditCallback(hObject, eventdata, handles)
 %	EditData: string(s) entered by the user
 %	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
 %	Error: error string when failed to convert EditData to appropriate value for Data
-resetAll(hObject, handles);
+% resetAll(hObject, handles);
+try
+    for i = 1:length(handles.UserData.classInfo)
+        handles.UserData.classInfo{i,1}.triggerThreshold = handles.inputArtefact.Data{i,1};
+    end
+catch
+end
+
+guidata(hObject, handles);
 
 
 function panelClassificationMethod_CreateFcn(hObject, eventdata, handles)
@@ -450,10 +474,10 @@ for i = 1:parameters.numChannel
 
     guiInput = struct(...
         'predictionMethod',handles.panelClassificationMethod.SelectedObject.String,...
-        'thresholds',handles.tableThresh.Data{1,i},...
+        'thresholds',handles.tableThresh.Data{i,1},...
         'windowSize',str2num(handles.inputWindowSize.String),...
         'blankSize',str2num(handles.inputBlankSize.String),...
-        'triggerThreshold',handles.inputArtefact.Data{1,i});
+        'triggerThreshold',handles.inputArtefact.Data{i,1});
     
     setBasicParameters(classInfo{i,1},handles.UserData.classifierParameters{i,1},parameters,guiInput);
             

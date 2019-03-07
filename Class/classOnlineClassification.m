@@ -132,6 +132,8 @@ classdef classOnlineClassification < matlab.System
                                 obj.dataRaw = fixWindow(obj, sample); % assure the length of dataRaw remain the same
                             end
                             obj.readyClassify = 1;
+                        else
+                            obj.predictClass = 0;
                         end
                     else
                         obj.readyClassify = 1;
