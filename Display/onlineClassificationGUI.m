@@ -22,7 +22,7 @@ function varargout = onlineClassificationGUI(varargin)
 
 % Edit the above text to modify the response to help onlineClassificationGUI
 
-% Last Modified by GUIDE v2.5 06-Mar-2019 15:47:51
+% Last Modified by GUIDE v2.5 07-Mar-2019 18:29:21
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -237,7 +237,7 @@ end
 function inputBlankSize_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of inputBlankSize as text
 %        str2double(get(hObject,'String')) returns contents of inputBlankSize as a double
-guidata(hObject, handles);
+resetAll(hObject, handles);
 
 
 % --- Executes during object creation, after setting all properties.
@@ -263,6 +263,17 @@ if strcmp('Threshold', handles.panelClassificationMethod.SelectedObject.String)
 else
     handles.tableThresh.Enable = 'off';
 end
+resetAll(hObject, handles);
+
+
+% --- Executes when entered data in editable cell(s) in inputArtefact.
+function inputArtefact_CellEditCallback(hObject, eventdata, handles)
+% eventdata  structure with the following fields (see MATLAB.UI.CONTROL.TABLE)
+%	Indices: row and column indices of the cell(s) edited
+%	PreviousData: previous data for the cell(s) edited
+%	EditData: string(s) entered by the user
+%	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
+%	Error: error string when failed to convert EditData to appropriate value for Data
 resetAll(hObject, handles);
 
 
@@ -389,7 +400,7 @@ guidata(hObject, handles);
 
 
 function predictClassAll = runProgram(hObject, handles, predictClassAll)
-% try
+try
     for i = 1:handles.UserData.parameters.numChannel
         readSample(handles.UserData.classInfo{i,1});
         %         plot(h(i,1),handles.UserData.classInfo{i,1}.dataFiltered)
@@ -416,12 +427,12 @@ function predictClassAll = runProgram(hObject, handles, predictClassAll)
         %             elapsedTime{i,1} = [elapsedTime{i,1};toc(t)];
     end
     
-% catch
-%     resetAll(hObject, handles)
-%     handles.UserData.startAllFlag = 0;
-%     popMsg('Wrong selection, please start over...');
-%     drawnow
-% end
+catch
+    resetAll(hObject, handles)
+    handles.UserData.startAllFlag = 0;
+    popMsg('Wrong selection, please start over...');
+    drawnow
+end
 drawnow
     
 
@@ -441,7 +452,8 @@ for i = 1:parameters.numChannel
         'predictionMethod',handles.panelClassificationMethod.SelectedObject.String,...
         'thresholds',handles.tableThresh.Data{1,i},...
         'windowSize',str2num(handles.inputWindowSize.String),...
-        'blankSize',str2num(handles.inputBlankSize.String));
+        'blankSize',str2num(handles.inputBlankSize.String),...
+        'triggerThreshold',handles.inputArtefact.Data{1,i});
     
     setBasicParameters(classInfo{i,1},handles.UserData.classifierParameters{i,1},parameters,guiInput);
             
@@ -471,5 +483,4 @@ handles.UserData.openPortFlag = 1;
 handles.UserData.classInfo = classInfo;
 handles.UserData.parameters = parameters;
 handles.UserData.tB = tB;
-
 

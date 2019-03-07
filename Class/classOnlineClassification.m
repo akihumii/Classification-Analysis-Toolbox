@@ -118,17 +118,18 @@ classdef classOnlineClassification < matlab.System
                         sample = fread(obj.t, obj.stepRead, 'double');
                         obj.dataRaw = [obj.dataRaw(length(sample)+1:end); sample];
                     end
+
+                    obj.dataFilteredHighPass = filterHighPass(obj); % apply a highpass filter
                     
-                    if ~isnan(obj.triggerThreshold) && length(obj.dataRaw) > 5
-                        obj.dataFilteredHighPass = filterHighPass(obj);
-                        if any(obj.dataFilteredHighPass > obj.triggerThreshold)
-                            while obj.t.BytesAvailable < (obj.blankSize + obj.windowSize)/(1000/obj.samplingFreq)
+                    if ~isnan(obj.triggerThreshold) && length(obj.dataRaw) > 5 % if any number is input in artefactThresh
+                        if any(obj.dataFilteredHighPass > obj.triggerThreshold) % if a window consists of a point that exceeds the input artefactThresh
+                            while obj.t.BytesAvailable < (obj.blankSize + obj.windowSize)/(1000/obj.samplingFreq)  % collect the next (blankSize + windowSize) length of data
                                 drawnow
                             end
-                            for i = 1:obj.t.BytesAvailable
+                            for i = 1:obj.t.BytesAvailable % store the data into dataRaw
                                 sample = fread(obj.t, obj.stepRead, 'double');
                                 if checkEmptyBuffer(obj); break; end
-                                obj.dataRaw = fixWindow(obj, sample);
+                                obj.dataRaw = fixWindow(obj, sample); % assure the length of dataRaw remain the same
                             end
                             obj.readyClassify = 1;
                         end
