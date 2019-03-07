@@ -77,6 +77,9 @@ varargout{1,2} = handles;
 % setup the flags
 handles.UserData = setupUserData();
 
+% close all serial port connection
+instrreset
+
 % change enablity of inputThresh
 if strcmp('Threshold', handles.panelClassificationMethod.SelectedObject.String)
     handles.tableThresh.Enable = 'on';
@@ -122,6 +125,11 @@ switch handles.UserData.stopFlag
             if ~handles.UserData.openPortFlag
                 handles = setupClassifier(handles);
                 guidata(hObject, handles);
+            end
+            
+            if ~handles.UserData.bionicHandConnection
+                handles.UserData.tH = bionicHand(handles.UserData.portHand);
+                guidata(hObject, handles)
             end
             
             predictClassAll = zeros(1, handles.UserData.parameters.numChannel);
@@ -304,12 +312,14 @@ guidata(hObject, handles);
 function panelClassificationMethod_CreateFcn(hObject, eventdata, handles)
 
 
-function output = setupUserData(handles)
+function output = setupUserData()
 output = struct(...
     'startAllFlag', 0,...
     'stopFlag', 1,...
     'openPortFlag', 0,...
-    'stopAll', 0);
+    'stopAll', 0,...
+    'bionicHandConnection',0,...
+    'portHand','COM15');
 
 function filepath = saveBurstsInfo(signal, signalClassificationInfo, saveFileName, markBurstInAllChannels)
 featuresForClassification = [5,7];  % selected features for classification        
@@ -419,6 +429,12 @@ try
 catch
 end
 
+try
+    writeToHand(handles.UserData.tH,'0');
+    closeBionicHand(handles.UserData.tH);
+catch
+end
+
 drawnow
 guidata(hObject, handles);
 
@@ -444,6 +460,7 @@ try
             handles.dispPrediction.String = num2str(predictClassTemp);
             replyPredictionDec = bi2de(predictClassTemp,'right-msb');
             fwrite(handles.UserData.tB,[handles.UserData.parameters.channelEnable,replyPredictionDec]); % to enable the channel
+            writeToHand(handles.UserData.tH,num2str(replyPredictionDec))
             drawnow
         end
         
