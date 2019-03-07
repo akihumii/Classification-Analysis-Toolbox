@@ -22,7 +22,7 @@ function varargout = onlineClassificationGUI(varargin)
 
 % Edit the above text to modify the response to help onlineClassificationGUI
 
-% Last Modified by GUIDE v2.5 05-Mar-2019 15:10:20
+% Last Modified by GUIDE v2.5 06-Mar-2019 15:47:51
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -84,8 +84,14 @@ else
     handles.tableThresh.Enable = 'off';
 end
 
-handles.tableThresh.Data = cell(1,4);
-handles.inputThreshMult.Data = cell(1,4);
+numChannel = 4;
+handles.tableThresh.Data = cell(1,numChannel);
+handles.inputThreshMult.Data = cell(1,numChannel);
+handles.inputArtefact.Data = cell(1,numChannel);
+for i = 1:numChannel
+    handles.tableThresh.Data{1,i} = Inf;
+    handles.inputArtefact.Data{1,i} = nan;
+end
 
 % Update handles structure
 guidata(hObject, handles);
@@ -121,7 +127,7 @@ switch handles.UserData.stopFlag
             predictClassAll = zeros(1, handles.UserData.parameters.numChannel);
             
             while handles.UserData.openPortFlag
-                predictClassAll = runProgram(handles, predictClassAll);  % run classification
+                predictClassAll = runProgram(hObject, handles, predictClassAll);  % run classification
                 handles = guidata(hObject);    
             end
             handles.UserData.openPortFlag = 0;
@@ -137,9 +143,10 @@ end
 
 function buttonReselect_Callback(hObject, eventdata, handles)
 disp(' ')
-disp('Reselect training files...')
 try
     [files,path] = selectFiles('Select trained parameters .mat file...');
+    
+    popMsg('Reselect training files...')
     classifierParameters = load(fullfile(path,files{1,1}));
     classifierParameters = classifierParameters.varargin{1,1};
     
@@ -207,6 +214,39 @@ catch
 end
 
 guidata(hObject, handles);
+
+function inputWindowSize_Callback(hObject, eventdata, handles)
+% Hints: get(hObject,'String') returns contents of inputWindowSize as text
+%        str2double(get(hObject,'String')) returns contents of inputWindowSize as a double
+if str2num(get(hObject,'String')) < 50
+    handles.inputWindowSize.String = 50;
+end
+
+resetAll(hObject, handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function inputWindowSize_CreateFcn(hObject, eventdata, handles)
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+function inputBlankSize_Callback(hObject, eventdata, handles)
+% Hints: get(hObject,'String') returns contents of inputBlankSize as text
+%        str2double(get(hObject,'String')) returns contents of inputBlankSize as a double
+guidata(hObject, handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function inputBlankSize_CreateFcn(hObject, eventdata, handles)
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
 
 
 % --- Executes when user attempts to close bgOnlineClassificationGUI.
@@ -348,8 +388,8 @@ drawnow
 guidata(hObject, handles);
 
 
-function predictClassAll = runProgram(handles, predictClassAll)
-try
+function predictClassAll = runProgram(hObject, handles, predictClassAll)
+% try
     for i = 1:handles.UserData.parameters.numChannel
         readSample(handles.UserData.classInfo{i,1});
         %         plot(h(i,1),handles.UserData.classInfo{i,1}.dataFiltered)
@@ -376,12 +416,12 @@ try
         %             elapsedTime{i,1} = [elapsedTime{i,1};toc(t)];
     end
     
-catch
-    resetAll(hObject, handles)
-    handles.UserData.startAllFlag = 0;
-    popMsg('Wrong selection, please start over...');
-    drawnow
-end
+% catch
+%     resetAll(hObject, handles)
+%     handles.UserData.startAllFlag = 0;
+%     popMsg('Wrong selection, please start over...');
+%     drawnow
+% end
 drawnow
     
 
@@ -397,14 +437,13 @@ parameters = struct(...
 for i = 1:parameters.numChannel
     classInfo{i,1} = classOnlineClassification(); % Initiatialize the object
 
-    switch handles.panelClassificationMethod.SelectedObject.String
-        case 'Features'
-            setBasicParameters(classInfo{i,1},handles.UserData.classifierParameters{i,1},parameters,handles.panelClassificationMethod.SelectedObject.String);
-        case 'Threshold'
-            setBasicParameters(classInfo{i,1},handles.UserData.classifierParameters{i,1},parameters,handles.panelClassificationMethod.SelectedObject.String,handles.tableThresh.Data{1,i});
-        otherwise
-            error('Invalid selection of classification method...')
-    end
+    guiInput = struct(...
+        'predictionMethod',handles.panelClassificationMethod.SelectedObject.String,...
+        'thresholds',handles.tableThresh.Data{1,i},...
+        'windowSize',str2num(handles.inputWindowSize.String),...
+        'blankSize',str2num(handles.inputBlankSize.String));
+    
+    setBasicParameters(classInfo{i,1},handles.UserData.classifierParameters{i,1},parameters,guiInput);
             
     setTcpip(classInfo{i,1},'127.0.0.1',parameters.ports(1,i),'NetworkRole','client','Timeout',1);
 
@@ -434,27 +473,3 @@ handles.UserData.parameters = parameters;
 handles.UserData.tB = tB;
 
 
-
-
-
-function inputBurstLen_Callback(hObject, eventdata, handles)
-% hObject    handle to inputBurstLen (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of inputBurstLen as text
-%        str2double(get(hObject,'String')) returns contents of inputBurstLen as a double
-guidata(hObject, handles);
-
-
-% --- Executes during object creation, after setting all properties.
-function inputBurstLen_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to inputBurstLen (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end

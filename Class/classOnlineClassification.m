@@ -6,38 +6,44 @@ classdef classOnlineClassification < matlab.System
     
     % Public, tunable properties
     properties
-        predictClass = 0;
-        thresholds
+        predictClass = 0
+        thresholds = Inf
+        triggerThreshold = 0 % if it's not 0, signal will only be decoded while crossing it
         numStartConsecutivePoints
         numEndConsecutivePoints
         windowSize = 100 % ms
         overlapWindowSize = 50 % ms
+        blankSize = 0 %ms
         samplingFreq
         host
         port
         tcpipArg
         dataRaw = zeros(0,1)
         dataFiltered = zeros(0,1)
+        dataFilteredHighPass = zeros(0,1)
         dataTKEO = zeros(0,1)
         highPassCutoffFreq = 30
         lowPassCutoffFreq = 450
+        highPassCutoffFreqOnly = 100
         notchFreq = 50
         featureClassification;
         classifierMdl
         numClass
         threshMultStr
-        predictionMethod
+        predictionMethod = 'Threshold'
         t % instrument of port
+        readyClassify = 0
     end
     
     properties(Nontunable)
         filterHd % handle of Parks-McClellan FIR filter
-        readyClassify = 1
+        filterHighPassHd % handle highpass FIR filter (for stimulation artefact)
     end
     
     % Pre-computed constants
     properties(Access = private)
-        stepRead = 50
+        stepRead = 1
+        dataBuffer = []
         startOverlapping = 0 % flag to indicte that the window is full and ready to start overlapping
         features = zeros(1,0)
         featureNames
@@ -54,7 +60,7 @@ classdef classOnlineClassification < matlab.System
     end
     
     methods
-        function setBasicParameters(obj,data,parameters,predictionMethod, varargin)
+        function setBasicParameters(obj,data,parameters,guiInput)
             fieldNames = fieldnames(data);
             numField = length(fieldNames);
             for i = 1:numField
@@ -63,15 +69,13 @@ classdef classOnlineClassification < matlab.System
             
             obj.overlapWindowSize = parameters.overlapWindowSize;
             
-            obj.predictionMethod = predictionMethod;
-            if nargin > 4
-                obj.thresholds = varargin{1,1};
-            end
+            obj = structIntoStruct(obj, guiInput);
             
             obj.featureNames = obj.featureNamesAll(obj.featureClassification);
             obj.numFeature = length(obj.featureClassification);
             
             getFilterHd(obj);
+            getFilterHighPassHd(obj);
         end
         
         function setTcpip(obj,host,port,varargin)
@@ -110,39 +114,40 @@ classdef classOnlineClassification < matlab.System
                     end
                     obj.startOverlapping = 1;
                 else
-                    while obj.t.BytesAvailable < obj.overlapWindowSize/(1000/obj.samplingFreq)
-                        drawnow
-                    end
                     for i = 1:obj.stepRead:obj.t.BytesAvailable % store only overlapWindowSize of data as the update rate (overlapping window size)
                         sample = fread(obj.t, obj.stepRead, 'double');
-                        if checkEmptyBuffer(obj); break; end
-                        obj.dataRaw = fixWindow(obj,obj.dataRaw,sample);
+                        obj.dataRaw = [obj.dataRaw(length(sample)+1:end); sample];
+                    end
+                    
+                    if ~isnan(obj.triggerThreshold) && length(obj.dataRaw) > 5
+                        obj.dataFilteredHighPass = filterHighPass(obj);
+                        if any(obj.dataFilteredHighPass > obj.triggerThreshold)
+                            while obj.t.BytesAvailable < (obj.blankSize + obj.windowSize)/(1000/obj.samplingFreq)
+                                drawnow
+                            end
+                            for i = 1:obj.t.BytesAvailable
+                                sample = fread(obj.t, obj.stepRead, 'double');
+                                if checkEmptyBuffer(obj); break; end
+                                obj.dataRaw = fixWindow(obj, sample);
+                            end
+                            obj.readyClassify = 1;
+                        end
+                    else
+                        obj.readyClassify = 1;
                     end
                 end
             end
         end
         
-        %         function detectBurst(obj)
-        %             if ~obj.readyClassify
-        %                 obj.dataTKEO = TKEO(obj.dataRaw,obj.samplingFreq);
-        %                 [peaks,~] = triggerSpikeDetection(obj.dataTKEO,obj.thresholds,0,obj.numStartConsecutivePoints,0);
-        %                 if ~isnan(peaks)
-        %                     obj.readyClassify = 1; % activate flag for classify
-        %                 end
-        %             end
-        %         end
-        
         function classifyBurst(obj)
             if obj.readyClassify
-                try
-                    obj.dataFiltered = filter(obj); % get the filtered data for each channel
-                    
-%                     extractFeatures(obj); % get the features
-%                     
+                try             
+                    obj.dataFiltered = filter(obj);
                     predictClasses(obj); % predict the classes
                 catch
                     resetChannel(obj);
                 end
+                obj.readyClassify = 0;
             end
         end
         
@@ -160,9 +165,10 @@ classdef classOnlineClassification < matlab.System
         function predictClasses(obj)
             switch obj.predictionMethod
                 case 'Features'
+                    extractFeatures(obj); % get the features
                     obj.predictClass = predict(obj.classifierMdl, obj.features);
                 case 'Threshold'
-                    obj.predictClass = any(obj.dataFiltered > obj.thresholds);
+                    obj.predictClass = any(obj.dataFilteredHighPass > obj.thresholds);
                 otherwise
                     popMsg('Invalid predictionMethod...')
             end
@@ -177,12 +183,24 @@ classdef classOnlineClassification < matlab.System
             obj.filterHd = filterObj.Hd;
         end
         
+        function getFilterHighPassHd(obj)
+            filterObj = setFilter(classFilterDataOnline,obj.samplingFreq,obj.highPassCutoffFreqOnly,0,50,obj.windowSize); % initialize a filter object
+            obj.filterHighPassHd = filterObj.Hd;
+        end
+        
         function dataFiltered = filter(obj)
             dataFiltered = filter(obj.filterHd,obj.dataRaw);
         end
         
-        function output = fixWindow(obj,dataRaw,sample)
-            output = [dataRaw(obj.stepRead+1 : end, 1) ; sample];
+        function dataFilteredHighPass = filterHighPass(obj)
+            dataFilteredHighPass = filter(obj.filterHighPassHd, obj.dataRaw);
+        end
+        
+        function output = fixWindow(obj,sample)
+            output = [obj.dataRaw(length(sample)+1 : end, 1) ; sample];
+            if length(output) > obj.windowSize/(1000/obj.samplingFreq)
+                output = obj.dataRaw(end-obj.windowSize/(1000/obj.samplingFreq)+1:end);
+            end
         end
         
         function emptyFlag = checkEmptyBuffer(obj)
@@ -197,9 +215,11 @@ classdef classOnlineClassification < matlab.System
         end
         
         function resetChannel(obj)
+            popMsg('Channel reset...');
             obj.startOverlapping = 0;
             obj.dataRaw = zeros(0,1);
             obj.dataFiltered = zeros(0,1);
+            obj.dataFilteredHighPass = zeros(0,1);
         end
     end
 end
