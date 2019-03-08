@@ -150,7 +150,7 @@ switch handles.UserData.stopFlag
             
             predictClassAll = zeros(1, handles.UserData.parameters.numChannel);
             
-            pause(1) % for robot hand to work properly
+            pause(2) % for robot hand to work properly
             
             while handles.UserData.openPortFlag
                 predictClassAll = runProgram(hObject, handles, predictClassAll);  % run classification
@@ -406,7 +406,7 @@ function inputBlankSize_DeleteFcn(hObject, eventdata, handles)
 try
 fclose(handles.UserData.tB);
 for i = 1:length(handles.UserData.classInfo)
-    fwrite(handles.UserData.classInfo{i,1}.t,'CONNECT!!!!!!!!');
+    fwrite(handles.UserData.classInfo{i,1}.t,'DISCONNECT!!!!!!');
     fclose(handles.UserData.classInfo{i,1}.t);
 end
 catch
