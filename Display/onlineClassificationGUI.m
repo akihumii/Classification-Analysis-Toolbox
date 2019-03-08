@@ -22,7 +22,7 @@ function varargout = onlineClassificationGUI(varargin)
 
 % Edit the above text to modify the response to help onlineClassificationGUI
 
-% Last Modified by GUIDE v2.5 07-Mar-2019 21:21:19
+% Last Modified by GUIDE v2.5 08-Mar-2019 09:50:24
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -74,8 +74,9 @@ function varargout = onlineClassificationGUI_OutputFcn(hObject, eventdata, handl
 varargout{1} = handles.output;
 varargout{1,2} = handles;
 
-% setup the flags
-handles.UserData = setupUserData();
+% setup the UserData
+setupUserData(hObject, handles);
+handles = guidata(hObject);
 
 % close all serial port connection
 instrreset
@@ -87,11 +88,11 @@ else
     handles.tableThresh.Enable = 'off';
 end
 
-numChannel = 4;
-handles.tableThresh.Data = cell(numChannel,1);
-handles.inputThreshMult.Data = cell(1,numChannel);
-handles.inputArtefact.Data = cell(numChannel,1);
-for i = 1:numChannel
+handles.UserData.numChannelDisp = 2;
+handles.tableThresh.Data = cell(handles.UserData.numChannelDisp,1);
+handles.inputThreshMult.Data = cell(1,handles.UserData.numChannelDisp);
+handles.inputArtefact.Data = cell(handles.UserData.numChannelDisp,1);
+for i = 1:handles.UserData.numChannelDisp
     handles.tableThresh.Data{i,1} = Inf;
     handles.inputArtefact.Data{i,1} = nan;
 end
@@ -113,7 +114,7 @@ switch handles.UserData.stopFlag
     case 1
         if handles.UserData.startAllFlag
             disp('Program started...')
-            handles.dispPrediciton.String = num2str([0,0,0,0]);
+            handles.dispPrediciton.String = num2str(zeros(1,handles.UserData.numChannelDisp));
             handles.dispStatus.String = 'Program started...';
             handles.buttonStartStop.String = 'Stop';
             handles.buttonStartStop.ForegroundColor = 'r';
@@ -128,8 +129,19 @@ switch handles.UserData.stopFlag
             end
             
             if ~handles.UserData.bionicHandConnection
-                handles.UserData.tH = bionicHand(handles.UserData.portHand);
-                guidata(hObject, handles)
+                try
+                    handles.UserData.tH = bionicHand(handles.UserData.portHand);
+                    guidata(hObject, handles)
+                catch
+%                     allPorts = instrfind;
+%                     serialPortsLocs = ismember(get(allPorts,'Type'),'serial');
+%                     allNames = get(allPorts,'Name');
+%                     serialPorts = cell2mat(allNames(serialPortsLocs));
+%                     helpdlgBox = helpdlg(serialPorts,'Available COMPORT:');
+%                     helpdlgBox.Position(3) = 210;
+                    popMsg('Invalid COMPORT!');
+                    resetAll(hObject, handles);
+                end
             end
             
             predictClassAll = zeros(1, handles.UserData.parameters.numChannel);
@@ -312,25 +324,90 @@ guidata(hObject, handles);
 function panelClassificationMethod_CreateFcn(hObject, eventdata, handles)
 
 
-function output = setupUserData()
-output = struct(...
+% --- Executes on selection change in chPopup1.
+function chPopup1_Callback(hObject, eventdata, handles)
+% Hints: contents = cellstr(get(hObject,'String')) returns chPopup1 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from chPopup1
+resetAll(hObject, handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function chPopup1_CreateFcn(hObject, eventdata, handles)
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in chPopup2.
+function chPopup2_Callback(hObject, eventdata, handles)
+% Hints: contents = cellstr(get(hObject,'String')) returns chPopup2 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from chPopup2
+resetAll(hObject, handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function chPopup2_CreateFcn(hObject, eventdata, handles)
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function inputCOMPORT_Callback(hObject, eventdata, handles)
+% Hints: get(hObject,'String') returns contents of inputCOMPORT as text
+%        str2double(get(hObject,'String')) returns contents of inputCOMPORT as a double
+handles.UserData.portHand = sprintf('COM%s', get(hObject,'String'));
+resetAll(hObject, handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function inputCOMPORT_CreateFcn(hObject, eventdata, handles)
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes during object deletion, before destroying properties.
+function inputBlankSize_DeleteFcn(hObject, eventdata, handles)
+try
+fclose(handles.UserData.tB);
+for i = 1:length(handles.UserData.classInfo)
+    fwrite(handles.UserData.classInfo{i,1}.t,'CONNECT!!!!!!!!');
+    fclose(handles.UserData.classInfo{i,1}.t);
+end
+catch
+end
+
+
+%% Private functions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function setupUserData(hObject, handles)
+handles.UserData = struct(...
     'startAllFlag', 0,...
     'stopFlag', 1,...
     'openPortFlag', 0,...
     'stopAll', 0,...
     'bionicHandConnection',0,...
-    'portHand','COM15');
-output.chPorts = struct(...
-    'Ch1',1339,...
-    'Ch2',1340,...
-    'Ch3',1341,...
-    'Ch4',1342,...
-    'Ch5',1343,...
-    'Ch6',1344,...
-    'Ch7',1345,...
-    'Ch8',1346,...
-    'Ch9',1347,...
-    'Ch10',1348);
+    'portHand',sprintf('COM%s', handles.inputCOMPORT.String));
+handles.UserData.chPorts = struct(...
+    'Ch1',1340,...
+    'Ch2',1341,...
+    'Ch3',1342,...
+    'Ch4',1343,...
+    'Ch5',1344,...
+    'Ch6',1345,...
+    'Ch7',1346,...
+    'Ch8',1347,...
+    'Ch9',1348,...
+    'Ch10',1349);
+
+guidata(hObject, handles);
 
 function filepath = saveBurstsInfo(signal, signalClassificationInfo, saveFileName, markBurstInAllChannels)
 featuresForClassification = [5,7];  % selected features for classification        
@@ -428,7 +505,7 @@ end
 function resetAll(hObject, handles)
 disp('Program stopped...')
 
-handles.dispPrediction.String = num2str([0,0,0,0]);
+handles.dispPrediction.String = num2str(zeros(1,handles.UserData.numChannelDisp));
 handles.dispStatus.String = 'Program stopped...';
 handles.buttonStartStop.String = 'Start';
 handles.buttonStartStop.ForegroundColor = [0,190/256,0];
@@ -471,7 +548,15 @@ function predictClassAll = runProgram(hObject, handles, predictClassAll)
             handles.dispPrediction.String = num2str(predictClassTemp);
             replyPredictionDec = bi2de(predictClassTemp,'right-msb');
             fwrite(handles.UserData.tB,[handles.UserData.parameters.channelEnable,replyPredictionDec]); % to enable the channel
-            writeToHand(handles.UserData.tH,num2str(replyPredictionDec))
+            drawnow
+            if handles.UserData.parameters.numChannel == 2 % add some space between the two channels
+                writeToHand(handles.UserData.tH,...
+                    num2str(...
+                    bi2de([predictClassTemp(1),[0,0],predictClassTemp(2)],'right-msb')...
+                            ));
+            else
+                writeToHand(handles.UserData.tH,num2str(replyPredictionDec))
+            end
             drawnow
         end
         
@@ -538,69 +623,3 @@ handles.UserData.classInfo = classInfo;
 handles.UserData.parameters = parameters;
 handles.UserData.tB = tB;
 
-
-
-% --- Executes during object deletion, before destroying properties.
-function inputBlankSize_DeleteFcn(hObject, eventdata, handles)
-% hObject    handle to inputBlankSize (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-disp('hi')
-try
-fclose(handles.UserData.tB);
-for i = 1:length(handles.UserData.classInfo)
-    fwrite(handles.UserData.classInfo{i,1}.t,'CONNECT!!!!!!!!');
-    fclose(handles.UserData.classInfo{i,1}.t);
-end
-catch
-end
-
-
-
-
-% --- Executes on selection change in chPopup1.
-function chPopup1_Callback(hObject, eventdata, handles)
-% hObject    handle to chPopup1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns chPopup1 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from chPopup1
-resetAll(hObject, handles);
-
-
-% --- Executes during object creation, after setting all properties.
-function chPopup1_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to chPopup1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on selection change in chPopup2.
-function chPopup2_Callback(hObject, eventdata, handles)
-% hObject    handle to chPopup2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns chPopup2 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from chPopup2
-resetAll(hObject, handles);
-
-
-% --- Executes during object creation, after setting all properties.
-function chPopup2_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to chPopup2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end

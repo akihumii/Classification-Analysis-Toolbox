@@ -93,14 +93,15 @@ classdef classOnlineClassification < matlab.System
                 fopen(obj.t);
                 disp(['Opened port ',num2str(obj.port),' as channel port...']);
             catch
-                checkFopen = fopen(obj.t);
+                popMsg(['Port ',num2str(obj.port),' is not open yet...'])
+%                 checkFopen = fopen(obj.t);
+%                 
+%                 while checkFopen == -1
+%                     error(['Port ',num2str(obj.port),' is not open yet...'])
+%                     checkFopen = fopen(obj.t);
+%                 end
                 
-                while checkFopen == -1
-                    error(['Port ',num2str(obj.port),' is not open yet...'])
-                    checkFopen = fopen(obj.t);
-                end
-                
-                disp(['Opened port ',num2str(obj.port),' as channel port...']);
+%                 disp(['Opened port ',num2str(obj.port),' as channel port...']);
             end
         end
         
