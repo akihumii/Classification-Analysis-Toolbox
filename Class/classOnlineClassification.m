@@ -120,10 +120,10 @@ classdef classOnlineClassification < matlab.System
                         obj.dataRaw = [obj.dataRaw(length(sample)+1:end); sample];
                     end
 
-                    obj.dataFilteredHighPass = filterHighPass(obj); % apply a highpass filter
+%                     obj.dataFilteredHighPass = filterHighPass(obj); % apply a highpass filter
                     
                     if ~isnan(obj.triggerThreshold) && length(obj.dataRaw) > 5 % if any number is input in artefactThresh
-                        if any(obj.dataFilteredHighPass > obj.triggerThreshold) % if a window consists of a point that exceeds the input artefactThresh
+                        if any(obj.dataFiltered > obj.triggerThreshold) % if a window consists of a point that exceeds the input artefactThresh
                             while obj.t.BytesAvailable < (obj.blankSize + obj.windowSize)/(1000/obj.samplingFreq)  % collect the next (blankSize + windowSize) length of data
                                 drawnow
                             end
@@ -172,7 +172,7 @@ classdef classOnlineClassification < matlab.System
                     extractFeatures(obj); % get the features
                     obj.predictClass = predict(obj.classifierMdl, obj.features);
                 case 'Threshold'
-                    obj.predictClass = any(obj.dataFilteredHighPass > obj.thresholds);
+                    obj.predictClass = any(obj.dataFiltered > obj.thresholds);
                 otherwise
                     popMsg('Invalid predictionMethod...')
             end

@@ -22,7 +22,7 @@ function varargout = onlineClassificationGUI(varargin)
 
 % Edit the above text to modify the response to help onlineClassificationGUI
 
-% Last Modified by GUIDE v2.5 08-Mar-2019 09:50:24
+% Last Modified by GUIDE v2.5 08-Mar-2019 13:41:55
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -97,6 +97,10 @@ for i = 1:handles.UserData.numChannelDisp
     handles.inputArtefact.Data{i,1} = nan;
 end
 
+% Filter configuration
+handles.inputFilter.Data = num2cell([100;0]);
+handles.inputFilter.RowName(3:end) = [];
+
 % Update handles structure
 guidata(hObject, handles);
 
@@ -145,6 +149,8 @@ switch handles.UserData.stopFlag
             end
             
             predictClassAll = zeros(1, handles.UserData.parameters.numChannel);
+            
+            pause(1) % for robot hand to work properly
             
             while handles.UserData.openPortFlag
                 predictClassAll = runProgram(hObject, handles, predictClassAll);  % run classification
@@ -238,18 +244,22 @@ guidata(hObject, handles);
 function inputWindowSize_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of inputWindowSize as text
 %        str2double(get(hObject,'String')) returns contents of inputWindowSize as a double
-if str2num(get(hObject,'String')) < 50
-    handles.inputWindowSize.String = 50;
+lowerLimit = 50;
+if str2num(get(hObject,'String')) < lowerLimit
+    popMsg('Window size smaller than lower limit...');
+    handles.inputWindowSize.String = lowerLimit;
 end
 
 try
     for i = 1:length(handles.UserData.classInfo)
         handles.UserData.classInfo{i,1}.windowSize = str2num(handles.inputWindowSize.String);
     end
+    popMsg(sprintf('Changed window size to %d ms...', handles.UserData.classInfo{i,1}.windowSize));
 catch
+    popMsg('Failed to change window size...');
 end
 
-guidata(hObject, handles);
+resetAll(hObject, handles);
 
 
 
@@ -269,10 +279,12 @@ try
     for i = 1:length(handles.UserData.classInfo)
         handles.UserData.classInfo{i,1}.blankSize = str2num(handles.inputBlankSize.String);
     end
+    popMsg(sprintf('Changed blank size to %d ms...', handles.UserData.classInfo{i,1}.blankSize));
 catch
+    popMsg('Failed to input blank size...');
 end
 
-guidata(hObject, handles);
+resetAll(hObject, handles);
 
 
 
@@ -371,6 +383,22 @@ function inputCOMPORT_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+% --- Executes when entered data in editable cell(s) in inputFilter.
+
+function inputFilter_CellEditCallback(hObject, eventdata, handles)
+% eventdata  structure with the following fields (see MATLAB.UI.CONTROL.TABLE)
+%	Indices: row and column indices of the cell(s) edited
+%	PreviousData: previous data for the cell(s) edited
+%	EditData: string(s) entered by the user
+%	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
+%	Error: error string when failed to convert EditData to appropriate value for Data
+filterCutoffFreq = cell2mat(get(hObject,'Data'));
+if all(filterCutoffFreq > 0) && sign(diff(filterCutoffFreq)) == -1
+    popMsg('Lowpass Cutoff Freq smaller than Highpass Cutoff Freq...');
+    hObject.Data{2,1} = hObject.Data{1,1};
+end
+resetAll(hObject, handles);
 
 
 % --- Executes during object deletion, before destroying properties.
@@ -549,13 +577,17 @@ function predictClassAll = runProgram(hObject, handles, predictClassAll)
             replyPredictionDec = bi2de(predictClassTemp,'right-msb');
             fwrite(handles.UserData.tB,[handles.UserData.parameters.channelEnable,replyPredictionDec]); % to enable the channel
             drawnow
-            if handles.UserData.parameters.numChannel == 2 % add some space between the two channels
-                writeToHand(handles.UserData.tH,...
-                    num2str(...
-                    bi2de([predictClassTemp(1),[0,0],predictClassTemp(2)],'right-msb')...
-                            ));
-            else
-                writeToHand(handles.UserData.tH,num2str(replyPredictionDec))
+            try
+                if handles.UserData.parameters.numChannel == 2 % add some space between the two channels
+                    writeToHand(handles.UserData.tH,...
+                        num2str(...
+                        bi2de([predictClassTemp(1),[0,0],predictClassTemp(2)],'right-msb')...
+                        ));
+                else
+                    writeToHand(handles.UserData.tH,num2str(replyPredictionDec))
+                end
+            catch
+                popMsg('Failed to write data to hand...');
             end
             drawnow
         end
@@ -592,7 +624,9 @@ for i = 1:parameters.numChannel
         'thresholds',handles.tableThresh.Data{i,1},...
         'windowSize',str2num(handles.inputWindowSize.String),...
         'blankSize',str2num(handles.inputBlankSize.String),...
-        'triggerThreshold',handles.inputArtefact.Data{i,1});
+        'triggerThreshold',handles.inputArtefact.Data{i,1},...
+        'highPassCutoffFreq',handles.inputFilter.Data{1,1},...
+        'lowPassCutoffFreq',handles.inputFilter.Data{2,1});
     
     setBasicParameters(classInfo{i,1},handles.UserData.classifierParameters{i,1},parameters,guiInput);
             
@@ -622,4 +656,5 @@ handles.UserData.openPortFlag = 1;
 handles.UserData.classInfo = classInfo;
 handles.UserData.parameters = parameters;
 handles.UserData.tB = tB;
+
 
