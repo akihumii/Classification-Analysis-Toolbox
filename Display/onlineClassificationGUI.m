@@ -324,10 +324,11 @@ function inputArtefact_CellEditCallback(hObject, eventdata, handles)
 %	Error: error string when failed to convert EditData to appropriate value for Data
 % resetAll(hObject, handles);
 try
-    for i = 1:length(handles.UserData.classInfo)
+    for i = 1:length(handles.inputArtefact.Data)
         handles.UserData.classInfo{i,1}.triggerThreshold = handles.inputArtefact.Data{i,1};
     end
 catch
+    popMsg('Failed in inputArtefact...');
 end
 
 guidata(hObject, handles);

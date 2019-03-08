@@ -120,7 +120,7 @@ classdef classOnlineClassification < matlab.System
                         obj.dataRaw = [obj.dataRaw(length(sample)+1:end); sample];
                     end
 
-%                     obj.dataFilteredHighPass = filterHighPass(obj); % apply a highpass filter
+                    obj.dataFiltered = filter(obj);                    
                     
                     if ~isnan(obj.triggerThreshold) && length(obj.dataRaw) > 5 % if any number is input in artefactThresh
                         if any(obj.dataFiltered > obj.triggerThreshold) % if a window consists of a point that exceeds the input artefactThresh
@@ -146,7 +146,6 @@ classdef classOnlineClassification < matlab.System
         function classifyBurst(obj)
             if obj.readyClassify
                 try             
-                    obj.dataFiltered = filter(obj);
                     predictClasses(obj); % predict the classes
                 catch
                     resetChannel(obj);
