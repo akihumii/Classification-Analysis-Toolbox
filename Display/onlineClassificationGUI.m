@@ -233,7 +233,7 @@ function tableThresh_CellEditCallback(hObject, eventdata, handles)
 %	Error: error string when failed to convert EditData to appropriate value for Data
 
 try
-    for i = 1:length(handles.UserData.classInfo)
+    for i = 1:length(handles.inputArtefact.Data)
         handles.UserData.classInfo{i,1}.thresholds = handles.tableThresh.Data{i,1};
     end
 catch
@@ -246,12 +246,12 @@ function inputWindowSize_Callback(hObject, eventdata, handles)
 %        str2double(get(hObject,'String')) returns contents of inputWindowSize as a double
 lowerLimit = 50;
 if str2num(get(hObject,'String')) < lowerLimit
-    popMsg('Window size smaller than lower limit...');
+    errordlg('Window size smaller than lower limit...');
     handles.inputWindowSize.String = lowerLimit;
 end
 
 try
-    for i = 1:length(handles.UserData.classInfo)
+    for i = 1:length(handles.UserData.numChannelDisp)
         handles.UserData.classInfo{i,1}.windowSize = str2num(handles.inputWindowSize.String);
     end
     popMsg(sprintf('Changed window size to %d ms...', handles.UserData.classInfo{i,1}.windowSize));
@@ -276,7 +276,7 @@ function inputBlankSize_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of inputBlankSize as text
 %        str2double(get(hObject,'String')) returns contents of inputBlankSize as a double
 try
-    for i = 1:length(handles.UserData.classInfo)
+    for i = 1:length(handles.UserData.numChannelDisp)
         handles.UserData.classInfo{i,1}.blankSize = str2num(handles.inputBlankSize.String);
     end
     popMsg(sprintf('Changed blank size to %d ms...', handles.UserData.classInfo{i,1}.blankSize));
