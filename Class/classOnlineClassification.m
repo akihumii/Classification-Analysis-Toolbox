@@ -41,8 +41,8 @@ classdef classOnlineClassification < matlab.System
     
     properties(Nontunable)
         filterObj
-        filterHd % handle of Parks-McClellan FIR filter
-        filterHighPassHd % handle highpass FIR filter (for stimulation artefact)
+%         filterHd % handle of Parks-McClellan FIR filter
+%         filterHighPassHd % handle highpass FIR filter (for stimulation artefact)
     end
     
     % Pre-computed constants
@@ -84,7 +84,6 @@ classdef classOnlineClassification < matlab.System
             obj.blankSizeTotalPoints = floor(obj.blankSize / 1000 * obj.samplingFreq);
 
             obj.filterObj = custumFilter(obj.highpassCutoffFreq, obj.lowpassCutoffFreq, obj.notchFreq, obj.notchBandwidth, obj.samplingFreq); % initialize a filter object
-            setupFilter(obj);
             
 %             if or(obj.highPassCutoffFreq, obj.lowPassCutoffFreq)
 %                 getFilterHd(obj);
@@ -202,31 +201,16 @@ classdef classOnlineClassification < matlab.System
             end
         end
         
-        function getFilterHd(obj)
-            filterObj = setFilter(classFilterDataOnline,obj.samplingFreq,obj.highPassCutoffFreq,obj.lowPassCutoffFreq,obj.notchFreq,obj.windowSizeTotalPoints); % initialize a filter object
-            obj.filterHd = filterObj.Hd;
-        end
-        
-        function getFilterHighPassHd(obj)
-            filterObj = setFilter(classFilterDataOnline,obj.samplingFreq,obj.highPassCutoffFreqOnly,0,50,obj.windowSizeTotalPoints); % initialize a filter object
-            obj.filterHighPassHd = filterObj.Hd;
-        end
-        
-        function setupFilter(obj)
-            if obj.highpassCutoffFreq
-                obj.filterObj.highpassFilterEnabled = 1;
-                setHighpassFilter(obj.filterObj);
-            end
-            if obj.lowpassCutoffFreq
-                obj.filterObj.lowpassFilterEnabled = 1;
-                setLowpassFilter(obj.filterObj);
-            end
-            if obj.notchFreq
-                obj.filterObj.notchFilterEnabled = 1;
-                setNotchFilter(obj.filterObj);
-            end
-        end
-        
+%         function getFilterHd(obj)
+%             filterObj = setFilter(classFilterDataOnline,obj.samplingFreq,obj.highPassCutoffFreq,obj.lowPassCutoffFreq,obj.notchFreq,obj.windowSizeTotalPoints); % initialize a filter object
+%             obj.filterHd = filterObj.Hd;
+%         end
+%         
+%         function getFilterHighPassHd(obj)
+%             filterObj = setFilter(classFilterDataOnline,obj.samplingFreq,obj.highPassCutoffFreqOnly,0,50,obj.windowSizeTotalPoints); % initialize a filter object
+%             obj.filterHighPassHd = filterObj.Hd;
+%         end
+%         
         function dataFiltered = filter(obj)
             dataFiltered = filterData(obj.filterObj, obj.dataRaw, 1);
 %             dataFiltered = filter(obj.filterHd,obj.dataRaw);

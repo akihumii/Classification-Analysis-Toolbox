@@ -29,6 +29,20 @@ classdef custumFilter < matlab.System
             obj.notchFreq = notchFreq;
             obj.samplingFreq = samplingFreq;
             obj.notchBandwidth = notchBandwidth;
+            
+            setFilter(obj);
+        end
+        
+        function setFilter(obj)
+            if obj.highpassCutoffFreq
+                setHighpassFilter(obj);
+            end
+            if obj.lowpassCutoffFreq
+                setLowpassFilter(obj);
+            end
+            if obj.notchFreq
+                setNotchFilter(obj);
+            end
         end
         
         function setLowpassFilter(obj)
@@ -42,6 +56,8 @@ classdef custumFilter < matlab.System
             obj.a1_lp = obj.a0_lp * 2;
             obj.b1_lp = 2 * (omega * omega - 1) / c;
             obj.b2_lp = (1 - cos(pi/4) * omega + (omega * omega)) / c;
+            
+            obj.lowpassFilterEnabled = 1;
         end
 
         function setNotchFilter(obj)
@@ -58,6 +74,8 @@ classdef custumFilter < matlab.System
             obj.a0_n = (1 + d * d) / 2.0;
             obj.a1_n = obj.b1_n;
             obj.a2_n = obj.a0_n;
+            
+            obj.notchFilterEnabled = 1;
         end
 
         function setHighpassFilter(obj)
@@ -72,6 +90,8 @@ classdef custumFilter < matlab.System
             obj.a1_hp = obj.a0_hp * -2;
             obj.b1_hp = -2 * (omega * omega - 1) / c;
             obj.b2_hp = (1 - cos(pi/4) * omega + (omega * omega)) / c;
+            
+            obj.highpassFilterEnabled = 1;
         end
 
         function rawData = filterData(obj, rawData, ChannelIndex)
@@ -136,53 +156,9 @@ classdef custumFilter < matlab.System
             output = obj.filteredData_n{ChannelIndex};
         end
 
-%         function setLowpassFilterEnabled(obj, enableFlag)
-%             obj.lowpassFilterEnabled = enableFlag;
-%         end
-% 
-%         function setNotchFilterEnabled(obj, enableFlag)
-%             obj.notchFilterEnabled = enableFlag;
-%         end
-% 
-%         function setHighpassFilterEnabled(obj, enableFlag)
-%             obj.highpassFilterEnabled = enableFlag;
-%         end
-% 
-%         function output = isHighpassFilterEnabled(obj)
-%             output = obj.highpassFilterEnabled;
-%         end
-% 
-%         function output = isLowpassFilterEnabled(obj)
-%             output = obj.lowpassFilterEnabled;
-%         end
-% 
-%         function output = isNotchFilterEnabled(obj)
-%             output = obj.notchFilterEnabled;
-%         end
-% 
         function output = isFilterEnabled(obj)
             output = obj.highpassFilterEnabled || obj.lowpassFilterEnabled || obj.notchFilterEnabled;
         end
-
-%         function output = currentLowpassFreq(obj)
-%             output = obj.lowpassCutoffFreq;
-%         end
-% 
-%         function output = currentHighpassFreq(obj)
-%             output = obj.highpassCutoffFreq;
-%         end
-% 
-%         function output = currentNotchFreq(obj)
-%             output = obj.notchFreq;
-%         end
-% 
-%         function setSamplingFreq(obj, freq)
-%             obj.samplingFreq = freq;
-%         end
-% 
-%         function output = getSamplingFreq(obj)
-%             output = obj.samplingFreq;
-%         end
 
         function output = getPeriod(obj)
             output = 1.0/obj.samplingFreq;
