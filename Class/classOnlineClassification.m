@@ -120,7 +120,11 @@ classdef classOnlineClassification < matlab.System
                         obj.dataRaw = [obj.dataRaw(length(sample)+1:end); sample];
                     end
 
-                    obj.dataFiltered = filter(obj);                    
+                    if or(obj.highPassCutoffFreq, obj.lowPassCutoffFreq)
+                        obj.dataFiltered = filter(obj);
+                    else
+                        obj.dataFiltered = obj.dataRaw;
+                    end
                     
                     if ~isnan(obj.triggerThreshold) && length(obj.dataRaw) > 5 % if any number is input in artefactThresh
                         if any(obj.dataFiltered > obj.triggerThreshold) % if a window consists of a point that exceeds the input artefactThresh

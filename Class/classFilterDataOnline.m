@@ -66,8 +66,10 @@ classdef classFilterDataOnline < matlab.System
         
         function obj = checkSelectedFilter(obj,highPassCutoffFreq,lowPassCutoffFreq,notchFreq)
             obj.bandPassFilterEnabled = lowPassCutoffFreq && highPassCutoffFreq;
-            obj.lowPassFilterEnabled = lowPassCutoffFreq && ~obj.bandPassFilterEnabled;
-            obj.highPassFilterEnabled = highPassCutoffFreq && ~obj.bandPassFilterEnabled;
+            obj.lowPassFilterEnabled = lowPassCutoffFreq && ~highPassCutoffFreq;
+            obj.highPassFilterEnabled = highPassCutoffFreq && ~lowPassCutoffFreq ;
+%             obj.lowPassFilterEnabled = lowPassCutoffFreq && ~obj.bandPassFilterEnabled;
+%             obj.highPassFilterEnabled = highPassCutoffFreq && ~obj.bandPassFilterEnabled;
             obj.notchFilterEnabled = notchFreq == 1;
         end
 
