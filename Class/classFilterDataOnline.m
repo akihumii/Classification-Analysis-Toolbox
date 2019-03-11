@@ -8,7 +8,7 @@ classdef classFilterDataOnline < matlab.System
         lowPassCutoffFreq
         notchFreq
         windowSize
-        PersistentMemoryFlag = 1
+        PersistentMemoryFlag = true
         lowPassFilterEnabled = 0
         highPassFilterEnabled = 0
         bandPassFilterEnabled = 0
@@ -17,6 +17,7 @@ classdef classFilterDataOnline < matlab.System
 
     properties(Nontunable)
         Hd
+        butterCoeff
         Wpass = 1;
         Wstop = 100;
         order = 50;

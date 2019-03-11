@@ -26,6 +26,7 @@ classdef classOnlineClassification < matlab.System
         lowPassCutoffFreq = 450
         highPassCutoffFreqOnly = 100
         notchFreq = 50
+        notchBandwidth = 10 % Hz
         featureClassification;
         classifierMdl
         numClass
@@ -36,6 +37,7 @@ classdef classOnlineClassification < matlab.System
     end
     
     properties(Nontunable)
+        filterObj
         filterHd % handle of Parks-McClellan FIR filter
         filterHighPassHd % handle highpass FIR filter (for stimulation artefact)
     end
@@ -73,9 +75,12 @@ classdef classOnlineClassification < matlab.System
             
             obj.featureNames = obj.featureNamesAll(obj.featureClassification);
             obj.numFeature = length(obj.featureClassification);
+             
+            obj.filterObj = custumFilter(obj.highpassCutoffFreq, obj.lowpassCutoffFreq, obj.notchFreq, obj.notchBandwidth, obj.samplingFreq); % initialize a filter object
+            setupFilter(obj);
             
-            getFilterHd(obj);
-            getFilterHighPassHd(obj);
+%             getFilterHd(obj);
+%             getFilterHighPassHd(obj);
         end
         
         function setTcpip(obj,host,port,varargin)
@@ -120,11 +125,7 @@ classdef classOnlineClassification < matlab.System
                         obj.dataRaw = [obj.dataRaw(length(sample)+1:end); sample];
                     end
 
-                    if or(obj.highPassCutoffFreq, obj.lowPassCutoffFreq)
-                        obj.dataFiltered = filter(obj);
-                    else
-                        obj.dataFiltered = obj.dataRaw;
-                    end
+                    obj.dataFiltered = filter(obj);
                     
                     if ~isnan(obj.triggerThreshold) && length(obj.dataRaw) > 5 % if any number is input in artefactThresh
                         if any(obj.dataFiltered > obj.triggerThreshold) % if a window consists of a point that exceeds the input artefactThresh
@@ -195,8 +196,24 @@ classdef classOnlineClassification < matlab.System
             obj.filterHighPassHd = filterObj.Hd;
         end
         
+        function setupFilter(obj)
+            if obj.highpassCutoffFreq
+                obj.filterObj.highpassFilterEnabled = 1;
+                setHighpassFilter(obj.filterObj);
+            end
+            if obj.lowpassCutoffFreq
+                obj.filterObj.lowpassFilterEnabled = 1;
+                setLowpassFilter(obj.filterObj);
+            end
+            if obj.notchFreq
+                obj.filterObj.notchFilterEnabled = 1;
+                setNotchFilter(obj.filterObj);
+            end
+        end
+        
         function dataFiltered = filter(obj)
-            dataFiltered = filter(obj.filterHd,obj.dataRaw);
+            dataFiltered = filterData(obj.filterObj, obj.dataRaw, 1);
+%             dataFiltered = filter(obj.filterHd,obj.dataRaw);
         end
         
         function dataFilteredHighPass = filterHighPass(obj)
