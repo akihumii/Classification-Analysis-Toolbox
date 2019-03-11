@@ -100,7 +100,7 @@ classdef classFilterDataOnline < matlab.System
         end
 
         function [Fstop,i] = getFstop1(obj)
-            for i = 50:-5:0
+            for i = 50:-1:0
                 Fstop = obj.highPassCutoffFreq - i;
                 if Fstop > 0
                     break

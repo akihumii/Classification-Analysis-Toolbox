@@ -12,8 +12,11 @@ classdef classOnlineClassification < matlab.System
         numStartConsecutivePoints
         numEndConsecutivePoints
         windowSize = 100 % ms
+        windowSizeTotalPoints % in sample points
         overlapWindowSize = 50 % ms
+        overlapWindowSizeTotalPoints
         blankSize = 0 %ms
+        blankSizeTotalPoints % in sample points
         samplingFreq
         host
         port
@@ -70,17 +73,23 @@ classdef classOnlineClassification < matlab.System
             end
             
             obj.overlapWindowSize = parameters.overlapWindowSize;
+            obj.overlapWindowSizeTotalPoints = floor(obj.overlapWindowSize / 1000 * obj.samplingFreq);
             
             obj = structIntoStruct(obj, guiInput);
             
             obj.featureNames = obj.featureNamesAll(obj.featureClassification);
             obj.numFeature = length(obj.featureClassification);
-             
+
+            obj.windowSizeTotalPoints = floor(obj.windowSize / 1000 * obj.samplingFreq);
+            obj.blankSizeTotalPoints = floor(obj.blankSize / 1000 * obj.samplingFreq);
+
             obj.filterObj = custumFilter(obj.highpassCutoffFreq, obj.lowpassCutoffFreq, obj.notchFreq, obj.notchBandwidth, obj.samplingFreq); % initialize a filter object
             setupFilter(obj);
             
-%             getFilterHd(obj);
-%             getFilterHighPassHd(obj);
+%             if or(obj.highPassCutoffFreq, obj.lowPassCutoffFreq)
+%                 getFilterHd(obj);
+%                 getFilterHighPassHd(obj);
+%             end
         end
         
         function setTcpip(obj,host,port,varargin)
@@ -113,23 +122,30 @@ classdef classOnlineClassification < matlab.System
         function readSample(obj)
             if ~checkEmptyBuffer(obj)
                 if ~obj.startOverlapping
-                    for i = 1:obj.stepRead:obj.windowSize % store windowSize of data to make it full at the first time
+                    for i = 1:obj.stepRead:obj.windowSizeTotalPoints % store windowSize of data to make it full at the first time
                         sample = fread(obj.t, obj.stepRead, 'double');
                         if checkEmptyBuffer(obj); break; end
                         obj.dataRaw = [obj.dataRaw ; sample];
                     end
                     obj.startOverlapping = 1;
                 else
-                    for i = 1:obj.stepRead:obj.t.BytesAvailable % store only overlapWindowSize of data as the update rate (overlapping window size)
+                    for i = 1:obj.stepRead:obj.overlapWindowSizeTotalPoints % store only overlapWindowSize of data as the update rate (overlapping window size)
                         sample = fread(obj.t, obj.stepRead, 'double');
                         obj.dataRaw = [obj.dataRaw(length(sample)+1:end); sample];
                     end
 
                     obj.dataFiltered = filter(obj);
                     
+                    if obj.port == 1345
+                        plot(obj.dataFiltered);
+                        ylim([-.05, .05])
+                        drawnow
+                    end
+%                     plot(obj.filterHd.States)
+                    
                     if ~isnan(obj.triggerThreshold) && length(obj.dataRaw) > 5 % if any number is input in artefactThresh
                         if any(obj.dataFiltered > obj.triggerThreshold) % if a window consists of a point that exceeds the input artefactThresh
-                            while obj.t.BytesAvailable < (obj.blankSize + obj.windowSize)/(1000/obj.samplingFreq)  % collect the next (blankSize + windowSize) length of data
+                            while obj.t.BytesAvailable < (obj.blankSizeTotalPoints + obj.windowSizeTotalPoints)  % collect the next (blankSize + windowSize) length of data
                                 drawnow
                             end
                             for i = 1:obj.t.BytesAvailable % store the data into dataRaw
@@ -187,12 +203,12 @@ classdef classOnlineClassification < matlab.System
         end
         
         function getFilterHd(obj)
-            filterObj = setFilter(classFilterDataOnline,obj.samplingFreq,obj.highPassCutoffFreq,obj.lowPassCutoffFreq,obj.notchFreq,obj.windowSize); % initialize a filter object
+            filterObj = setFilter(classFilterDataOnline,obj.samplingFreq,obj.highPassCutoffFreq,obj.lowPassCutoffFreq,obj.notchFreq,obj.windowSizeTotalPoints); % initialize a filter object
             obj.filterHd = filterObj.Hd;
         end
         
         function getFilterHighPassHd(obj)
-            filterObj = setFilter(classFilterDataOnline,obj.samplingFreq,obj.highPassCutoffFreqOnly,0,50,obj.windowSize); % initialize a filter object
+            filterObj = setFilter(classFilterDataOnline,obj.samplingFreq,obj.highPassCutoffFreqOnly,0,50,obj.windowSizeTotalPoints); % initialize a filter object
             obj.filterHighPassHd = filterObj.Hd;
         end
         
@@ -222,8 +238,8 @@ classdef classOnlineClassification < matlab.System
         
         function output = fixWindow(obj,sample)
             output = [obj.dataRaw(length(sample)+1 : end, 1) ; sample];
-            if length(output) > obj.windowSize/(1000/obj.samplingFreq)
-                output = obj.dataRaw(end-obj.windowSize/(1000/obj.samplingFreq)+1:end);
+            if length(output) > obj.windowSizeTotalPoints
+                output = obj.dataRaw(end-obj.windowSizeTotalPoints+1:end);
             end
         end
         
