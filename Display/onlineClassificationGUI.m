@@ -22,7 +22,7 @@ function varargout = onlineClassificationGUI(varargin)
 
 % Edit the above text to modify the response to help onlineClassificationGUI
 
-% Last Modified by GUIDE v2.5 12-Mar-2019 16:16:56
+% Last Modified by GUIDE v2.5 12-Mar-2019 16:28:12
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -402,17 +402,29 @@ end
 resetAll(hObject, handles);
 
 
-% --- Executes on button press in checkboxNegativeThreshold.
-function checkboxNegativeThreshold_Callback(hObject, eventdata, handles)
-% Hint: get(hObject,'Value') returns toggle state of checkboxNegativeThreshold
+% --- Executes on button press in checkboxNegativeSignalThreshold.
+function checkboxNegativeSignalThreshold_Callback(hObject, eventdata, handles)
+% Hint: get(hObject,'Value') returns toggle state of checkboxNegativeSignalThreshold
 try
     for i = 1:length(handles.inputArtefact.Data)
-        handles.UserData.classInfo{i,1}.negativeThresholding = get(hObject,'Value');
+        handles.UserData.classInfo{i,1}.negativeSignalThresholding = get(hObject,'Value');
     end
 catch
-    popMsg('Failed to change negative threshold...');
+    popMsg('Failed to change signal negative threshold...');
 end
+guidata(hObject, handles);
 
+
+% --- Executes on button press in checkboxNegativeArtefactThreshold.
+function checkboxNegativeArtefactThreshold_Callback(hObject, eventdata, handles)
+% Hint: get(hObject,'Value') returns toggle state of checkboxNegativeArtefactThreshold
+try
+    for i = 1:length(handles.inputArtefact.Data)
+        handles.UserData.classInfo{i,1}.negativeTriggerThresholding = get(hObject,'Value');
+    end
+catch
+    popMsg('Failed to change artefact negative threshold...');
+end
 guidata(hObject, handles);
 
 
@@ -673,5 +685,4 @@ handles.UserData.openPortFlag = 1;
 handles.UserData.classInfo = classInfo;
 handles.UserData.parameters = parameters;
 handles.UserData.tB = tB;
-
 
