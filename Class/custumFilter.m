@@ -34,15 +34,15 @@ classdef custumFilter < matlab.System
         end
         
         function setFilter(obj)
-            if obj.highpassCutoffFreq
+%             if obj.highpassCutoffFreq
                 setHighpassFilter(obj);
-            end
-            if obj.lowpassCutoffFreq
+%             end
+%             if obj.lowpassCutoffFreq
                 setLowpassFilter(obj);
-            end
-            if obj.notchFreq
-                setNotchFilter(obj);
-            end
+%             end
+%             if obj.notchFreq
+%                 setNotchFilter(obj);
+%             end
         end
         
         function setLowpassFilter(obj)
@@ -101,15 +101,15 @@ classdef custumFilter < matlab.System
             
             obj.prevRawData{ChannelIndex} = rawData(end-1:end);
             
-            if(obj.notchFilterEnabled)
-                rawData = notchFilter(obj, rawData, ChannelIndex);
-            end
-            if(obj.highpassFilterEnabled)
+%             if(obj.notchFilterEnabled)
+%                 rawData = notchFilter(obj, rawData, ChannelIndex);
+%             end
+%             if(obj.highpassFilterEnabled)
                 rawData = hipassFilter(obj, rawData, ChannelIndex);
-            end
-            if(obj.lowpassFilterEnabled)
+%             end
+%             if(obj.lowpassFilterEnabled)
                 rawData = lopassFilter(obj, rawData, ChannelIndex);
-            end
+%             end
         end
 
         function output = hipassFilter(obj, rawData, ChannelIndex)
