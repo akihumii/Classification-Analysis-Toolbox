@@ -22,7 +22,7 @@ function varargout = onlineClassificationGUI(varargin)
 
 % Edit the above text to modify the response to help onlineClassificationGUI
 
-% Last Modified by GUIDE v2.5 08-Mar-2019 13:41:55
+% Last Modified by GUIDE v2.5 12-Mar-2019 16:16:56
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -400,6 +400,21 @@ if all(filterCutoffFreq > 0) && sign(diff(filterCutoffFreq)) == -1
     hObject.Data{2,1} = hObject.Data{1,1};
 end
 resetAll(hObject, handles);
+
+
+% --- Executes on button press in checkboxNegativeThreshold.
+function checkboxNegativeThreshold_Callback(hObject, eventdata, handles)
+% Hint: get(hObject,'Value') returns toggle state of checkboxNegativeThreshold
+try
+    for i = 1:length(handles.inputArtefact.Data)
+        handles.UserData.classInfo{i,1}.negativeThresholding = get(hObject,'Value');
+    end
+catch
+    popMsg('Failed to change negative threshold...');
+end
+
+guidata(hObject, handles);
+
 
 
 % --- Executes during object deletion, before destroying properties.

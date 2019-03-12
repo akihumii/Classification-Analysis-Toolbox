@@ -9,6 +9,7 @@ classdef classOnlineClassification < matlab.System
         predictClass = 0
         thresholds = Inf
         triggerThreshold = 0 % if it's not 0, signal will only be decoded while crossing it
+        negativeThresholding = 0
         numStartConsecutivePoints
         numEndConsecutivePoints
         windowSize = 100 % ms
@@ -189,7 +190,7 @@ classdef classOnlineClassification < matlab.System
 %                     if ~isnan(obj.triggerThreshold) && length(obj.dataRaw) > 5 % if any number is input in artefactThresh
 %                     if ~isnan(obj.triggerThreshold) % if any number is input in artefactThresh
                         if ~obj.stopClassifySize
-                            locArtefact = find(obj.dataFiltered > obj.triggerThreshold, 1, 'first');
+                            locArtefact = find(-1*obj.negativeThresholding * obj.dataFiltered > -1*obj.negativeThresholding * obj.triggerThreshold, 1, 'first');
                             if ~isempty(locArtefact)
                                 if (dataSize - locArtefact) > obj.blankSizeTotalPoints
                                     obj.signalClassifyFlag(locArtefact : locArtefact+obj.blankSizeTotalPoints) = false;
