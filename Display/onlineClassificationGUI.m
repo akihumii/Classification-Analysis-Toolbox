@@ -237,7 +237,7 @@ output = struct(...
     'stopAll', 0);
 
 function filepath = saveBurstsInfo(signal, signalClassificationInfo, saveFileName, markBurstInAllChannels)
-featuresForClassification = [5,7];  % selected features for classification        
+featuresForClassification = [5,8];  % selected features for classification        
 numFile = length(signalClassificationInfo);
 
 % Make a folder to store the features and corresponding classes
