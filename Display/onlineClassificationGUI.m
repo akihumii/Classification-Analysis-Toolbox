@@ -98,7 +98,7 @@ for i = 1:handles.UserData.numChannelDisp
 end
 
 % Filter configuration
-handles.inputFilter.Data = num2cell([100;0]);
+handles.inputFilter.Data = num2cell([100;7500]);
 handles.inputFilter.RowName(3:end) = [];
 
 % Update handles structure
@@ -151,6 +151,10 @@ switch handles.UserData.stopFlag
             predictClassAll = zeros(1, handles.UserData.parameters.numChannel);
             
             pause(2) % for robot hand to work properly
+            
+            for i = 1:handles.UserData.parameters.numChannel
+                flushinput(handles.UserData.classInfo{i,1}.t);  % flush input data
+            end            
             
             while handles.UserData.openPortFlag
                 predictClassAll = runProgram(hObject, handles, predictClassAll);  % run classification
@@ -560,8 +564,6 @@ function predictClassAll = runProgram(hObject, handles, predictClassAll)
 % try
     for i = 1:handles.UserData.parameters.numChannel
         readSample(handles.UserData.classInfo{i,1});
-        %         plot(h(i,1),handles.UserData.classInfo{i,1}.dataFiltered)
-        %         pause(0.0001)
         %             detectBurst(handles.UserData.classInfo{i,1});
         classifyBurst(handles.UserData.classInfo{i,1});
         
@@ -626,8 +628,9 @@ for i = 1:parameters.numChannel
         'windowSize',str2num(handles.inputWindowSize.String),...
         'blankSize',str2num(handles.inputBlankSize.String),...
         'triggerThreshold',handles.inputArtefact.Data{i,1},...
-        'highPassCutoffFreq',handles.inputFilter.Data{1,1},...
-        'lowPassCutoffFreq',handles.inputFilter.Data{2,1});
+        'highpassCutoffFreq',handles.inputFilter.Data{1,1},...
+        'lowpassCutoffFreq',handles.inputFilter.Data{2,1},...
+        'samplingFreq',17850);
     
     setBasicParameters(classInfo{i,1},handles.UserData.classifierParameters{i,1},parameters,guiInput);
             
