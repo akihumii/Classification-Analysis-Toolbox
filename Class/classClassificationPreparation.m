@@ -133,7 +133,7 @@ classdef classClassificationPreparation
         function clfp = trimShortenedBursts(clfp,dataValue,samplingFreq)
             minDistance = round(clfp.trimMinDistance * samplingFreq); % minimum distance surrounding the bursts that need to be not zero
             
-            numChannel = size(clfp.burstDetection.spikePeaksValue,2);
+            numChannel = length(clfp.burstDetection.baseline);
             dataSize = size(dataValue,1);
             
             for i = 1:numChannel

@@ -6,10 +6,12 @@ function burst = getMovingWindowBaseline(data,dataForThreshold,threshold,numBurs
 % 
 %   burst = getMovingWindowBaseline(data,dataForThreshold,threshold,numBurst,windowSize)
 
-if all(isnan(windowSize)) || windowSize(1,2) == 0
+if any(isnan(windowSize))
+    windowSize = 300;
+elseif size(windowSize,1) && size(windowSize,2)>=2 && windowSize(1,2) == 0
     windowSize = 300;
 else
-    windowSize = windowSize(1,2);
+    windowSize = min(windowSize);
 end
 
 if numBurst == 0
