@@ -26,7 +26,9 @@ def train(target_file):
 
             # normalize features
             # features_normalized = features_tmp
-            [features_normalized, norms] = preprocessing.normalize(features_tmp, norm='max', axis=0, return_norm=True)
+            # [features_normalized, norms] = preprocessing.normalize(features_tmp, norm='max', axis=0, return_norm=True)
+            norms = np.mean(features_tmp, axis=0)
+            features_normalized = features_tmp / norms
             # norms = preprocessing.MinMaxScaler().fit(features_tmp)
             # features_normalized = norms.transform(features_tmp)
 
