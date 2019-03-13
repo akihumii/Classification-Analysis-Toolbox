@@ -43,8 +43,6 @@ classdef classOnlineClassification < matlab.System
     
     properties(Nontunable)
         filterObj
-%         filterHd % handle of Parks-McClellan FIR filter
-%         filterHighPassHd % handle highpass FIR filter (for stimulation artefact)
     end
     
     % Pre-computed constants
@@ -86,11 +84,6 @@ classdef classOnlineClassification < matlab.System
             obj.overlapWindowSizeTotalPoints = floor(obj.overlapWindowSize / 1000 * obj.samplingFreq);
             
             obj.filterObj = custumFilter(obj.highpassCutoffFreq, obj.lowpassCutoffFreq, obj.notchFreq, obj.notchBandwidth, obj.samplingFreq); % initialize a filter object
-            
-%             if or(obj.highPassCutoffFreq, obj.lowPassCutoffFreq)
-%                 getFilterHd(obj);
-%                 getFilterHighPassHd(obj);
-%             end
         end
         
         function setTcpip(obj,host,port,varargin)
@@ -110,14 +103,6 @@ classdef classOnlineClassification < matlab.System
                 disp(['Opened port ',num2str(obj.port),' as channel port...']);
             catch
                 popMsg(['Port ',num2str(obj.port),' is not open yet...'])
-%                 checkFopen = fopen(obj.t);
-%                 
-%                 while checkFopen == -1
-%                     error(['Port ',num2str(obj.port),' is not open yet...'])
-%                     checkFopen = fopen(obj.t);
-%                 end
-                
-%                 disp(['Opened port ',num2str(obj.port),' as channel port...']);
             end
         end
         
@@ -132,17 +117,11 @@ classdef classOnlineClassification < matlab.System
                             obj.dataRaw = [obj.dataRaw; fread(obj.t, remainingSize, 'double')];
                         end
 %                         if checkEmptyBuffer(obj); break; end
-                    end                    
-%                     for i = 1:obj.stepRead:obj.windowSizeTotalPoints % store windowSize of data to make it full at the first time
-%                         sample = fread(obj.t, obj.stepRead, 'double');
-%                         if checkEmptyBuffer(obj); break; end
-%                         obj.dataRaw = [obj.dataRaw ; sample];
-%                     end
+                    end             
                     obj.startOverlapping = 1;
                     
                     obj.signalClassifyFlag = true(size(obj.dataRaw));
                 else
-%                     fprintf('Before reading: %d\n', obj.t.BytesAvailable);
                     
                     sample = [];
                     while length(sample) < obj.overlapWindowSizeTotalPoints
@@ -155,8 +134,6 @@ classdef classOnlineClassification < matlab.System
 %                         if checkEmptyBuffer(obj); break; end
                     end                    
 
-%                     fprintf('After reading: %d\n', obj.t.BytesAvailable);
-                    
                     sampleSize = length(sample);
                     obj.dataRaw = [obj.dataRaw(sampleSize+1:end); sample];
                     
@@ -171,80 +148,39 @@ classdef classOnlineClassification < matlab.System
                         obj.stopClassifySize = obj.stopClassifySize - dataSize;
                     end
                     
-%                     for i = 1:obj.stepRead:obj.overlapWindowSizeTotalPoints % store only overlapWindowSize of data as the update rate (overlapping window size)
-%                         sample = fread(obj.t, obj.stepRead, 'double');
-%                         obj.dataRaw = [obj.dataRaw(length(sample)+1:end); sample];
-%                     end
-
                     obj.dataFiltered = filter(obj);
-% 
-%                     if obj.port == 1345
-% %                         disp(max(obj.dataRaw));
-%                         plot(obj.dataFiltered);
-%                         ylim([-.5, .5])
-%                         drawnow
-%                     end
-%                     plot(obj.filterHd.States)
                     
-%                     if ~isnan(obj.triggerThreshold) && length(obj.dataRaw) > 5 % if any number is input in artefactThresh
-%                     if ~isnan(obj.triggerThreshold) % if any number is input in artefactThresh
-                        if ~obj.stopClassifySize
-                            locArtefact = find(obj.dataFiltered > obj.triggerThreshold, 1, 'first');
-                            if ~isempty(locArtefact)
-                                if (dataSize - locArtefact) > obj.blankSizeTotalPoints
-                                    obj.signalClassifyFlag(locArtefact : locArtefact+obj.blankSizeTotalPoints) = false;
-                                    obj.stopClassifySize = 0;
-                                else
-                                    obj.signalClassifyFlag(locArtefact : end) = false;
-                                    obj.stopClassifySize = obj.blankSizeTotalPoints - (dataSize - locArtefact);
-                                end
+                    if obj.port == 1345
+                        disp(max(obj.dataRaw));
+                        plot(obj.dataFiltered);
+                        ylim([-.5, .5])
+                        drawnow
+                    end
+                    if ~obj.stopClassifySize
+                        locArtefact = find(obj.dataFiltered > obj.triggerThreshold, 1, 'first');
+                        if ~isempty(locArtefact)
+                            if (dataSize - locArtefact) > obj.blankSizeTotalPoints
+                                obj.signalClassifyFlag(locArtefact : locArtefact+obj.blankSizeTotalPoints) = false;
+                                obj.stopClassifySize = 0;
+                            else
+                                obj.signalClassifyFlag(locArtefact : end) = false;
+                                obj.stopClassifySize = obj.blankSizeTotalPoints - (dataSize - locArtefact);
                             end
                         end
-                        
-%                         if any(obj.dataFiltered > obj.triggerThreshold) % if a window consists of a point that exceeds the input artefactThresh
-%                             sample = [];
-%                             totalWindowSize = obj.blankSizeTotalPoints + obj.windowSizeTotalPoints;
-%                             while length(sample) < totalWindowSize  % collect the next (blankSize + windowSize) length of data
-%                                 remainingSize = totalWindowSize - length(sample);
-%                                 if remainingSize > obj.stepRead
-%                                     sample = [sample; fread(obj.t, obj.stepRead, 'double')];
-%                                 else
-%                                     sample = [sample; fread(obj.t, remainingSize, 'double')];
-%                                 end
-% %                                 if checkEmptyBuffer(obj); break; end
-%                             end
-%                             
-%                             obj.dataRaw = [obj.dataRaw(length(sample)+1:end); sample];
-% 
-% %                             for i = 1:obj.t.BytesAvailable % store the data into dataRaw
-% %                                 sample = fread(obj.t, obj.stepRead, 'double');
-% %                                 if checkEmptyBuffer(obj); break; end
-% %                                 obj.dataRaw = fixWindow(obj, sample); % assure the length of dataRaw remain the same
-% %                             end
-%                             obj.readyClassify = 1;
-%                         else
-%                             obj.predictClass = 0;
-%                         end
-%                     else
-%                         obj.readyClassify = 1;
-%                     end                    
+                    end
                 end
             end
         end
         
         function classifyBurst(obj)
-%             if obj.readyClassify
-                try             
-                    predictClasses(obj); % predict the classes
-                catch
-                    resetChannel(obj);
-                end
-%                 obj.readyClassify = 0;
-%             end
+            try
+                predictClasses(obj); % predict the classes
+            catch
+                resetChannel(obj);
+            end
         end
         
     end
-    
     
     methods(Access = protected)
         function extractFeatures(obj)
@@ -274,19 +210,8 @@ classdef classOnlineClassification < matlab.System
             end
         end
         
-%         function getFilterHd(obj)
-%             filterObj = setFilter(classFilterDataOnline,obj.samplingFreq,obj.highPassCutoffFreq,obj.lowPassCutoffFreq,obj.notchFreq,obj.windowSizeTotalPoints); % initialize a filter object
-%             obj.filterHd = filterObj.Hd;
-%         end
-%         
-%         function getFilterHighPassHd(obj)
-%             filterObj = setFilter(classFilterDataOnline,obj.samplingFreq,obj.highPassCutoffFreqOnly,0,50,obj.windowSizeTotalPoints); % initialize a filter object
-%             obj.filterHighPassHd = filterObj.Hd;
-%         end
-%         
         function dataFiltered = filter(obj)
             dataFiltered = filterData(obj.filterObj, obj.dataRaw, 1);
-%             dataFiltered = filter(obj.filterHd,obj.dataRaw);
         end
         
         function dataFilteredHighPass = filterHighPass(obj)

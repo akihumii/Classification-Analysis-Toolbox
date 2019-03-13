@@ -152,6 +152,10 @@ switch handles.UserData.stopFlag
             
             pause(2) % for robot hand to work properly
             
+            for i = 1:handles.UserData.parameters.numChannel
+                flushinput(handles.UserData.classInfo{i,1}.t);  % flush input data
+            end            
+            
             while handles.UserData.openPortFlag
                 predictClassAll = runProgram(hObject, handles, predictClassAll);  % run classification
                 handles = guidata(hObject);    
@@ -560,8 +564,6 @@ function predictClassAll = runProgram(hObject, handles, predictClassAll)
 % try
     for i = 1:handles.UserData.parameters.numChannel
         readSample(handles.UserData.classInfo{i,1});
-        %         plot(h(i,1),handles.UserData.classInfo{i,1}.dataFiltered)
-        %         pause(0.0001)
         %             detectBurst(handles.UserData.classInfo{i,1});
         classifyBurst(handles.UserData.classInfo{i,1});
         
