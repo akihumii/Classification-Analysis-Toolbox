@@ -22,7 +22,7 @@ function varargout = onlineClassificationGUI(varargin)
 
 % Edit the above text to modify the response to help onlineClassificationGUI
 
-% Last Modified by GUIDE v2.5 08-Mar-2019 13:41:55
+% Last Modified by GUIDE v2.5 13-Mar-2019 19:57:41
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -132,7 +132,7 @@ switch handles.UserData.stopFlag
                 guidata(hObject, handles);
             end
             
-            if ~handles.UserData.bionicHandConnection
+            if ~handles.UserData.bionicHandConnection && ~isequal(handles.UserData.portHand(4:end), 'nan')
                 try
                     handles.UserData.tH = bionicHand(handles.UserData.portHand);
                     guidata(hObject, handles)
@@ -545,6 +545,13 @@ handles.buttonStartStop.ForegroundColor = [0,190/256,0];
 handles.UserData.stopFlag = 1;
 handles.UserData.openPortFlag = 0;
 
+handles.tableThresh.Data = [];
+handles.inputArtefact.Data = [];
+for i = 1:handles.UserData.numChannelDisp
+    handles.tableThresh.Data{i,1} = Inf;
+    handles.inputArtefact.Data{i,1} = nan;
+end
+
 try
     fwrite(handles.UserData.tB,[handles.UserData.parameters.channelEnable,0]); % to disable all channels
 catch
@@ -580,18 +587,23 @@ function predictClassAll = runProgram(hObject, handles, predictClassAll)
             replyPredictionDec = bi2de(predictClassTemp,'right-msb');
             fwrite(handles.UserData.tB,[handles.UserData.parameters.channelEnable,replyPredictionDec]); % to enable the channel
             drawnow
-            try
-                if handles.UserData.parameters.numChannel == 2 % add some space between the two channels
-                    writeToHand(handles.UserData.tH,...
-                        num2str(...
-                        bi2de([predictClassTemp(1),[0,0],predictClassTemp(2)],'right-msb')...
-                        ));
-                else
-                    writeToHand(handles.UserData.tH,num2str(replyPredictionDec))
+            
+            % write data to robot hand
+            if ~handles.UserData.bionicHandConnection && ~isequal(handles.UserData.portHand(4:end), 'nan')
+                try
+                    if handles.UserData.parameters.numChannel == 2 % add some space between the two channels
+                        writeToHand(handles.UserData.tH,...
+                            num2str(...
+                            bi2de([predictClassTemp(1),[0,0],predictClassTemp(2)],'right-msb')...
+                            ));
+                    else
+                        writeToHand(handles.UserData.tH,num2str(replyPredictionDec))
+                    end
+                catch
+                    popMsg('Failed to write data to hand...');
                 end
-            catch
-                popMsg('Failed to write data to hand...');
             end
+            
             drawnow
         end
         
@@ -610,12 +622,21 @@ drawnow
 
 function handles = setupClassifier(handles)
 %% Parameters
-parameters = struct(...
-    'overlapWindowSize',50,... % ms
-    'ports',[handles.UserData.chPorts.(handles.chPopup1.String{handles.chPopup1.Value,1}),...
-             handles.UserData.chPorts.(handles.chPopup2.String{handles.chPopup2.Value,1})],...
-    'replyPort',1300,...
-    'channelEnable',251);
+switch handles.UserData.numChannelDisp
+    case 2
+        parameters = struct(...
+            'overlapWindowSize',50,... % ms
+            'ports',[handles.UserData.chPorts.(handles.chPopup1.String{handles.chPopup1.Value,1}),...
+            handles.UserData.chPorts.(handles.chPopup2.String{handles.chPopup2.Value,1})],...
+            'replyPort',1300,...
+            'channelEnable',251);
+    case 4
+        parameters = struct(...
+            'overlapWindowSize',50,... % ms
+            'ports',1343:1346,...
+            'replyPort',1300,...
+            'channelEnable',251);
+end
 
 parameters.numChannel = length(parameters.ports);
 
@@ -630,7 +651,7 @@ for i = 1:parameters.numChannel
         'triggerThreshold',handles.inputArtefact.Data{i,1},...
         'highpassCutoffFreq',handles.inputFilter.Data{1,1},...
         'lowpassCutoffFreq',handles.inputFilter.Data{2,1},...
-        'samplingFreq',17850);
+        'samplingFreq',1000);
     
     setBasicParameters(classInfo{i,1},handles.UserData.classifierParameters{i,1},parameters,guiInput);
             
@@ -662,3 +683,10 @@ handles.UserData.parameters = parameters;
 handles.UserData.tB = tB;
 
 
+
+
+
+% --- Executes when selected object is changed in buttonGroupChannelMode.
+function buttonGroupChannelMode_SelectionChangedFcn(hObject, eventdata, handles)
+handles.UserData.numChannelDisp = str2num(hObject.String(1));
+resetAll(hObject, handles);

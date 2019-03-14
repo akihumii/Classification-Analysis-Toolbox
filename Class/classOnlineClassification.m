@@ -152,10 +152,12 @@ classdef classOnlineClassification < matlab.System
                     
                     if obj.port == 1345
                         disp(max(obj.dataRaw));
-                        plot(obj.dataFiltered);
-                        ylim([-.5, .5])
+                        plot(obj.dataRaw);
+%                         plot(obj.dataFiltered);
+%                         ylim([-.5, .5])
                         drawnow
                     end
+
                     if ~obj.stopClassifySize
                         locArtefact = find(obj.dataFiltered > obj.triggerThreshold, 1, 'first');
                         if ~isempty(locArtefact)
