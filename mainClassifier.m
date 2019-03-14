@@ -70,6 +70,9 @@ parameters = struct(...
     'showFilt',0,...
     'showOverlap',0,...
     'showFFT',0,...
+    'showCompare',0,...
+    'showSyncPulse',0,...  % only effective when showCompare is 1
+    'showCounter',0,...  % only effective when showCompare is 1
     ...
     'saveRaw',0,...
     'saveDifferential',0,...
@@ -77,7 +80,9 @@ parameters = struct(...
     'saveFilt',0,...
     'saveOverlap',1,...
     'saveFFT',0,...
+    'saveCompare',0,...
     ...
+    'noClassification',0,...
     'saveUserInput',1); % set to 1 to save all the information, otherwise set to 0
 
 % load the input variables into parameters
@@ -91,17 +96,21 @@ popMsg([num2str(toc(ticDataAnalysis)), ' seconds is used for loading and process
 disp(' ')
 
 %% Locate bursts and select windows around them
-tic
-popMsg('Start locting bursts...')
-% if parameters.showOverlap==1 || parameters.saveOverlap==1 % peaks detection is only activated when either parameters.showOverlap or parameters.saveOverlap or both of them are TRUE
-signalClassification = dataClassificationPreparation(signal, iter, parameters);
-
-writeBurstIndexInfo(signal,signalClassification,parameters); % write the selected burst index info into info.xlsx
-% else
-%     signalClassification = 1;
-% end
-popMsg([num2str(toc),' seconds is used for classification preparation...'])
-disp(' ')
+if ~parameters.noClassification
+    tic
+    popMsg('Start locting bursts...')
+    % if parameters.showOverlap==1 || parameters.saveOverlap==1 % peaks detection is only activated when either parameters.showOverlap or parameters.saveOverlap or both of them are TRU
+    signalClassification = dataClassificationPreparation(signal, iter, parameters);
+    
+    writeBurstIndexInfo(signal,signalClassification,parameters); % write the selected burst index info into info.xlsx
+    % else
+    %     signalClassification = 1;
+    % end
+    popMsg([num2str(toc),' seconds is used for classification preparation...'])
+    disp(' ')
+else
+    signalClassification = nan;
+end
 
 %% Plot selected windows
 % close all
@@ -117,7 +126,7 @@ tic
 popMsg('Saving .mat files...')
 if parameters.saveUserInput
     for i = 1:length(signal)
-        saveFileName{1,i} = saveVar([signal(i,1).path,filesep,'Info',filesep],signal(i,1).fileName,signal(i,1),signalClassification(i,1),windowsValues(i,1),parameters);
+        saveFileName{1,i} = saveVar([signal(i,1).path,'Info',filesep],signal(i,1).fileName,signal(i,1),signalClassification(i,1),windowsValues(i,1),parameters);
     end
 end
 popMsg([num2str(toc), ' seconds is used for saving info...'])

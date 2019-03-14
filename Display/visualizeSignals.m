@@ -21,10 +21,10 @@ for i = 1:length(signal)
 end
 
 %% Plot raw signal
-if ~parameters.saveRaw && ~parameters.showRaw
-else
+titleRaw = 'Raw Signal';
+if parameters.saveRaw || parameters.showRaw
     for i = 1:length(signal)
-        plotFig(signal(i,1).time/signal(i,1).samplingFreq,signal(i,1).dataRaw,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],'Raw Signal','Time (s)','Amplitude (V)',...
+        plotFig(signal(i,1).time/signal(i,1).samplingFreq,signal(i,1).dataRaw,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],titleRaw,'Time (s)','Amplitude (V)',...
             parameters.saveRaw,... % save
             parameters.showRaw,... % show
             signal(i,1).path,'subplot', signal(i,1).channel);
@@ -32,8 +32,7 @@ else
 end
 
 %% Plot rectified signal
-if ~parameters.saveRectified && ~parameters.showRectified
-else
+if parameters.saveRectified || parameters.showRectified
     for i = 1:length(signal)
         plotFig(signal(i,1).time/signal(i,1).samplingFreq,signal(i,1).dataRectified,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],'Rectified Signal (High Pass Filtered 1 Hz)','Time (s)','Amplitude (V)',...
             parameters.saveRectified,... % save
@@ -43,8 +42,7 @@ else
 end
 
 %% Plot differential signal
-if ~parameters.saveDifferential && ~parameters.showDifferential
-else
+if parameters.saveDifferential || parameters.showDifferential
     for i = 1:length(signal)
         if isempty(signal(i,1).channelPair)
             if parameters.saveDifferential == 1 || parameters.showDifferential == 1
@@ -60,11 +58,11 @@ else
 end
 
 %% Plot filtered signal
-if ~parameters.saveFilt && ~parameters.showFilt
-else
+titleFiltered = ['Filtered Signal (', num2str(signal(i,1).dataFiltered.highPassCutoffFreq),'-', num2str(signal(i,1).dataFiltered.lowPassCutoffFreq), ')'];
+if parameters.saveFilt || parameters.showFilt
     if signal(i,1).dataFiltered.highPassCutoffFreq ~= 0 || signal(i,1).dataFiltered.lowPassCutoffFreq ~= 0 || signal(i,1).dataFiltered.notchFreq ~= 0
         for i = 1:length(signal)
-            plotFig(signal(i,1).time/signal(i,1).samplingFreq,signal(i,1).dataFiltered.values,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],['Filtered Signal (', num2str(signal(i,1).dataFiltered.highPassCutoffFreq),'-', num2str(signal(i,1).dataFiltered.lowPassCutoffFreq), ')'],'Time (s)','Amplitude (V)',...
+            plotFig(signal(i,1).time/signal(i,1).samplingFreq,signal(i,1).dataFiltered.values,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],titleFiltered,'Time (s)','Amplitude (V)',...
                 parameters.saveFilt,... % save
                 parameters.showFilt,... % show
                 signal(i,1).path,'subplot', signal(i,1).channelPair);
@@ -73,8 +71,7 @@ else
 end
 
 %% Plot FFT signal
-if ~parameters.saveFFT && ~parameters.showFFT
-else
+if parameters.saveFFT || parameters.showFFT
     for i = 1:length(signal)
         plotFig(signal(i,1).dataFFT.freqDomain,signal(i,1).dataFFT.values,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],[signal(i,1).dataFFT.dataBeingProcessed,' FFT Signal'],'Frequency (Hz)','Amplitude',...
             parameters.saveFFT,... % save
@@ -84,9 +81,9 @@ else
 end
 
 %% Plot windows following stimulation artefacts
-% if ~parameters.saveOverlap && ~parameters.showOverlap
-%     windowsValues(i,1) = nan;
-% else    
+if parameters.noClassification
+    windowsValues(i,1) = nan;
+else    
     for i = 1:length(signalClassification)
         %% Plot the data for peak detection
         if isequal(parameters.dataToBeDetectedSpike, 'dataFiltered') || isequal(parameters.dataToBeDetectedSpike, 'dataTKEO')
@@ -162,6 +159,58 @@ end
             end
         end
     end
-% end
+end
+
+%% Plot comparison
+if parameters.showCompare || parameters.saveCompare
+    numSubplot = 2 + parameters.showSyncPulse + parameters.showCounter;
+    for i = 1:length(signal)
+        numPlot = size(signal(i,1).dataRaw, 2);
+        for j = 1:numPlot
+            figure
+            hold on;
+            set(gcf, 'Position', get(0,'Screensize')-[0 0 0 80],'PaperPositionMode', 'auto');
+            
+            p(j,1) = subplot(numSubplot,1,1);
+            plot(signal(i,1).time/signal(i,1).samplingFreq, signal(i,1).dataRaw(:,j));
+            ylabel('Amplitude (V)');
+            title([titleRaw, signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}, ' Channel ',num2str(parameters.channel(j))])
+            
+            p(j,2) = subplot(numSubplot,1,2);
+            plot(signal(i,1).time/signal(i,1).samplingFreq, signal(i,1).dataFiltered.values(:,j));
+            ylabel('Amplitude (V)');
+            xlabel('Time (s)')
+            title([titleFiltered, signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}])
+            
+            iCurrentSubplot = 3;
+            if parameters.showSyncPulse
+                p(j,iCurrentSubplot) = subplot(numSubplot,1,iCurrentSubplot);
+                plot(signal(i,1).time/signal(i,1).samplingFreq, signal(i,1).dataAll(:,11));
+                ylabel('Amplitude');
+                xlabel('Time (s)')
+                title(['Sync pulse ', signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}])
+                iCurrentSubplot = iCurrentSubplot + 1;
+            end
+            if parameters.showCounter
+                p(j,iCurrentSubplot) = subplot(numSubplot,1,iCurrentSubplot);
+                plot(signal(i,1).time/signal(i,1).samplingFreq, signal(i,1).dataAll(:,12));
+                ylabel('Amplitude');
+                xlabel('Time (s)')
+                title(['Counter ', signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}])             
+            end
+            
+            linkaxes(p, 'x');
+            
+            % Save
+            if parameters.saveCompare
+                savePlot(signal(i,1).path,'Comparison raw and filtered data',['Comparison raw and filtered data ', signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}, ' Channel ',num2str(j)],[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}, ' Channel ',num2str(j)])
+            end
+            if ~parameters.showCompare
+                close gcf
+            end
+
+        end
+    end
+end
 end
 
