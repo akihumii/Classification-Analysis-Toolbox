@@ -71,6 +71,7 @@ classdef classData
                     data.samplingFreq = parameters.downSamplingFreq; % change the samplingFreq to the downSamplingFreq
                 end
                 
+                % get interested channel
                 data.fileName = naming(data.file);
                 data.channel = parameters.channel;
                 data.channelPair = parameters.channel';
@@ -78,6 +79,11 @@ classdef classData
                     error('Error found in User Input: Selected channel is not existed')
                 end
                 data.dataRaw = data.dataAll(:,data.channel);
+                
+                % average data
+                if parameters.channelAveraging
+                    data = averageData(data);
+                end
                 
                 % for trimming
                 if parameters.partialDataSelection
@@ -153,5 +159,12 @@ classdef classData
         end
 
         
+    end
+    
+    methods(Access = protected)
+        function data = averageData(data)
+            data.channel = 1;
+            data.dataRaw = mean(data.dataRaw, 2);
+        end
     end
 end
