@@ -22,7 +22,7 @@ function varargout = onlineClassificationGUI(varargin)
 
 % Edit the above text to modify the response to help onlineClassificationGUI
 
-% Last Modified by GUIDE v2.5 05-Mar-2019 15:10:20
+% Last Modified by GUIDE v2.5 13-Mar-2019 19:57:41
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -74,8 +74,12 @@ function varargout = onlineClassificationGUI_OutputFcn(hObject, eventdata, handl
 varargout{1} = handles.output;
 varargout{1,2} = handles;
 
-% setup the flags
-handles.UserData = setupUserData();
+% setup the UserData
+setupUserData(hObject, handles);
+handles = guidata(hObject);
+
+% close all serial port connection
+instrreset
 
 % change enablity of inputThresh
 if strcmp('Threshold', handles.panelClassificationMethod.SelectedObject.String)
@@ -84,8 +88,18 @@ else
     handles.tableThresh.Enable = 'off';
 end
 
-handles.tableThresh.Data = cell(1,4);
-handles.inputThreshMult.Data = cell(1,4);
+handles.UserData.numChannelDisp = 2;
+handles.tableThresh.Data = cell(handles.UserData.numChannelDisp,1);
+handles.inputThreshMult.Data = cell(1,handles.UserData.numChannelDisp);
+handles.inputArtefact.Data = cell(handles.UserData.numChannelDisp,1);
+for i = 1:handles.UserData.numChannelDisp
+    handles.tableThresh.Data{i,1} = Inf;
+    handles.inputArtefact.Data{i,1} = nan;
+end
+
+% Filter configuration
+handles.inputFilter.Data = num2cell([100;7500]);
+handles.inputFilter.RowName(3:end) = [];
 
 % Update handles structure
 guidata(hObject, handles);
@@ -104,7 +118,7 @@ switch handles.UserData.stopFlag
     case 1
         if handles.UserData.startAllFlag
             disp('Program started...')
-            handles.dispPrediciton.String = num2str([0,0,0,0]);
+            handles.dispPrediciton.String = num2str(zeros(1,handles.UserData.numChannelDisp));
             handles.dispStatus.String = 'Program started...';
             handles.buttonStartStop.String = 'Stop';
             handles.buttonStartStop.ForegroundColor = 'r';
@@ -118,10 +132,32 @@ switch handles.UserData.stopFlag
                 guidata(hObject, handles);
             end
             
+            if ~handles.UserData.bionicHandConnection && ~isequal(handles.UserData.portHand(4:end), 'nan')
+                try
+                    handles.UserData.tH = bionicHand(handles.UserData.portHand);
+                    guidata(hObject, handles)
+                catch
+%                     allPorts = instrfind;
+%                     serialPortsLocs = ismember(get(allPorts,'Type'),'serial');
+%                     allNames = get(allPorts,'Name');
+%                     serialPorts = cell2mat(allNames(serialPortsLocs));
+%                     helpdlgBox = helpdlg(serialPorts,'Available COMPORT:');
+%                     helpdlgBox.Position(3) = 210;
+                    popMsg('Invalid COMPORT!');
+                    resetAll(hObject, handles);
+                end
+            end
+            
             predictClassAll = zeros(1, handles.UserData.parameters.numChannel);
             
+            pause(2) % for robot hand to work properly
+            
+            for i = 1:handles.UserData.parameters.numChannel
+                flushinput(handles.UserData.classInfo{i,1}.t);  % flush input data
+            end            
+            
             while handles.UserData.openPortFlag
-                predictClassAll = runProgram(handles, predictClassAll);  % run classification
+                predictClassAll = runProgram(hObject, handles, predictClassAll);  % run classification
                 handles = guidata(hObject);    
             end
             handles.UserData.openPortFlag = 0;
@@ -137,9 +173,10 @@ end
 
 function buttonReselect_Callback(hObject, eventdata, handles)
 disp(' ')
-disp('Reselect training files...')
 try
     [files,path] = selectFiles('Select trained parameters .mat file...');
+    
+    popMsg('Reselect training files...')
     classifierParameters = load(fullfile(path,files{1,1}));
     classifierParameters = classifierParameters.varargin{1,1};
     
@@ -200,13 +237,68 @@ function tableThresh_CellEditCallback(hObject, eventdata, handles)
 %	Error: error string when failed to convert EditData to appropriate value for Data
 
 try
-    for i = 1:length(handles.UserData.classInfo)
-        handles.UserData.classInfo{i,1}.thresholds = handles.tableThresh.Data{1,i};
+    for i = 1:length(handles.inputArtefact.Data)
+        handles.UserData.classInfo{i,1}.thresholds = handles.tableThresh.Data{i,1};
     end
 catch
 end
 
 guidata(hObject, handles);
+
+function inputWindowSize_Callback(hObject, eventdata, handles)
+% Hints: get(hObject,'String') returns contents of inputWindowSize as text
+%        str2double(get(hObject,'String')) returns contents of inputWindowSize as a double
+lowerLimit = 50;
+if str2num(get(hObject,'String')) < lowerLimit
+    errordlg('Window size smaller than lower limit...');
+    handles.inputWindowSize.String = lowerLimit;
+end
+
+try
+    for i = 1:length(handles.UserData.numChannelDisp)
+        handles.UserData.classInfo{i,1}.windowSize = str2num(handles.inputWindowSize.String);
+    end
+    popMsg(sprintf('Changed window size to %d ms...', handles.UserData.classInfo{i,1}.windowSize));
+catch
+    popMsg('Failed to change window size...');
+end
+
+resetAll(hObject, handles);
+
+
+
+% --- Executes during object creation, after setting all properties.
+function inputWindowSize_CreateFcn(hObject, eventdata, handles)
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+function inputBlankSize_Callback(hObject, eventdata, handles)
+% Hints: get(hObject,'String') returns contents of inputBlankSize as text
+%        str2double(get(hObject,'String')) returns contents of inputBlankSize as a double
+try
+    for i = 1:length(handles.UserData.numChannelDisp)
+        handles.UserData.classInfo{i,1}.blankSize = str2num(handles.inputBlankSize.String);
+    end
+    popMsg(sprintf('Changed blank size to %d ms...', handles.UserData.classInfo{i,1}.blankSize));
+catch
+    popMsg('Failed to input blank size...');
+end
+
+resetAll(hObject, handles);
+
+
+
+% --- Executes during object creation, after setting all properties.
+function inputBlankSize_CreateFcn(hObject, eventdata, handles)
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
 
 
 % --- Executes when user attempts to close bgOnlineClassificationGUI.
@@ -226,15 +318,129 @@ end
 resetAll(hObject, handles);
 
 
+% --- Executes when entered data in editable cell(s) in inputArtefact.
+function inputArtefact_CellEditCallback(hObject, eventdata, handles)
+% eventdata  structure with the following fields (see MATLAB.UI.CONTROL.TABLE)
+%	Indices: row and column indices of the cell(s) edited
+%	PreviousData: previous data for the cell(s) edited
+%	EditData: string(s) entered by the user
+%	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
+%	Error: error string when failed to convert EditData to appropriate value for Data
+% resetAll(hObject, handles);
+try
+    for i = 1:length(handles.inputArtefact.Data)
+        handles.UserData.classInfo{i,1}.triggerThreshold = handles.inputArtefact.Data{i,1};
+    end
+catch
+    popMsg('Failed in inputArtefact...');
+end
+
+guidata(hObject, handles);
+
+
 function panelClassificationMethod_CreateFcn(hObject, eventdata, handles)
 
 
-function output = setupUserData(handles)
-output = struct(...
+% --- Executes on selection change in chPopup1.
+function chPopup1_Callback(hObject, eventdata, handles)
+% Hints: contents = cellstr(get(hObject,'String')) returns chPopup1 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from chPopup1
+resetAll(hObject, handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function chPopup1_CreateFcn(hObject, eventdata, handles)
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in chPopup2.
+function chPopup2_Callback(hObject, eventdata, handles)
+% Hints: contents = cellstr(get(hObject,'String')) returns chPopup2 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from chPopup2
+resetAll(hObject, handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function chPopup2_CreateFcn(hObject, eventdata, handles)
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function inputCOMPORT_Callback(hObject, eventdata, handles)
+% Hints: get(hObject,'String') returns contents of inputCOMPORT as text
+%        str2double(get(hObject,'String')) returns contents of inputCOMPORT as a double
+handles.UserData.portHand = sprintf('COM%s', get(hObject,'String'));
+resetAll(hObject, handles);
+
+
+% --- Executes during object creation, after setting all properties.
+function inputCOMPORT_CreateFcn(hObject, eventdata, handles)
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+% --- Executes when entered data in editable cell(s) in inputFilter.
+
+function inputFilter_CellEditCallback(hObject, eventdata, handles)
+% eventdata  structure with the following fields (see MATLAB.UI.CONTROL.TABLE)
+%	Indices: row and column indices of the cell(s) edited
+%	PreviousData: previous data for the cell(s) edited
+%	EditData: string(s) entered by the user
+%	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
+%	Error: error string when failed to convert EditData to appropriate value for Data
+filterCutoffFreq = cell2mat(get(hObject,'Data'));
+if all(filterCutoffFreq > 0) && sign(diff(filterCutoffFreq)) == -1
+    popMsg('Lowpass Cutoff Freq smaller than Highpass Cutoff Freq...');
+    hObject.Data{2,1} = hObject.Data{1,1};
+end
+resetAll(hObject, handles);
+
+
+% --- Executes during object deletion, before destroying properties.
+function inputBlankSize_DeleteFcn(hObject, eventdata, handles)
+try
+fclose(handles.UserData.tB);
+for i = 1:length(handles.UserData.classInfo)
+    fwrite(handles.UserData.classInfo{i,1}.t,'DISCONNECT!!!!!!');
+    fclose(handles.UserData.classInfo{i,1}.t);
+end
+catch
+end
+
+
+%% Private functions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function setupUserData(hObject, handles)
+handles.UserData = struct(...
     'startAllFlag', 0,...
     'stopFlag', 1,...
     'openPortFlag', 0,...
-    'stopAll', 0);
+    'stopAll', 0,...
+    'bionicHandConnection',0,...
+    'portHand',sprintf('COM%s', handles.inputCOMPORT.String));
+handles.UserData.chPorts = struct(...
+    'Ch1',1340,...
+    'Ch2',1341,...
+    'Ch3',1342,...
+    'Ch4',1343,...
+    'Ch5',1344,...
+    'Ch6',1345,...
+    'Ch7',1346,...
+    'Ch8',1347,...
+    'Ch9',1348,...
+    'Ch10',1349);
+
+guidata(hObject, handles);
 
 function filepath = saveBurstsInfo(signal, signalClassificationInfo, saveFileName, markBurstInAllChannels)
 featuresForClassification = [5,8];  % selected features for classification        
@@ -332,15 +538,28 @@ end
 function resetAll(hObject, handles)
 disp('Program stopped...')
 
-handles.dispPrediction.String = num2str([0,0,0,0]);
+handles.dispPrediction.String = num2str(zeros(1,handles.UserData.numChannelDisp));
 handles.dispStatus.String = 'Program stopped...';
 handles.buttonStartStop.String = 'Start';
 handles.buttonStartStop.ForegroundColor = [0,190/256,0];
 handles.UserData.stopFlag = 1;
 handles.UserData.openPortFlag = 0;
 
+handles.tableThresh.Data = [];
+handles.inputArtefact.Data = [];
+for i = 1:handles.UserData.numChannelDisp
+    handles.tableThresh.Data{i,1} = Inf;
+    handles.inputArtefact.Data{i,1} = nan;
+end
+
 try
     fwrite(handles.UserData.tB,[handles.UserData.parameters.channelEnable,0]); % to disable all channels
+catch
+end
+
+try
+    writeToHand(handles.UserData.tH,'0');
+    closeBionicHand(handles.UserData.tH);
 catch
 end
 
@@ -348,27 +567,43 @@ drawnow
 guidata(hObject, handles);
 
 
-function predictClassAll = runProgram(handles, predictClassAll)
-try
+function predictClassAll = runProgram(hObject, handles, predictClassAll)
+% try
     for i = 1:handles.UserData.parameters.numChannel
         readSample(handles.UserData.classInfo{i,1});
-        %         plot(h(i,1),handles.UserData.classInfo{i,1}.dataFiltered)
-        %         pause(0.0001)
         %             detectBurst(handles.UserData.classInfo{i,1});
         classifyBurst(handles.UserData.classInfo{i,1});
         
         if predictClassAll(1,i) ~= handles.UserData.classInfo{i,1}.predictClass % update if state changed
             predictClassAll(1,i) = handles.UserData.classInfo{i,1}.predictClass;
             predictClassTemp = predictClassAll;
-            if all(predictClassAll(1:2))
-                predictClassTemp(2) = 0;
-            end
-            if all(predictClassAll(3:4))
-                predictClassTemp(4) = 0;
-            end
+%             if all(predictClassAll(1:2))
+%                 predictClassTemp(2) = 0;
+%             end
+%             if all(predictClassAll(3:4))
+%                 predictClassTemp(4) = 0;
+%             end
             handles.dispPrediction.String = num2str(predictClassTemp);
             replyPredictionDec = bi2de(predictClassTemp,'right-msb');
             fwrite(handles.UserData.tB,[handles.UserData.parameters.channelEnable,replyPredictionDec]); % to enable the channel
+            drawnow
+            
+            % write data to robot hand
+            if ~handles.UserData.bionicHandConnection && ~isequal(handles.UserData.portHand(4:end), 'nan')
+                try
+                    if handles.UserData.parameters.numChannel == 2 % add some space between the two channels
+                        writeToHand(handles.UserData.tH,...
+                            num2str(...
+                            bi2de([predictClassTemp(1),[0,0],predictClassTemp(2)],'right-msb')...
+                            ));
+                    else
+                        writeToHand(handles.UserData.tH,num2str(replyPredictionDec))
+                    end
+                catch
+                    popMsg('Failed to write data to hand...');
+                end
+            end
+            
             drawnow
         end
         
@@ -376,35 +611,49 @@ try
         %             elapsedTime{i,1} = [elapsedTime{i,1};toc(t)];
     end
     
-catch
-    resetAll(hObject, handles)
-    handles.UserData.startAllFlag = 0;
-    popMsg('Wrong selection, please start over...');
-    drawnow
-end
+% catch
+%     resetAll(hObject, handles)
+%     handles.UserData.startAllFlag = 0;
+%     popMsg('Wrong selection, please start over...');
+%     drawnow
+% end
 drawnow
     
 
 function handles = setupClassifier(handles)
 %% Parameters
-parameters = struct(...
-    'overlapWindowSize',50,... % ms
-    'ports',[1343,1344,1345,1346],...
-    'replyPort',1300,...
-    'channelEnable',251,...
-    'numChannel',length(handles.UserData.classifierParameters));
+switch handles.UserData.numChannelDisp
+    case 2
+        parameters = struct(...
+            'overlapWindowSize',50,... % ms
+            'ports',[handles.UserData.chPorts.(handles.chPopup1.String{handles.chPopup1.Value,1}),...
+            handles.UserData.chPorts.(handles.chPopup2.String{handles.chPopup2.Value,1})],...
+            'replyPort',1300,...
+            'channelEnable',251);
+    case 4
+        parameters = struct(...
+            'overlapWindowSize',50,... % ms
+            'ports',1343:1346,...
+            'replyPort',1300,...
+            'channelEnable',251);
+end
+
+parameters.numChannel = length(parameters.ports);
 
 for i = 1:parameters.numChannel
     classInfo{i,1} = classOnlineClassification(); % Initiatialize the object
 
-    switch handles.panelClassificationMethod.SelectedObject.String
-        case 'Features'
-            setBasicParameters(classInfo{i,1},handles.UserData.classifierParameters{i,1},parameters,handles.panelClassificationMethod.SelectedObject.String);
-        case 'Threshold'
-            setBasicParameters(classInfo{i,1},handles.UserData.classifierParameters{i,1},parameters,handles.panelClassificationMethod.SelectedObject.String,handles.tableThresh.Data{1,i});
-        otherwise
-            error('Invalid selection of classification method...')
-    end
+    guiInput = struct(...
+        'predictionMethod',handles.panelClassificationMethod.SelectedObject.String,...
+        'thresholds',handles.tableThresh.Data{i,1},...
+        'windowSize',str2num(handles.inputWindowSize.String),...
+        'blankSize',str2num(handles.inputBlankSize.String),...
+        'triggerThreshold',handles.inputArtefact.Data{i,1},...
+        'highpassCutoffFreq',handles.inputFilter.Data{1,1},...
+        'lowpassCutoffFreq',handles.inputFilter.Data{2,1},...
+        'samplingFreq',1000);
+    
+    setBasicParameters(classInfo{i,1},handles.UserData.classifierParameters{i,1},parameters,guiInput);
             
     setTcpip(classInfo{i,1},'127.0.0.1',parameters.ports(1,i),'NetworkRole','client','Timeout',1);
 
@@ -437,24 +686,7 @@ handles.UserData.tB = tB;
 
 
 
-function inputBurstLen_Callback(hObject, eventdata, handles)
-% hObject    handle to inputBurstLen (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of inputBurstLen as text
-%        str2double(get(hObject,'String')) returns contents of inputBurstLen as a double
-guidata(hObject, handles);
-
-
-% --- Executes during object creation, after setting all properties.
-function inputBurstLen_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to inputBurstLen (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
+% --- Executes when selected object is changed in buttonGroupChannelMode.
+function buttonGroupChannelMode_SelectionChangedFcn(hObject, eventdata, handles)
+handles.UserData.numChannelDisp = str2num(hObject.String(1));
+resetAll(hObject, handles);

@@ -8,7 +8,7 @@ classdef classFilterDataOnline < matlab.System
         lowPassCutoffFreq
         notchFreq
         windowSize
-        PersistentMemoryFlag = 1
+        PersistentMemoryFlag = true
         lowPassFilterEnabled = 0
         highPassFilterEnabled = 0
         bandPassFilterEnabled = 0
@@ -17,6 +17,7 @@ classdef classFilterDataOnline < matlab.System
 
     properties(Nontunable)
         Hd
+        butterCoeff
         Wpass = 1;
         Wstop = 100;
         order = 50;
@@ -36,6 +37,8 @@ classdef classFilterDataOnline < matlab.System
         end
         
         function obj = setFilter(obj,samplingFreq,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,windowSize)
+            % function obj = setFilter(obj,samplingFreq,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,windowSize)
+            
             obj = insertParameters(obj,samplingFreq,highPassCutoffFreq,lowPassCutoffFreq,notchFreq,windowSize);
             obj = checkSelectedFilter(obj,highPassCutoffFreq,lowPassCutoffFreq,notchFreq);
             obj = setFilterCoeff(obj);
@@ -45,6 +48,12 @@ classdef classFilterDataOnline < matlab.System
     
     
     methods(Access = protected)
+        
+        function obj = getFilterHd(obj)
+            b = firpm(obj.order,obj.freqArray,obj.targetArray,obj.weightArray);
+            obj.Hd = dfilt.fftfir(b,obj.windowSize);
+            obj.Hd.PersistentMemory = obj.PersistentMemoryFlag;
+        end
         
         function obj = insertParameters(obj,varargin)
             for i = 1:nargin-1
@@ -58,8 +67,10 @@ classdef classFilterDataOnline < matlab.System
         
         function obj = checkSelectedFilter(obj,highPassCutoffFreq,lowPassCutoffFreq,notchFreq)
             obj.bandPassFilterEnabled = lowPassCutoffFreq && highPassCutoffFreq;
-            obj.lowPassFilterEnabled = lowPassCutoffFreq && ~obj.bandPassFilterEnabled;
-            obj.highPassFilterEnabled = highPassCutoffFreq && ~obj.bandPassFilterEnabled;
+            obj.lowPassFilterEnabled = lowPassCutoffFreq && ~highPassCutoffFreq;
+            obj.highPassFilterEnabled = highPassCutoffFreq && ~lowPassCutoffFreq ;
+%             obj.lowPassFilterEnabled = lowPassCutoffFreq && ~obj.bandPassFilterEnabled;
+%             obj.highPassFilterEnabled = highPassCutoffFreq && ~obj.bandPassFilterEnabled;
             obj.notchFilterEnabled = notchFreq == 1;
         end
 
@@ -77,19 +88,19 @@ classdef classFilterDataOnline < matlab.System
                 
             elseif obj.highPassFilterEnabled
                 obj.targetArray = [0,0,1,1];
-                obj.freqArray = [0,Fstop1,obj.lowPassCutoffFreq,obj.samplingFreq/2] / (obj.samplingFreq/2);
+                obj.freqArray = [0,Fstop1,obj.highPassCutoffFreq,obj.samplingFreq/2] / (obj.samplingFreq/2);
                 obj.weightArray = [obj.Wstop,obj.Wpass];
                 
             elseif obj.lowPassFilterEnabled
                 obj.targetArray = [1,1,0,0];
-                obj.freqArray = [0,obj.highPassCutoffFreq,Fstop2,obj.samplingFreq/2] / (obj.samplingFreq/2);
+                obj.freqArray = [0,obj.lowPassCutoffFreq,Fstop2,obj.samplingFreq/2] / (obj.samplingFreq/2);
                 obj.weightArray = [obj.Wpass, obj.Wstop];
             end
 
         end
 
         function [Fstop,i] = getFstop1(obj)
-            for i = 50:-5:0
+            for i = 50:-1:0
                 Fstop = obj.highPassCutoffFreq - i;
                 if Fstop > 0
                     break
@@ -98,12 +109,6 @@ classdef classFilterDataOnline < matlab.System
             if Fstop < 0
                 Fstop = 0;
             end
-        end
-        
-        function obj = getFilterHd(obj)
-            b = firpm(obj.order,obj.freqArray,obj.targetArray,obj.weightArray);           
-            obj.Hd = dfilt.fftfir(b,obj.windowSize);
-            obj.Hd.PersistentMemory = obj.PersistentMemoryFlag;
         end
         
     end
