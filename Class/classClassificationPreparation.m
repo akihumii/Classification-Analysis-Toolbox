@@ -58,6 +58,7 @@ classdef classClassificationPreparation
             end
             [dataValue, dataName] = loadMultiLayerStruct(targetClassData,parameters.dataToBeDetectedSpike);
             minDistance = floor(clfp.window * targetClassData.samplingFreq);
+            minDistance(minDistance==0) = 1;
             
             parameters.burstLen = parameters.burstLen * targetClassData.samplingFreq;
             clfp.burstDetection = detectSpikes(dataValue,minDistance,parameters);

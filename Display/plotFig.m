@@ -228,7 +228,8 @@ for i = 1:numData
                 error('Invalid plotway...')
         end
         
-%         axis tight;
+%         ylim([-8e-5, 8e-5])
+%         axis tight;z
     end
     ylabel(yScale, 'Fontunit', sizeUnit, 'FontSize', textSize, 'FontWeight', textThickness);
     

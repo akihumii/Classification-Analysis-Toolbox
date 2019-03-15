@@ -81,8 +81,8 @@ classdef classData
                 data.dataRaw = data.dataAll(:,data.channel);
                 
                 % average data
-                if parameters.channelAveraging
-                    data = averageData(data);
+                if parameters.channelAveragingFlag
+                    data = averageData(data, parameters.channelAveraging);
                 end
                 
                 % for trimming
@@ -162,9 +162,14 @@ classdef classData
     end
     
     methods(Access = protected)
-        function data = averageData(data)
-            data.channel = 1;
-            data.dataRaw = mean(data.dataRaw, 2);
+        function data = averageData(data, channels)
+            data.channel = [];
+            data.dataRaw = [];
+            for i = 1:length(channels)
+                data.channel(1,i) = channels{i,1}(1,1);
+                data.dataRaw(:,i) = mean(data.dataAll(:, channels{i,1}), 2);
+            end
+            data.channelPair = data.channel';
         end
     end
 end

@@ -117,7 +117,7 @@ else
             signal(i,1).time/signal(i,1).samplingFreq,...
             dataValues,...
             signalClassification(i,1).burstDetection.spikeLocs,...
-            signalClassification(i,1).burstDetection.spikeLocs + repmat(maxBurstLength*1.5,size(signalClassification(i,1).burstDetection.spikeLocs,1),1),...
+            signalClassification(i,1).burstDetection.spikeLocs + repmat(maxBurstLength*parameters.overlapWindowLengthMult,size(signalClassification(i,1).burstDetection.spikeLocs,1),1),...
             parameters.windowSize, signal(i,1).samplingFreq, parameters.channelExtractStartingLocs);
         
         % Get all windows in same plots
@@ -167,6 +167,12 @@ if parameters.showCompare || parameters.saveCompare
     for i = 1:length(signal)
         numPlot = size(signal(i,1).dataRaw, 2);
         for j = 1:numPlot
+            if parameters.channelAveragingFlag
+                usedChannels = ['Average of ',checkMatNAddStr(parameters.channelAveraging{j,1}, ',', 1)];
+            else
+                usedChannels = num2str(parameters.channel(1,j));
+            end
+            
             figure
             hold on;
             set(gcf, 'Position', get(0,'Screensize')-[0 0 0 80],'PaperPositionMode', 'auto');
@@ -174,7 +180,7 @@ if parameters.showCompare || parameters.saveCompare
             p(j,1) = subplot(numSubplot,1,1);
             plot(signal(i,1).time/signal(i,1).samplingFreq, signal(i,1).dataRaw(:,j));
             ylabel('Amplitude (V)');
-            title([titleRaw, signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}, ' Channel ',num2str(parameters.channel(j))])
+            title([titleRaw, signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}, ' Channel ',usedChannels])
             
             p(j,2) = subplot(numSubplot,1,2);
             plot(signal(i,1).time/signal(i,1).samplingFreq, signal(i,1).dataFiltered.values(:,j));
