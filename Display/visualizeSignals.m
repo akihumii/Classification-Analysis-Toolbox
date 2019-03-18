@@ -1,4 +1,4 @@
-function windowsValues = visualizeSignals(signal, signalClassification, parameters)
+function windowsValues = visualizeSignals(signal, signalClassification, parameters, PP)
 %visualizeSignal Visualize needed signals. Raw, filtered, differential,
 %overlapping windows, average windows, and overall signal with indicated
 %spikes can be plotted.
@@ -10,25 +10,17 @@ function windowsValues = visualizeSignals(signal, signalClassification, paramete
 %   [] = visualizeSignals(signal, signalClassification, selectedWindow, windowSize, saveRaw, showRaw, saveDelta, showDelta, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT)
 
 %% plotting parameters
-PP.overlappingYUnit = '\muV';
-PP.filteredYUnit = '\muV';
-PP.overallYUnit = '\muV';
-PP.averageYUnit = '\muV';
-
 PP.overlappingYMult = getAxisMultiplier(PP.overlappingYUnit);
 PP.filteredYMult = getAxisMultiplier(PP.filteredYUnit);
+PP.rawYMult = getAxisMultiplier(PP.rawYUnit);
 PP.overallYMult = getAxisMultiplier(PP.overallYUnit);
 PP.averageYMult = getAxisMultiplier(PP.averageYUnit);
 
-PP.overlappingYLimit = [-8e-5, 8e-5];
-PP.filteredYLimit = [-8e-5, 8e-5];
-PP.overallYLimit = [-8e-5, 8e-5];
-PP.averageYLimit = [-8e-5, 8e-5];
-
-PP.overlappingYLimit = PP.overlappingYMult * PP.overlappingYLimit;
-PP.filteredYLimit = PP.filteredYMult * PP.filteredYLimit;
-PP.overallYLimit = PP.overallYMult * PP.overallYLimit;
-PP.averageYLimit = PP.averageYMult * PP.averageYLimit;
+if ~strcmp(PP.overlappingYLimit,'auto'); PP.overlappingYLimit = PP.overlappingYMult * PP.overlappingYLimit; end
+if ~strcmp(PP.filteredYLimit, 'auto'); PP.filteredYLimit = PP.filteredYMult * PP.filteredYLimit; end
+if ~strcmp(PP.rawYLimit, 'auto'); PP.rawYLimit = PP.rawYMult * PP.rawYLimit; end
+if ~strcmp(PP.overallYLimit, 'auto'); PP.overallYLimit = PP.overallYMult * PP.overallYLimit; end 
+if ~strcmp(PP.averageYLimit, 'auto'); PP.averageYLimit = PP.averageYMult * PP.averageYLimit; end
 
 %% Partial Data Selectiom
 for i = 1:length(signal)
@@ -45,20 +37,16 @@ end
 titleRaw = 'Raw Signal';
 if parameters.saveRaw || parameters.showRaw
     for i = 1:length(signal)
-        plotFig(signal(i,1).time/signal(i,1).samplingFreq,signal(i,1).dataRaw,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],titleRaw,'Time (s)','Amplitude (V)',...
-            parameters.saveRaw,... % save
-            parameters.showRaw,... % show
-            signal(i,1).path,'subplot', signal(i,1).channel);
+        [dataTemp, channelTemp] = bindSyncNCounter(PP.rawYMult*signal(i,1).dataRaw, parameters, signal(i,1));
+        plotFig(signal(i,1).time/signal(i,1).samplingFreq,dataTemp,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],titleRaw,'Time (s)','Amplitude (V)',parameters.saveRaw,parameters.showRaw,signal(i,1).path,'subplot', channelTemp, 'linePlot', PP.rawYLimit);
     end
 end
 
 %% Plot rectified signal
 if parameters.saveRectified || parameters.showRectified
     for i = 1:length(signal)
-        plotFig(signal(i,1).time/signal(i,1).samplingFreq,signal(i,1).dataRectified,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],'Rectified Signal (High Pass Filtered 1 Hz)','Time (s)','Amplitude (V)',...
-            parameters.saveRectified,... % save
-            parameters.showRectified,... % show
-            signal(i,1).path,'subplot', signal(i,1).channelPair);
+        [dataTemp, channelTemp] = bindSyncNCounter(signal(i,1).dataRectified, parameters, signal(i,1));
+        plotFig(signal(i,1).time/signal(i,1).samplingFreq,dataTemp,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],'Rectified Signal (High Pass Filtered 1 Hz)','Time (s)','Amplitude (V)',parameters.saveRectified,parameters.showRectified,signal(i,1).path,'subplot', signal(i,1).channelTemp);
     end
 end
 
@@ -70,10 +58,8 @@ if parameters.saveDifferential || parameters.showDifferential
                 warning('ChannelRef is not keyed in...')
             end
         else
-            plotFig(signal(i,1).time/signal(i,1).samplingFreq,signal(i,1).dataDifferential,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],'Differential Signal Channel','Time(s)','Amplitude (V)',...
-                parameters.saveDifferential,... % save
-                parameters.showDifferential,... % show
-                signal(i,1).path,'subplot', signal(i,1).channelPair);
+            [dataTemp, channelTemp] = bindSyncNCounter(signal(i,1).dataDifferential, parameters, signal(i,1));
+            plotFig(signal(i,1).time/signal(i,1).samplingFreq,dataTemp,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],'Differential Signal Channel','Time(s)','Amplitude (V)',parameters.saveDifferential,parameters.showDifferential,signal(i,1).path,'subplot', channelTemp);
         end
     end
 end
@@ -83,10 +69,8 @@ titleFiltered = ['Filtered Signal (', num2str(signal(i,1).dataFiltered.highPassC
 if parameters.saveFilt || parameters.showFilt
     if signal(i,1).dataFiltered.highPassCutoffFreq ~= 0 || signal(i,1).dataFiltered.lowPassCutoffFreq ~= 0 || signal(i,1).dataFiltered.notchFreq ~= 0
         for i = 1:length(signal)
-            plotFig(signal(i,1).time/signal(i,1).samplingFreq,PP.filteredYMult*signal(i,1).dataFiltered.values,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],titleFiltered,'Time (s)',['Amplitude (',PP.filteredYUnit,')'],...
-                parameters.saveFilt,... % save
-                parameters.showFilt,... % show
-                signal(i,1).path,'subplot', signal(i,1).channelPair,'linePlot',PP.filteredYLimit);
+            [dataTemp, channelTemp] = bindSyncNCounter(PP.filteredYMult*signal(i,1).dataFiltered.values, parameters, signal(i,1));
+            plotFig(signal(i,1).time/signal(i,1).samplingFreq,dataTemp,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],titleFiltered,'Time (s)',['Amplitude (',PP.filteredYUnit,')'],parameters.saveFilt,parameters.showFilt,signal(i,1).path,'subplot', channelTemp,'linePlot',PP.filteredYLimit);
         end
     end
 end
@@ -94,10 +78,8 @@ end
 %% Plot FFT signal
 if parameters.saveFFT || parameters.showFFT
     for i = 1:length(signal)
-        plotFig(signal(i,1).dataFFT.freqDomain,signal(i,1).dataFFT.values,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],[signal(i,1).dataFFT.dataBeingProcessed,' FFT Signal'],'Frequency (Hz)','Amplitude',...
-            parameters.saveFFT,... % save
-            parameters.showFFT,... % show
-            signal(i,1).path,'subplot', signal(i,1).channelPair);
+        [dataTemp, channelTemp] = bindSyncNCounter(signal(i,1).dataFFT.values, parameters, signal(i,1));
+        plotFig(signal(i,1).dataFFT.freqDomain,dataTemp,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],[signal(i,1).dataFFT.dataBeingProcessed,' FFT Signal'],'Frequency (Hz)','Amplitude',parameters.saveFFT,parameters.showFFT,signal(i,1).path,'subplot', channelTemp);
     end
 end
 
@@ -159,10 +141,11 @@ else
         
         % plot overall signal with spikes indicated
         if parameters.showOverlap || parameters.saveOverlap
-            overallP = plotFig(signal(i,1).time/signal(i,1).samplingFreq,PP.overallYMult*dataValues,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],['Overall Signal with Spikes Indicated (', dataName, ')'],'Time(s)',['Amplitude (',PP.overallYUnit,')'],...
+            [dataTemp, channelTemp] = bindSyncNCounter(PP.overallYMult*dataValues, parameters, signal(i,1));
+            overallP = plotFig(signal(i,1).time/signal(i,1).samplingFreq,dataTemp,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],['Overall Signal with Spikes Indicated (', dataName, ')'],'Time(s)',['Amplitude (',PP.overallYUnit,')'],...
                 0,... % save
                 1,... % show
-                signal(i,1).path,'subplot', signal(i,1).channelPair,'linePlot',PP.overallYLimit);
+                signal(i,1).path,'subplot', channelTemp,'linePlot',PP.overallYLimit);
             hold on
             
             % Plot the markings
@@ -237,6 +220,27 @@ if parameters.showCompare || parameters.saveCompare
             end
 
         end
+    end
+end
+end
+
+function [dataNew, channelNew] = bindSyncNCounter(data, parameters, signal)
+dataNew = data;
+channelNew = signal.channel;
+if parameters.showSyncPulse
+    dataNew = [dataNew, signal.dataAll(:,11)];
+    if size(channelNew,1) == 1
+        channelNew = [channelNew, 100];
+    else
+        channelNew = [channelNew, repmat(100,size(channelNew,2))];
+    end
+end
+if parameters.showCounter
+    dataNew = [dataNew, signal.dataAll(:,12)];
+    if size(channelNew,1) == 1
+        channelNew = [channelNew, 200];
+    else
+         channelNew = [channelNew, repmat(200,size(channelNew,2))];
     end
 end
 end
