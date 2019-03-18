@@ -73,7 +73,7 @@ switch lower(fileType)
         else
             convertVoltage = 1.2/1024;
         end
-        data = data * convertVoltage; % convert to Voltage
+        data(:,1:10) = data(:,1:10) * convertVoltage; % convert to Voltage
 
         timeIndex = 1:size(data,1);
         
