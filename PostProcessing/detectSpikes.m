@@ -86,6 +86,10 @@ for i = 1:colData % channel
             else
                 error('Not enough parameters.TKEOStartConsecutivePoints for all the channels...')
             end
+        case 'fixed'
+            spikeLocs{i,1} = parameters.spikeLocsFixed;
+            spikePeaksValue{i,1} = data(parameters.spikeLocsFixed,i);
+            [burstEndValue{i,1},burstEndLocs{i,1}] = pointAfterAWindow(data(:,i),minDistance(2),spikeLocs{i,1});
         otherwise
             error('Invalid spike detection parameters.spikeDetectionType')
     end
@@ -131,3 +135,6 @@ end
 
 end
 
+function getFixedPointWindow()
+
+end

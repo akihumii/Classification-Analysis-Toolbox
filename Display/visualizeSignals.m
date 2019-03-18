@@ -9,6 +9,27 @@ function windowsValues = visualizeSignals(signal, signalClassification, paramete
 % input: parameters: selectedWindow, windowSize, partialDataSelection, channelExtractStartingLocs, dataToBeDetectedSpike, saveRaw, showRaw, saveDifferential, showDifferential, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT
 %   [] = visualizeSignals(signal, signalClassification, selectedWindow, windowSize, saveRaw, showRaw, saveDelta, showDelta, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT)
 
+%% plotting parameters
+PP.overlappingYUnit = '\muV';
+PP.filteredYUnit = '\muV';
+PP.overallYUnit = '\muV';
+PP.averageYUnit = '\muV';
+
+PP.overlappingYMult = getAxisMultiplier(PP.overlappingYUnit);
+PP.filteredYMult = getAxisMultiplier(PP.filteredYUnit);
+PP.overallYMult = getAxisMultiplier(PP.overallYUnit);
+PP.averageYMult = getAxisMultiplier(PP.averageYUnit);
+
+PP.overlappingYLimit = [-8e-5, 8e-5];
+PP.filteredYLimit = [-8e-5, 8e-5];
+PP.overallYLimit = [-8e-5, 8e-5];
+PP.averageYLimit = [-8e-5, 8e-5];
+
+PP.overlappingYLimit = PP.overlappingYMult * PP.overlappingYLimit;
+PP.filteredYLimit = PP.filteredYMult * PP.filteredYLimit;
+PP.overallYLimit = PP.overallYMult * PP.overallYLimit;
+PP.averageYLimit = PP.averageYMult * PP.averageYLimit;
+
 %% Partial Data Selectiom
 for i = 1:length(signal)
     if parameters.partialDataSelection
@@ -62,10 +83,10 @@ titleFiltered = ['Filtered Signal (', num2str(signal(i,1).dataFiltered.highPassC
 if parameters.saveFilt || parameters.showFilt
     if signal(i,1).dataFiltered.highPassCutoffFreq ~= 0 || signal(i,1).dataFiltered.lowPassCutoffFreq ~= 0 || signal(i,1).dataFiltered.notchFreq ~= 0
         for i = 1:length(signal)
-            plotFig(signal(i,1).time/signal(i,1).samplingFreq,signal(i,1).dataFiltered.values,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],titleFiltered,'Time (s)','Amplitude (V)',...
+            plotFig(signal(i,1).time/signal(i,1).samplingFreq,PP.filteredYMult*signal(i,1).dataFiltered.values,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],titleFiltered,'Time (s)',['Amplitude (',PP.filteredYUnit,')'],...
                 parameters.saveFilt,... % save
                 parameters.showFilt,... % show
-                signal(i,1).path,'subplot', signal(i,1).channelPair);
+                signal(i,1).path,'subplot', signal(i,1).channelPair,'linePlot',PP.filteredYLimit);
         end
     end
 end
@@ -125,23 +146,23 @@ else
 %         windowsValues(i,1).burst = reshape(windowsValues(i,1).burst,[],2*size(windowsValues(i,1).burst,2));
         
         % Plot overlapping windows
-        overlapP = plotFig(windowsValues(i,1).xAxisValues,windowsValues(i,1).burst,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],['Windows Following Artefacts ( ', dataName, ' )'],'Time (s)','Amplitude (V)',...
+        overlapP = plotFig(windowsValues(i,1).xAxisValues,PP.overlappingYMult*windowsValues(i,1).burst,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],['Windows Following Artefacts ( ', dataName, ' )'],'Time (s)',['Amplitude (',PP.overlappingYUnit,')'],...
             parameters.saveOverlap,... % save
             parameters.showOverlap,... % show
-            signal(i,1).path,'overlap', signal(i,1).channelPair);
+            signal(i,1).path,'overlap', signal(i,1).channelPair, 'linePlot', PP.overlappingYLimit);
         
         % plot averaging overlapping windows
-        plotFig(windowsValues(i,1).xAxisValues,nanmean(windowsValues(i,1).burst,2),[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],['Average Windows Following Artefacts ( ', dataName, ' )'],'Time(s)','Amplitude (V)',...
+        plotFig(windowsValues(i,1).xAxisValues,PP.averageYMult*nanmean(windowsValues(i,1).burst,2),[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],['Average Windows Following Artefacts ( ', dataName, ' )'],'Time(s)',['Amplitude (',PP.averageYUnit,')'],...
             parameters.saveOverlap,... % save
             parameters.showOverlap,... % show
-            signal(i,1).path,'overlap', signal(i,1).channelPair);
+            signal(i,1).path,'overlap', signal(i,1).channelPair,'linePlot',PP.averageYLimit);
         
         % plot overall signal with spikes indicated
         if parameters.showOverlap || parameters.saveOverlap
-            overallP = plotFig(signal(i,1).time/signal(i,1).samplingFreq,dataValues,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],['Overall Signal with Spikes Indicated (', dataName, ')'],'Time(s)','Amplitude (V)',...
+            overallP = plotFig(signal(i,1).time/signal(i,1).samplingFreq,PP.overallYMult*dataValues,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],['Overall Signal with Spikes Indicated (', dataName, ')'],'Time(s)',['Amplitude (',PP.overallYUnit,')'],...
                 0,... % save
                 1,... % show
-                signal(i,1).path,'subplot', signal(i,1).channelPair);
+                signal(i,1).path,'subplot', signal(i,1).channelPair,'linePlot',PP.overallYLimit);
             hold on
             
             % Plot the markings
@@ -220,3 +241,12 @@ if parameters.showCompare || parameters.saveCompare
 end
 end
 
+function output = getAxisMultiplier(unit)
+if contains(unit,'u')
+    output = 1e6;
+elseif contains(unit,'m')
+    output = 1e3;
+else
+    output = 1;
+end
+end

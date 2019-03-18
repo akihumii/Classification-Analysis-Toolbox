@@ -22,7 +22,7 @@ parameters = struct(...
     'samplingFreq',0,... % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 1798.2, sylphII: 1798.2)
     'neutrinoInputReferred',0,...; % input 1 to check input refer, otherwise input 0
     'neutrinoBit',0,...; % input 1 for 8 bit mode, input 0 for 10 bit mode
-    'selectFile',1,... % 1 to select file manually, 0 to select all the files in the current directories, 2 to use the specific path stored in specificPath
+    'selectFile',2,... % 1 to select file manually, 0 to select all the files in the current directories, 2 to use the specific path stored in specificPath
     'specificTarget','Neuroma_NHP201903_190313_131918.rhd',... % it will only be activated when selectFile is equal to 2
     'padZeroFlag',0,... % 1 to pad zero
     ...
@@ -35,7 +35,7 @@ parameters = struct(...
     ...
     ...% Filtering Parameters
     'dataToBeFiltered','dataRaw',...; % input 'dataRaw' for raw data; input 'dataDifferential' for differential data; input 'dataRectified' for rectified data
-    'highPassCutoffFreq',30,... % high pass cutoff frequency, input 0 if not applied
+    'highPassCutoffFreq',300,... % high pass cutoff frequency, input 0 if not applied
     'lowPassCutoffFreq',5000,... % low pass cutoff frequency, input 0 if not applied
     'notchFreq',50,... % notch frequency, input 0 if not applied
     'downSamplingFreq',0,... % down sampling the data to the sampling rate of downSamplingFrequency; input 0 to deactivate
@@ -49,14 +49,17 @@ parameters = struct(...
     'overlappedWindow','dataFiltered',... % Select window for overlapping. Input 'dataRaw', 'dataFiltered', 'dataDifferential', 'dataTKEO'
     'spikeDetectionType','trigger',... % input 'local maxima' for local maxima, input 'trigger for first point exceeding parameters.threshold, input 'TKEO' for taking following consecutive points into account
     ...
-    'threshold',[0.2e-4],... % specified one parameters.threshold for spikes detection in all the channels; multiple thresholds are allowed for different channels; input 0 for default value (baseline + threshMult * baselineStandardDeviation) (baseline is obtained by calculating the mean of the data points spanned between 1/4 to 3/4 of the data array sorted by amplitudes)
+    'threshold',[0.3e-4],... % specified one parameters.threshold for spikes detection in all the channels; multiple thresholds are allowed for different channels; input 0 for default value (baseline + threshMult * baselineStandardDeviation) (baseline is obtained by calculating the mean of the data points spanned between 1/4 to 3/4 of the data array sorted by amplitudes)
     'threshStdMult',[25,20,20,20],... % multiples of standard deviation above the baseline as the parameters.threshold for TKEO detection. All channels will use the same value if there is only one value, multiple values are allowed for different channels
     'sign',1,... % input 1 for threhoslding upwards, input -1 for thresholding downwards
     ...
-    'windowSize',[0, 0.03],... % range of window starting from the detected peaks(in seconds)
-    'overlapWindowLengthMult',1,...  % multiplier to set the overlap window length
+    'windowSize',[0, 0.02],... % range of window starting from the detected peaks(in seconds)
+    'overlapWindowLengthMult',0,...  % multiplier to set the overlap window length
     'channelExtractStartingLocs',0,... % input parameters.channel index (start from 1, then 2, 3...) to fix the locs for all the channels, windows between 2 consecutive starting points of the bursts will be extracted and overlapped. Input 0 to deactivate this function
     'trainingRatio',0.7,... % training ratio for classifier
+    ...
+    'windowSizeThresholdOmit',[-0.0002, 0.0202],...  % to omit the data found from peak detection
+    'dataThresholdOmitFlag',1,... % flag to omit data found in peak detection
     ...
     'TKEOStartConsecutivePoints',[35],... % number of consecutive points over the parameters.threshold to be detected as burst
     'TKEOEndConsecutivePoints',[100],... % number of consecutive points below the parameters.threshold to be detected as end of burst
@@ -70,7 +73,7 @@ parameters = struct(...
     'showDifferential',0,...
     'showRectified',0,...
     'showFilt',0,...
-    'showOverlap',0,...
+    'showOverlap',1,...
     'showFFT',0,...
     'showCompare',0,...
     'showSyncPulse',0,...  % input 1 or 0, plot raw channel 11 in Compare Plot
@@ -80,7 +83,7 @@ parameters = struct(...
     'saveDifferential',0,...
     'saveRectified',0,...
     'saveFilt',0,...
-    'saveOverlap',1,...
+    'saveOverlap',0,...
     'saveFFT',0,...
     'saveCompare',0,...
     ...
@@ -98,7 +101,7 @@ popMsg('Start Analysing...')
 [signal, signalName, iter] = dataAnalysis(parameters);
 popMsg([num2str(toc(ticDataAnalysis)), ' seconds is used for loading and processing data...'])
 disp(' ')
-
+    
 %% Locate bursts and select windows around them
 if ~parameters.noClassification || parameters.showOverlap || parameters.saveOverlap
     tic
@@ -114,6 +117,30 @@ if ~parameters.noClassification || parameters.showOverlap || parameters.saveOver
     disp(' ')
 else
     signalClassification = nan;
+end
+
+if parameters.dataThresholdOmitFlag
+    omitThresholdOutput = omitThresholdData(signal, signalClassification.burstDetection.spikeLocs(:,1), parameters);
+    signal = omitThresholdOutput.signal;
+    
+    parameters.spikeDetectionType = 'fixed';
+    parameters.spikeLocsFixed = omitThresholdOutput.startingPointNew;
+    
+    if ~parameters.noClassification || parameters.showOverlap || parameters.saveOverlap
+        tic
+        popMsg('Start locting bursts...')
+        % if parameters.showOverlap==1 || parameters.saveOverlap==1 % peaks detection is only activated when either parameters.showOverlap or parameters.saveOverlap or both of them are TRU
+        signalClassification = dataClassificationPreparation(signal, iter, parameters);
+        
+        writeBurstIndexInfo(signal,signalClassification,parameters); % write the selected burst index info into info.xlsx
+        % else
+        %     signalClassification = 1;
+        % end
+        popMsg([num2str(toc),' seconds is used for classification preparation...'])
+        disp(' ')
+    else
+        signalClassification = nan;
+    end
 end
 
 %% Plot selected windows
