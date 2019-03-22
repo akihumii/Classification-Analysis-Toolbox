@@ -175,11 +175,11 @@ classdef classOnlineClassification < matlab.System
         end
         
         function classifyBurst(obj)
-%             try
+            try
                 predictClasses(obj); % predict the classes
-%             catch
-%                 resetChannel(obj);
-%             end
+            catch
+                resetChannel(obj);
+            end
         end
         
     end
