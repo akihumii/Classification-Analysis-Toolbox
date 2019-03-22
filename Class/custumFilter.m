@@ -38,7 +38,7 @@ classdef custumFilter < matlab.System
                 setHighpassFilter(obj);
 %             end
 %             if obj.lowpassCutoffFreq
-%                 setLowpassFilter(obj);
+                setLowpassFilter(obj);
 %             end
 %             if obj.notchFreq
 %                 setNotchFilter(obj);
@@ -108,7 +108,7 @@ classdef custumFilter < matlab.System
                 rawData = hipassFilter(obj, rawData, ChannelIndex);
 %             end
 %             if(obj.lowpassFilterEnabled)
-%                 rawData = lopassFilter(obj, rawData, ChannelIndex);
+                rawData = lopassFilter(obj, rawData, ChannelIndex);
 %             end
         end
 

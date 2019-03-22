@@ -1,9 +1,9 @@
-function [] = onlineClassifierTraining(varargin)
+function [] = onlineClassifierTraining(handles)
 %TRAINCLASSFIIER Train the classifier and get the thresholds and some
 %saveInfo for the online decoding
 %   [] = onlineClassifierTraining()
 
-[threshMultStr, signal, signalClassificationInfo, saveFileName] = onlineClassifierDetectBursts();
+[threshMultStr, signal, signalClassificationInfo, saveFileName] = onlineClassifierDetectBursts(handles);
 
 classifierOutput = analyzeFeatures('numFeaturesInCombination',2,'featureIndexSelected',{[5,7]},'selectFileType',2,'specificTarget',saveFileName,'showAccuracy',0,'saveAccuracy',0); % to train the classifier
 
