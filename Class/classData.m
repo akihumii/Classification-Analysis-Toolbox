@@ -157,6 +157,17 @@ classdef classData
             data.dataTKEO.values = editData(data.dataTKEO.values,counterRaw,0,3);           
             data.time = 1:size(data.dataAll,1);
         end
+        
+        function data = omitPeriodicData(data, parameters)
+            windowSize = parameters.dataPeriodicOmitWindowSize * data.samplingFreq;
+            period = 1/parameters.dataPeriodicOmitFrequency * data.samplingFreq;
+            startingPoint = parameters.dataPeriodicOmitStartingPoint * data.samplingFreq;
+            data.time = transpose(omitPeriodicData(data.time', windowSize, period, startingPoint));
+            data.dataRaw = omitPeriodicData(data.dataRaw, windowSize, period, startingPoint);
+            data.dataRectified = omitPeriodicData(data.dataRectified, windowSize, period, startingPoint);
+            data.dataFiltered.values = omitPeriodicData(data.dataFiltered.values, windowSize, period, startingPoint);
+            data.dataTKEO.values = omitPeriodicData(data.dataTKEO.values, windowSize, period, startingPoint);
+        end
 
         
     end

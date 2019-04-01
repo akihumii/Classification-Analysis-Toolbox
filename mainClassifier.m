@@ -60,6 +60,9 @@ parameters = struct(...
     ...
     'windowSizeThresholdOmit',[-0.0002, 0.0202],...  % to omit the data found from peak detection
     'dataThresholdOmitFlag',0,... % flag to omit data found in peak detection
+    'dataPeriodicOmitFrequency',100,... % frequency of the chunk to be omitted (Hz), input 0 to deactivate
+    'dataPeriodicOmitWindowSize',0.0007,... % window size to periodically omit it (seconds)
+    'dataPeriodicOmitStartingPoint',2.4291,... % starting point to periodically omit data chunk (seconds)
     ...
     'TKEOStartConsecutivePoints',[35],... % number of consecutive points over the parameters.threshold to be detected as burst
     'TKEOEndConsecutivePoints',[100],... % number of consecutive points below the parameters.threshold to be detected as end of burst
