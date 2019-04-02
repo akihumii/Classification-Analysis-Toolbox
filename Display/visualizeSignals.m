@@ -246,9 +246,9 @@ end
 end
 
 function output = getAxisMultiplier(unit)
-if contains(unit,'u')
+if strfind(unit,'u')
     output = 1e6;
-elseif contains(unit,'m')
+elseif strfind(unit,'m')
     output = 1e3;
 else
     output = 1;
