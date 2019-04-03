@@ -198,7 +198,7 @@ guidata(hObject, handles);
 function buttonTrain_Callback(hObject, eventdata, handles)
 disp(' ')
 try
-    onlineClassifierTraining();
+    onlineClassifierTraining(handles);
     resetAll(hObject, handles);
     popMsg('Training done...');
 catch
@@ -210,7 +210,6 @@ guidata(hObject, handles);
 
 function buttonSaveFeatures_Callback(hObject, eventdata, handles)
 disp(' ')
-handles.UserData.multiChannelFlag = 0;
 try
     [threshMultStr, signal, signalClassificationInfo, saveFileName, parameters] = onlineClassifierDetectBursts(handles);
     filepath = saveBurstsInfo(signal, signalClassificationInfo, saveFileName, parameters.markBurstInAllChannels);
@@ -426,6 +425,7 @@ handles.UserData = struct(...
     'stopFlag', 1,...
     'openPortFlag', 0,...
     'stopAll', 0,...
+    'multiChannelFlag', 0,...
     'bionicHandConnection',0,...
     'portHand',sprintf('COM%s', handles.inputCOMPORT.String));
 handles.UserData.chPorts = struct(...
@@ -573,8 +573,8 @@ function predictClassAll = runProgram(hObject, handles, predictClassAll)
         readSample(handles.UserData.classInfo{i,1});
         %             detectBurst(handles.UserData.classInfo{i,1});
         classifyBurst(handles.UserData.classInfo{i,1});
-        
         if predictClassAll(1,i) ~= handles.UserData.classInfo{i,1}.predictClass % update if state changed
+            timing = tic;
             predictClassAll(1,i) = handles.UserData.classInfo{i,1}.predictClass;
             predictClassTemp = predictClassAll;
 %             if all(predictClassAll(1:2))
@@ -605,6 +605,7 @@ function predictClassAll = runProgram(hObject, handles, predictClassAll)
             end
             
             drawnow
+            disp(toc(timing));
         end
         
         %             disp(['Class ',num2str(i),' prediction: ',num2str(handles.UserData.classInfo{i,1}.predictClass)]);
@@ -651,7 +652,7 @@ for i = 1:parameters.numChannel
         'triggerThreshold',handles.inputArtefact.Data{i,1},...
         'highpassCutoffFreq',handles.inputFilter.Data{1,1},...
         'lowpassCutoffFreq',handles.inputFilter.Data{2,1},...
-        'samplingFreq',1000);
+        'samplingFreq',17850);
     
     setBasicParameters(classInfo{i,1},handles.UserData.classifierParameters{i,1},parameters,guiInput);
             
@@ -666,11 +667,11 @@ end
 try
     tB = tcpip('127.0.0.1',parameters.replyPort,'NetworkRole','client','Timeout',1);
     disp(['Opened port ',num2str(parameters.channelEnable),' as reply port...'])
+    fopen(tB);
 catch
     disp(['Reply port ',num2str(parameters.channelEnable),' is not open yet...'])
 end
 
-fopen(tB);
 
 %%  Run the online classification
 %     clearvars -except parameters classInfo tB

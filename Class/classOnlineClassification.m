@@ -150,13 +150,13 @@ classdef classOnlineClassification < matlab.System
                     
                     obj.dataFiltered = filter(obj);
                     
-                    if obj.port == 1345
-                        disp(max(obj.dataRaw));
-                        plot(obj.dataRaw);
+%                     if obj.port == 1345
+%                         disp(max(obj.dataRaw));
+%                         plot(obj.dataRaw);
 %                         plot(obj.dataFiltered);
 %                         ylim([-.5, .5])
-                        drawnow
-                    end
+%                         drawnow
+%                     end
 
                     if ~obj.stopClassifySize
                         locArtefact = find(obj.dataFiltered > obj.triggerThreshold, 1, 'first');
@@ -195,8 +195,10 @@ classdef classOnlineClassification < matlab.System
         function predictClasses(obj)
             switch obj.predictionMethod
                 case 'Features'
-                    extractFeatures(obj); % get the features
-                    obj.predictClass = predict(obj.classifierMdl, obj.features);
+                    if isobject(obj.classifierMdl)
+                        extractFeatures(obj); % get the features
+                        obj.predictClass = predict(obj.classifierMdl, obj.features);
+                    end
                 case 'Threshold'
                     if ~isempty(obj.dataFiltered)
                         obj.predictClass = any(obj.dataFiltered(obj.signalClassifyFlag) > obj.thresholds);
