@@ -16,14 +16,14 @@ deleteMsgBox(); % delete all the message boxes
 % General Parameters
 parameters = struct(...
     'dataType','intan',... % configurable types: ,'neutrino2','neutrino', 'intan', 'sylphx', 'sylphii'
-    'channel',[1,2],... % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
-    'channelAveragingFlag',1,...  % use the channelAveraging below to do the average
+    'channel',[1,9],... % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
+    'channelAveragingFlag',0,...  % use the channelAveraging below to do the average
     'channelPair',0,...; % input the pairs seperated in rows, eg:[1,2;3,4] means 1 pairs with 2 and 3 pairs with 4; input 0 if no differential data is needed.
-    'samplingFreq',0,... % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 1798.2, sylphII: 1798.2)
+    'samplingFreq',30000,... % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 1798.2, sylphII: 1798.2)
     'neutrinoInputReferred',0,...; % input 1 to check input refer, otherwise input 0
     'neutrinoBit',0,...; % input 1 for 8 bit mode, input 0 for 10 bit mode
     'selectFile',2,... % 1 to select file manually, 0 to select all the files in the current directories, 2 to use the specific path stored in specificPath
-    'specificTarget','Neuroma_NHP201903_190313_131918_240muA.rhd',... % it will only be activated when selectFile is equal to 2
+    'specificTarget','NHP_Neuroma_190327_122547_60muA.rhd',... %'Neuroma_NHP201903_190313_131918_240muA.rhd',... % it will only be activated when selectFile is equal to 2
     'padZeroFlag',0,... % 1 to pad zero
     ...
     'partialDataSelection',0,...; % input 1 to select partial data to analyse, otherwise input 0
@@ -49,7 +49,7 @@ parameters = struct(...
     'overlappedWindow','dataFiltered',... % Select window for overlapping. Input 'dataRaw', 'dataFiltered', 'dataDifferential', 'dataTKEO'
     'spikeDetectionType','trigger',... % input 'local maxima' for local maxima, input 'trigger for first point exceeding parameters.threshold, input 'TKEO' for taking following consecutive points into account
     ...
-    'threshold',[0.2e-4],... % specified one parameters.threshold for spikes detection in all the channels; multiple thresholds are allowed for different channels; input 0 for default value (baseline + threshMult * baselineStandardDeviation) (baseline is obtained by calculating the mean of the data points spanned between 1/4 to 3/4 of the data array sorted by amplitudes)
+    'threshold',[4e-6],... %[0.2e-4],... % specified one parameters.threshold for spikes detection in all the channels; multiple thresholds are allowed for different channels; input 0 for default value (baseline + threshMult * baselineStandardDeviation) (baseline is obtained by calculating the mean of the data points spanned between 1/4 to 3/4 of the data array sorted by amplitudes)
     'threshStdMult',[25,20,20,20],... % multiples of standard deviation above the baseline as the parameters.threshold for TKEO detection. All channels will use the same value if there is only one value, multiple values are allowed for different channels
     'sign',1,... % input 1 for threhoslding upwards, input -1 for thresholding downwards
     ...
@@ -61,6 +61,7 @@ parameters = struct(...
     'windowSizeThresholdOmit',[-0.0002, 0.0202],...  % to omit the data found from peak detection
     'dataThresholdOmitFlag',1,... % flag to omit data found in peak detection
     'stitchFlag','stitch',...  % 'interpolate' to interpolate, 'stitch' to stitch two ends together, 'remain' to remain the time stamps
+    'remainBurstLocs',0,...  % use the bursts locations found in first round
     ...
     'dataPeriodicOmitFrequency',0,... % frequency of the chunk to be omitted (Hz), input 0 to deactivate
     'dataPeriodicOmitWindowSize',0.0007,... % window size to periodically omit it (seconds)
@@ -129,6 +130,9 @@ popMsg([num2str(toc(ticDataAnalysis)), ' seconds is used for loading and process
 disp(' ')
     
 %% Locate bursts and select windows around them
+signalClassification = nan;
+rasterLocs = nan;
+
 if ~parameters.noClassification || parameters.showOverlap || parameters.saveOverlap
     tic
     popMsg('Start locting bursts...')
@@ -146,11 +150,14 @@ if ~parameters.noClassification || parameters.showOverlap || parameters.saveOver
         omitThresholdOutput = omitThresholdData(signal, signalClassification.burstDetection.spikeLocs, parameters);
         signal = omitThresholdOutput.signal;
         
-        % parameters.spikeDetectionType = 'fixed';
-%         parameters.spikeLocsFixed = omitThresholdOutput.startingPoint;
-%         parameters.stitchFlag = 'trigger';
-        parameters.windowSize = [0, 0.001];
-        parameters.threshold = 2.5e-6;
+        if parameters.remainBurstLocs
+            parameters.spikeDetectionType = 'fixed';
+            parameters.spikeLocsFixed = omitThresholdOutput.startingPoint;
+        else
+            parameters.stitchFlag = 'trigger';
+            parameters.windowSize = [0, 0.001];
+            parameters.threshold = 2e-6; %2.5e-6;
+        end
         
         if ~parameters.noClassification || parameters.showOverlap || parameters.saveOverlap
             tic
@@ -170,10 +177,6 @@ if ~parameters.noClassification || parameters.showOverlap || parameters.saveOver
         
         rasterLocs = omitThresholdOutput.startingPoint;
     end
-    
-else
-    signalClassification = nan;
-    rasterLocs = Nan;
 end
 
 
