@@ -230,6 +230,8 @@ for i = 1:numData
 %                 q25 = quantile(y(:,j,i),0.25);
 %                 w95 = (q95-q75) / (q75-q25);
 %                 l(j,i) = box(y(:,j,i),'whisker',w95);
+            case 'raster'
+                l(j,i)
             otherwise
                 error('Invalid plotway...')
         end

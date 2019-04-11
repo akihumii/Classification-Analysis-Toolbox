@@ -1,4 +1,4 @@
-function windowsValues = visualizeSignals(signal, signalClassification, parameters, PP)
+function windowsValues = visualizeSignals(signal, signalClassification, rasterLocs, parameters, PP)
 %visualizeSignal Visualize needed signals. Raw, filtered, differential,
 %overlapping windows, average windows, and overall signal with indicated
 %spikes can be plotted.
@@ -222,6 +222,44 @@ if parameters.showCompare || parameters.saveCompare
         end
     end
 end
+
+%% Plot raster plot
+if parameters.saveRaster || parameters.showRaster
+    for i = 1:length(signal)
+        titleFig = ['Raster plot ', signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}];
+        plotRaster(rasterLocs/signal.samplingFreq, signalClassification(i,1).burstDetection.spikeLocs/signal.samplingFreq)
+        title(titleFig)
+        
+        if parameters.saveRaster
+            savePlot(signal(i,1).path,'Raster plot', titleFig ,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}])
+        end
+        if ~parameters.showRaster
+            close gcf
+        end
+    end
+end
+
+end
+
+function plotRaster(rasterLocs, spikeLocs)
+[numRowSpikes, numCol] = size(spikeLocs);
+numRowRaster = size(rasterLocs, 1);
+% spikeLocs = horzcat(nan(numRow, 1), spikeLocs, nan(numRow, 1));
+% numChannel = size(spikeLocs, 2);
+% rasterLocsCell = mat2tallCell(rasterLocs);
+% spikeLocsCell = mat2tallCell(spikeLocs);
+% rasterLocsAll = cell2nanMat(vertcat(rasterLocsCell, spikeLocsCell));
+% [numRow, numCol] = size(rasterLocsAll);
+% y = repmat(1:numCol, numRow, 1);
+ySpikes = repmat(1:numCol, numRowSpikes, 1);
+yRaster = repmat(1:numCol, numRowRaster, 1);
+plotFig(spikeLocs, ySpikes, '', 'Raster plot', 'Time (s)', 'Channel', 0, 1, '', 'overlap', 0, 'scatterPlot', [0, numCol+1]);
+hold on
+lRaster = plot(rasterLocs, yRaster, 'kx', 'MarkerSize', 12);
+legend(lRaster, 'Stimulation')
+% for i = 1:numCol
+%     scatter(rasterLocs(:,i), yRaster(:,i), 500, '.');
+% end
 end
 
 function [dataNew, channelNew] = bindSyncNCounter(data, parameters, signal)

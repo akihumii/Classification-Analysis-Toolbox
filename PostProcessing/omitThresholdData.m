@@ -8,12 +8,14 @@ numBursts = size(locations,1);
 
 for i = 1:length(signal)
     windowOmitPoints = parameters.windowSizeThresholdOmit * signal(i,1).samplingFreq;
-    startingPoint = locations + windowOmitPoints(1,1);
+    startingPoint{i,1} = locations + windowOmitPoints(1,1);
     endPoint = locations + windowOmitPoints(1,2);
     
     % find out the deleting indices
-    for k = 1:numBursts
-        deletingIndexCell{k,1} = startingPoint(k,1) : endPoint(k,1);
+    for j = 1:size(locations, 2)
+        for k = 1:numBursts
+            deletingIndexCell{k,j} = startingPoint{i,1}(k,j) : endPoint(k,j);
+        end
     end
         
     % delete the corresponding points
@@ -37,10 +39,11 @@ for i = 1:length(signal)
     
     % update starting point
     if ~strcmp(parameters.stitchFlag, 'interpolate')
-        startingPoint = updateStartingPoint(startingPoint, length(deletingIndexCell{1,1}));
+        startingPoint{i,1} = updateStartingPoint(startingPoint{i,1}, length(deletingIndexCell{1,1}));
     end
-    
 end
+
+startingPoint = cell2nanMat(startingPoint);
 
 % figure
 % plot(signal(i,1).dataRaw(:,1));
@@ -77,15 +80,17 @@ for i = 1:size(data,2)
         if ~strcmp(dataName, 'time')
             numBursts = length(deletingIndex);
             for j = 1:numBursts
-                lenBursts = length(deletingIndex{j,1});
-                startingValue = dataTemp{i,1}(deletingIndex{j,1}(1,1) - 1);
-                endValue = dataTemp{i,1}(deletingIndex{j,1}(1,end) + 1);
-                dataInterpolationTemp = linspace(startingValue, endValue, lenBursts);
-                dataTemp{i,1}(deletingIndex{j,1}) = dataInterpolationTemp;
+                if ~isnan(deletingIndex{j,i})
+                    lenBursts = length(deletingIndex{j,i});
+                    startingValue = dataTemp{i,1}(deletingIndex{j,i}(1,1) - 1);
+                    endValue = dataTemp{i,1}(deletingIndex{j,i}(1,end) + 1);
+                    dataInterpolationTemp = linspace(startingValue, endValue, lenBursts);
+                    dataTemp{i,1}(deletingIndex{j,i}) = dataInterpolationTemp;
+                end
             end
         end        
     else
-        deletingIndexTemp = reshape(cell2nanMat(deletingIndex), [], 1);
+        deletingIndexTemp = reshape(cell2nanMat(deletingIndex(:,i)), [], 1);
         dataTemp{i,1}(deletingIndexTemp) = [];
     end
     

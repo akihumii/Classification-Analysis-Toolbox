@@ -83,6 +83,7 @@ parameters = struct(...
     'showCompare',0,...
     'showSyncPulse',0,...  % input 1 or 0, plot raw channel 11 in Compare Plot
     'showCounter',0,...  % input 1 or 0, plot raw channel 13 in Compare Plot
+    'showRaster',1,...  % input zero to get the raster plots
     ...
     'saveRaw',0,...
     'saveDifferential',0,...
@@ -91,6 +92,7 @@ parameters = struct(...
     'saveOverlap',0,...
     'saveFFT',0,...
     'saveCompare',0,...
+    'saveRaster',0,...
     ...
     'noClassification',0,...
     'saveUserInput',0); % set to 1 to save all the information, otherwise set to 0
@@ -140,12 +142,15 @@ if ~parameters.noClassification || parameters.showOverlap || parameters.saveOver
     popMsg([num2str(toc),' seconds is used for classification preparation...'])
     disp(' ')
     
-    if parameters.dataThresholdOmitFlag
-        omitThresholdOutput = omitThresholdData(signal, signalClassification.burstDetection.spikeLocs(:,1), parameters);
+    if parameters.dataThresholdOmitFlag  % omit a chunk of data after detecting the bursts
+        omitThresholdOutput = omitThresholdData(signal, signalClassification.burstDetection.spikeLocs, parameters);
         signal = omitThresholdOutput.signal;
         
-        parameters.spikeDetectionType = 'fixed';
-        parameters.spikeLocsFixed = omitThresholdOutput.startingPoint;
+        % parameters.spikeDetectionType = 'fixed';
+%         parameters.spikeLocsFixed = omitThresholdOutput.startingPoint;
+%         parameters.stitchFlag = 'trigger';
+        parameters.windowSize = [0, 0.001];
+        parameters.threshold = 2.5e-6;
         
         if ~parameters.noClassification || parameters.showOverlap || parameters.saveOverlap
             tic
@@ -162,10 +167,13 @@ if ~parameters.noClassification || parameters.showOverlap || parameters.saveOver
         else
             signalClassification = nan;
         end
+        
+        rasterLocs = omitThresholdOutput.startingPoint;
     end
     
 else
     signalClassification = nan;
+    rasterLocs = Nan;
 end
 
 
@@ -174,7 +182,7 @@ end
 
 tic
 popMsg('Visualizing signals...')
-windowsValues = visualizeSignals(signal, signalClassification, parameters, PP);
+windowsValues = visualizeSignals(signal, signalClassification, rasterLocs, parameters, PP);
 popMsg([num2str(toc), ' seconds is used for visualizing signals...'])
 disp(' ')
 
