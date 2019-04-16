@@ -19,11 +19,11 @@ parameters = struct(...
     'channel',[1,2],... % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
     'channelAveragingFlag',1,...  % use the channelAveraging below to do the average
     'channelPair',0,...; % input the pairs seperated in rows, eg:[1,2;3,4] means 1 pairs with 2 and 3 pairs with 4; input 0 if no differential data is needed.
-    'samplingFreq',30000,... % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 1798.2, sylphII: 1798.2)
+    'samplingFreq',0,... % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 1798.2, sylphII: 1798.2)
     'neutrinoInputReferred',0,...; % input 1 to check input refer, otherwise input 0
     'neutrinoBit',0,...; % input 1 for 8 bit mode, input 0 for 10 bit mode
-    'selectFile',1,... % 1 to select file manually, 0 to select all the files in the current directories, 2 to use the specific path stored in specificPath
-    'specificTarget','NHP_Neuroma_190327_122547_60muA.rhd',... 'Neuroma_NHP201903_190313_131918_240muA.rhd',... % it will only be activated when selectFile is equal to 2
+    'selectFile',2,... % 1 to select file manually, 0 to select all the files in the current directories, 2 to use the specific path stored in specificPath
+    'specificTarget','data_20190313_144318_250muA.csv',... 'NHP_Neuroma_190327_122547_60muA.rhd',... 'Neuroma_NHP201903_190313_131918_240muA.rhd',... % it will only be activated when selectFile is equal to 2
     'padZeroFlag',0,... % 1 to pad zero
     ...
     'partialDataSelection',0,...; % input 1 to select partial data to analyse, otherwise input 0
@@ -62,6 +62,13 @@ parameters = struct(...
     'dataThresholdOmitFlag',0,... % flag to omit data found in peak detection
     'stitchFlag','stitch',...  % 'interpolate' to interpolate, 'stitch' to stitch two ends together, 'remain' to remain the time stamps
     'remainBurstLocs',0,...  % use the bursts locations found in first round
+    ...
+    'restoreSignalFlag',1,...  % restore the missing signal based on the detected spikes and their location 
+    'restoreInterSpikeSeparation',300,...  % (Hz) distance between detected spikes to use as trace for restoration
+    'restoreInterStimulationSeparation',1,...  % (second) distance between each train
+    'restoreNumSpikes',7,...  % number of spike in one train
+    'restoreInterTrainFrequency',46.3,...  % (Hz) distance between two trains of spikes
+    'restoreTolerance',0.0003,...  % (second) tolerance for the spikes to distant from each other
     ...
     'dataPeriodicOmitFrequency',0,... % frequency of the chunk to be omitted (Hz), input 0 to deactivate
     'dataPeriodicOmitWindowSize',0.0007,... % window size to periodically omit it (seconds)
@@ -145,6 +152,10 @@ if ~parameters.noClassification || parameters.showOverlap || parameters.saveOver
     % end
     popMsg([num2str(toc),' seconds is used for classification preparation...'])
     disp(' ')
+    
+    if parameters.restoreSignalFlag
+        restorationOutput = restoreSignal(signalClassification.burstDetection.spikeLocs, parameters, signal.samplingFreq);
+    end
     
     if parameters.dataThresholdOmitFlag  % omit a chunk of data after detecting the bursts
         omitThresholdOutput = omitThresholdData(signal, signalClassification.burstDetection.spikeLocs, parameters);
