@@ -156,7 +156,7 @@ classdef classData
             data.dataRectified = editData(data.dataRectified,counterRaw,0,3);
             data.dataFiltered.values = editData(data.dataFiltered.values,counterRaw,0,3);    
             data.dataTKEO.values = editData(data.dataTKEO.values,counterRaw,0,3);           
-            data.time = 1:size(data.dataAll,1);
+            data.time = repmat(transpose(1:size(data.dataAll,1)),1,size(data.dataRaw,2));
         end
         
         function data = omitPeriodicData(data, parameters)
