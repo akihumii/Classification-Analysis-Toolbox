@@ -59,11 +59,11 @@ parameters = struct(...
     'trainingRatio',0.7,... % training ratio for classifier
     ...
     'windowSizeThresholdOmit',[-0.0002, 0.0202],...  % to omit the data found from peak detection
-    'dataThresholdOmitFlag',0,... % flag to omit data found in peak detection
+    'dataThresholdOmitFlag',1,... % flag to omit data found in peak detection
     'stitchFlag','stitch',...  % 'interpolate' to interpolate, 'stitch' to stitch two ends together, 'remain' to remain the time stamps
     'remainBurstLocs',0,...  % use the bursts locations found in first round
     ...
-    'restoreSignalFlag',1,...  % restore the missing signal based on the detected spikes and their location 
+    'restoreSyncPulseFlag',1,...  % restore the missing signal based on the detected spikes and their location 
     'restoreInterSpikeSeparation',300,...  % (Hz) distance between detected spikes to use as trace for restoration
     'restoreInterStimulationSeparation',1,...  % (second) distance between each train
     'restoreNumSpikes',7,...  % number of spike in one train
@@ -146,19 +146,17 @@ if ~parameters.noClassification || parameters.showOverlap || parameters.saveOver
     % if parameters.showOverlap==1 || parameters.saveOverlap==1 % peaks detection is only activated when either parameters.showOverlap or parameters.saveOverlap or both of them are TRU
     signalClassification = dataClassificationPreparation(signal, iter, parameters);
     
-    writeBurstIndexInfo(signal,signalClassification,parameters); % write the selected burst index info into info.xlsx
     % else
     %     signalClassification = 1;
     % end
-    popMsg([num2str(toc),' seconds is used for classification preparation...'])
-    disp(' ')
-    
-    if parameters.restoreSignalFlag
-        restorationOutput = restoreSignal(signalClassification.burstDetection.spikeLocs, parameters, signal.samplingFreq);
-    end
-    
     if parameters.dataThresholdOmitFlag  % omit a chunk of data after detecting the bursts
-        omitThresholdOutput = omitThresholdData(signal, signalClassification.burstDetection.spikeLocs, parameters);
+        if parameters.restoreSyncPulseFlag
+            restorationOutput = restoreSignal(signalClassification.burstDetection.spikeLocs, parameters, signal.samplingFreq);
+            omitThresholdOutput = omitThresholdData(signal, restorationOutput.locsTrainMajor, parameters);
+        else
+            omitThresholdOutput = omitThresholdData(signal, signalClassification.burstDetection.spikeLocs, parameters);
+        end
+        
         signal = omitThresholdOutput.signal;
         
         if parameters.remainBurstLocs
@@ -167,27 +165,25 @@ if ~parameters.noClassification || parameters.showOverlap || parameters.saveOver
         else
             parameters.stitchFlag = 'trigger';
             parameters.windowSize = [0, 0.001];
-            parameters.threshold = 2e-6; %2.5e-6;
+            parameters.threshold = 8e-3; %2e-6; %2.5e-6;
         end
         
-        if ~parameters.noClassification || parameters.showOverlap || parameters.saveOverlap
-            tic
-            popMsg('Start locting bursts...')
-            % if parameters.showOverlap==1 || parameters.saveOverlap==1 % peaks detection is only activated when either parameters.showOverlap or parameters.saveOverlap or both of them are TRU
-            signalClassification = dataClassificationPreparation(signal, iter, parameters);
-            
-            writeBurstIndexInfo(signal,signalClassification,parameters); % write the selected burst index info into info.xlsx
-            % else
-            %     signalClassification = 1;
-            % end
-            popMsg([num2str(toc),' seconds is used for classification preparation...'])
-            disp(' ')
-        else
-            signalClassification = nan;
-        end
+        tic
+        popMsg('Start locting bursts...')
+        % if parameters.showOverlap==1 || parameters.saveOverlap==1 % peaks detection is only activated when either parameters.showOverlap or parameters.saveOverlap or both of them are TRU
+        signalClassification = dataClassificationPreparation(signal, iter, parameters);
         
+        % else
+        %     signalClassification = 1;
+        % end
         rasterLocs = omitThresholdOutput.startingPoint;
     end
+    
+    popMsg([num2str(toc),' seconds is used for classification preparation...'])
+    disp(' ')
+        
+    writeBurstIndexInfo(signal,signalClassification,parameters); % write the selected burst index info into info.xlsx
+
 end
 
 

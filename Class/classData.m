@@ -79,6 +79,7 @@ classdef classData
                     error('Error found in User Input: Selected channel is not existed')
                 end
                 data.dataRaw = data.dataAll(:,data.channel);
+                data.time = repmat(data.time, 1, size(data.dataRaw,2));
                 
                 % average data
                 if parameters.channelAveragingFlag

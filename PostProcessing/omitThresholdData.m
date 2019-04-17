@@ -14,7 +14,7 @@ for i = 1:length(signal)
     % find out the deleting indices
     for j = 1:size(locations, 2)
         for k = 1:numBursts
-            deletingIndexCell{k,j} = startingPoint{i,1}(k,j) : endPoint(k,j);
+            deletingIndexCell{k,j} = floor(startingPoint{i,1}(k,j) : endPoint(k,j));
         end
     end
         
@@ -69,9 +69,6 @@ data = signal.(dataName);
 if isstruct(signal.(dataName))
     data = data.values;
 end
-if strcmp(dataName, 'time')
-    data = data';
-end
 
 % delete data
 for i = 1:size(data,2)
@@ -91,11 +88,11 @@ for i = 1:size(data,2)
         end        
     else
         deletingIndexTemp = reshape(cell2nanMat(deletingIndex(:,i)), [], 1);
-        dataTemp{i,1}(deletingIndexTemp) = [];
+        dataTemp{i,1}(deletingIndexTemp(~isnan(deletingIndexTemp))) = [];
     end
     
     if strcmp(stitchFlag, 'stitch') && strcmp(dataName, 'time')
-        dataTemp{i,1} = 1:size(dataTemp{i,1}, 1);
+        dataTemp{i,1} = transpose(1:size(dataTemp{i,1}, 1));
     end
 end
 
@@ -103,8 +100,6 @@ end
 % replace the values in signal object
 if isstruct(signal.(dataName))
     signal.(dataName).values = cell2nanMat(dataTemp);
-elseif strcmp(dataName, 'time')
-    signal.(dataName) = cell2nanMat(dataTemp)';
 elseif ~isempty(data)
     signal.(dataName) = cell2nanMat(dataTemp);
 end
