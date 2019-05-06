@@ -31,6 +31,7 @@ for i = 1:length(signal)
     
     % cut again after the filter artifact has been prevented
     signal(i,1) = deleteCorrespondingIndex(signal(i,1), 'dataRaw', deletingIndexCell, parameters.stitchFlag);
+    signal(i,1) = deleteCorrespondingIndex(signal(i,1), 'dataAll', deletingIndexCell, parameters.stitchFlag);
     signal(i,1) = deleteCorrespondingIndex(signal(i,1), 'time', deletingIndexCell, parameters.stitchFlag);
     signal(i,1) = deleteCorrespondingIndex(signal(i,1), 'dataRectified', deletingIndexCell, parameters.stitchFlag);
     signal(i,1) = deleteCorrespondingIndex(signal(i,1), 'dataFiltered', deletingIndexCell, parameters.stitchFlag);
@@ -87,7 +88,11 @@ for i = 1:size(data,2)
             end
         end        
     else
-        deletingIndexTemp = reshape(cell2nanMat(deletingIndex(:,i)), [], 1);
+        if i <= size(deletingIndex,2)
+            deletingIndexTemp = reshape(cell2nanMat(deletingIndex(:,i)), [], 1);
+        else
+            deletingIndexTemp = reshape(cell2nanMat(deletingIndex(:,1)), [], 1);
+        end
         dataTemp{i,1}(deletingIndexTemp(~isnan(deletingIndexTemp))) = [];
     end
     
