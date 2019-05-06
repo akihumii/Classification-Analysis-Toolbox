@@ -49,6 +49,11 @@ for i = 1:iter
         data(i,1) = padZero(data(i,1));
     end
     
+    % omit periodically
+    if parameters.dataPeriodicOmitFrequency
+        data(i,1) = omitPeriodicData(data(i,1), parameters);
+    end
+    
     dataName{i,1} = data(i,1).file;
     
     disp([data(i,1).file, ' has been analysed... '])

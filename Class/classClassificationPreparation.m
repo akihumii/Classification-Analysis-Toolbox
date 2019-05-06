@@ -58,6 +58,9 @@ classdef classClassificationPreparation
             end
             [dataValue, dataName] = loadMultiLayerStruct(targetClassData,parameters.dataToBeDetectedSpike);
             minDistance = floor(clfp.window * targetClassData.samplingFreq);
+            minDistance(minDistance==0) = 1;
+            
+            parameters.burstLen = parameters.burstLen * targetClassData.samplingFreq;
             clfp.burstDetection = detectSpikes(dataValue,minDistance,parameters);
             clfp.burstDetection.dataAnalysed = [targetClassData.file,' -> ',dataName];
             clfp.burstDetection.detectionMethod = parameters.spikeDetectionType;
@@ -131,7 +134,7 @@ classdef classClassificationPreparation
         function clfp = trimShortenedBursts(clfp,dataValue,samplingFreq)
             minDistance = round(clfp.trimMinDistance * samplingFreq); % minimum distance surrounding the bursts that need to be not zero
             
-            numChannel = size(clfp.burstDetection.spikePeaksValue,2);
+            numChannel = length(clfp.burstDetection.baseline);
             dataSize = size(dataValue,1);
             
             for i = 1:numChannel

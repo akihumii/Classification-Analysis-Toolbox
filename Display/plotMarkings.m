@@ -15,8 +15,8 @@ startingO = plot(time(startingLocs(notNanSpikeLocs)),dataValues(startingLocs(not
 % end
 
 %% End Point
-notNanEndLocs = ~isnan(endLocs); % get end locs that are not nan
-endingX = plot(time(endLocs(notNanEndLocs)),dataValues(endLocs(notNanEndLocs)),'rx');
+% notNanEndLocs = ~isnan(endLocs); % get end locs that are not nan
+% endingX = plot(time(endLocs(notNanEndLocs)),dataValues(endLocs(notNanEndLocs)),'rx');
 
 %% Baseline
 if ~isnan(threshold)
@@ -26,9 +26,11 @@ end
 %% Legend
 try
     if isnan(threshold)
-        legend([startingO,endingX],'starting point','end point');
+%         legend([startingO,endingX],'starting point','end point');
+        legend([startingO,endingX],'starting point');
     else
-        legend([startingO,endingX,thresholdL],'starting point','end point','threshold')
+%         legend([startingO,endingX,thresholdL],'starting point','end point','threshold')
+        legend([startingO,endingX,thresholdL],'starting point','threshold')
     end
 catch
 end    

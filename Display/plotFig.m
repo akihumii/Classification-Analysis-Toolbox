@@ -16,7 +16,7 @@ function varargout = plotFig(varargin)
 %            overlap: [titleName, ' ', fileName, ' ch ', num2str(channel(i))]
 %
 %   [p,f] = plotFig(x, y, fileName, titleName, xScale, yScale, answerSave,
-%                   answerShow, path, type, channel, plotWay)
+%                   answerShow, path, type, channel, plotWay, yLimit)
 
 %% Parameters
 titleFontSize = 14; % title font size (normalized)
@@ -35,13 +35,19 @@ else
     y = varargin{2};
 end
 
-if nargin < 12;
+if nargin < 13
+    yLimit = 'auto';
+else
+    yLimit = varargin{13};
+end
+
+if nargin < 12
     plotWay = 'linePlot';
 else
     plotWay = varargin{12};
 end
 
-if nargin < 11;
+if nargin < 11
     channel{1,1} = 0;
     %     channel = 1:size(y,2); % create a matrix
     %     channel = mat2cell(channel',ones(1,size(channel,2)),size(channel,1)); % convert the matrix into cell
@@ -224,11 +230,14 @@ for i = 1:numData
 %                 q25 = quantile(y(:,j,i),0.25);
 %                 w95 = (q95-q75) / (q75-q25);
 %                 l(j,i) = box(y(:,j,i),'whisker',w95);
+            case 'raster'
+                l(j,i)
             otherwise
                 error('Invalid plotway...')
         end
         
-%         axis tight;
+        ylim(yLimit)
+%         axis tight;z
     end
     ylabel(yScale, 'Fontunit', sizeUnit, 'FontSize', textSize, 'FontWeight', textThickness);
     

@@ -21,6 +21,7 @@ if nargin < 2
     parameters.TKEOStartConsecutivePoints = 1;
     parameters.TKEOEndConsecutivePoints = 1;
     parameters.markBurstInAllChannels = 0;
+    parameters.fixBurstLength = 0;
 end    
 
 %% Find Peaks
@@ -67,7 +68,7 @@ for i = 1:colData % channel
             [burstEndValue{i,1},burstEndLocs{i,1}] = pointAfterAWindow(data(:,i),minDistance(2),spikeLocs{i,1});
         case 'trigger'
             [spikePeaksValue{i,1},spikeLocs{i,1}] = triggerSpikeDetection(data(minDistance(1):end-minDistance(2)-1,i),parameters.thresholdValue,minDistance(2));
-            spikeLocs{i,1} = spikeLocs{i,1} + minDistance(1); % compensate the skipped window
+            spikeLocs{i,1} = spikeLocs{i,1} + minDistance(1) - 1; % compensate the skipped window
             [burstEndValue{i,1},burstEndLocs{i,1}] = pointAfterAWindow(data(:,i),minDistance(2),spikeLocs{i,1});
         case 'TKEO'
             if length(parameters.TKEOStartConsecutivePoints) >= colData
@@ -85,6 +86,10 @@ for i = 1:colData % channel
             else
                 error('Not enough parameters.TKEOStartConsecutivePoints for all the channels...')
             end
+        case 'fixed'
+            spikeLocs{i,1} = parameters.spikeLocsFixed(:,i);
+            spikePeaksValue{i,1} = data(parameters.spikeLocsFixed(:,i),i);
+            [burstEndValue{i,1},burstEndLocs{i,1}] = pointAfterAWindow(data(:,i),minDistance(2),spikeLocs{i,1});
         otherwise
             error('Invalid spike detection parameters.spikeDetectionType')
     end
@@ -112,8 +117,16 @@ output.parameters.threshStdMult = parameters.threshStdMult;
 output.parameters.TKEOStartConsecutivePoints = parameters.TKEOStartConsecutivePoints;
 output.parameters.TKEOEndConsecutivePoints = parameters.TKEOEndConsecutivePoints;
 
+if parameters.burstLen
+    [output.spikeLocs, output.spikePeaksValue, output.burstEndLocs, output.burstEndValue] = ...
+        editBurstLen(data, parameters.burstLen, output.spikeLocs, output.spikePeaksValue);
+    mergeType = 'first';
+else
+    mergeType = 'merge';
+end
+
 if parameters.markBurstInAllChannels
-    output = mergeChannelsInfo(data,output);
+    output = mergeChannelsInfo(data,output,colData,mergeType);
 end
 
 % if parameters.getBaselineFeatureFlag
@@ -122,3 +135,6 @@ end
 
 end
 
+function getFixedPointWindow()
+
+end

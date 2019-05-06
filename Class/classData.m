@@ -71,6 +71,7 @@ classdef classData
                     data.samplingFreq = parameters.downSamplingFreq; % change the samplingFreq to the downSamplingFreq
                 end
                 
+                % get interested channel
                 data.fileName = naming(data.file);
                 data.channel = parameters.channel;
                 data.channelPair = parameters.channel';
@@ -78,6 +79,12 @@ classdef classData
                     error('Error found in User Input: Selected channel is not existed')
                 end
                 data.dataRaw = data.dataAll(:,data.channel);
+                data.time = repmat(data.time, 1, size(data.dataRaw,2));
+                
+                % average data
+                if parameters.channelAveragingFlag
+                    data = averageData(data, parameters.channelAveraging);
+                end
                 
                 % for trimming
                 if parameters.partialDataSelection
@@ -149,9 +156,32 @@ classdef classData
             data.dataRectified = editData(data.dataRectified,counterRaw,0,3);
             data.dataFiltered.values = editData(data.dataFiltered.values,counterRaw,0,3);    
             data.dataTKEO.values = editData(data.dataTKEO.values,counterRaw,0,3);           
-            data.time = 1:size(data.dataAll,1);
+            data.time = repmat(transpose(1:size(data.dataAll,1)),1,size(data.dataRaw,2));
+        end
+        
+        function data = omitPeriodicData(data, parameters)
+            windowSize = parameters.dataPeriodicOmitWindowSize * data.samplingFreq;
+            period = 1/parameters.dataPeriodicOmitFrequency * data.samplingFreq;
+            startingPoint = parameters.dataPeriodicOmitStartingPoint * data.samplingFreq;
+            data.time = transpose(omitPeriodicData(data.time', windowSize, period, startingPoint));
+            data.dataRaw = omitPeriodicData(data.dataRaw, windowSize, period, startingPoint);
+            data.dataRectified = omitPeriodicData(data.dataRectified, windowSize, period, startingPoint);
+            data.dataFiltered.values = omitPeriodicData(data.dataFiltered.values, windowSize, period, startingPoint);
+            data.dataTKEO.values = omitPeriodicData(data.dataTKEO.values, windowSize, period, startingPoint);
         end
 
         
+    end
+    
+    methods(Access = protected)
+        function data = averageData(data, channels)
+            data.channel = [];
+            data.dataRaw = [];
+            for i = 1:length(channels)
+                data.channel(1,i) = channels{i,1}(1,1);
+                data.dataRaw(:,i) = mean(data.dataAll(:, channels{i,1}), 2);
+            end
+            data.channelPair = data.channel';
+        end
     end
 end
