@@ -4,7 +4,7 @@ function output = mergeChannelsInfo(data,input,numChannel,type)
 %                 'first': use the first starting point and first end point
 %   output = mergeChannelsInfo(data,input)
 
-locsAll = [input.spikeLocs(:), input.burstEndLocs(:)]; % [startLocs x endLocs]
+locsAll = [input.spikeLocs(:), input.burstEndLocs(:)]; % [startLocs, endLocs]
 
 locsAll = sortrows(locsAll,1); % sort according to startLocs
 
@@ -27,6 +27,8 @@ switch type
 end
 
 locsAll = squeezeNan(locsAll,2);
+
+locsAll = omitNan(locsAll, 2, 'any');
 
 %% Assign updated info
 output = struct(...

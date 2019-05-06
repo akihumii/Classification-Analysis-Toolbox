@@ -22,7 +22,7 @@ function varargout = onlineClassificationGUI(varargin)
 
 % Edit the above text to modify the response to help onlineClassificationGUI
 
-% Last Modified by GUIDE v2.5 13-Mar-2019 19:57:41
+% Last Modified by GUIDE v2.5 06-May-2019 16:29:32
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -88,7 +88,7 @@ else
     handles.tableThresh.Enable = 'off';
 end
 
-handles.UserData.numChannelDisp = 2;
+% handles.UserData.numChannelDisp = 4;
 handles.tableThresh.Data = cell(handles.UserData.numChannelDisp,1);
 handles.inputThreshMult.Data = cell(1,handles.UserData.numChannelDisp);
 handles.inputArtefact.Data = cell(handles.UserData.numChannelDisp,1);
@@ -210,15 +210,15 @@ guidata(hObject, handles);
 
 function buttonSaveFeatures_Callback(hObject, eventdata, handles)
 disp(' ')
-try
+% try
     [threshMultStr, signal, signalClassificationInfo, saveFileName, parameters] = onlineClassifierDetectBursts(handles);
     filepath = saveBurstsInfo(signal, signalClassificationInfo, saveFileName, parameters.markBurstInAllChannels);
     getPythonClassifier(filepath);
     handles.inputThreshMult.Data = checkSizeNTranspose(threshMultStr, 1);
-catch
-    popMsg('Error while saving features...');
-    handles.UserData.threshMultStr = '';
-end
+% catch
+%     popMsg('Error while saving features...');
+%     handles.UserData.threshMultStr = '';
+% end
 guidata(hObject, handles);
 
 
@@ -404,6 +404,18 @@ if all(filterCutoffFreq > 0) && sign(diff(filterCutoffFreq)) == -1
 end
 resetAll(hObject, handles);
 
+% --- Executes when selected object is changed in buttonGroupChannelMode.
+function buttonGroupChannelMode_SelectionChangedFcn(hObject, eventdata, handles)
+handles.UserData.numChannelDisp = str2num(hObject.String(1));
+disp([hObject.String, ' has been selected...']);
+resetAll(hObject, handles);
+
+
+% --- Executes when selected object is changed in buttonGroupSMChannel.
+function buttonGroupSMChannel_SelectionChangedFcn(hObject, eventdata, handles)
+handles.UserData.multiChannelFlag = strfind(hObject.String, 'Multi');
+disp([hObject.String, ' has been selected...']);
+resetAll(hObject, handles);
 
 % --- Executes during object deletion, before destroying properties.
 function inputBlankSize_DeleteFcn(hObject, eventdata, handles)
@@ -417,6 +429,7 @@ catch
 end
 
 
+
 %% Private functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function setupUserData(hObject, handles)
@@ -427,7 +440,8 @@ handles.UserData = struct(...
     'stopAll', 0,...
     'multiChannelFlag', 0,...
     'bionicHandConnection',0,...
-    'portHand',sprintf('COM%s', handles.inputCOMPORT.String));
+    'portHand',sprintf('COM%s', handles.inputCOMPORT.String),...
+    'numChannelDisp', 4);
 handles.UserData.chPorts = struct(...
     'Ch1',1340,...
     'Ch2',1341,...
@@ -455,15 +469,33 @@ end
 
 [~, filename] = fileparts(saveFileName{1,1});
 
-% if markBurstInAllChannels
-%     timeStamps = time2string();
-%     for i = 1:numFile
-%         fullfilenameFeature = fullfile(filepath,sprintf('featuresMv%d_%s_%s.csv', signal(i,1).channel(1,i), filename, timeStamps));
-%         fullfilenameClass = fullfile(filepath,sprintf('classMv%d_%s_%s.csv', signal(i,1).channel(1,i), filename, timeStamps));
-% 
-%     end
-% 
-% else
+if markBurstInAllChannels
+    timeStamps = time2string();
+    fullfilenameFeature = fullfile(filepath,sprintf('featuresMC_%s_%s.csv', filename, timeStamps));
+    fullfilenameClass = fullfile(filepath,sprintf('classMC_%s_%s.csv', filename, timeStamps));
+
+    for i = 1:numFile
+        featureStruct = signalClassificationInfo(i,1).features;
+        featureStruct = rmfield(featureStruct, 'dataAnalysed');  % to make it able to build a full table
+        featureTable = struct2table(featureStruct);
+        
+        feature{i,1} = table2array(featureTable(:,featuresForClassification));  % get the target features
+        
+        % get corresponding class
+        class{i,1} = i * ones(size(feature{i,1},1),1);
+    end
+    
+    feature = vertcat(feature{:,1});
+    class = vertcat(class{:,1});
+    
+    % save features and classes
+    csvwrite(fullfilenameFeature, feature)
+    disp(['Saved ', fullfilenameFeature, '...']);
+    csvwrite(fullfilenameClass, class)
+    disp(['Saved ', fullfilenameClass, '...']);
+    
+else
+    
     for i = 1:numFile
         numClass = 2;
         
@@ -493,7 +525,7 @@ end
         csvwrite(fullfilenameClass, class)
         disp(['Saved ', fullfilenameClass, '...']);
     end
-% end
+end
 
 popMsg('Features and Classes saving finished...');
 
@@ -684,10 +716,3 @@ handles.UserData.parameters = parameters;
 handles.UserData.tB = tB;
 
 
-
-
-
-% --- Executes when selected object is changed in buttonGroupChannelMode.
-function buttonGroupChannelMode_SelectionChangedFcn(hObject, eventdata, handles)
-handles.UserData.numChannelDisp = str2num(hObject.String(1));
-resetAll(hObject, handles);
