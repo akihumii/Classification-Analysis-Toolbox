@@ -1,4 +1,4 @@
-function windowsValues = visualizeSignals(signal, signalClassification, parameters, PP)
+function windowsValues = visualizeSignals(signal, signalClassification, rasterLocs, parameters, PP)
 %visualizeSignal Visualize needed signals. Raw, filtered, differential,
 %overlapping windows, average windows, and overall signal with indicated
 %spikes can be plotted.
@@ -222,6 +222,46 @@ if parameters.showCompare || parameters.saveCompare
         end
     end
 end
+
+%% Plot raster plot
+if parameters.saveRaster || parameters.showRaster
+    for i = 1:length(signal)
+        titleFig = ['Raster plot ', signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}];
+        plotRaster(rasterLocs/signal.samplingFreq, signalClassification(i,1).burstDetection.spikeLocs/signal.samplingFreq)
+        title([titleFig, ' (Threshold: ', num2str(parameters.threshold), ')'])
+        
+        if parameters.saveRaster
+            savePlot(signal(i,1).path,'Raster plot', titleFig ,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}])
+        end
+        if ~parameters.showRaster
+            close gcf
+        end
+    end
+end
+
+end
+
+function plotRaster(rasterLocs, spikeLocs)
+[numRowSpikes, numCol] = size(spikeLocs);
+numRowRaster = size(rasterLocs, 1);
+
+% get the y axis matrix for plotting
+ySpikes = repmat(1:numCol, numRowSpikes, 1);
+yRaster = repmat(1:numCol, numRowRaster, 1);
+yRaster = yRaster(:)';
+yRaster = [yRaster-0.05; yRaster+0.05];
+
+% plots
+f = plotFig(spikeLocs, ySpikes, '', 'Raster plot', 'Time (s)', 'Channel', 0, 1, '', 'overlap', 0, 'scatterPlot', [0, numCol+1]);
+hold on
+scatterP = findobj(f, 'Type', 'scatter');
+for i = 1:length(scatterP)
+    scatterP(i,1).SizeData = 100;
+end
+lRaster = plot(repmat(rasterLocs(:)',2,1), yRaster, 'k');
+f.Children = circshift(f.Children,2);
+% lRaster = plot(rasterLocs, yRaster, 'kx', 'MarkerSize', 6);
+legend(lRaster, 'Stimulation')
 end
 
 function [dataNew, channelNew] = bindSyncNCounter(data, parameters, signal)

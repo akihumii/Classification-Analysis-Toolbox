@@ -22,7 +22,7 @@ switch lower(fileType)
             dataTemp = dataTemp';
             data(:,i) = dataTemp(:)*res; % convert to Voltage
             
-            timeIndex = 1:size(data,1);
+            timeIndex = transpose(1:size(data,1));
         end
         
     case 'sylphx'
@@ -36,14 +36,14 @@ switch lower(fileType)
         numTotalChannel = 10;
         data(:,1:numTotalChannel) = data(:,1:numTotalChannel)*res; % convert data to Voltage, keep the counter and sync pulse unchanged
 
-        timeIndex = 1:size(data,1);
+        timeIndex = transpose(1:size(data,1));
         
     case 'intan'
         %% For Intan
         [data, timeIndex, samplingFreq] = readIntan(fullfile(path,files));
         data = data*res;
         data = data'; % make it into structure of [samplePoint x channels]
-        timeIndex = timeIndex*samplingFreq;
+        timeIndex = transpose(timeIndex*samplingFreq);
         
     case 'neutrino'
         %% For Neutrino
@@ -54,7 +54,7 @@ switch lower(fileType)
             convertVoltage = 1.2/1024;
         end
         data = data * convertVoltage; % convert to Voltage
-        timeIndex = 1:size(data,1); 
+        timeIndex = transpose(1:size(data,1)); 
         
     case 'neutrino2'
         %% For Neutrino with bit analysing function
@@ -75,7 +75,7 @@ switch lower(fileType)
         end
         data(:,1:10) = data(:,1:10) * convertVoltage; % convert to Voltage
 
-        timeIndex = 1:size(data,1);
+        timeIndex = transpose(1:size(data,1));
         
 end
 end
