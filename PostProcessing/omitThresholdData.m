@@ -14,7 +14,7 @@ for i = 1:length(signal)
     % find out the deleting indices
     for j = 1:size(locations, 2)
         for k = 1:numBursts
-            deletingIndexCell{k,j} = startingPoint{i,1}(k,j) : endPoint(k,j);
+            deletingIndexCell{k,j} = floor(startingPoint{i,1}(k,j) : endPoint(k,j));
         end
     end
         
@@ -31,6 +31,7 @@ for i = 1:length(signal)
     
     % cut again after the filter artifact has been prevented
     signal(i,1) = deleteCorrespondingIndex(signal(i,1), 'dataRaw', deletingIndexCell, parameters.stitchFlag);
+    signal(i,1) = deleteCorrespondingIndex(signal(i,1), 'dataAll', deletingIndexCell, parameters.stitchFlag);
     signal(i,1) = deleteCorrespondingIndex(signal(i,1), 'time', deletingIndexCell, parameters.stitchFlag);
     signal(i,1) = deleteCorrespondingIndex(signal(i,1), 'dataRectified', deletingIndexCell, parameters.stitchFlag);
     signal(i,1) = deleteCorrespondingIndex(signal(i,1), 'dataFiltered', deletingIndexCell, parameters.stitchFlag);
@@ -69,9 +70,6 @@ data = signal.(dataName);
 if isstruct(signal.(dataName))
     data = data.values;
 end
-if strcmp(dataName, 'time')
-    data = data';
-end
 
 % delete data
 for i = 1:size(data,2)
@@ -90,12 +88,16 @@ for i = 1:size(data,2)
             end
         end        
     else
-        deletingIndexTemp = reshape(cell2nanMat(deletingIndex(:,i)), [], 1);
-        dataTemp{i,1}(deletingIndexTemp) = [];
+        if i <= size(deletingIndex,2)
+            deletingIndexTemp = reshape(cell2nanMat(deletingIndex(:,i)), [], 1);
+        else
+            deletingIndexTemp = reshape(cell2nanMat(deletingIndex(:,1)), [], 1);
+        end
+        dataTemp{i,1}(deletingIndexTemp(~isnan(deletingIndexTemp))) = [];
     end
     
     if strcmp(stitchFlag, 'stitch') && strcmp(dataName, 'time')
-        dataTemp{i,1} = 1:size(dataTemp{i,1}, 1);
+        dataTemp{i,1} = transpose(1:size(dataTemp{i,1}, 1));
     end
 end
 
@@ -103,8 +105,6 @@ end
 % replace the values in signal object
 if isstruct(signal.(dataName))
     signal.(dataName).values = cell2nanMat(dataTemp);
-elseif strcmp(dataName, 'time')
-    signal.(dataName) = cell2nanMat(dataTemp)';
 elseif ~isempty(data)
     signal.(dataName) = cell2nanMat(dataTemp);
 end

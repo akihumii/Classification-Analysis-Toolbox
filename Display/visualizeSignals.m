@@ -248,6 +248,8 @@ numRowRaster = size(rasterLocs, 1);
 % get the y axis matrix for plotting
 ySpikes = repmat(1:numCol, numRowSpikes, 1);
 yRaster = repmat(1:numCol, numRowRaster, 1);
+yRaster = yRaster(:)';
+yRaster = [yRaster-0.05; yRaster+0.05];
 
 % plots
 f = plotFig(spikeLocs, ySpikes, '', 'Raster plot', 'Time (s)', 'Channel', 0, 1, '', 'overlap', 0, 'scatterPlot', [0, numCol+1]);
@@ -256,7 +258,9 @@ scatterP = findobj(f, 'Type', 'scatter');
 for i = 1:length(scatterP)
     scatterP(i,1).SizeData = 100;
 end
-lRaster = plot(rasterLocs, yRaster, 'kx', 'MarkerSize', 6);
+lRaster = plot(repmat(rasterLocs(:)',2,1), yRaster, 'k');
+f.Children = circshift(f.Children,2);
+% lRaster = plot(rasterLocs, yRaster, 'kx', 'MarkerSize', 6);
 legend(lRaster, 'Stimulation')
 end
 
