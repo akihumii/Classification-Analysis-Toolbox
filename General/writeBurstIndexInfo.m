@@ -1,28 +1,44 @@
-function [] = writeBurstIndexInfo(path,channel,type,speed,timing,data)
+function [] = writeBurstIndexInfo(signal,signalClassification,parameters)
 %WRITEBURSTINDEXINFO Write the matrix into the excel file.
-% 
-%   [] = writeBurstIndexInfo(path,title,subtitle,data)
+%
+%   [] = writeBurstIndexInfo(signal,parameters)
 
-switch type
-    case 1
-        typeName = {'delete bursts'};
-    case 2
-        typeName = {'pick bursts'};
-end
+numData = length(signal);
 
-try
-    [num,~,~] = xlsread([path,'info.xlsx']);
-    numCol = size(num,2);
-catch
-    numCol = 0;
+for i = 1:numData
+    switch parameters.burstTrimming
+        case 0
+            break
+        case 1
+            typeName = {'delete bursts'};
+        case 2
+            typeName = {'pick bursts'};
+    end
+    
+    try
+        [num,~,~] = xlsread([signal(i,1).path,'info.xlsx']);
+        numCol = size(num,2);
+        letterFirst = floor(numCol/26);
+        letterLast = mod(numCol,26);
+    catch
+        letterFirst = 0;
+        letterLast = 0;
+    end
+    
+    if letterFirst == 0
+        col = char(letterLast+1+64);
+    else
+        col = [char(letterFirst+64),char(letterLast+1+64)];
+    end
+    
+    xlswrite([signal(i,1).path,'info.xlsx'],typeName, 1, [col,'1']);
+    xlswrite([signal(i,1).path,'info.xlsx'],{['parameters.channel: ',num2str(parameters.channel)]},1,[col,'2']); % parameters.channel
+    if ~isempty(signal(i,1).analysedDataTiming)
+        xlswrite([signal(i,1).path,'info.xlsx'],{checkMatNAddStr(signal(i,1).analysedDataTiming(1,:),' - ',1)},1,[col,'2']); % parameters.channel
+    end
+    xlswrite([signal(i,1).path,'info.xlsx'],{signal(i,1).file(5:8)},1,[col,'3']); % parameters.channel
+    xlswrite([signal(i,1).path,'info.xlsx'],...
+        [cell2nanMat(signalClassification(i,1).burstDetection.selectedBurstsIndex);nan(1,length(signalClassification(i,1).burstDetection.selectedBurstsIndex))],1,[col,'4']);
 end
-
-xlswrite([path,'info.xlsx'],typeName, 1, [char(numCol+1+64),'1']);
-xlswrite([path,'info.xlsx'],{['channel: ',num2str(channel)]},1,[char(numCol+1+64),'2']); % channel
-if ~isempty(timing)
-    xlswrite([path,'info.xlsx'],{checkMatNAddStr(timing(1,:),' - ',1)},1,[char(numCol+2+64),'2']); % channel
-end
-xlswrite([path,'info.xlsx'],{speed},1,[char(numCol+1+64),'3']); % channel
-xlswrite([path,'info.xlsx'],cell2nanMat(data),1,[char(numCol+1+64),'4']);
 
 end

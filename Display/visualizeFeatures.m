@@ -1,4 +1,4 @@
-function [] = visualizeFeatures(iter, path, classifierOutput, featuresInfo, signalInfo, displayInfo, pcaInfo, runPCA)
+function [] = visualizeFeatures(iter, path, classifierOutput, featuresInfo, signalInfo, displayInfo, pcaInfo, parameters)
 %visualizeFeatures Visualize the features, accuracies, feature distribution
 %    [] = visualizeFeatures(iter, path, channel, classificationOutput, featureIndex, accuracyBasicParameter, featuresInfo, titleName, fileName, signalInfo, saveFigures, showFigures, saveSeparatedFigures, showSeparatedFigures, saveHistFit, showHistFit, saveAccuracy, showAccuracy)
  
@@ -23,7 +23,7 @@ switch titleName
         plotFileName = [fileName(1:6),fileName(12:17)];
         xScale = 'Speed';
         xTickValue = cat(1,signalInfo(:,1).fileSpeed);
-    case 'Different Day';
+    case 'Different Day'
         plotFileName = fileName(1:8);
         xScale = 'Week';
         xTickValue = cat(1,signalInfo(:,1).fileDate);
@@ -33,7 +33,7 @@ switch titleName
         xTickValue = [{'non-activated EMG'};{'activated EMG'}];
 end
  
-if runPCA
+if parameters.runPCA
     titleName = [titleName,' with PCA'];
 end
 
@@ -44,7 +44,7 @@ end
  
 %% Plot Accuracy and Synergy
 if displayInfo.showAccuracy || displayInfo.saveAccuracy
-    plotAccuracy(classifierOutput,featureIndex,plotFileName,path,numClass,xScale,xTickValue,displayInfo,numChannel,is2DClassification,channel,titleName);
+    plotAccuracy(classifierOutput,featureIndex,plotFileName,path,numClass,xScale,xTickValue,displayInfo,numChannel,is2DClassification,channel,titleName,parameters.legendName);
 end
  
 %% Plot histogram and distribution

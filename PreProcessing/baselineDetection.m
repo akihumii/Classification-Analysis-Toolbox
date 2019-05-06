@@ -4,11 +4,14 @@ function baseline = baselineDetection(data)
 % 
 % output = array, mean, std
 
-dataSorted = sort(data,1);
+lowCutoff = 0.3;
+highCutoff = 0.7;
+
+dataSorted = sort(data(data~=0),1);
 
 numSample = length(dataSorted);
 
-baselineArray = dataSorted(floor(numSample/4) : floor(numSample*3/4)); 
+baselineArray = dataSorted(floor(numSample * lowCutoff) : floor(numSample * highCutoff)); % get the middle part
 baselineMean = mean(baselineArray); % mean value of the samples that appears the most
 baselineStd = std(baselineArray); % standard deviation of baseline
 

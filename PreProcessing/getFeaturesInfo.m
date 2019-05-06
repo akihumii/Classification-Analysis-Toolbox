@@ -7,18 +7,19 @@ function output = getFeaturesInfo(path,files)
 %
 %   output = getFeaturesInfor(path,files
 
-info = load([path,files]);
+info = load(fullfile(path,files));
 output.saveFileName = files(1:end-4);
 output.signal = info.varargin{1,1};
 output.signalClassification = info.varargin{1,2};
 output.windowsValues = info.varargin{1,3};
+output.parameters = info.varargin{1,4};
 
 output.fileName = output.signal.fileName;
 output.features = output.signalClassification.features;
-% output.fileSpeed{1,1} = output.fileName(7:8);
-% output.fileDate{1,1} = output.fileName(12:17);
-output.fileSpeed{1,1} = files(22:23);
-output.fileDate{1,1} = files(6:13);
+output.fileSpeed{1,1} = files(22:23); % Human Arm
+output.fileDate{1,1} = files(6:13); % Human Arm
+% output.fileSpeed{1,1} = files(5:6); % Rat Treadmill
+% output.fileDate{1,1} = files(10:17); % Rat Treadmill
 
 output.dataFiltered = output.signal.dataFiltered.values;
 output.dataTKEO = output.signal.dataTKEO.values; % signals for discrete classifcation

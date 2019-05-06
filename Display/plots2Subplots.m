@@ -23,8 +23,8 @@ titleName = reshape(titleName,rowSubplot,colSubplot);
 for i = 1:rowSubplot
     for j = 1:colSubplot
         sp(i,j) = subplot(rowSubplot,colSubplot,(i-1)*colSubplot+j);        
-        set(gca,'fontSize',textSize);
-        newSp(i,j) = copyAxes(originalPlots(i,j), sp(i,j), titleName{i,j});
+%         set(gca,'fontSize',textSize);
+        newSp(i,j) = copyAxes(f,originalPlots(i,j), sp(i,j), titleName{i,j});
     end
 end
 
@@ -33,6 +33,7 @@ end
 set(gcf, 'Position', get(0,'Screensize'),'DefaultAxesFontSize',textSize,...
     'PaperPositionMode', 'auto');
 
+delete(plots)
 %% output
 varargout{1,1} = newSp;
 if nargout == 2
