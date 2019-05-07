@@ -471,8 +471,8 @@ end
 
 if markBurstInAllChannels
     timeStamps = time2string();
-    fullfilenameFeature{1,1} = fullfile(filepath,sprintf('featuresMuC_%s_%s.csv', filename, timeStamps));
-    fullfilenameClass{1,1} = fullfile(filepath,sprintf('classMuC_%s_%s.csv', filename, timeStamps));
+    fullfilenameFeature{1,1} = fullfile(filepath,sprintf('featuresCha_%s_%s.csv', filename, timeStamps));
+    fullfilenameClass{1,1} = fullfile(filepath,sprintf('classCha_%s_%s.csv', filename, timeStamps));
     
     fullfilenameFeature{1,1} = strrep(fullfilenameFeature{1,1}, ' ', '_');
     fullfilenameClass{1,1} = strrep(fullfilenameClass{1,1}, ' ', '_');
@@ -562,10 +562,10 @@ cd(cwd)
 
 % get the generated .sav files
 savedClassifierTable = struct2table(savedClassifier);
-if isempty(strfind(fullfilenameFeature{1,1},'Mu'))  % single-channel
-    targetClassifier = savedClassifierTable(~strcmp(savedClassifierTable.name,'classifierChu.sav'),1);
+if isempty(strfind(fullfilenameFeature{1,1},'Cha'))  % single-channel
+    targetClassifier = savedClassifierTable(~strcmp(savedClassifierTable.name,'classifierCha.sav'),1);
 else  % multi-channel
-    targetClassifier = savedClassifierTable(strcmp(savedClassifierTable.name,'classifierChu.sav'),1);    
+    targetClassifier = savedClassifierTable(strcmp(savedClassifierTable.name,'classifierCha.sav'),1);    
 end
 
 for i = 1:length(targetClassifier.name)
