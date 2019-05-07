@@ -212,8 +212,8 @@ function buttonSaveFeatures_Callback(hObject, eventdata, handles)
 disp(' ')
 % try
     [threshMultStr, signal, signalClassificationInfo, saveFileName, parameters] = onlineClassifierDetectBursts(handles);
-    filepath = saveBurstsInfo(signal, signalClassificationInfo, saveFileName, parameters.markBurstInAllChannels);
-    getPythonClassifier(filepath);
+    [fullfilenameFeature, fullfilenameClass] = saveBurstsInfo(signal, signalClassificationInfo, saveFileName, parameters.markBurstInAllChannels);
+    getPythonClassifier(fullfilenameFeature, fullfilenameClass);
     handles.inputThreshMult.Data = checkSizeNTranspose(threshMultStr, 1);
 % catch
 %     popMsg('Error while saving features...');
@@ -413,7 +413,7 @@ resetAll(hObject, handles);
 
 % --- Executes when selected object is changed in buttonGroupSMChannel.
 function buttonGroupSMChannel_SelectionChangedFcn(hObject, eventdata, handles)
-handles.UserData.multiChannelFlag = strfind(hObject.String, 'Multi');
+handles.UserData.multiChannelFlag = ~isempty(strfind(hObject.String, 'Multi'));
 disp([hObject.String, ' has been selected...']);
 resetAll(hObject, handles);
 
@@ -456,7 +456,7 @@ handles.UserData.chPorts = struct(...
 
 guidata(hObject, handles);
 
-function filepath = saveBurstsInfo(signal, signalClassificationInfo, saveFileName, markBurstInAllChannels)
+function [fullfilenameFeature, fullfilenameClass] = saveBurstsInfo(signal, signalClassificationInfo, saveFileName, markBurstInAllChannels)
 featuresForClassification = [5,8];  % selected features for classification        
 numFile = length(signalClassificationInfo);
 
@@ -471,8 +471,11 @@ end
 
 if markBurstInAllChannels
     timeStamps = time2string();
-    fullfilenameFeature = fullfile(filepath,sprintf('featuresMC_%s_%s.csv', filename, timeStamps));
-    fullfilenameClass = fullfile(filepath,sprintf('classMC_%s_%s.csv', filename, timeStamps));
+    fullfilenameFeature{1,1} = fullfile(filepath,sprintf('featuresMuC_%s_%s.csv', filename, timeStamps));
+    fullfilenameClass{1,1} = fullfile(filepath,sprintf('classMuC_%s_%s.csv', filename, timeStamps));
+    
+    fullfilenameFeature{1,1} = strrep(fullfilenameFeature{1,1}, ' ', '_');
+    fullfilenameClass{1,1} = strrep(fullfilenameClass{1,1}, ' ', '_');
 
     for i = 1:numFile
         featureStruct = signalClassificationInfo(i,1).features;
@@ -489,10 +492,10 @@ if markBurstInAllChannels
     class = vertcat(class{:,1});
     
     % save features and classes
-    csvwrite(fullfilenameFeature, feature)
-    disp(['Saved ', fullfilenameFeature, '...']);
-    csvwrite(fullfilenameClass, class)
-    disp(['Saved ', fullfilenameClass, '...']);
+    csvwrite(fullfilenameFeature{1,1}, feature)
+    disp(['Saved ', fullfilenameFeature{1,1}, '...']);
+    csvwrite(fullfilenameClass{1,1}, class)
+    disp(['Saved ', fullfilenameClass{1,1}, '...']);
     
 else
     
@@ -500,9 +503,12 @@ else
         numClass = 2;
         
         timeStamps = time2string();
-        fullfilenameFeature = fullfile(filepath,sprintf('featuresCh%d_%s_%s.csv', signal(i,1).channel(1,i), filename, timeStamps));
-        fullfilenameClass = fullfile(filepath,sprintf('classCh%d_%s_%s.csv', signal(i,1).channel(1,i), filename, timeStamps));
+        fullfilenameFeature{i,1} = fullfile(filepath,sprintf('featuresCh%d_%s_%s.csv', signal(i,1).channel(1,i), filename, timeStamps));
+        fullfilenameClass{i,1} = fullfile(filepath,sprintf('classCh%d_%s_%s.csv', signal(i,1).channel(1,i), filename, timeStamps));
         
+        fullfilenameFeature{i,1} = strrep(fullfilenameFeature{i,1}, ' ', '_');
+        fullfilenameClass{i,1} = strrep(fullfilenameClass{i,1}, ' ', '_');
+
         featureStruct = signalClassificationInfo(i,1).features;
         featureStruct = rmfield(featureStruct, 'dataAnalysed');  % to make it able to build a full table
         featureTable = struct2table(featureStruct);
@@ -520,33 +526,52 @@ else
         end
         
         % save features and classes
-        csvwrite(fullfilenameFeature, feature)
-        disp(['Saved ', fullfilenameFeature, '...']);
-        csvwrite(fullfilenameClass, class)
-        disp(['Saved ', fullfilenameClass, '...']);
+        csvwrite(fullfilenameFeature{i,1}, feature)
+        disp(['Saved ', fullfilenameFeature{i,1}, '...']);
+        csvwrite(fullfilenameClass{i,1}, class)
+        disp(['Saved ', fullfilenameClass{i,1}, '...']);
     end
 end
 
 popMsg('Features and Classes saving finished...');
 
 
-function getPythonClassifier(filepath)
+function getPythonClassifier(fullfilenameFeature, fullfilenameClass)
+% clear all the existing saved classifiers
+% cwd = pwd;
+% cd(fileparts(fullfilenameFeature{1,1}))
+% savedClassifier = dir('*.sav');  % get all the saved classifier
+% for i = 1:length(savedClassifier)
+%     delete(savedClassifier(i,1).name)
+% end
+
 % train python classifier
-systemCmd = sprintf('python %s %s', fullfile('C:', 'classificationTraining.py'), filepath);
-system(systemCmd)
+for i = 1:length(fullfilenameFeature)
+    systemCmd = sprintf('python %s %s %s', fullfile('C:', 'classification_training.py'), fullfilenameFeature{i,1}, fullfilenameClass{i,1});
+    system(systemCmd)
+end
 
 popMsg('Saved Classifier...');
 
 % transfer classifier to rpi
 cwd = pwd;
+filepath = fileparts(fullfilenameFeature{1,1});
 cd(filepath)
 savedClassifier = dir('*.sav');  % get all the saved classifier
 cd(cwd)
 
-for i = 1:length(savedClassifier)
+% get the generated .sav files
+savedClassifierTable = struct2table(savedClassifier);
+if isempty(strfind(fullfilenameFeature{1,1},'Mu'))  % single-channel
+    targetClassifier = savedClassifierTable(~strcmp(savedClassifierTable.name,'classifierChu.sav'),1);
+else  % multi-channel
+    targetClassifier = savedClassifierTable(strcmp(savedClassifierTable.name,'classifierChu.sav'),1);    
+end
+
+for i = 1:length(targetClassifier.name)
     % IMPORTANT! download pscp in order to use this command
     try  % for Windows
-        systemCmd = sprintf('pscp -pw raspberry -scp %s pi@192.168.4.3:~/classificationTmp/', fullfile(filepath, savedClassifier(i,1).name));
+        systemCmd = sprintf('pscp -pw raspberry -scp %s pi@192.168.4.3:~/classificationTmp/', fullfile(filepath, targetClassifier(i,1).name{1,1}));
         status = system(systemCmd);
         if ~status  % failed to transfer
             popMsg('Successfully transfered file...');
@@ -556,7 +581,7 @@ for i = 1:length(savedClassifier)
         end
     catch
         try  % for Linux
-            systemCmd = sprintf('sshpass -p raspberry scp %s pi@192.168.4.3:~/classificationTmp/', fullfile(filepath, savedClassifier(i,1).name));
+            systemCmd = sprintf('sshpass -p raspberry scp %s pi@192.168.4.3:~/classificationTmp/', fullfile(filepath, targetClassifier(i,1).name{1,1}));
             system(systemCmd)
         catch
             popMsg('failed to transfer file...')
@@ -564,7 +589,6 @@ for i = 1:length(savedClassifier)
         end
     end
 end
-
 
 
 function resetAll(hObject, handles)
