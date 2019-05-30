@@ -37,16 +37,16 @@ end
 titleRaw = 'Raw Signal';
 if parameters.saveRaw || parameters.showRaw
     for i = 1:length(signal)
-        [dataTemp, channelTemp] = bindSyncNCounter(PP.rawYMult*signal(i,1).dataRaw, parameters, signal(i,1));
-        plotFig(signal(i,1).time/signal(i,1).samplingFreq,dataTemp,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],titleRaw,'Time (s)','Amplitude (V)',parameters.saveRaw,parameters.showRaw,signal(i,1).path,'subplot', channelTemp, 'linePlot', PP.rawYLimit);
+        [dataTemp, channelTemp, timeTemp] = bindSyncNCounter(PP.rawYMult*signal(i,1).dataRaw, parameters, signal(i,1));
+        plotFig(timeTemp/signal(i,1).samplingFreq,dataTemp,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],titleRaw,'Time (s)','Amplitude (V)',parameters.saveRaw,parameters.showRaw,signal(i,1).path,'subplot', channelTemp, 'linePlot', PP.rawYLimit);
     end
 end
 
 %% Plot rectified signal
 if parameters.saveRectified || parameters.showRectified
     for i = 1:length(signal)
-        [dataTemp, channelTemp] = bindSyncNCounter(signal(i,1).dataRectified, parameters, signal(i,1));
-        plotFig(signal(i,1).time/signal(i,1).samplingFreq,dataTemp,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],'Rectified Signal (High Pass Filtered 1 Hz)','Time (s)','Amplitude (V)',parameters.saveRectified,parameters.showRectified,signal(i,1).path,'subplot', signal(i,1).channelTemp);
+        [dataTemp, ~, timeTemp] = bindSyncNCounter(signal(i,1).dataRectified, parameters, signal(i,1));
+        plotFig(timeTemp/signal(i,1).samplingFreq,dataTemp,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],'Rectified Signal (High Pass Filtered 1 Hz)','Time (s)','Amplitude (V)',parameters.saveRectified,parameters.showRectified,signal(i,1).path,'subplot', signal(i,1).channelTemp);
     end
 end
 
@@ -58,8 +58,8 @@ if parameters.saveDifferential || parameters.showDifferential
                 warning('ChannelRef is not keyed in...')
             end
         else
-            [dataTemp, channelTemp] = bindSyncNCounter(signal(i,1).dataDifferential, parameters, signal(i,1));
-            plotFig(signal(i,1).time/signal(i,1).samplingFreq,dataTemp,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],'Differential Signal Channel','Time(s)','Amplitude (V)',parameters.saveDifferential,parameters.showDifferential,signal(i,1).path,'subplot', channelTemp);
+            [dataTemp, channelTemp, timeTemp] = bindSyncNCounter(signal(i,1).dataDifferential, parameters, signal(i,1));
+            plotFig(timeTemp/signal(i,1).samplingFreq,dataTemp,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],'Differential Signal Channel','Time(s)','Amplitude (V)',parameters.saveDifferential,parameters.showDifferential,signal(i,1).path,'subplot', channelTemp);
         end
     end
 end
@@ -69,8 +69,8 @@ titleFiltered = ['Filtered Signal (', num2str(signal(i,1).dataFiltered.highPassC
 if parameters.saveFilt || parameters.showFilt
     if signal(i,1).dataFiltered.highPassCutoffFreq ~= 0 || signal(i,1).dataFiltered.lowPassCutoffFreq ~= 0 || signal(i,1).dataFiltered.notchFreq ~= 0
         for i = 1:length(signal)
-            [dataTemp, channelTemp] = bindSyncNCounter(PP.filteredYMult*signal(i,1).dataFiltered.values, parameters, signal(i,1));
-            plotFig(signal(i,1).time/signal(i,1).samplingFreq,dataTemp,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],titleFiltered,'Time (s)',['Amplitude (',PP.filteredYUnit,')'],parameters.saveFilt,parameters.showFilt,signal(i,1).path,'subplot', channelTemp,'linePlot',PP.filteredYLimit);
+            [dataTemp, channelTemp, timeTemp] = bindSyncNCounter(PP.filteredYMult*signal(i,1).dataFiltered.values, parameters, signal(i,1));
+            plotFig(timeTemp/signal(i,1).samplingFreq,dataTemp,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],titleFiltered,'Time (s)',['Amplitude (',PP.filteredYUnit,')'],parameters.saveFilt,parameters.showFilt,signal(i,1).path,'subplot', channelTemp,'linePlot',PP.filteredYLimit);
         end
     end
 end
@@ -78,7 +78,7 @@ end
 %% Plot FFT signal
 if parameters.saveFFT || parameters.showFFT
     for i = 1:length(signal)
-        [dataTemp, channelTemp] = bindSyncNCounter(signal(i,1).dataFFT.values, parameters, signal(i,1));
+        [dataTemp, channelTemp, ~] = bindSyncNCounter(signal(i,1).dataFFT.values, parameters, signal(i,1));
         plotFig(signal(i,1).dataFFT.freqDomain,dataTemp,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],[signal(i,1).dataFFT.dataBeingProcessed,' FFT Signal'],'Frequency (Hz)','Amplitude',parameters.saveFFT,parameters.showFFT,signal(i,1).path,'subplot', channelTemp);
     end
 end
@@ -141,8 +141,8 @@ else
         
         % plot overall signal with spikes indicated
         if parameters.showOverlap || parameters.saveOverlap
-            [dataTemp, channelTemp] = bindSyncNCounter(PP.overallYMult*dataValues, parameters, signal(i,1));
-            overallP = plotFig(signal(i,1).time/signal(i,1).samplingFreq,dataTemp,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],['Overall Signal with Spikes Indicated (', dataName, ')'],'Time(s)',['Amplitude (',PP.overallYUnit,')'],...
+            [dataTemp, channelTemp, timeTemp] = bindSyncNCounter(PP.overallYMult*dataValues, parameters, signal(i,1));
+            overallP = plotFig(timeTemp/signal(i,1).samplingFreq,dataTemp,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],['Overall Signal with Spikes Indicated (', dataName, ')'],'Time(s)',['Amplitude (',PP.overallYUnit,')'],...
                 0,... % save
                 1,... % show
                 signal(i,1).path,'subplot', channelTemp,'linePlot',PP.overallYLimit);
@@ -264,7 +264,7 @@ f.Children = circshift(f.Children,2);
 legend(lRaster, 'Stimulation')
 end
 
-function [dataNew, channelNew] = bindSyncNCounter(data, parameters, signal)
+function [dataNew, channelNew, timeNew] = bindSyncNCounter(data, parameters, signal)
 dataNew = data;
 channelNew = signal.channel;
 if parameters.showSyncPulse
@@ -283,6 +283,7 @@ if parameters.showCounter
          channelNew = [channelNew, repmat(200,size(channelNew,2))];
     end
 end
+timeNew = repmat(signal.time(:,1),1,size(dataNew,2));
 end
 
 function output = getAxisMultiplier(unit)
