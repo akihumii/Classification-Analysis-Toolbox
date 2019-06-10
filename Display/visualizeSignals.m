@@ -23,24 +23,28 @@ end
 if ~saveRaw && ~showRaw
 else
     for i = 1:length(signal)
-        if ~isequal(signal(i,1).fileType,'odin')
-            plotFig(signal(i,1).time/signal(i,1).samplingFreq,signal(i,1).dataRaw,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],'Raw Signal','Time(s)','Amplitude(V)',...
-                saveRaw,... % save
-                showRaw,... % show
-                signal(i,1).path,'subplot', signal(i,1).channel);
-        else
             % Generate square pulse
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%            
             %% Plotting
+            plotAddressFlag = ismember(13, signal(i,1).channel);
             outputSW = generateSquarePulse(signal(i,1).dataAll(:,[13:15]), signal(i,1).samplingFreq, odinparam); 
             shortTimeTemp = repmat(signal(i,1).time/signal(i,1).samplingFreq,length(signal(i,1).channel(signal(i,1).channel<16)),1);
             timeTemp = cell(0,1);
             dataTemp = cell(0,1);
+            numChannels = length(signal(i,1).channel);
             for j = 1:size(shortTimeTemp,1)
                 timeTemp = [timeTemp;{shortTimeTemp(j,:)}];
-                dataTemp = [dataTemp;{signal(i,1).dataRaw(:,j)}];
+                switch odinparam.plotData
+                    case 'dataRaw'
+                        dataTemp = [dataTemp;{signal(i,1).dataRaw(:,j)}];
+                    case 'dataFiltered'
+                        dataTemp = [dataTemp;{signal(i,1).dataFiltered.values}];
+                    otherwise
+                        error('Invalid odinparam.plotData...')
+                end
             end
             
+            % plot stimulation
             if odinparam.squareAmplitudePlot
                 for j = 1:size(outputSW.squareWave,2)
                     timeTemp = [timeTemp;{outputSW.squareWaveTime}];
@@ -54,10 +58,10 @@ else
             timeTemp = cell2nanMat(timeTemp);
             dataTemp = cell2nanMat(dataTemp);
             
-            pSW = plotFig(timeTemp,dataTemp,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],'Raw Signal','Time(s)','Newton(N)',...
+            pSW = plotFig(timeTemp,dataTemp,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],'Raw Signal','Time(s)',odinparam.ylabel,...
                 saveRaw,... % save
                 showRaw,... % show
-                signal(i,1).path,'subplot', [signal(i,1).channel,1:4]);
+                signal(i,1).path,'subplot', [signal(i,1).channel, signal(i,1).channel(~ismember(signal(i,1).channel, [13,14]))]);
             
             % plot lines
             colorArray = [0,0.4470,0.7410;0.8500,0.3250,0.0980;0.9290,0.6940,0.1250;0.4940,0.1840,0.5560;0.4660,0.6740,0.1880;0.3010,0.7450,0.9330;0.6350,0.0780,0.1840;0,0,0];
@@ -76,15 +80,17 @@ else
             end
             
             % Replot 2nd subplot
-            axes(pSW(2,1))
-            plot(pSW(2,1).Children(end,1).XData,pSW(2,1).Children(end,1).YData,'Color','k');
-
-            % Add lines into the plots except the simulation plots
-            numLines = size(outputSW.changeLocs,1);
+            if plotAddressFlag
+                axes(pSW(2,1))
+                plot(pSW(2,1).Children(end,1).XData,pSW(2,1).Children(end,1).YData,'Color','k');
+            end
             
-            for j = 1:numPlot-odinparam.squareAmplitudePlot*4                
+            % Add lines into the plots except the simulation plots
+%             numLines = size(outputSW.changeLocs,1);
+            
+            for j = 1:numChannels
                 axes(pSW(j,1));
-                if j == 2
+                if plotAddressFlag && j == 2
                     ylim([0,300])
                 end
                 yLimit = ylim;
@@ -95,58 +101,66 @@ else
 %                 plot(repmat(outputSW.chEndTime(:,1)',2,1),ylim,'-.','color',colorArray(1,:),'lineWidth',1.5);
 
                 % start channels colorful lines
-                for k = 1:4
-                    if ~isempty(outputSW.chStartingTime(:,k)')
-                        line{k,j} = plot(repmat(outputSW.chStartingTime(:,k)',2,1),ylim,'-.','color',colorArray(k,:),'lineWidth',1.5);
-                        plot(repmat(outputSW.chEndTime(:,k)',2,1),ylim,'-.','color',colorArray(k,:),'lineWidth',1.5);
-                    else
-                        line{k,j} = [];
+                if any(ismember([13,14], signal(i,1).channel(j)))
+                    for k = 1:length(odinparam.chStartingRef)
+                        if ~isempty(outputSW.chStartingTime(:,k)')
+                            plot(repmat(outputSW.chStartingTime(:,k)',2,1),ylim,'-.','color',colorArray(k,:),'lineWidth',1.5);
+                            plot(repmat(outputSW.chEndTime(:,k)',2,1),ylim,'-.','color',colorArray(k,:),'lineWidth',1.5);
+                        end
                     end
+                else
+                    plot(repmat(outputSW.chStartingTime(:,j)',2,1),ylim,'-.','color',colorArray(j,:),'lineWidth',1.5);
+                    plot(repmat(outputSW.chEndTime(:,j)',2,1),ylim,'-.','color',colorArray(j,:),'lineWidth',1.5);
                 end
                 
-                if numLines > 0
-                    % changing amplitude lines
-                    lineAmp{j,1} = plot(repmat(outputSW.changeLocsTime(:,1)',2,1),ylim,'-.','color',[0,100/255,0],'lineWidth',1.5);
-                    
-                    % Text
-                    for k = 1:numLines
-                        text(repmat(outputSW.changeLocsTime(k,1)',2,1)+1e-3,repmat(yLimit(1),1,2),num2str(outputSW.amplitude(k,1)));
-                    end
-                end
-                
+%                 if numLines > 0
+%                     % changing amplitude lines
+% %                     lineAmp{j,1} = plot(repmat(outputSW.changeLocsTime(:,1)',2,1),ylim,'-.','color',[0,100/255,0],'lineWidth',1.5);
+%                     
+%                     % Text
+%                     for k = 1:numLines
+%                         text(repmat(outputSW.changeLocsTime(k,1)',2,1)+1e-3,repmat(yLimit(1),1,2),num2str(outputSW.amplitude(k,1)));
+%                     end
+%                 end
             end
             
             
 %             for j = 1:numPlot-2 % pressure sensor plot
-                axes(pSW(1))
-                pHorzLine = plot(xlim,[odinparam.horzLineValue,odinparam.horzLineValue], 'k'); % plot a threshold
+                if ~isnan(odinparam.horzLineValue)
+                    axes(pSW(1))
+                    pHorzLine = plot(xlim,[odinparam.horzLineValue,odinparam.horzLineValue], 'k'); % plot a threshold
+                end
 %                 legend(pHorzLine,'threshold');
 %             end
             
-            for j = numPlot-1 : numPlot % to select sync pulses plots when no channels plots showing
-                axes(pSW(j))
-                ylabel('Decimal Value')
+            if plotAddressFlag
+                for j = numPlot-1 : numPlot % to select sync pulses plots when no channels plots showing
+                    axes(pSW(j))
+                    ylabel('Decimal Value')
+                end
             end
-            
+
             if odinparam.squareAmplitudePlot % channel plots
-                for j = length(pSW)-4+1 : length(pSW)
+                for j = numChannels+1 : length(pSW)
                     axes(pSW(j,1));
                     grid minor;
-                    set(pSW(j,1).Children,'color',colorArray(j-(length(pSW)-4),:));
+                    set(pSW(j,1).Children,'color',colorArray(j-numChannels,:));
+                    ylabel('Amplitudes (mA)')
+                    title(sprintf('Current Amplitudes channel %d', signal(i,1).channel(j-numChannels)))
                 end
             end
             
-            axes(pSW(2,1))
-            
-            for j = 1:size(line,1)
-                if ~isempty(line{j,2})
-                    legendLine(j,1) = line{j,2}(1,1);
-                end
-            end
-            if ~isempty(line{1,2})
-                legend(legendLine,odinparam.legendName(1:length(odinparam.chStartingRef)));
-            end
-        end
+            % Legend the plots
+%             axes(pSW(2,1))
+%             
+%             for j = 1:size(line,1)
+%                 if ~isempty(line{j,2})
+%                     legendLine(j,1) = line{j,2}(1,1);
+%                 end
+%             end
+%             if ~isempty(line{1,2})
+%                 legend(legendLine,odinparam.legendName(1:length(odinparam.chStartingRef)));
+%             end
     end
 end
 

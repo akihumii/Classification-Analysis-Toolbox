@@ -10,40 +10,42 @@ clear
 
 %% User's Input
 % General Parameters
-dataType = 'odin'; % configurable types: ,'neutrino2','neutrino', 'intan', 'sylphx', 'sylphii'
-channel = [4,13,14]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
+dataType = 'sylphx'; % configurable types: ,'neutrino2','neutrino', 'intan', 'sylphx', 'sylphii'
+channel = [5,13,14]; % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
 channelPair = [0]; % input the pairs seperated in rows, eg:[1,2;3,4] means 1 pairs with 2 and 3 pairs with 4; input 0 if no differential data is needed.
-samplingFreq = 0; % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 1798.2, sylphII: 1798.2)
+samplingFreq = 1250; % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 1798.2, sylphII: 1798.2)
 neutrinoInputReferred = 0; % input 1 to check input refer, otherwise input 0
 neutrinoBit = 1; % input 1 for 8 bit mode, input 0 for 10 bit mode
 partialDataSelection = 0; % input 1 to select partial data to analyse, otherwise input 0
-constraintWindow = [-0.300750000000000,6.90490000000000]; % starting point and end point of constraint window, unit is in seconds. Input 0 for default (pre-select the whole signal). It can be found in signal.analysedDataTiming(2,:), the first row is the timing in seconds
+constraintWindow = [3,6.90490000000000]; % starting point and end point of constraint window, unit is in seconds. Input 0 for default (pre-select the whole signal). It can be found in signal.analysedDataTiming(2,:), the first row is the timing in seconds
 
 %     'specialNumbers',[241,242,243,244],... % special number for inspecting
         
 % Odin Parameters
 odinparam = struct(...
-    'horzLineValue',0,... % plot a threshold on pressure sensor plot
-    'chStartingRef',[241,242,243,244],... % for generateSquarePulse
-    'squareAmplitudePlot',0,...
+    'horzLineValue',nan,... % plot a threshold on pressure sensor plot
+    'chStartingRef', 242,... % [241,242,243,244],... % for generateSquarePulse
+    'squareAmplitudePlot',1,...
     'plotStem',0,...
+    'plotData', 'dataRaw',...  % either 'dataRaw' or 'dataFiltered'
     ...
     'pulsePeriod',1/50,... % seconds
     'pulseDuration',200e-6,... % seconds
     'intraGap',22e-6,... % seconds
     'interPulseFromDiffChannelDelay',0.71e-3,... % seconds
+    'ylabel', 'Amplitudes (V)',...
     'constantConversion',[0.0052, 12.885, -7.0055]);
 
-if length(odinparam.chStartingRef) == 1
-    odinparam.chStartingRef = repmat(odinparam.chStartingRef,4);
-end
+% if length(odinparam.chStartingRef) == 1
+%     odinparam.chStartingRef = repmat(odinparam.chStartingRef,4);
+% end
 
 odinparam.legendName = {'Ch0'; 'Ch1'; 'Ch2'; 'Ch3'; 'Up'; 'Down'; 'Enable'; 'Threshold'};        
 % specialNumbers = [16,17,18,19,81,82,65,97]; % special number for inspecting
 
 % Filtering Parameters
 dataToBeFiltered = 'dataRaw'; % input 'dataRaw' for raw data; input 'dataDifferential' for differential data; input 'dataRectified' for rectified data
-highPassCutoffFreq = 30; % high pass cutoff frequency, input 0 if not applied
+highPassCutoffFreq = 100; % high pass cutoff frequency, input 0 if not applied
 lowPassCutoffFreq = 500; % low pass cutoff frequency, input 0 if not applied
 notchFreq = 50; % notch frequency, input 0 if not applied
 downSamplingFreq = 0; % down sampling the data to the sampling rate of downSamplingFrequency; input 0 to deactivate
@@ -101,7 +103,7 @@ disp([num2str(toc),' seconds is used for classification preparation...'])
 disp(' ')
 
 %% Plot selected windows
-close all
+% close all
 
 tic
 windowsValues = visualizeSignals(signal, signalClassification, odinparam, overlappedWindow, windowSize, partialDataSelection, channelExtractStartingLocs, dataToBeDetectedSpike, saveRaw, showRaw, saveDifferential, showDifferential, saveRectified, showRectified, saveFilt, showFilt, saveOverlap, showOverlap, saveFFT, showFFT);

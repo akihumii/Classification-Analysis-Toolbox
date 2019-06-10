@@ -9,7 +9,11 @@ data = zeros(dataLength,1); % initiate square wave with zeros
 pulseStartingPoint = 1:pulsePeriod:dataLength;
 numPulses = length(pulseStartingPoint);
 
-pulse = [-amplitude*ones(pulseDuration,1); zeros(intraGap,1); amplitude*ones(pulseDuration,1)]; % single pulse shape
+if intraGap >= 1
+    pulse = [-amplitude*ones(pulseDuration,1); zeros(intraGap,1); amplitude*ones(pulseDuration,1)]; % single pulse shape
+else
+    pulse = [-amplitude*ones(pulseDuration,1); amplitude*ones(pulseDuration,1)]; % single pulse shape
+end
 lengthPulse = length(pulse); % in sample points
 
 for i = 1:numPulses

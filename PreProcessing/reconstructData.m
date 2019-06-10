@@ -7,8 +7,8 @@ function [data, time] = reconstructData(files, path, fileType, neutrinoBit, neut
 % 
 %   [data, time] = reconstructData(files, path, fileType, neutrinoBit, neutrinoInputRefer)
 
-% res = 0.000000195; % V/unit
-res = 0.00195;
+res = 0.000000195; % V/unit
+% res = 0.00195;
 % res = 2/1024; % 
 
 if nargin < 4
