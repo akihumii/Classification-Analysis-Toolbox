@@ -210,15 +210,15 @@ guidata(hObject, handles);
 
 function buttonSaveFeatures_Callback(hObject, eventdata, handles)
 disp(' ')
-% try
+try
     [threshMultStr, signal, signalClassificationInfo, saveFileName, parameters] = onlineClassifierDetectBursts(handles);
     [fullfilenameFeature, fullfilenameClass] = saveBurstsInfo(signal, signalClassificationInfo, saveFileName, parameters.markBurstInAllChannels);
     getPythonClassifier(fullfilenameFeature, fullfilenameClass);
     handles.inputThreshMult.Data = checkSizeNTranspose(threshMultStr, 1);
-% catch
-%     popMsg('Error while saving features...');
-%     handles.UserData.threshMultStr = '';
-% end
+catch
+    popMsg('Error while saving features...');
+    handles.UserData.threshMultStr = '';
+end
 guidata(hObject, handles);
 
 
@@ -558,25 +558,40 @@ cwd = pwd;
 filepath = fileparts(fullfilenameFeature{1,1});
 cd(filepath)
 savedClassifier = dir('*.sav');  % get all the saved classifier
+savedNorm = dir('norms*');
 cd(cwd)
 
 % get the generated .sav files
 savedClassifierTable = struct2table(savedClassifier);
+savedNormTable = struct2table(savedNorm);
 if isempty(strfind(fullfilenameFeature{1,1},'Cha'))  % single-channel
     targetClassifier = savedClassifierTable(~strcmp(savedClassifierTable.name,'classifierCha.sav'),1);
+    targetNorm = savedNormTable(~strcmp(savedNormTable.name,'normsCha.csv'),1);
 else  % multi-channel
-    targetClassifier = savedClassifierTable(strcmp(savedClassifierTable.name,'classifierCha.sav'),1);    
+    targetClassifier = savedClassifierTable(strcmp(savedClassifierTable.name,'classifierCha.sav'),1);
+    targetNorm = savedNormTable(strcmp(savedNormTable.name,'normsCha.csv'),1);
 end
 
 for i = 1:length(targetClassifier.name)
     % IMPORTANT! download pscp in order to use this command
     try  % for Windows
+        % transfer classifier
         systemCmd = sprintf('pscp -pw raspberry -scp %s pi@192.168.4.3:~/classificationTmp/', fullfile(filepath, targetClassifier(i,1).name{1,1}));
         status = system(systemCmd);
         if ~status  % failed to transfer
-            popMsg('Successfully transfered file...');
+            popMsg('Successfully transfered classifiers...');
         else
-            popMsg('failed to transfer file...');
+            popMsg('failed to transfer classifiers...');
+            break
+        end
+        
+        % transfer norms
+        systemCmd = sprintf('pscp -pw raspberry -scp %s pi@192.168.4.3:~/classificationTmp/', fullfile(filepath, targetNorm(i,1).name{1,1}));
+        status = system(systemCmd);
+        if ~status  % failed to transfer
+            popMsg('Successfully transfered norms...');
+        else
+            popMsg('failed to transfer norms...');
             break
         end
     catch
@@ -584,12 +599,18 @@ for i = 1:length(targetClassifier.name)
             systemCmd = sprintf('sshpass -p raspberry scp %s pi@192.168.4.3:~/classificationTmp/', fullfile(filepath, targetClassifier(i,1).name{1,1}));
             system(systemCmd)
         catch
-            popMsg('failed to transfer file...')
+            popMsg('failed to transfer classifiers...')
+            break
+        end
+        try  % for Linux
+            systemCmd = sprintf('sshpass -p raspberry scp %s pi@192.168.4.3:~/classificationTmp/', fullfile(filepath, targetNorm(i,1).name{1,1}));
+            system(systemCmd)
+        catch
+            popMsg('failed to transfer norms...')
             break
         end
     end
 end
-
 
 function resetAll(hObject, handles)
 disp('Program stopped...')
