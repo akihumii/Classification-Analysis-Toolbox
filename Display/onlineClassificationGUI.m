@@ -215,6 +215,7 @@ try
     [fullfilenameFeature, fullfilenameClass] = saveBurstsInfo(signal, signalClassificationInfo, saveFileName, parameters.markBurstInAllChannels);
     getPythonClassifier(fullfilenameFeature, fullfilenameClass);
     handles.inputThreshMult.Data = checkSizeNTranspose(threshMultStr, 1);
+    popMsg('Finished feature saving...');
 catch
     popMsg('Error while saving features...');
     handles.UserData.threshMultStr = '';
@@ -520,9 +521,11 @@ else
         
         % get corresponding class
         class = [];
+        count = numClass-1;
         for j = 1:numClass
             featureTemp = featureRaw(:,j);
-            class = vertcat(class, repmat(j, sum(all([~isnan(featureTemp), featureTemp ~= 0], 2)), 1));
+            class = vertcat(class, repmat(j+count, sum(all([~isnan(featureTemp), featureTemp ~= 0], 2)), 1));
+            count = count - 2;
         end
         
         % save features and classes
