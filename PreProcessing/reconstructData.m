@@ -38,6 +38,11 @@ switch lower(fileType)
 
         timeIndex = transpose(1:size(data,1));
         
+    case 'raw'
+        data = csvread(fullfile(path,files));
+        
+        timeIndex = transpose(1:size(data,1));
+        
     case 'intan'
         %% For Intan
         [data, timeIndex, samplingFreq] = readIntan(fullfile(path,files));
