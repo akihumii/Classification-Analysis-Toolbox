@@ -39,7 +39,7 @@ switch lower(fileType)
         timeIndex = transpose(1:size(data,1));
         
     case 'raw'
-        data = csvread(fullfile(path,files));
+        data = csvread(fullfile(path,files),1,0);
         
         timeIndex = transpose(1:size(data,1));
         
