@@ -567,37 +567,52 @@ cd(cwd)
 % get the generated .sav files
 savedClassifierTable = struct2table(savedClassifier);
 savedNormTable = struct2table(savedNorm);
-if isempty(strfind(fullfilenameFeature{1,1},'Cha'))  % single-channel
+
+singleChannelFlag = isempty(strfind(fullfilenameFeature{1,1},'Cha'));
+if singleChannelFlag  % single-channel
     targetClassifier = savedClassifierTable(~strcmp(savedClassifierTable.name,'classifierCha.sav'),1);
     targetNorm = savedNormTable(~strcmp(savedNormTable.name,'normsCha.csv'),1);
+    numClassifier = length(targetClassifier.name);
 else  % multi-channel
     targetClassifier = savedClassifierTable(strcmp(savedClassifierTable.name,'classifierCha.sav'),1);
     targetNorm = savedNormTable(strcmp(savedNormTable.name,'normsCha.csv'),1);
+    numClassifier = 1;
 end
 
-for i = 1:length(targetClassifier.name)
+for i = 1:numClassifier
     % IMPORTANT! download pscp in order to use this command
     try  % for Windows
         % transfer classifier
-        systemCmd = sprintf('pscp -pw raspberry -scp %s pi@192.168.4.3:~/classificationTmp/', fullfile(filepath, targetClassifier(i,1).name{1,1}));
+        if singleChannelFlag
+            targetClassifierFilename = fullfile(filepath, targetClassifier(i,1).name{1,1});
+        else
+            targetClassifierFilename = fullfile(filepath, targetClassifier(i,1).name);
+        end
+        systemCmd = sprintf('pscp -pw raspberry -scp %s pi@192.168.4.3:~/classificationTmp/', targetClassifierFilename);
         status = system(systemCmd);
         if ~status  % failed to transfer
-            popMsg('Successfully transfered classifiers...');
+            popMsg(sprintf('Successfully transfered %s...', targetClassifierFilename));
         else
-            popMsg('failed to transfer classifiers...');
+            popMsg(sprintf('failed to transfer %s...', targetClassifierFilename));
             break
         end
         
         % transfer norms
-        systemCmd = sprintf('pscp -pw raspberry -scp %s pi@192.168.4.3:~/classificationTmp/', fullfile(filepath, targetNorm(i,1).name{1,1}));
+        if singleChannelFlag
+            targetNormFilename = fullfile(filepath, targetNorm(i,1).name{1,1});
+        else
+            targetNormFilename = fullfile(filepath, targetNorm(i,1).name);
+        end
+        systemCmd = sprintf('pscp -pw raspberry -scp %s pi@192.168.4.3:~/classificationTmp/', targetNormFilename);
         status = system(systemCmd);
         if ~status  % failed to transfer
-            popMsg('Successfully transfered norms...');
+            popMsg(sprintf('Successfully transfered %s...', targetNormFilename));
         else
-            popMsg('failed to transfer norms...');
+            popMsg(sprintf('failed to transfer %s...', targetNormFilename));
             break
         end
     catch
+        disp('Using Linux command...')
         try  % for Linux
             systemCmd = sprintf('sshpass -p raspberry scp %s pi@192.168.4.3:~/classificationTmp/', fullfile(filepath, targetClassifier(i,1).name{1,1}));
             system(systemCmd)
