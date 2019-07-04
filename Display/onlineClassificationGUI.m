@@ -581,9 +581,9 @@ end
 
 for i = 1:numClassifier
     % IMPORTANT! download pscp in order to use this command
-    try  % for Windows
+%     try  % for Windows
         % transfer classifier
-        if singleChannelFlag
+        if iscell(targetClassifier(i,1).name)
             targetClassifierFilename = fullfile(filepath, targetClassifier(i,1).name{1,1});
         else
             targetClassifierFilename = fullfile(filepath, targetClassifier(i,1).name);
@@ -598,7 +598,7 @@ for i = 1:numClassifier
         end
         
         % transfer norms
-        if singleChannelFlag
+        if iscell(targetNorm(i,1).name)
             targetNormFilename = fullfile(filepath, targetNorm(i,1).name{1,1});
         else
             targetNormFilename = fullfile(filepath, targetNorm(i,1).name);
