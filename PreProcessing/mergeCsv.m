@@ -30,6 +30,6 @@ end
 
 fclose(fidSave);
 
-popMsg('Finished...');
+popMsg(sprintf('Finished proessing %s...', savefile));
 end
 

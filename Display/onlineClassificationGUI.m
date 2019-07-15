@@ -581,7 +581,7 @@ end
 
 for i = 1:numClassifier
     % IMPORTANT! download pscp in order to use this command
-%     try  % for Windows
+    try  % for Windows
         % transfer classifier
         if iscell(targetClassifier(i,1).name)
             targetClassifierFilename = fullfile(filepath, targetClassifier(i,1).name{1,1});
