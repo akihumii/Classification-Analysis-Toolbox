@@ -17,7 +17,17 @@ for i = 1:iter
 output(i,1) = classClassificationPreparation(signal(i,1).file,signal(i,1).path,parameters.windowSize); % create object 'output'
 
 % detect spikes
+if parameters.makeFirstFileBaseline && i == 1
+    spikeDetectionTypeTemp = parameters.spikeDetectionType;
+    parameters.spikeDetectionType = 'moving window baseline';
+end    
+    
 output(i,1) = detectSpikes(output(i,1), signal(i,1), parameters);
+
+if parameters.makeFirstFileBaseline && i == 1
+    parameters.spikeDetectionType = spikeDetectionTypeTemp ;
+end    
+
 
 % get windows around spikes
 output(i,1) = classificationWindowSelection(output(i,1), signal(i,1), parameters);

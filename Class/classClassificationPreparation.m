@@ -60,7 +60,7 @@ classdef classClassificationPreparation
             minDistance = floor(clfp.window * targetClassData.samplingFreq);
             minDistance(minDistance==0) = 1;
             
-            parameters.burstLen = parameters.burstLen * targetClassData.samplingFreq;
+            parameters.burstLen = floor(parameters.burstLen * targetClassData.samplingFreq);
             clfp.burstDetection = detectSpikes(dataValue,minDistance,parameters);
             clfp.burstDetection.dataAnalysed = [targetClassData.file,' -> ',dataName];
             clfp.burstDetection.detectionMethod = parameters.spikeDetectionType;
