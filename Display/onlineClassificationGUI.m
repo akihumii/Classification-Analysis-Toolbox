@@ -210,16 +210,16 @@ guidata(hObject, handles);
 
 function buttonSaveFeatures_Callback(hObject, eventdata, handles)
 disp(' ')
-try
+% try
     [threshMultStr, signal, signalClassificationInfo, saveFileName, parameters] = onlineClassifierDetectBursts(handles);
     [fullfilenameFeature, fullfilenameClass] = saveBurstsInfo(signal, signalClassificationInfo, saveFileName, parameters.markBurstInAllChannels);
     getPythonClassifier(fullfilenameFeature, fullfilenameClass);
     handles.inputThreshMult.Data = checkSizeNTranspose(threshMultStr, 1);
     popMsg('Finished feature saving...');
-catch
-    popMsg('Error while saving features...');
-    handles.UserData.threshMultStr = '';
-end
+% catch
+%     popMsg('Error while saving features...');
+%     handles.UserData.threshMultStr = '';
+% end
 guidata(hObject, handles);
 
 
@@ -581,7 +581,7 @@ end
 
 for i = 1:numClassifier
     % IMPORTANT! download pscp in order to use this command
-%     try  % for Windows
+    try  % for Windowst
         % transfer classifier
         if iscell(targetClassifier(i,1).name)
             targetClassifierFilename = fullfile(filepath, targetClassifier(i,1).name{1,1});
