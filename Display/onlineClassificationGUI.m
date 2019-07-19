@@ -471,13 +471,6 @@ end
 [~, filename] = fileparts(saveFileName{1,1});
 
 if markBurstInAllChannels
-    timeStamps = time2string();
-    fullfilenameFeature{1,1} = fullfile(filepath,sprintf('featuresCha_%s_%s.csv', filename, timeStamps));
-    fullfilenameClass{1,1} = fullfile(filepath,sprintf('classCha_%s_%s.csv', filename, timeStamps));
-    
-    fullfilenameFeature{1,1} = strrep(fullfilenameFeature{1,1}, ' ', '_');
-    fullfilenameClass{1,1} = strrep(fullfilenameClass{1,1}, ' ', '_');
-
     for i = 1:numFile
         featureStruct = signalClassificationInfo(i,1).features;
         featureStruct = rmfield(featureStruct, 'dataAnalysed');  % to make it able to build a full table
@@ -488,9 +481,18 @@ if markBurstInAllChannels
         % get corresponding class
         class{i,1} = i * ones(size(feature{i,1},1),1);
     end
-    
+
     feature = vertcat(feature{:,1});
     class = vertcat(class{:,1});
+    numClassUnique = length(unique(class));
+    
+    timeStamps = time2string();
+    fullfilenameFeature{1,1} = fullfile(filepath,sprintf('featuresCha%d_%s_%s.csv', numClassUnique, filename, timeStamps));
+    fullfilenameClass{1,1} = fullfile(filepath,sprintf('classCha%d_%s_%s.csv', numClassUnique, filename, timeStamps));
+    
+    fullfilenameFeature{1,1} = strrep(fullfilenameFeature{1,1}, ' ', '_');
+    fullfilenameClass{1,1} = strrep(fullfilenameClass{1,1}, ' ', '_');
+
     
     % save features and classes
     csvwrite(fullfilenameFeature{1,1}, feature)
@@ -502,13 +504,6 @@ else
     
     for i = 1:numFile
         numClass = 2;
-        
-        timeStamps = time2string();
-        fullfilenameFeature{i,1} = fullfile(filepath,sprintf('featuresCh%d_%s_%s.csv', signal(i,1).channel(1,i), filename, timeStamps));
-        fullfilenameClass{i,1} = fullfile(filepath,sprintf('classCh%d_%s_%s.csv', signal(i,1).channel(1,i), filename, timeStamps));
-        
-        fullfilenameFeature{i,1} = strrep(fullfilenameFeature{i,1}, ' ', '_');
-        fullfilenameClass{i,1} = strrep(fullfilenameClass{i,1}, ' ', '_');
 
         featureStruct = signalClassificationInfo(i,1).features;
         featureStruct = rmfield(featureStruct, 'dataAnalysed');  % to make it able to build a full table
@@ -527,6 +522,13 @@ else
             class = vertcat(class, repmat(j+count, sum(all([~isnan(featureTemp), featureTemp ~= 0], 2)), 1));
             count = count - 2;
         end
+        
+        timeStamps = time2string();
+        fullfilenameFeature{i,1} = fullfile(filepath,sprintf('featuresCh%d0_%s_%s.csv', signal(i,1).channel(1,i), filename, timeStamps));
+        fullfilenameClass{i,1} = fullfile(filepath,sprintf('classCh%d0_%s_%s.csv', signal(i,1).channel(1,i), filename, timeStamps));
+        
+        fullfilenameFeature{i,1} = strrep(fullfilenameFeature{i,1}, ' ', '_');
+        fullfilenameClass{i,1} = strrep(fullfilenameClass{i,1}, ' ', '_');
         
         % save features and classes
         csvwrite(fullfilenameFeature{i,1}, feature)
@@ -570,12 +572,12 @@ savedNormTable = struct2table(savedNorm);
 
 singleChannelFlag = isempty(strfind(fullfilenameFeature{1,1},'Cha'));
 if singleChannelFlag  % single-channel
-    targetClassifier = savedClassifierTable(~strcmp(savedClassifierTable.name,'classifierCha.sav'),1);
-    targetNorm = savedNormTable(~strcmp(savedNormTable.name,'normsCha.csv'),1);
+    targetClassifier = savedClassifierTable(isempty(strfind(savedClassifierTable.name,'classifierCha')),1);
+    targetNorm = savedNormTable(isempty(strfind(savedNormTable.name,'normsCha')),1);
     numClassifier = length(targetClassifier.name);
 else  % multi-channel
-    targetClassifier = savedClassifierTable(strcmp(savedClassifierTable.name,'classifierCha.sav'),1);
-    targetNorm = savedNormTable(strcmp(savedNormTable.name,'normsCha.csv'),1);
+    targetClassifier = savedClassifierTable(~isempty(strfind(savedClassifierTable.name,'classifierCha')),1);
+    targetNorm = savedNormTable(~isempty(strfind(savedNormTable.name,'normsCha')),1);
     numClassifier = 1;
 end
 
