@@ -1,12 +1,29 @@
 clear
 %% parameters
-iTarget = 1;  % target axis
-predictionTarget = 1;  % target prediction
+activationPattern = [   0,0,0,0;...
+                        1,0,0,0;...
+                        0,1,0,0;...
+                        1,1,0,0;...
+                        0,0,1,0;...
+                        0,0,0,1;...
+                        0,0,1,1];
+activationClass = [ 0,...
+                    1,...
+                    1,...
+                    1,...
+                    2,...
+                    2,...
+                    2];
+labelConfusion = {'baseline';...
+                  'biceps';...
+                  'triceps';...
+                  'others'};
 % plotTN = 1;  % include TN in confusion matrix
 % bufferTiming = 0.05;  % buffer to increase the size of prediction (seconds)
 overlappingTime = 0.05;  % overlapping timing during online calssification
+editConfusion = 'minus';  % 'minus' or 'add'
 
-titleConfusionMat = sprintf('Biceps Multi-Channel Classification');  % confusion matrix title
+titleConfusionMat = sprintf('Multi-Channel Classification');  % confusion matrix title
 
 %%
 currentFig = gcf;
@@ -14,38 +31,45 @@ data = flipud(findall(currentFig, 'Type', 'axes'));
 samplingFreq = 1250;
 
 %% target
-endPoint = data(iTarget).Children(1).XData * samplingFreq;
-startingPoint = data(iTarget).Children(2).XData * samplingFreq;
-numBursts = length(startingPoint);
-burstLocs = [startingPoint; endPoint];
+burstLocs = cell(4,1);
+for i = 1:4
+    if length(data(i).Children) > 1
+        burstLocs{i,1} = transpose([data(i).Children(2).XData; data(i).Children(1).XData]*samplingFreq);
+    else
+        burstLocs{i,1} = [];
+    end
+end
+burstLocs = cell2nanMat(burstLocs);
 
-lengthDataTarget = length(data(iTarget).Children(3).YData);
+lengthDataTarget = length(data(end).Children.YData);
 overlappingSampleUnit = overlappingTime * samplingFreq;
-steps = floor(1 : overlappingSampleUnit : lengthDataTarget);
-numSteps = length(steps);
+stepping = floor(1 : overlappingSampleUnit : lengthDataTarget);
+numSteps = length(stepping);
 
 %% get the classes
-% get the target class
-targetClass = zeros(size(steps));
-for i = 1:numBursts
-    targetClass = or(targetClass, steps >= burstLocs(1,i) & steps <= burstLocs(2,i));
-end
-targetClass = targetClass * predictionTarget;
-
-% get the prediciton class
 dataPrediction = data(end).Children.YData;
-predictionClass = zeros(size(steps));
+targetClass = zeros(size(stepping));
+predictionClass = zeros(size(stepping));
+outlierClass = max(activationClass) + 1;
 for i = 1:numSteps
-    predictionClass(1,i) = dataPrediction(1, steps(1,i));
+    activationTemp = any(squeeze(stepping(1,i) > burstLocs(:,1,:) & stepping(1,i) < burstLocs(:,2,:)));
+    activationLocs = all(activationTemp == activationPattern, 2);
+    if any(activationLocs)
+        activationClassTemp = activationClass(activationLocs);
+    else
+        activationClassTemp = outlierClass;
+    end
+    targetClass(1,i) = activationClassTemp;
+    predictionClass(1,i) = dataPrediction(1, stepping(1,i));
 end
 
 %% Subsample baseline
-numTargetPrediction = sum(targetClass == predictionTarget);
-notTNLocs = ~(targetClass == 0 & predictionClass == 0);
-targetClass = targetClass(notTNLocs);
-predictionClass = predictionClass(notTNLocs);
-targetClass = [targetClass, zeros(1, numTargetPrediction)];
-predictionClass = [predictionClass, zeros(1, numTargetPrediction)];
+% numTargetPrediction = sum(targetClass == predictionTarget);
+% notTNLocs = ~(targetClass == 0 & predictionClass == 0);
+% targetClass = targetClass(notTNLocs);
+% predictionClass = predictionClass(notTNLocs);
+% targetClass = [targetClass, zeros(1, numTargetPrediction)];
+% predictionClass = [predictionClass, zeros(1, numTargetPrediction)];
 
 %% confusion
 figure
@@ -55,11 +79,36 @@ predictionConfusion = mat2confusionMat(predictionClass);
 % edit targetConfusion into size of predictionConfusion
 uniquePrediction = unique(predictionClass);
 uniqueTarget = unique(targetClass);
-numMissingClass = sum(~ismember(uniquePrediction, uniqueTarget));
-targetConfusion = [targetConfusion(1,:); zeros(numMissingClass, size(targetConfusion,2)); targetConfusion(2,:)];
+arrayLabel = 0:length(labelConfusion)-1;
 
+if strcmp(editConfusion, 'add')
+    predictionConfusion = addClass(predictionConfusion, ~ismember(arrayLabel, uniquePrediction));
+    targetConfusion = addClass(targetConfusion, ~ismember(arrayLabel, uniqueTarget));
+else
+    locsMinus = minusClass(targetConfusion, ~ismember(uniqueTarget, uniquePrediction));
+    predictionConfusion(:, locsMinus) = [];
+    targetConfusion(~ismember(arrayLabel, uniquePrediction), :) = [];
+    targetConfusion(:, locsMinus) = [];
+end
+    
 plotconfusion(targetConfusion, predictionConfusion);
 hConfusion = gca;
 hConfusion.Title.String = titleConfusionMat;
+arrayActivation = 1:size(targetConfusion,1);
+hConfusion.XTickLabel(arrayActivation) = labelConfusion(arrayActivation);
+hConfusion.YTickLabel(arrayActivation) = labelConfusion(arrayActivation);
+
+function output = addClass(oldArray, locs)
+    output = insertIntoArray(zeros(1, size(oldArray, 2)), oldArray, locs, 1);
+end
+
+function locsAll = minusClass(oldArray, locs)
+    locsTemp = find(locs == 1);
+    locsAll = [];
+    for i = 1:length(locsTemp)
+        arrayTemp = oldArray(locsTemp(i), :);
+        locsAll = [locsAll, find(arrayTemp == 1)];
+    end
+end
 
 
