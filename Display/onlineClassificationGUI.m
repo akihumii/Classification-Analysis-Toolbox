@@ -491,7 +491,11 @@ if markBurstInAllChannels
     
     feature = vertcat(feature{:,1});
     class = vertcat(class{:,1});
-    
+
+    % equalize data
+    [class, indexChange] = equalizeData(class);
+    feature = feature(vertcat(indexChange{:,1}), :);    
+
     % save features and classes
     csvwrite(fullfilenameFeature{1,1}, feature)
     disp(['Saved ', fullfilenameFeature{1,1}, '...']);
