@@ -24,6 +24,8 @@ if nargin < 2
     parameters.fixBurstLength = 0;
 end    
 
+paramMovingWindow = struct('threshold', 3, 'influence', 0);
+
 %% Find Peaks
 data = parameters.sign*data;
 
@@ -90,6 +92,13 @@ for i = 1:colData % channel
             spikeLocs{i,1} = parameters.spikeLocsFixed(:,i);
             spikePeaksValue{i,1} = data(parameters.spikeLocsFixed(:,i),i);
             [burstEndValue{i,1},burstEndLocs{i,1}] = pointAfterAWindow(data(:,i),minDistance(2),spikeLocs{i,1});
+        case 'moving window baseline'
+            if parameters.burstLen
+                paramMovingWindow.lag = parameters.burstLen;
+            else
+                paramMovingWindow.lag = size(data,1)/200;
+            end
+            [spikePeaksValue{i,1},spikeLocs{i,1},burstEndValue{i,1},burstEndLocs{i,1}] = getMovingWindowBaselineBursts(data(:,i), paramMovingWindow);
         otherwise
             error('Invalid spike detection parameters.spikeDetectionType')
     end
@@ -125,6 +134,10 @@ else
     mergeType = 'merge';
 end
 
+if strcmp(parameters.spikeDetectionType, 'moving window baseline')
+    mergeType = 'merge overlap';
+end
+
 if parameters.markBurstInAllChannels
     output = mergeChannelsInfo(data,output,colData,mergeType);
 end
@@ -132,9 +145,5 @@ end
 % if parameters.getBaselineFeatureFlag
 %     output = getBaselineFeature(baseline,output);
 % end
-
-end
-
-function getFixedPointWindow()
 
 end
