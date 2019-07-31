@@ -18,15 +18,14 @@ labelConfusion = {'baseline';...
                   'biceps';...
                   'triceps';...
                   'others'};
-% plotTN = 1;  % include TN in confusion matrix
-% bufferTiming = 0.05;  % buffer to increase the size of prediction (seconds)
+changePredictionFlag = getYesNo;
 overlappingTime = 0.05;  % overlapping timing during online calssification
 editConfusion = 'minus';  % 'minus' or 'add'
 
 titleConfusionMat = sprintf('Multi-Channel Classification');  % confusion matrix title
 
 %%
-currentFig = gcf;
+currentFig = getFig();
 data = flipud(findall(currentFig, 'Type', 'axes'));
 samplingFreq = 1250;
 
@@ -47,6 +46,10 @@ stepping = floor(1 : overlappingSampleUnit : lengthDataTarget);
 numSteps = length(stepping);
 
 %% get the classes
+if changePredictionFlag
+    [files, path] = selectFiles('Select prediction file...');
+    data(end).Children.YData = transpose(dlmread(fullfile(path, files{1,1}),','));
+end
 dataPrediction = data(end).Children.YData;
 targetClass = zeros(size(stepping));
 predictionClass = zeros(size(stepping));
@@ -111,4 +114,20 @@ function locsAll = minusClass(oldArray, locs)
     end
 end
 
+function output = getYesNo()
+    opts.Interpreter = 'tex';
+    opts.Default = 'No';
+    quest = 'Use a new prediction?';
+    output = questdlg(quest, 'A question...', 'Yes','No',opts);
+    switch output
+        case 'Yes'
+            output = 1;
+        case 'No'
+            output = 0;
+    end
+end
 
+function fig = getFig()
+    [files, path] = selectFiles('Select data figure with prediction');
+    fig = openfig(fullfile(path,files{1,1}));
+end
