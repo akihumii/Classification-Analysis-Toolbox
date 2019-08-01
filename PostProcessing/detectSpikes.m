@@ -1,4 +1,4 @@
-function output = detectSpikes(data, minDistance, parameters)
+function output = detectSpikes(data, minDistance, parameters, varargin)
 %detectSpikes After taking baseline into account, any sample point exceeds
 %3/5 of the maximum value of the parameters.signal will be considered as a spike. No 2
 %spikes will be detected in one window.
@@ -7,6 +7,7 @@ function output = detectSpikes(data, minDistance, parameters)
 %        parameters: threshold, sign, spikeDetectionType, threshStdMult,
 %        TKEOStartConsecutivePoints, TKEOEndConsecutivePoints,
 %        markBurstInAllChannels
+%        varargin: currentClass: to get the channels with match the currentClass, which is determined in parameters.channelClass
 % 
 % output: spikePeaksValue,spikeLocs,parameters.threshold,baseline,burstEndValue,burstEndLocs,parameters.threshStdMult,parameters.TKEOStartConsecutivePoints,parameters.TKEOEndConsecutivePoints,warningOn
 % 
@@ -22,6 +23,12 @@ if nargin < 2
     parameters.TKEOEndConsecutivePoints = 1;
     parameters.markBurstInAllChannels = 0;
     parameters.fixBurstLength = 0;
+end    
+
+if nargin == 4
+    currentClass = varargin{1,1};
+else
+    currentClass = nan;
 end    
 
 paramMovingWindow = struct('threshold', 3, 'influence', 0);
@@ -126,19 +133,24 @@ output.parameters.threshStdMult = parameters.threshStdMult;
 output.parameters.TKEOStartConsecutivePoints = parameters.TKEOStartConsecutivePoints;
 output.parameters.TKEOEndConsecutivePoints = parameters.TKEOEndConsecutivePoints;
 
-if parameters.burstLen
-    [output.spikeLocs, output.spikePeaksValue, output.burstEndLocs, output.burstEndValue] = ...
-        editBurstLen(data, parameters.burstLen, output.spikeLocs, output.spikePeaksValue);
-    mergeType = 'first';
+if isnan(currentClass)
+    if parameters.burstLen
+        [output.spikeLocs, output.spikePeaksValue, output.burstEndLocs, output.burstEndValue] = ...
+            editBurstLen(data, parameters.burstLen, output.spikeLocs, output.spikePeaksValue);
+        mergeType = 'first';
+    else
+        mergeType = 'merge';
+    end
 else
-    mergeType = 'merge';
-end
-
-if strcmp(parameters.spikeDetectionType, 'moving window baseline')
-    mergeType = 'merge overlap';
+    [output.spikeLocs, output.spikePeaksValue, output.burstEndLocs, output.burstEndValue] = ...
+        getAllWindows(data, parameters, currentClass);
+    mergeType = 'no merge';
 end
 
 if parameters.markBurstInAllChannels
+%     if strcmp(parameters.spikeDetectionType, 'moving window baseline')
+%         mergeType = 'merge overlap';
+%     end
     output = mergeChannelsInfo(data,output,colData,mergeType);
 end
 

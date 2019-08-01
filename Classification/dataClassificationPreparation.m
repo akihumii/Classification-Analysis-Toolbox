@@ -14,41 +14,40 @@ end
 output(iter,1) = classClassificationPreparation; % pre-allocation
 
 for i = 1:iter
-output(i,1) = classClassificationPreparation(signal(i,1).file,signal(i,1).path,parameters.windowSize); % create object 'output'
-
-% detect spikes
-if parameters.makeFirstFileBaseline && i == 1
-    spikeDetectionTypeTemp = parameters.spikeDetectionType;
-    parameters.spikeDetectionType = 'moving window baseline';
-end    
+    output(i,1) = classClassificationPreparation(signal(i,1).file,signal(i,1).path,parameters.windowSize); % create object 'output'
     
-output(i,1) = detectSpikes(output(i,1), signal(i,1), parameters);
-
-if parameters.makeFirstFileBaseline && i == 1
-    parameters.spikeDetectionType = spikeDetectionTypeTemp ;
-end    
-
-
-% get windows around spikes
-output(i,1) = classificationWindowSelection(output(i,1), signal(i,1), parameters);
-
-% clean the bursts by running PCA
-if parameters.pcaCleaning
-    output(i,1) = pcaCleanData(output(i,1));
-end
-
-% extract features
-output(i,1) = featureExtraction(output(i,1),signal(i,1).samplingFreq,[{'selectedWindows'};{'burst'}]); % [1 * number of windows * number of sets]
-
-% group features for classification
-output(i,1) = classificationGrouping(output(i,1),'maxValue',i,parameters.trainingRatio);
-
-% get a baseline as the third class
-if parameters.getBaselineFeatureFlag
-%     [dataValues, ~] = loadMultiLayerStruct(signal(i,1),parameters.overlappedWindow);
-    output(i,1) = getBaselineFeature(output(i,1),signal(i,1).samplingFreq,signal(i,1).dataFiltered.values,parameters.baselineType,signal(i,1).dataTKEO.values);
-end
-
+    % detect spikes
+    % if parameters.makeFirstFileBaseline && i == 1
+    %     spikeDetectionTypeTemp = parameters.spikeDetectionType;
+    %     parameters.spikeDetectionType = 'moving window baseline';
+    % end
+    
+    output(i,1) = detectSpikes(output(i,1), signal(i,1), parameters, i);
+    
+    if parameters.makeFirstFileBaseline && i == 1
+        parameters.spikeDetectionType = spikeDetectionTypeTemp ;
+    end
+    
+    
+    % get windows around spikes
+    output(i,1) = classificationWindowSelection(output(i,1), signal(i,1), parameters);
+    
+    % clean the bursts by running PCA
+    if parameters.pcaCleaning
+        output(i,1) = pcaCleanData(output(i,1));
+    end
+    
+    % extract features
+    output(i,1) = featureExtraction(output(i,1),signal(i,1).samplingFreq,[{'selectedWindows'};{'burst'}]); % [1 * number of windows * number of sets]
+    
+    % group features for classification
+    output(i,1) = classificationGrouping(output(i,1),'maxValue',i,parameters.trainingRatio);
+    
+    % get a baseline as the third class
+    if parameters.getBaselineFeatureFlag
+        %     [dataValues, ~] = loadMultiLayerStruct(signal(i,1),parameters.overlappedWindow);
+        output(i,1) = getBaselineFeature(output(i,1),signal(i,1).samplingFreq,signal(i,1).dataFiltered.values,parameters.baselineType,signal(i,1).dataTKEO.values);
+    end
 end
 
 end

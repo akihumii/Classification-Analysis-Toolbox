@@ -80,6 +80,8 @@ parameters = struct(...
     'burstTrimming',0,... % to exclude the bursts by inputting the bursts indexes
     'burstTrimmingWay','drag',... % 'key' to key in zeros, end the process by entering 0; 'drag' to drag the area that containst the burst, end the process by hitting 'Enter'
     'burstTrimmingType',1,... % 1 to delete; 2 to pick
+    'channelClass',[1,1,2,2],...  % number of elements must match the number of channel
+    'overlapWindowSize',0.05,...  % overlap window size of online classification 
     ...
     ...% Show & Save Plots Parameters. Input 1 to save/show, otherwise input 0.
     ...% Plots will be saved in the folder 'Figures' at the same path with the processed data

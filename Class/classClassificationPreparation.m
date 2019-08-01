@@ -51,7 +51,7 @@ classdef classClassificationPreparation
             end
         end
         
-        function clfp = detectSpikes(clfp,targetClassData,parameters)
+        function clfp = detectSpikes(clfp,targetClassData,parameters, currentClass)
             % input: parameters: targetName,type,threshold,sign,threshStdMult,TKEOStartConsecutivePoints,TKEOEndConsecutivePoints,channelExtractStartingLocs
             if isequal(parameters.dataToBeDetectedSpike,'dataFiltered') || isequal(parameters.dataToBeDetectedSpike,'dataTKEO')
                 parameters.dataToBeDetectedSpike = [{parameters.dataToBeDetectedSpike};{'values'}];
@@ -61,7 +61,7 @@ classdef classClassificationPreparation
             minDistance(minDistance==0) = 1;
             
             parameters.burstLen = floor(parameters.burstLen * targetClassData.samplingFreq);
-            clfp.burstDetection = detectSpikes(dataValue,minDistance,parameters);
+            clfp.burstDetection = detectSpikes(dataValue,minDistance,parameters,currentClass);
             clfp.burstDetection.dataAnalysed = [targetClassData.file,' -> ',dataName];
             clfp.burstDetection.detectionMethod = parameters.spikeDetectionType;
             clfp.burstDetection.channelExtractStartingLocs = parameters.channelExtractStartingLocs;

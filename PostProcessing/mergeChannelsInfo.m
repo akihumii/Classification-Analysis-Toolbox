@@ -25,6 +25,8 @@ switch type
     case 'first'
         locsAllEdited(overlappingFlag,:) = [];
         locsAll = locsAllEdited;
+    case 'no merge'
+        disp('no merging is done...');
     case 'merge overlap'
         locsAllDiff = diff(locsAll(:,1));
         locsAllDiff = -locsAllDiff + 5;
