@@ -1,9 +1,12 @@
 function output = featureExtraction(data,samplingFreq,varargin)
 %featureExtraction Extract features from windows. Output = [windows * channels]
+%   input: varargin: index number of feature to extract
 %   output = featureExtraction(data,samplingFreq)
 % 
 % output = maxValue, minValue, absMaxValue, areaUnderCurve, meanValue,
 % sumDifferences, numZeroCrossings, numSignChanges,
+% 
+%       output = featureExtraction(data,samplingFreq,varargin)
 
 featureNames = {...
     'maxValue';...

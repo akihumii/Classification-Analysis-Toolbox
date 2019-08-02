@@ -210,16 +210,16 @@ guidata(hObject, handles);
 
 function buttonSaveFeatures_Callback(hObject, eventdata, handles)
 disp(' ')
-try
+% try
     [threshMultStr, signal, signalClassificationInfo, saveFileName, parameters] = onlineClassifierDetectBursts(handles);
-    [fullfilenameFeature, fullfilenameClass] = saveBurstsInfo(signal, signalClassificationInfo, saveFileName, parameters.markBurstInAllChannels);
+    [fullfilenameFeature, fullfilenameClass] = saveBurstsInfo(signal, signalClassificationInfo, saveFileName, parameters.markBurstInAllChannels, handles);
     getPythonClassifier(fullfilenameFeature, fullfilenameClass);
     handles.inputThreshMult.Data = checkSizeNTranspose(threshMultStr, 1);
     popMsg('Finished feature saving...');
-catch
-    popMsg('Error while saving features...');
-    handles.UserData.threshMultStr = '';
-end
+% catch
+%     popMsg('Error while saving features...');
+%     handles.UserData.threshMultStr = '';
+% end
 guidata(hObject, handles);
 
 
@@ -439,10 +439,26 @@ handles.UserData = struct(...
     'stopFlag', 1,...
     'openPortFlag', 0,...
     'stopAll', 0,...
-    'multiChannelFlag', 0,...
+    'multiChannelFlag', ~isempty(strfind(handles.buttonGroupSMChannel.SelectedObject.String, 'Multi')),...
     'bionicHandConnection',0,...
     'portHand',sprintf('COM%s', handles.inputCOMPORT.String),...
-    'numChannelDisp', 4);
+    'numChannelDisp', 4,...
+    'overlapWindowSize',0.05,...
+    'featuresForClassification',[5,8],...  % selected features for classification        
+    'activationPattern',[0,0,0,0;...
+                         1,0,0,0;...
+                         0,1,0,0;...
+                         1,1,0,0;...
+                         0,0,1,0;...
+                         0,0,0,1;...
+                         0,0,1,1],...
+    'activationClass',[1;...
+                       2;...
+                       2;...
+                       2;...
+                       3;...
+                       3;...
+                       3]);
 handles.UserData.chPorts = struct(...
     'Ch1',1340,...
     'Ch2',1341,...
@@ -457,8 +473,7 @@ handles.UserData.chPorts = struct(...
 
 guidata(hObject, handles);
 
-function [fullfilenameFeature, fullfilenameClass] = saveBurstsInfo(signal, signalClassificationInfo, saveFileName, markBurstInAllChannels)
-featuresForClassification = [5,8];  % selected features for classification        
+function [fullfilenameFeature, fullfilenameClass] = saveBurstsInfo(signal, signalClassificationInfo, saveFileName, markBurstInAllChannels, handle)
 numFile = length(signalClassificationInfo);
 
 % Make a folder to store the features and corresponding classes
@@ -479,18 +494,28 @@ if markBurstInAllChannels
     fullfilenameClass{1,1} = strrep(fullfilenameClass{1,1}, ' ', '_');
 
     for i = 1:numFile
-        featureStruct = signalClassificationInfo(i,1).features;
-        featureStruct = rmfield(featureStruct, 'dataAnalysed');  % to make it able to build a full table
-        featureTable = struct2table(featureStruct);
+        class{i,1} = getGroundTruth(signal(i,1), signalClassificationInfo(i,1), handle);
+        feature{i,1} = getFeatures(signal(i,1), handle, class{i,1});
         
-        feature{i,1} = table2array(featureTable(:,featuresForClassification));  % get the target features
-        
-        % get corresponding class
-        class{i,1} = i * ones(size(feature{i,1},1),1);
+%         figure;
+%         title(sprintf('ground truth class: %d', i));
+%         hold on
+%         for j = 1:4
+%             p(j,1) = subplot(5,1,j); plot(signal(i,1).dataRaw(:,j));
+%         end
+%         lenData = size(signal(i,1).dataRaw,1);
+%         stepArray = floor(handle.UserData.overlapWindowSize*signal(i,1).samplingFreq: handle.UserData.overlapWindowSize*signal(i,1).samplingFreq: lenData-str2num(handle.inputWindowSize.String));
+%         p(5,1) = subplot(5,1,5); plot(stepArray,class{i,1});
+%         linkaxes(p,'x')
     end
-    
-    feature = vertcat(feature{:,1});
     class = vertcat(class{:,1});
+    feature = vertcat(feature{:,1});
+    
+%     [feature, class] = trainOriginalBursts(signalClassificationInfo, featuresForClassification);  % use the original bursts to train features and generating corresponding classes
+
+    % equalize data
+    [class, indexChange] = equalizeData(class);
+    feature = feature(vertcat(indexChange{:,1}), :);    
     
     % save features and classes
     csvwrite(fullfilenameFeature{1,1}, feature)
@@ -538,6 +563,19 @@ end
 
 popMsg('Features and Classes saving finished...');
 
+function [feature, class] = trainOriginalBursts(signalClassificationInfo, featuresForClassification)
+for i = 1:numFile
+    featureStruct = signalClassificationInfo(i,1).features;
+    featureStruct = rmfield(featureStruct, 'dataAnalysed');  % to make it able to build a full table
+    featureTable = struct2table(featureStruct);
+
+    feature{i,1} = table2array(featureTable(:,featuresForClassification));  % get the target features
+
+    % get corresponding class
+    class{i,1} = i * ones(size(feature{i,1},1),1);
+end
+feature = vertcat(feature{:,1});
+class = vertcat(class{:,1});
 
 function getPythonClassifier(fullfilenameFeature, fullfilenameClass)
 % clear all the existing saved classifiers

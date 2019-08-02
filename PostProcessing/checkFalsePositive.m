@@ -18,9 +18,8 @@ labelConfusion = {'baseline';...
                   'biceps';...
                   'triceps';...
                   'others'};
-changePredictionFlag = getYesNo;
 overlappingTime = 0.05;  % overlapping timing during online calssification
-editConfusion = 'minus';  % 'minus' or 'add'
+editConfusion = 'add';  % 'minus' or 'add'
 
 titleConfusionMat = sprintf('Multi-Channel Classification');  % confusion matrix title
 
@@ -46,6 +45,7 @@ stepping = floor(1 : overlappingSampleUnit : lengthDataTarget);
 numSteps = length(stepping);
 
 %% get the classes
+changePredictionFlag = getYesNo;
 if changePredictionFlag
     [files, path] = selectFiles('Select prediction file...');
     data(end).Children.YData = transpose(dlmread(fullfile(path, files{1,1}),','));

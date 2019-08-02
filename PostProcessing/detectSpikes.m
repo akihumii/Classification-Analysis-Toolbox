@@ -134,13 +134,13 @@ else
     mergeType = 'merge';
 end
 
-if strcmp(parameters.spikeDetectionType, 'moving window baseline')
-    mergeType = 'merge overlap';
-end
-
-if parameters.markBurstInAllChannels
-    output = mergeChannelsInfo(data,output,colData,mergeType);
-end
+% if strcmp(parameters.spikeDetectionType, 'moving window baseline')
+%     mergeType = 'merge overlap';
+% end
+% 
+% if parameters.markBurstInAllChannels
+%     output = mergeChannelsInfo(data,output,colData,mergeType);
+% end
 
 % if parameters.getBaselineFeatureFlag
 %     output = getBaselineFeature(baseline,output);
