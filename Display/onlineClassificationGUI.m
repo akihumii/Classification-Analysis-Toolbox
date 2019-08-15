@@ -210,16 +210,16 @@ guidata(hObject, handles);
 
 function buttonSaveFeatures_Callback(hObject, eventdata, handles)
 disp(' ')
-try
+% try
     [threshMultStr, signal, signalClassificationInfo, saveFileName, parameters] = onlineClassifierDetectBursts(handles);
     [fullfilenameFeature, fullfilenameClass] = saveBurstsInfo(signal, signalClassificationInfo, saveFileName, parameters.markBurstInAllChannels);
     getPythonClassifier(fullfilenameFeature, fullfilenameClass);
     handles.inputThreshMult.Data = checkSizeNTranspose(threshMultStr, 1);
     popMsg('Finished feature saving...');
-catch
-    popMsg('Error while saving features...');
-    handles.UserData.threshMultStr = '';
-end
+% catch
+%     popMsg('Error while saving features...');
+%     handles.UserData.threshMultStr = '';
+% end
 guidata(hObject, handles);
 
 
@@ -439,7 +439,7 @@ handles.UserData = struct(...
     'stopFlag', 1,...
     'openPortFlag', 0,...
     'stopAll', 0,...
-    'multiChannelFlag', 0,...
+    'multiChannelFlag', ~isempty(strfind(handles.buttonGroupSMChannel.SelectedObject.String, 'Multi')),...
     'bionicHandConnection',0,...
     'portHand',sprintf('COM%s', handles.inputCOMPORT.String),...
     'numChannelDisp', 4);
