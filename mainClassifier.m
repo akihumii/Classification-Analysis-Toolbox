@@ -76,6 +76,11 @@ parameters = struct(...
     'dataPeriodicOmitWindowSize',0.0007,... % window size to periodically omit it (seconds)
     'dataPeriodicOmitStartingPoint',2.4291,... % starting point to periodically omit data chunk (seconds)
     ...
+    'optimizeTKEOFlag', 0,...  % check svm cross-validation and tune TKEO parameters accordingly
+    'featuresID', [],...  % to select the features for optimizingTKEO
+    'deltaLossLimit', 1e-4,...  % limit of delta loss during classifier optimization
+    'lossLimit', 1e-3,...  % limit of loss during classifier optimization
+    'learningRate', [20, 20, 10],...  % learning rate for TKEO number of point for onset and offset, and threshold multiplier
     'TKEOStartConsecutivePoints',[35],... % number of consecutive points over the parameters.threshold to be detected as burst
     'TKEOEndConsecutivePoints',[100],... % number of consecutive points below the parameters.threshold to be detected as end of burst
     'burstTrimming',0,... % to exclude the bursts by inputting the bursts indexes

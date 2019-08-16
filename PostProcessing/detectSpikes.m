@@ -135,7 +135,7 @@ output.parameters.TKEOEndConsecutivePoints = parameters.TKEOEndConsecutivePoints
 if parameters.burstLen
     if strcmp(parameters.spikeDetectionType, 'TKEOmore')
         [output.spikeLocs, output.spikePeaksValue, output.burstEndLocs, output.burstEndValue] = ...
-            subsampleBursts(data, parameters.burstLen, parameters.stepWindowSize, output.spikeLocs, output.spikePeaksValue, output.burstEndLocs);
+            subsampleBursts(data, parameters.burstLen, parameters.stepWindowSize, output.spikeLocs, output.burstEndLocs);
         mergeType = 'just';
     else
         [output.spikeLocs, output.spikePeaksValue, output.burstEndLocs, output.burstEndValue] = ...
