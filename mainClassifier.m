@@ -151,7 +151,7 @@ if ~parameters.noClassification || parameters.showOverlap || parameters.saveOver
     tic
     popMsg('Start locting bursts...')
     % if parameters.showOverlap==1 || parameters.saveOverlap==1 % peaks detection is only activated when either parameters.showOverlap or parameters.saveOverlap or both of them are TRU
-    signalClassification = dataClassificationPreparation(signal, iter, parameters);
+    [signalClassification, parameters] = dataClassificationPreparation(signal, iter, parameters);
     
     % else
     %     signalClassification = 1;

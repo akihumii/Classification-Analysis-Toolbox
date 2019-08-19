@@ -5,9 +5,9 @@ function [parameters, change, changeIndex] = editTKEOParameters(lossOrig, deltaL
 updateValue = sign(deltaLoss) * sign(change(changeIndex(1,1), changeIndex(1,2))) * ...
     (floor(parameters.learningRate(changeIndex(1,1)) * ...
     sigmf(abs(deltaLoss/lossOrig) * 100, [0.1, 50])) + 1);
-if sign(updateValue) ~= sign(change(changeIndex(1,1), changeIndex(1,2)))
-    updateValue = updateValue + sign(updateValue) * abs(change(changeIndex(1,1), changeIndex(1,2)));
-end
+% if sign(updateValue) ~= sign(change(changeIndex(1,1), changeIndex(1,2)))
+%     updateValue = updateValue + sign(updateValue) * abs(change(changeIndex(1,1), changeIndex(1,2)));
+% end
 
 change(changeIndex(1,1), changeIndex(1,2)) = updateValue;
 switch changeIndex(1,1)

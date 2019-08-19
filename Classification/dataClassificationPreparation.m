@@ -1,4 +1,4 @@
-function output = dataClassificationPreparation(signal, iter, parameters)
+function [output, parameters] = dataClassificationPreparation(signal, iter, parameters)
 %dataClassification Detect windows, extract features, execute
 %classification
 %   input: parameters: pcaCleaning, selectedWindow, windowSize, dataToBeDetectedSpike, spikeDetectionType, threshold, sign, threshStdMult, TKEOStartConsecutivePoints, TKEOEndConsecutivePoints,channelExtractStartingLocs,burstTrimming,burstTrimmingType
@@ -18,57 +18,36 @@ disp('Anaylizing...');
 output = runPreparation(signal, output, parameters, iter);
 
 %% optimize burst detection
-optimizeFlag = parameters.optimizeTKEOFlag;
-if optimizeFlag
+if parameters.optimizeTKEOFlag
     disp('Optimizing...')
-    Mdl = getSVMLoss(output, parameters);  % check current loss
-    loss = Mdl.oosLoss;
+    objOptimize = classOptimizeTKEO;
+    getSVMLoss(objOptimize, output, parameters);  % check current loss
+    objOptimize.lossOrig = objOptimize.Mdl.oosLoss;
     
     timeit = tic;
-    [parameters, change] = randomizeTKEOParameters(parameters);  % get new parameters
+    parameters = randomizeTKEOParameters(objOptimize, parameters);  % get new parameters
     output = runPreparation(signal, output, parameters, iter);
-    Mdl = getSVMLoss(output, parameters);  % check new loss
+    getSVMLoss(objOptimize, output, parameters);  % check new loss
     
-    repCount = 1;
-    deltaLossAll = ones(3,4);
-    changeIndex = [1,1];
-    [optimizeFlag, loss, lossOrig, deltaLossAll] = updateOptimizeFlag(loss, Mdl, parameters, repCount, changeIndex, deltaLossAll);
+    updateOptimizeFlag(objOptimize, parameters);
     toc(timeit);
     
     timeit = tic;
-    while optimizeFlag
-        [parameters, change, changeIndex] = editTKEOParameters(...
-            lossOrig, deltaLossAll(changeIndex(1,1),changeIndex(1,2)), parameters, change, changeIndex);
+    while objOptimize.optimizeFlag
+        parameters = editTKEOParameters(objOptimize, parameters);
         output = runPreparation(signal, output, parameters, iter);
         
-        Mdl = getSVMLoss(output, parameters);  % check new loss
-        [optimizeFlag, loss, lossOrig, deltaLossAll] = updateOptimizeFlag(loss, Mdl, parameters, repCount, changeIndex, deltaLossAll);
-        [repCount, changeIndex] = updateCounter(repCount, changeIndex, deltaLossAll(changeIndex(1,1),changeIndex(1,2)));
+        getSVMLoss(objOptimize, output, parameters);  % check new loss
+        updateOptimizeFlag(objOptimize, parameters);
+        updateCounter(objOptimize, parameters);
+        
+        saveTKEOParameter(objOptimize, parameters);
         toc(timeit);
     end
+    parameters.objOptimize = objOptimize;
+    parameters.objOptimize.timetaken = toc(timeit);
+    parameters = getLowestLoss(objOptimize, parameters);
 end
-end
-
-function [optimizeFlag, loss, lossOrig, deltaLossAll] = updateOptimizeFlag(loss, Mdl, parameters, numRun, changeIndex, deltaLossAll)
-deltaLoss = loss-Mdl.oosLoss;  % check delta loss
-lossOrig = loss;
-loss = Mdl.oosLoss;  % update loss
-fprintf('Optimizing %d,%d  | Run %d | current loss: %.4f | delta loss: %.4f...\n',...
-    changeIndex(1,1), changeIndex(1,2), numRun, loss, deltaLoss);...);
-deltaLossAll(changeIndex(1,1), changeIndex(1,2)) = deltaLoss;
-deltaLossChecking = deltaLossAll > parameters.deltaLossLimit;
-optimizeFlag = loss > parameters.lossLimit && any(deltaLossChecking(:));
-end
-
-function [parameters, change] = randomizeTKEOParameters(parameters)
-parameters.TKEOStartConsecutivePoints = multiplyValues(parameters.TKEOStartConsecutivePoints);
-[parameters.TKEOStartConsecutivePoints, change(1,:)] = changeValues(parameters.TKEOStartConsecutivePoints, parameters.learningRate(1));
-
-parameters.TKEOEndConsecutivePoints = multiplyValues(parameters.TKEOEndConsecutivePoints);
-[parameters.TKEOEndConsecutivePoints, change(2,:)] = changeValues(parameters.TKEOEndConsecutivePoints, parameters.learningRate(2));
-
-parameters.threshStdMult = multiplyValues(parameters.threshStdMult);
-[parameters.threshStdMult, change(3,:)] = changeValues(parameters.threshStdMult, parameters.learningRate(3));
 end
 
 function output = runPreparation(signal, output, parameters, iter)

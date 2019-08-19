@@ -1,8 +1,8 @@
-function [repCount, changeIndex] = updateCounter(repCount, changeIndex, deltaLoss)
+function [repCount, changeIndex] = updateCounter(repCount, changeIndex, deltaLoss, parameters)
 %UPDATECOUNTER Used in dataClassificationPreparation
 %   [repCount, changeIndex] = updateCounter(repCount, changeIndex, deltaLoss)
 
-if repCount == 10 || deltaLoss < 0
+if repCount == 10 || abs(deltaLoss) < parameters.deltaLossLimit
     repCount = 1;
     
     if changeIndex(1,2) == 4

@@ -128,24 +128,6 @@ classdef classClassificationPreparation
             baselineInfo = getBaselineFeature(clfp.burstDetection,samplingFreq,data,baselineType,dataForThreshChecking);
             clfp = insertBaselineFeature(clfp,baselineInfo);
         end
-        
-        function Mdl = getSVMLoss(clfp, parameters)
-            featuresAll = [];
-            classAll = [];
-            for i = 1:length(clfp)
-                features = struct2cell(clfp(i,1).features);
-                features = horzcat(features{parameters.featuresID});
-                featuresAll = [featuresAll; features];
-                
-                class = i * ones(size(features,1),1);
-                classAll = [classAll; class];
-            end
-            timeit = tic;
-            Mdl = svmClassification(featuresAll, classAll, []);
-            toc(timeit);
-            optimizedFlag = Mdl.oosLoss > parameters.lossLimit || deltaLoss > parameters.deltaLossLimit;
-        end
-        
     end
     
     methods (Access = protected)        
