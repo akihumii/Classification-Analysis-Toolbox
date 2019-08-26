@@ -22,7 +22,7 @@ function varargout = onlineClassificationGUI(varargin)
 
 % Edit the above text to modify the response to help onlineClassificationGUI
 
-% Last Modified by GUIDE v2.5 06-May-2019 16:29:32
+% Last Modified by GUIDE v2.5 26-Aug-2019 16:29:06
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -429,7 +429,41 @@ end
 catch
 end
 
+% --- Executes on button press in burstTrimmingBox.
+function burstTrimmingBox_Callback(hObject, eventdata, handles)
+% hObject    handle to burstTrimmingBox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if eventdata.Source.Value
+    disp([hObject.String, ' has been selected...']);
+else
+    disp([hObject.String, ' has been de-selected...']);
+end
+resetAll(hObject, handles);
 
+% --- Executes on button press in TKEOmoreBox.
+function TKEOmoreBox_Callback(hObject, eventdata, handles)
+% hObject    handle to TKEOmoreBox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if eventdata.Source.Value
+    disp([hObject.String, ' has been selected...']);
+else
+    disp([hObject.String, ' has been de-selected...']);
+end
+resetAll(hObject, handles);
+
+% --- Executes on button press in optimizeBox.
+function optimizeBox_Callback(hObject, eventdata, handles)
+% hObject    handle to optimizeBox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if eventdata.Source.Value
+    disp([hObject.String, ' has been selected...']);
+else
+    disp([hObject.String, ' has been de-selected...']);
+end
+resetAll(hObject, handles);
 
 %% Private functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -778,5 +812,8 @@ handles.UserData.openPortFlag = 1;
 handles.UserData.classInfo = classInfo;
 handles.UserData.parameters = parameters;
 handles.UserData.tB = tB;
+
+
+
 
 
