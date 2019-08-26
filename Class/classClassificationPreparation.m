@@ -61,6 +61,7 @@ classdef classClassificationPreparation
             minDistance(minDistance==0) = 1;
             
             parameters.burstLen = floor(parameters.burstLen * targetClassData.samplingFreq);
+            parameters.stepWindowSize = floor(parameters.stepWindowSize * targetClassData.samplingFreq);
             clfp.burstDetection = detectSpikes(dataValue,minDistance,parameters);
             clfp.burstDetection.dataAnalysed = [targetClassData.file,' -> ',dataName];
             clfp.burstDetection.detectionMethod = parameters.spikeDetectionType;
@@ -80,10 +81,11 @@ classdef classClassificationPreparation
             [dataValue, dataName] = loadMultiLayerStruct(targetClassData,parameters.overlappedWindow);
             
             if parameters.burstTrimming % to trim the bursts
-                p = plotFig(targetClassData.time/targetClassData.samplingFreq,[dataValue,targetClassData.dataAll(:,12)],'','','Time(s)','Amplitude(V)',0,1);
+                p = plotFig(targetClassData.time/targetClassData.samplingFreq,dataValue,'','','Time(s)','Amplitude(V)',0,1);
+%                 p = plotFig(targetClassData.time/targetClassData.samplingFreq,[dataValue,targetClassData.dataAll(:,12)],'','','Time(s)','Amplitude(V)',0,1);
                                 
                 [clfp.burstDetection.spikePeaksValue,clfp.burstDetection.spikeLocs,clfp.burstDetection.burstEndValue,clfp.burstDetection.burstEndLocs,clfp.burstDetection.selectedBurstsIndex] =...
-                    deleteBurst(parameters.burstTrimmingType, parameters.burstTrimmingWay, p, targetClassData.time, targetClassData.samplingFreq, clfp.burstDetection.spikePeaksValue,clfp.burstDetection.spikeLocs,clfp.burstDetection.burstEndValue,clfp.burstDetection.burstEndLocs);
+                    deleteBurst(parameters.burstTrimmingType, parameters.burstTrimmingWay, p, targetClassData.time, targetClassData.samplingFreq, clfp.burstDetection.spikePeaksValue,clfp.burstDetection.spikeLocs,clfp.burstDetection.burstEndValue,clfp.burstDetection.burstEndLocs, parameters.markBurstInAllChannels);
             else
                 clfp.burstDetection.selectedBurstsIndex = getSelectedBurstsIndex(clfp);
             end
@@ -127,10 +129,9 @@ classdef classClassificationPreparation
             baselineInfo = getBaselineFeature(clfp.burstDetection,samplingFreq,data,baselineType,dataForThreshChecking);
             clfp = insertBaselineFeature(clfp,baselineInfo);
         end
-
     end
     
-    methods (Access = protected)
+    methods (Access = protected)        
         function clfp = trimShortenedBursts(clfp,dataValue,samplingFreq)
             minDistance = round(clfp.trimMinDistance * samplingFreq); % minimum distance surrounding the bursts that need to be not zero
             

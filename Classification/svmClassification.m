@@ -5,7 +5,7 @@ function output = svmClassification(trainingGroup,trainingClassGroup,testingGrou
 % 
 %   output = svmClassification(trainingGroup,trainingClassGroup,testingGroup)
 
-numFeatures = size(trainingGroup,2);
+% numFeatures = size(trainingGroup,2);
 
 % kernelSizeValue = 1; 
 % kernelSizeValue = sqrt(numFeatures)/4; % fine Gaussian
@@ -13,21 +13,27 @@ numFeatures = size(trainingGroup,2);
 % templateMdl = templateSVM('Standardize',1,'KernelFunction','polynomial','KernelScale',kernelSizeValue);
 templateMdl = templateSVM('Standardize',1,'KernelFunction','polynomial');
 
-Mdl = fitcecoc(trainingGroup,trainingClassGroup,'Learners',templateMdl,'FitPosterior',1,'Verbose',0);
+Mdl = fitcecoc(trainingGroup,trainingClassGroup,'Learners',templateMdl,'FitPosterior',1,...
+               'Verbose',0, 'HyperparameterOptimizationOptions',struct('UseParallel',true));
 
-% CVMdl = crossval(Mdl); % kFold = 10 for cross-validation
+CVMdl = crossval(Mdl); % kFold = 10 for cross-validation
 
-% oosLoss = kfoldLoss(CVMdl); % generalization error
+oosLoss = kfoldLoss(CVMdl); % generalization error
 
 %% Prediction
-[predictClass,~,~,posteriorRegion] = predict(Mdl,testingGroup); % predict
+if isempty(testingGroup)
+    predictClass = [];
+    posteriorRegion = [];
+else
+    [predictClass,~,~,posteriorRegion] = predict(Mdl,testingGroup); % predict
+end
 
 % oofLabel = kfoldPredict(CVMdl); % predicted class, similar as the output of the function predict
 
 %% Output
 output.Mdl = Mdl;
-% output.CVMdl = CVMdl;
-% output.oosLoss = oosLoss;
+output.CVMdl = CVMdl;
+output.oosLoss = oosLoss;
 output.predictClass = predictClass;
 output.posteriorRegion = posteriorRegion;
 
