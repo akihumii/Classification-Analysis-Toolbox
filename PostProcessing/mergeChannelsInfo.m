@@ -1,7 +1,9 @@
 function output = mergeChannelsInfo(data,input,numChannel,type)
 %COMBINECHANNELS Merge the informations across all the channels
-%   input:  type: 'merge': use the first starting point and last end point
+%   input:  type: 'just':  just merge without doing anything!
+%                 'merge': use the first starting point and last end point
 %                 'first': use the first starting point and first end point
+%                 'merge overlap': only get those are closed enough to each other
 %   output = mergeChannelsInfo(data,input)
 
 locsAll = [input.spikeLocs(:), input.burstEndLocs(:)]; % [startLocs, endLocs]
@@ -18,6 +20,8 @@ overlapBursts = [[locsAllEdited(:,1); inf], [0; locsAllEdited(:,2)]];
 
 overlappingFlag = diff(overlapBursts,[],2) > 0;
 switch type
+    case 'just'
+        
     case 'merge'
         overlapBursts(overlappingFlag,:) = [];
         locsAllEdited = [overlapBursts(1:end-1,1), overlapBursts(2:end,2)];

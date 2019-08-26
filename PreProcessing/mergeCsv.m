@@ -4,14 +4,15 @@ function [] = mergeCsv()
 skipLine = 1;
 [files, path] = selectFiles('Select csv files to merge');
 
-savefile = uiputfile('*.csv');
+[savefile, savepath] = uiputfile('*.csv');
+savefullfile = fullfile(savepath, savefile);
 
-fidSave = fopen(savefile, 'w');
+fidSave = fopen(savefullfile, 'w');
 
 numFiles = length(files);
 
 for i = 1:numFiles
-    popMsg(sprintf('Processing file %d...', i));
+    popMsg(sprintf('Processing file %d: %s...', i, fullfile(path, files{1,i})));
     fidTemp = fopen(fullfile(path, files{1,i}),'r');
     lineTemp = fgets(fidTemp);
     for j = 1 : skipLine
@@ -30,6 +31,6 @@ end
 
 fclose(fidSave);
 
-popMsg('Finished...');
+popMsg(sprintf('Finished proessing %s...', savefullfile));
 end
 

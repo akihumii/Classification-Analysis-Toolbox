@@ -8,6 +8,9 @@ lowCutoff = 0.3;
 highCutoff = 0.7;
 
 dataSorted = sort(data(data~=0),1);
+if isempty(dataSorted)
+    dataSorted = data;
+end
 
 numSample = length(dataSorted);
 

@@ -35,6 +35,9 @@ pause;
 
 locs = h.getPosition;
 startLocs = floor((locs(1,1) - time(1,1)/samplingFreq) * samplingFreq + 1);
+if startLocs <= 0
+    startLocs = 1;
+end
 endLocs = startLocs + floor((locs(3) * samplingFreq));
 
 close
