@@ -206,9 +206,11 @@ disp(' ')
 %% Ending
 tic
 popMsg('Saving .mat files...')
-if parameters.saveUserInput
-    for i = 1:length(signal)
+for i = 1:length(signal)
+    if parameters.saveUserInput
         saveFileName{1,i} = saveVar([signal(i,1).path,'Info',filesep],signal(i,1).fileName,signal(i,1),signalClassification(i,1),windowsValues(i,1),parameters);
+    else
+        saveFileName{1,i} = [];
     end
 end
 popMsg([num2str(toc), ' seconds is used for saving info...'])

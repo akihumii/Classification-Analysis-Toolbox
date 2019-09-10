@@ -24,29 +24,32 @@ if parameters.optimizeTKEOFlag
     getSVMLoss(objOptimize, output, parameters);  % check current loss
     objOptimize.lossOrig = objOptimize.Mdl.oosLoss;
     
-    timeit = tic;
-    parameters = randomizeTKEOParameters(objOptimize, parameters);  % get new parameters
-    output = runPreparation(signal, output, parameters, iter);
-    getSVMLoss(objOptimize, output, parameters);  % check new loss
-    
-    updateOptimizeFlag(objOptimize, parameters);
-    toc(timeit);
-    
-    timeit = tic;
-    while objOptimize.optimizeFlag
-        parameters = editTKEOParameters(objOptimize, parameters);
+    if parameters.lossLimit ~= Inf
+        timeit = tic;
+        parameters = randomizeTKEOParameters(objOptimize, parameters);  % get new parameters
         output = runPreparation(signal, output, parameters, iter);
-        
         getSVMLoss(objOptimize, output, parameters);  % check new loss
-        updateOptimizeFlag(objOptimize, parameters);
-        updateCounter(objOptimize, parameters);
         
-        saveTKEOParameter(objOptimize, parameters);
+        updateOptimizeFlag(objOptimize, parameters);
         toc(timeit);
+        
+        timeit = tic;
+        while objOptimize.optimizeFlag
+            parameters = editTKEOParameters(objOptimize, parameters);
+            output = runPreparation(signal, output, parameters, iter);
+            
+            getSVMLoss(objOptimize, output, parameters);  % check new loss
+            updateOptimizeFlag(objOptimize, parameters);
+            updateCounter(objOptimize, parameters);
+            
+            saveTKEOParameter(objOptimize, parameters);
+            toc(timeit);
+        end
+        
+        parameters.objOptimize.timetaken = toc(timeit);
+        parameters = getLowestLoss(objOptimize, parameters);
     end
     parameters.objOptimize = objOptimize;
-    parameters.objOptimize.timetaken = toc(timeit);
-    parameters = getLowestLoss(objOptimize, parameters);
 end
 end
 
