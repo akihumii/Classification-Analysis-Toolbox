@@ -25,7 +25,7 @@ burst = zeros(windowSize,0);
 sizeData = length(data);
 
 %% Run
-while windowEndPoint <= sizeData
+while windowEndPoint+1 <= sizeData
     windowTemp = windowEndPoint-windowSize+1:windowEndPoint+1;
     
     if all(dataForThreshold(windowTemp) < threshold)

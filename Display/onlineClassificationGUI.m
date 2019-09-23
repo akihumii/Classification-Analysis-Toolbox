@@ -22,7 +22,7 @@ function varargout = onlineClassificationGUI(varargin)
 
 % Edit the above text to modify the response to help onlineClassificationGUI
 
-% Last Modified by GUIDE v2.5 13-Mar-2019 19:57:41
+% Last Modified by GUIDE v2.5 26-Aug-2019 16:29:06
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -88,7 +88,7 @@ else
     handles.tableThresh.Enable = 'off';
 end
 
-handles.UserData.numChannelDisp = 2;
+% handles.UserData.numChannelDisp = 4;
 handles.tableThresh.Data = cell(handles.UserData.numChannelDisp,1);
 handles.inputThreshMult.Data = cell(1,handles.UserData.numChannelDisp);
 handles.inputArtefact.Data = cell(handles.UserData.numChannelDisp,1);
@@ -210,15 +210,16 @@ guidata(hObject, handles);
 
 function buttonSaveFeatures_Callback(hObject, eventdata, handles)
 disp(' ')
-try
+% try
     [threshMultStr, signal, signalClassificationInfo, saveFileName, parameters] = onlineClassifierDetectBursts(handles);
-    filepath = saveBurstsInfo(signal, signalClassificationInfo, saveFileName, parameters.markBurstInAllChannels);
-    getPythonClassifier(filepath);
+    [fullfilenameFeature, fullfilenameClass] = saveBurstsInfo(signal, signalClassificationInfo, saveFileName, parameters.markBurstInAllChannels);
+    getPythonClassifier(fullfilenameFeature, fullfilenameClass);
     handles.inputThreshMult.Data = checkSizeNTranspose(threshMultStr, 1);
-catch
-    popMsg('Error while saving features...');
-    handles.UserData.threshMultStr = '';
-end
+    popMsg('Finished feature saving...');
+% catch
+%     popMsg('Error while saving features...');
+%     handles.UserData.threshMultStr = '';
+% end
 guidata(hObject, handles);
 
 
@@ -404,6 +405,18 @@ if all(filterCutoffFreq > 0) && sign(diff(filterCutoffFreq)) == -1
 end
 resetAll(hObject, handles);
 
+% --- Executes when selected object is changed in buttonGroupChannelMode.
+function buttonGroupChannelMode_SelectionChangedFcn(hObject, eventdata, handles)
+handles.UserData.numChannelDisp = str2num(hObject.String(1));
+disp([hObject.String, ' has been selected...']);
+resetAll(hObject, handles);
+
+
+% --- Executes when selected object is changed in buttonGroupSMChannel.
+function buttonGroupSMChannel_SelectionChangedFcn(hObject, eventdata, handles)
+handles.UserData.multiChannelFlag = ~isempty(strfind(hObject.String, 'Multi'));
+disp([hObject.String, ' has been selected...']);
+resetAll(hObject, handles);
 
 % --- Executes during object deletion, before destroying properties.
 function inputBlankSize_DeleteFcn(hObject, eventdata, handles)
@@ -416,6 +429,41 @@ end
 catch
 end
 
+% --- Executes on button press in burstTrimmingBox.
+function burstTrimmingBox_Callback(hObject, eventdata, handles)
+% hObject    handle to burstTrimmingBox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if eventdata.Source.Value
+    disp([hObject.String, ' has been selected...']);
+else
+    disp([hObject.String, ' has been de-selected...']);
+end
+resetAll(hObject, handles);
+
+% --- Executes on button press in TKEOmoreBox.
+function TKEOmoreBox_Callback(hObject, eventdata, handles)
+% hObject    handle to TKEOmoreBox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if eventdata.Source.Value
+    disp([hObject.String, ' has been selected...']);
+else
+    disp([hObject.String, ' has been de-selected...']);
+end
+resetAll(hObject, handles);
+
+% --- Executes on button press in optimizeBox.
+function optimizeBox_Callback(hObject, eventdata, handles)
+% hObject    handle to optimizeBox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if eventdata.Source.Value
+    disp([hObject.String, ' has been selected...']);
+else
+    disp([hObject.String, ' has been de-selected...']);
+end
+resetAll(hObject, handles);
 
 %% Private functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -425,9 +473,11 @@ handles.UserData = struct(...
     'stopFlag', 1,...
     'openPortFlag', 0,...
     'stopAll', 0,...
-    'multiChannelFlag', 0,...
+    'multiChannelFlag', ~isempty(strfind(handles.buttonGroupSMChannel.SelectedObject.String, 'Multi')),...
     'bionicHandConnection',0,...
-    'portHand',sprintf('COM%s', handles.inputCOMPORT.String));
+    'portHand',sprintf('COM%s', handles.inputCOMPORT.String),...
+    'numChannelDisp', 4,...
+    'featuresID', [5,8]);
 handles.UserData.chPorts = struct(...
     'Ch1',1340,...
     'Ch2',1341,...
@@ -442,7 +492,7 @@ handles.UserData.chPorts = struct(...
 
 guidata(hObject, handles);
 
-function filepath = saveBurstsInfo(signal, signalClassificationInfo, saveFileName, markBurstInAllChannels)
+function [fullfilenameFeature, fullfilenameClass] = saveBurstsInfo(signal, signalClassificationInfo, saveFileName, markBurstInAllChannels)
 featuresForClassification = [5,8];  % selected features for classification        
 numFile = length(signalClassificationInfo);
 
@@ -455,22 +505,41 @@ end
 
 [~, filename] = fileparts(saveFileName{1,1});
 
-% if markBurstInAllChannels
-%     timeStamps = time2string();
-%     for i = 1:numFile
-%         fullfilenameFeature = fullfile(filepath,sprintf('featuresMv%d_%s_%s.csv', signal(i,1).channel(1,i), filename, timeStamps));
-%         fullfilenameClass = fullfile(filepath,sprintf('classMv%d_%s_%s.csv', signal(i,1).channel(1,i), filename, timeStamps));
-% 
-%     end
-% 
-% else
+if markBurstInAllChannels
+    for i = 1:numFile
+        featureStruct = signalClassificationInfo(i,1).features;
+        featureStruct = rmfield(featureStruct, 'dataAnalysed');  % to make it able to build a full table
+        featureTable = struct2table(featureStruct);
+        
+        feature{i,1} = table2array(featureTable(:,featuresForClassification));  % get the target features
+        
+        % get corresponding class
+        class{i,1} = i * ones(size(feature{i,1},1),1);
+    end
+
+    feature = vertcat(feature{:,1});
+    class = vertcat(class{:,1});
+    numClassUnique = length(unique(class));
+    
+    timeStamps = time2string();
+    fullfilenameFeature{1,1} = fullfile(filepath,sprintf('featuresCha%d_%s_%s.csv', numClassUnique, filename, timeStamps));
+    fullfilenameClass{1,1} = fullfile(filepath,sprintf('classCha%d_%s_%s.csv', numClassUnique, filename, timeStamps));
+    
+    fullfilenameFeature{1,1} = strrep(fullfilenameFeature{1,1}, ' ', '_');
+    fullfilenameClass{1,1} = strrep(fullfilenameClass{1,1}, ' ', '_');
+
+    
+    % save features and classes
+    csvwrite(fullfilenameFeature{1,1}, feature)
+    disp(['Saved ', fullfilenameFeature{1,1}, '...']);
+    csvwrite(fullfilenameClass{1,1}, class)
+    disp(['Saved ', fullfilenameClass{1,1}, '...']);
+    
+else
+    
     for i = 1:numFile
         numClass = 2;
-        
-        timeStamps = time2string();
-        fullfilenameFeature = fullfile(filepath,sprintf('featuresCh%d_%s_%s.csv', signal(i,1).channel(1,i), filename, timeStamps));
-        fullfilenameClass = fullfile(filepath,sprintf('classCh%d_%s_%s.csv', signal(i,1).channel(1,i), filename, timeStamps));
-        
+
         featureStruct = signalClassificationInfo(i,1).features;
         featureStruct = rmfield(featureStruct, 'dataAnalysed');  % to make it able to build a full table
         featureTable = struct2table(featureStruct);
@@ -482,58 +551,121 @@ end
         
         % get corresponding class
         class = [];
+        count = numClass-1;
         for j = 1:numClass
             featureTemp = featureRaw(:,j);
-            class = vertcat(class, repmat(j, sum(all([~isnan(featureTemp), featureTemp ~= 0], 2)), 1));
+            class = vertcat(class, repmat(j+count, sum(all([~isnan(featureTemp), featureTemp ~= 0], 2)), 1));
+            count = count - 2;
         end
         
+        timeStamps = time2string();
+        fullfilenameFeature{i,1} = fullfile(filepath,sprintf('featuresCh%d0_%s_%s.csv', signal(i,1).channel(1,i), filename, timeStamps));
+        fullfilenameClass{i,1} = fullfile(filepath,sprintf('classCh%d0_%s_%s.csv', signal(i,1).channel(1,i), filename, timeStamps));
+        
+        fullfilenameFeature{i,1} = strrep(fullfilenameFeature{i,1}, ' ', '_');
+        fullfilenameClass{i,1} = strrep(fullfilenameClass{i,1}, ' ', '_');
+        
         % save features and classes
-        csvwrite(fullfilenameFeature, feature)
-        disp(['Saved ', fullfilenameFeature, '...']);
-        csvwrite(fullfilenameClass, class)
-        disp(['Saved ', fullfilenameClass, '...']);
+        csvwrite(fullfilenameFeature{i,1}, feature)
+        disp(['Saved ', fullfilenameFeature{i,1}, '...']);
+        csvwrite(fullfilenameClass{i,1}, class)
+        disp(['Saved ', fullfilenameClass{i,1}, '...']);
     end
-% end
+end
 
 popMsg('Features and Classes saving finished...');
 
 
-function getPythonClassifier(filepath)
+function getPythonClassifier(fullfilenameFeature, fullfilenameClass)
+% clear all the existing saved classifiers
+% cwd = pwd;
+% cd(fileparts(fullfilenameFeature{1,1}))
+% savedClassifier = dir('*.sav');  % get all the saved classifier
+% for i = 1:length(savedClassifier)
+%     delete(savedClassifier(i,1).name)
+% end
+
 % train python classifier
-systemCmd = sprintf('python %s %s', fullfile('C:', 'classificationTraining.py'), filepath);
-system(systemCmd)
+for i = 1:length(fullfilenameFeature)
+    systemCmd = sprintf('python %s %s %s', fullfile('C:', 'classification_training.py'), fullfilenameFeature{i,1}, fullfilenameClass{i,1});
+    system(systemCmd)
+end
 
 popMsg('Saved Classifier...');
 
 % transfer classifier to rpi
 cwd = pwd;
+filepath = fileparts(fullfilenameFeature{1,1});
 cd(filepath)
 savedClassifier = dir('*.sav');  % get all the saved classifier
+savedNorm = dir('norms*');
 cd(cwd)
 
-for i = 1:length(savedClassifier)
+% get the generated .sav files
+savedClassifierTable = struct2table(savedClassifier);
+savedNormTable = struct2table(savedNorm);
+
+singleChannelFlag = isempty(strfind(fullfilenameFeature{1,1},'Cha'));
+if singleChannelFlag  % single-channel
+    targetClassifier = savedClassifierTable(isempty(strfind(savedClassifierTable.name,'classifierCha')),1);
+    targetNorm = savedNormTable(isempty(strfind(savedNormTable.name,'normsCha')),1);
+    numClassifier = length(targetClassifier.name);
+else  % multi-channel
+    targetClassifier = savedClassifierTable(~isempty(strfind(savedClassifierTable.name,'classifierCha')),1);
+    targetNorm = savedNormTable(~isempty(strfind(savedNormTable.name,'normsCha')),1);
+    numClassifier = 1;
+end
+
+for i = 1:numClassifier
     % IMPORTANT! download pscp in order to use this command
     try  % for Windows
-        systemCmd = sprintf('pscp -pw raspberry -scp %s pi@192.168.4.3:~/classificationTmp/', fullfile(filepath, savedClassifier(i,1).name));
+        % transfer classifier
+        if iscell(targetClassifier(i,1).name)
+            targetClassifierFilename = fullfile(filepath, targetClassifier(i,1).name{1,1});
+        else
+            targetClassifierFilename = fullfile(filepath, targetClassifier(i,1).name);
+        end
+        systemCmd = sprintf('pscp -pw raspberry -scp %s pi@192.168.4.3:~/classificationTmp/', targetClassifierFilename);
         status = system(systemCmd);
         if ~status  % failed to transfer
-            popMsg('Successfully transfered file...');
+            popMsg(sprintf('Successfully transfered %s...', targetClassifierFilename));
         else
-            popMsg('failed to transfer file...');
+            popMsg(sprintf('failed to transfer %s...', targetClassifierFilename));
+            break
+        end
+        
+        % transfer norms
+        if iscell(targetNorm(i,1).name)
+            targetNormFilename = fullfile(filepath, targetNorm(i,1).name{1,1});
+        else
+            targetNormFilename = fullfile(filepath, targetNorm(i,1).name);
+        end
+        systemCmd = sprintf('pscp -pw raspberry -scp %s pi@192.168.4.3:~/classificationTmp/', targetNormFilename);
+        status = system(systemCmd);
+        if ~status  % failed to transfer
+            popMsg(sprintf('Successfully transfered %s...', targetNormFilename));
+        else
+            popMsg(sprintf('failed to transfer %s...', targetNormFilename));
             break
         end
     catch
+        disp('Using Linux command...')
         try  % for Linux
-            systemCmd = sprintf('sshpass -p raspberry scp %s pi@192.168.4.3:~/classificationTmp/', fullfile(filepath, savedClassifier(i,1).name));
+            systemCmd = sprintf('sshpass -p raspberry scp %s pi@192.168.4.3:~/classificationTmp/', fullfile(filepath, targetClassifier(i,1).name{1,1}));
             system(systemCmd)
         catch
-            popMsg('failed to transfer file...')
+            popMsg('failed to transfer classifiers...')
+            break
+        end
+        try  % for Linux
+            systemCmd = sprintf('sshpass -p raspberry scp %s pi@192.168.4.3:~/classificationTmp/', fullfile(filepath, targetNorm(i,1).name{1,1}));
+            system(systemCmd)
+        catch
+            popMsg('failed to transfer norms...')
             break
         end
     end
 end
-
-
 
 function resetAll(hObject, handles)
 disp('Program stopped...')
@@ -687,7 +819,3 @@ handles.UserData.tB = tB;
 
 
 
-% --- Executes when selected object is changed in buttonGroupChannelMode.
-function buttonGroupChannelMode_SelectionChangedFcn(hObject, eventdata, handles)
-handles.UserData.numChannelDisp = str2num(hObject.String(1));
-resetAll(hObject, handles);

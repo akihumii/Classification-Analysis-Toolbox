@@ -143,10 +143,10 @@ for i = 1:numData
             p(j,i) = subplot(numPlot,1,j);
             
             if numData > 1
-                title([titleName, ' ', fileName, ' set ', num2str(j), titleTemp], 'Fontunit', sizeUnit, 'FontSize', titleFontSize)
+                title([titleName, ' ', fileName, ' set ', num2str(j), titleTemp], 'Fontunit', sizeUnit, 'FontSize', titleFontSize, 'Interpreter', 'none')
                 saveName = [titleName, ' ', fileName, titleTemp];
             else
-                title([titleName, ' ', fileName, titleTemp], 'Fontunit', sizeUnit, 'FontSize', titleFontSize)
+                title([titleName, ' ', fileName, titleTemp], 'Fontunit', sizeUnit, 'FontSize', titleFontSize, 'Interpreter', 'none')
                 saveName = [titleName, ' ', fileName, titleTemp];
             end
             hold on
@@ -246,7 +246,7 @@ for i = 1:numData
     if isequal(type, 'subplot')
         linkaxes(p(:,1),'x');
     else
-        title([titleName, ' ', fileName, titleTemp], 'Fontunit', sizeUnit, 'FontSize', titleFontSize)
+        title([titleName, ' ', fileName, titleTemp], 'Fontunit', sizeUnit, 'FontSize', titleFontSize, 'Interpreter', 'none')
         saveName = [titleName, ' ', fileName, titleTemp];
     end
     

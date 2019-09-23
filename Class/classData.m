@@ -55,8 +55,10 @@ classdef classData
                             data.samplingFreq = 3e6/14/12;
                         case 'neutrino2'
                             data.samplingFreq = 3e6/14/12;
+                        case 'raw'
+                            data.samplingFreq = 1250;
                         otherwise
-                            error('Invalid dataType. Configurable dataType: ''Neutrino'', ''intan'', ''sylphX'', ''sylphII''')
+                            error('Invalid dataType. Configurable dataType: ''Neutrino'', ''intan'', ''sylphX'', ''sylphII'', ''raw''')
                     end
                 else
                     data.samplingFreq = parameters.samplingFreq;

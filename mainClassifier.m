@@ -29,6 +29,7 @@ parameters = struct(...
     'partialDataSelection',0,...; % input 1 to select partial data to analyse, otherwise input 0
     'constraintWindow',[-0.30075,6.9049],... % starting point and end point of constraint window, unit is in seconds. Input 0 for default (pre-select the whole signal). It can be found in signal.analysedDataTiming(2,:), the first row is the timing in seconds
     'markBurstInAllChannels',0,... % mark all the channels when one of the channels detects a burst
+    'makeFirstFileBaseline',0,...  % use the moving window technique to get the baseline of the first file as bursts
     'burstLen',0,... % fix the length of the detected bursts, input zero if not enabling it
     'getBaselineFeatureFlag',1,... % get the features of the baseline, which is the data that are not marked as bursts
     'baselineType','invert',... % either 'inverrt', 'sorted', or 'movingWindow': 'invert' will choose the sections that are not bursts, while 'sorted' will choose sort the data ascendingly and choose the middle part as baseline, 'movingWindow' will use either the largest burst length or 500 ms as window size and sweeping through to search for the window that doesn't have points exceeding threshold
@@ -48,6 +49,7 @@ parameters = struct(...
     'dataToBeDetectedSpike','dataFiltered',... % data for spike detecting
     'overlappedWindow','dataFiltered',... % Select window for overlapping. Input 'dataRaw', 'dataFiltered', 'dataDifferential', 'dataTKEO'
     'spikeDetectionType','trigger',... % input 'local maxima' for local maxima, input 'trigger for first point exceeding parameters.threshold, input 'TKEO' for taking following consecutive points into account
+    'stepWindowSize', 0.05,...  % step size to use in TKEOmore mode, that a burst will be subsample to the size of burst length with separation of this stepWindowSize
     ...
     'threshold', [7e-3],... %[0.2e-4],... % specified one parameters.threshold for spikes detection in all the channels; multiple thresholds are allowed for different channels; input 0 for default value (baseline + threshMult * baselineStandardDeviation) (baseline is obtained by calculating the mean of the data points spanned between 1/4 to 3/4 of the data array sorted by amplitudes)
     'threshStdMult',[25,20,20,20],... % multiples of standard deviation above the baseline as the parameters.threshold for TKEO detection. All channels will use the same value if there is only one value, multiple values are allowed for different channels
@@ -74,6 +76,11 @@ parameters = struct(...
     'dataPeriodicOmitWindowSize',0.0007,... % window size to periodically omit it (seconds)
     'dataPeriodicOmitStartingPoint',2.4291,... % starting point to periodically omit data chunk (seconds)
     ...
+    'optimizeTKEOFlag', 0,...  % check svm cross-validation and tune TKEO parameters accordingly
+    'featuresID', [],...  % to select the features for optimizingTKEO
+    'deltaLossLimit', 1e-4,...  % limit of delta loss during classifier optimization
+    'lossLimit', 1e-3,...  % limit of loss during classifier optimization
+    'learningRate', [20, 20, 10],...  % learning rate for TKEO number of point for onset and offset, and threshold multiplier
     'TKEOStartConsecutivePoints',[35],... % number of consecutive points over the parameters.threshold to be detected as burst
     'TKEOEndConsecutivePoints',[100],... % number of consecutive points below the parameters.threshold to be detected as end of burst
     'burstTrimming',0,... % to exclude the bursts by inputting the bursts indexes
@@ -144,7 +151,7 @@ if ~parameters.noClassification || parameters.showOverlap || parameters.saveOver
     tic
     popMsg('Start locting bursts...')
     % if parameters.showOverlap==1 || parameters.saveOverlap==1 % peaks detection is only activated when either parameters.showOverlap or parameters.saveOverlap or both of them are TRU
-    signalClassification = dataClassificationPreparation(signal, iter, parameters);
+    [signalClassification, parameters] = dataClassificationPreparation(signal, iter, parameters);
     
     % else
     %     signalClassification = 1;

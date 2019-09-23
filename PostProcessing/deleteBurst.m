@@ -6,7 +6,7 @@ function varargout = deleteBurst(type, way, p, time, samplingFreq, varargin)
 %               'drag' to drag the area that containst the burst, end the process by hitting 'Enter'
 %
 % intput & output: varargout & varargin = onsetValues, onsetLocs,
-% offsetValues, offsetLocs
+% offsetValues, offsetLocs, markBurstInAllChannels
 % output: varargout{1,5} = selectedBursts
 %
 %   varargout = deleteBurst(type, way, p, time, samplingFreq, varargin)
@@ -34,48 +34,32 @@ else
         for i = 1:burstNumTemp
             pStart = plot(time(onsetLocsTemp(i,1))/samplingFreq, onsetValuesTemp(i,1), 'ro'); % onset points
             pEnd = plot(time(offsetLocsTemp(i,1))/samplingFreq, offsetValuesTemp(i,1), 'rx'); % offset points
-            t = text(time(onsetLocsTemp(i,1))/samplingFreq, yLimit(1)/1e4, num2str(i));
+            if ~varargin{1,5}
+                t = text(time(onsetLocsTemp(i,1))/samplingFreq, yLimit(1)/1e4, num2str(i));
+            elseif n == numAxes
+                t = text(time(onsetLocsTemp(i,1))/samplingFreq, yLimit(1)/1e4, num2str(i));
+            end
             t.FontSize = 13;
         end
         
-        if burstNumTemp > 0
-            legend([pStart,pEnd],'starting points','end points');
-            
-            hold off
-            
-            %% Input bursts index
-            selectedBursts{n,1} = zeros(0,1);
-            
-            disp(' ')
-            disp('Start selecting bursts:')
-            switch way
-                case 'key'
-                    disp('Input bursts index:')
-                    selectedBursts{n,1} = [selectedBursts{n,1};input('')];
-                    while selectedBursts{n,1}(end) ~= 0
-                        selectedBursts{n,1} = [selectedBursts{n,1};input('')];
-                    end
-                    selectedBursts{n,1}(end) = [];
-                    
-                case 'drag'
-                    while true
-                        selectedBurstsTemp = getrbboxData(p(n),...
-                            time(onsetLocsTemp)/samplingFreq,time(offsetLocsTemp(~isnan(offsetLocsTemp)))/samplingFreq);
-                        if selectedBurstsTemp == -1
-                            break
-                        elseif ~isempty(selectedBurstsTemp)
-                            disp(num2str(selectedBurstsTemp))
-                            selectedBursts{n,1} = [selectedBursts{n,1};selectedBurstsTemp'];
-                        end
-                    end
-                otherwise
-            end
-        else
-            selectedBursts{n,1} = nan;
+        if ~varargin{1,5}
+            selectedBursts = selectBursts(onsetLocsTemp, offsetLocsTemp, samplingFreq, burstNumTemp, pStart, pEnd, n, way, p, time);
         end
     end
+    
+    %% If parameters 'markBurstInAllChannels' is true
+    if varargin{1,5}
+        selectedBursts = selectBursts(onsetLocsTemp, offsetLocsTemp, samplingFreq, burstNumTemp, pStart, pEnd, n, way, p, time);
+        selectedBurstsAll = horzcat(selectedBursts{:});
+        for i = 1:numAxes
+            selectedBursts{i,1} = selectedBurstsAll;
+        end
+    end
+    
+    popMsg('Finished processing current figure...');
+    
     %% Delete unwatned bursts
-    for i = 6:nargin
+    for i = 6:nargin-1
         for n = 1:numAxes
             outputTemp{n,1} = varargin{1,i-5}(:,n);
             if ~isempty(selectedBursts{n,1}) && all(~isnan(selectedBursts{n,1}))
@@ -97,5 +81,43 @@ end
     function dragData(src,event)
         
     end
+end
+
+function selectedBursts = selectBursts(onsetLocsTemp, offsetLocsTemp, samplingFreq, burstNumTemp, pStart, pEnd, n, way, p, time)
+if burstNumTemp > 0
+    legend([pStart,pEnd],'starting points','end points');
+    
+    hold off
+    
+    %% Input bursts index
+    selectedBursts{n,1} = zeros(0,1);
+    
+    disp(' ')
+    disp('Start selecting bursts:')
+    switch way
+        case 'key'
+            disp('Input bursts index:')
+            selectedBursts{n,1} = [selectedBursts{n,1};input('')];
+            while selectedBursts{n,1}(end) ~= 0
+                selectedBursts{n,1} = [selectedBursts{n,1};input('')];
+            end
+            selectedBursts{n,1}(end) = [];
+            
+        case 'drag'
+            while true
+                selectedBurstsTemp = getrbboxData(p(n),...
+                    time(onsetLocsTemp)/samplingFreq,time(offsetLocsTemp(~isnan(offsetLocsTemp)))/samplingFreq);
+                if selectedBurstsTemp == -1
+                    break
+                elseif ~isempty(selectedBurstsTemp)
+                    disp(num2str(selectedBurstsTemp))
+                    selectedBursts{n,1} = [selectedBursts{n,1};selectedBurstsTemp];
+                end
+            end
+        otherwise
+    end
+else
+    selectedBursts{n,1} = nan;
+end
 end
 

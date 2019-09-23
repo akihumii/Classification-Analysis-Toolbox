@@ -3,6 +3,8 @@ function output = mat2confusionMat(data)
 %matrix with N-M matrix, where N is the number of class and M is the number
 %of observation. 
 % 
+% input: data: 1-M matrix
+% 
 %   output = mat2confusionMat(data)
 
 classArray = unique(data);

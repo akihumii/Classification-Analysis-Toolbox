@@ -24,6 +24,8 @@ if nargin < 2
     parameters.fixBurstLength = 0;
 end    
 
+paramMovingWindow = struct('threshold', 3, 'influence', 0);
+
 %% Find Peaks
 data = parameters.sign*data;
 
@@ -70,7 +72,7 @@ for i = 1:colData % channel
             [spikePeaksValue{i,1},spikeLocs{i,1}] = triggerSpikeDetection(data(minDistance(1):end-minDistance(2)-1,i),parameters.thresholdValue,minDistance(2));
             spikeLocs{i,1} = spikeLocs{i,1} + minDistance(1) - 1; % compensate the skipped window
             [burstEndValue{i,1},burstEndLocs{i,1}] = pointAfterAWindow(data(:,i),minDistance(2),spikeLocs{i,1});
-        case 'TKEO'
+        case {'TKEO','TKEOmore'}
             if length(parameters.TKEOStartConsecutivePoints) >= colData
             [spikePeaksValue{i,1},spikeLocs{i,1}] = triggerSpikeDetection(data(minDistance(1):end-minDistance(2)-1,i),parameters.thresholdValue,minDistance(2),parameters.TKEOStartConsecutivePoints(1,i),1); % the last value is the number of consecutive point that needs to exceed parameters.threshold to be detected as spikes
 %             [spikePeaksValue{i,1},spikeLocs{i,1}] = triggerSpikeDetection(data(minDistance(1):end-minDistance(2),i),parameters.thresholdValue,minDistance(2),parameters.TKEOStartConsecutivePoints); % the last value is the number of consecutive point that needs to exceed parameters.threshold to be detected as spikes
@@ -90,6 +92,18 @@ for i = 1:colData % channel
             spikeLocs{i,1} = parameters.spikeLocsFixed(:,i);
             spikePeaksValue{i,1} = data(parameters.spikeLocsFixed(:,i),i);
             [burstEndValue{i,1},burstEndLocs{i,1}] = pointAfterAWindow(data(:,i),minDistance(2),spikeLocs{i,1});
+        case 'moving window baseline'
+            if parameters.burstLen
+                paramMovingWindow.lag = parameters.burstLen;
+            else
+                paramMovingWindow.lag = size(data,1)/200;
+            end
+            if parameters.stepWindowSize
+                paramMovingWindow.step = parameters.stepWindowSize;
+            else
+                paramMovingWindow.step = paramMovingWindow.lag;
+            end
+            [spikePeaksValue{i,1},spikeLocs{i,1},burstEndValue{i,1},burstEndLocs{i,1}] = getMovingWindowBaselineBursts(data(:,i), paramMovingWindow);
         otherwise
             error('Invalid spike detection parameters.spikeDetectionType')
     end
@@ -117,12 +131,23 @@ output.parameters.threshStdMult = parameters.threshStdMult;
 output.parameters.TKEOStartConsecutivePoints = parameters.TKEOStartConsecutivePoints;
 output.parameters.TKEOEndConsecutivePoints = parameters.TKEOEndConsecutivePoints;
 
+%% mark bursts in all channels (optional)
 if parameters.burstLen
-    [output.spikeLocs, output.spikePeaksValue, output.burstEndLocs, output.burstEndValue] = ...
-        editBurstLen(data, parameters.burstLen, output.spikeLocs, output.spikePeaksValue);
-    mergeType = 'first';
+    if strcmp(parameters.spikeDetectionType, 'TKEOmore')
+        [output.spikeLocs, output.spikePeaksValue, output.burstEndLocs, output.burstEndValue] = ...
+            subsampleBursts(data, parameters.burstLen, parameters.stepWindowSize, output.spikeLocs, output.burstEndLocs);
+        mergeType = 'just';
+    else
+        [output.spikeLocs, output.spikePeaksValue, output.burstEndLocs, output.burstEndValue] = ...
+            editBurstLen(data, parameters.burstLen, output.spikeLocs, output.spikePeaksValue);
+        mergeType = 'first';
+    end
 else
     mergeType = 'merge';
+end
+
+if strcmp(parameters.spikeDetectionType, 'moving window baseline')
+    mergeType = 'merge overlap';
 end
 
 if parameters.markBurstInAllChannels
@@ -132,9 +157,5 @@ end
 % if parameters.getBaselineFeatureFlag
 %     output = getBaselineFeature(baseline,output);
 % end
-
-end
-
-function getFixedPointWindow()
 
 end

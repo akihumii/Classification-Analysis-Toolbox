@@ -5,7 +5,7 @@ function output = movingWindowSpikeDetection(data, lag, threshold, influence)
 %        threshold: number to multiply to standard deviation of window data
 %        influence: 0 to 1, as the influence of the spike to the basleine
 %                   window data
-%   output = movingWindowSpikeDetection(data)
+%   output = movingWindowSpikeDetection(data, lag, threshold, influence)
 
 signals = zeros(size(data));
 filter_data = data;
