@@ -1,4 +1,4 @@
-function output = detectSpikes(data, minDistance, parameters)
+function [output, varargout] = detectSpikes(data, minDistance, parameters)
 %detectSpikes After taking baseline into account, any sample point exceeds
 %3/5 of the maximum value of the parameters.signal will be considered as a spike. No 2
 %spikes will be detected in one window.
@@ -44,22 +44,26 @@ end
 if length(parameters.TKEOEndConsecutivePoints) == 1
     parameters.TKEOEndConsecutivePoints = repmat(parameters.TKEOEndConsecutivePoints,1,colData);
 end
-
+if ~isfield(parameters, 'thresholdValue')
+    parameters.thresholdValue = 0;
+end
 minDistance = floor(minDistance);
 
 for i = 1:colData % channel
     maxPeak = max(data(:,i));
     baseline{i,1} = baselineDetection(parameters.sign * data(:,i)); % the mean of the data points spanned from 1/4 to 3/4 of the data sorted by amplitude is obtained as baseline
-    if parameters.threshold == 0 % if no user input, baseline + parameters.threshStdMult * baselineStandardDeviation will be used as parameters.threshold value
-        if length(parameters.threshStdMult) < colData
-            error('Not enough parameters.threshStdMult for all the channels...');
+    if parameters.thresholdValue == 0
+        if parameters.threshold == 0 % if no user input, baseline + parameters.threshStdMult * baselineStandardDeviation will be used as parameters.threshold value
+            if length(parameters.threshStdMult) < colData
+                error('Not enough parameters.threshStdMult for all the channels...');
+            else
+                parameters.thresholdValue = parameters.sign * baseline{i,1}.mean + parameters.threshStdMult(1,i) * baseline{i,1}.std;
+            end
+        elseif length(parameters.threshold) == 1
+            parameters.thresholdValue = parameters.sign * parameters.threshold(1,1);
         else
-            parameters.thresholdValue = parameters.sign * baseline{i,1}.mean + parameters.threshStdMult(1,i) * baseline{i,1}.std;
+            parameters.thresholdValue = parameters.sign * parameters.threshold(1,i);
         end
-    elseif length(parameters.threshold) == 1
-        parameters.thresholdValue = parameters.sign * parameters.threshold(1,1);
-    else
-        parameters.thresholdValue = parameters.sign * parameters.threshold(1,i);
     end
     
     switch parameters.spikeDetectionType
@@ -158,4 +162,7 @@ end
 %     output = getBaselineFeature(baseline,output);
 % end
 
+if nargout > 1
+    varargout{1,1} = parameters;
+end
 end

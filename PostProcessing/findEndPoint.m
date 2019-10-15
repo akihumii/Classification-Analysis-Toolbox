@@ -10,13 +10,13 @@ if isnan(startPointLocs(1,1))
     return
 end
 
-numsStartPointLocs = length(startPointLocs);
+numStartPointLocs = length(startPointLocs);
 lengthData = length(data);
 
 endPointValue = zeros(0,1);
 endPointLocs = zeros(0,1);
 
-for i = 1:numsStartPointLocs 
+for i = 1:numStartPointLocs 
     for j = startPointLocs(i):lengthData-numConsecutivePoint
         dataTemp = data(j : (j+numConsecutivePoint));
         if  dataTemp < threshold
@@ -26,6 +26,5 @@ for i = 1:numsStartPointLocs
         end
     end
 end
-
 end
 
