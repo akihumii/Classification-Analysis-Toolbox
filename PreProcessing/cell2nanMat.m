@@ -14,6 +14,8 @@ if ~iscell(data)
 else
     if numCell == 1
         output = data{1,1};
+    elseif numCell == 0
+        output = 0;
     else
         for i = 1:numCell
             [numElement(i,1),numSet(i,1),numLayer(i,1)] = size(data{i});
