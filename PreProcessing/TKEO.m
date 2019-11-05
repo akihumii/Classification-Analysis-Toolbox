@@ -1,13 +1,22 @@
-function [dataTKEO_abs_filtered] = TKEO(data,samplingFreq)
+function [dataTKEO_abs_filtered] = TKEO(data,samplingFreq, varargin)
 %TKEO Output the TKEO data. Included all the steps except the trimming the
 %middle parts of the baseline and the developed bursts
-%   [dataTKEO_abs_filtered] = TKEO(data,Fs)
+% input: varargin: a matrix of 2 elements for pre-filtering
+% 
+%   [dataTKEO_abs_filtered] = TKEO(data,Fs, varargin)
 
 [rowData,colData] = size(data);
 
-data = filterData(data,samplingFreq,10,500); % bandpass filter of 10-500 Hz
+if nargin > 2
+    freqHighPass = varargin{1,1}(1);
+    freqLowPass = varargin{1,1}(2);
+    
+    data = filterData(data,samplingFreq,freqHighPass,freqLowPass); % bandpass filter of 10-500 Hz    
+else
+    data = filterData(data,samplingFreq,10,500); % bandpass filter of 10-500 Hz    
+    data = filterData(data,samplingFreq,30,300); % bandpass filter of 30-300 Hz
+end
 
-data = filterData(data,samplingFreq,30,300); % bandpass filter of 30-300 Hz
 
 for n = 1:colData
     for i = 2:rowData-1

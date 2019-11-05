@@ -7,14 +7,19 @@ lengthData = size(data,1); % Length of data
 
 for n = 1:size(data,3)
     for j = 1:size(data,2)
-            P3 = fft(data(~isnan(data(:,j)),j));
-%             P3 = fft(data(:,j));
-            P2 = abs(P3 / lengthData);
-            P1 = P2(1 : floor(lengthData/2+1));
-            P1(2 : end-1) = 2*P1(2 : end-1);
+        if all(isnan(data(:,j)))
+            data(:,j) = zeros(size(data,1), 1);
+            warning('One column of data for doing FFT is full of nan, replaced with zeros instead...')
+        end
         
-%         P2 = fft(data(:,j));
-%         P1 = abs(P2);
+        P3 = fft(data(~isnan(data(:,j)),j));
+        % P3 = fft(data(:,j));
+        P2 = abs(P3 / lengthData);
+        P1 = P2(1 : floor(lengthData/2+1));
+        P1(2 : end-1) = 2*P1(2 : end-1);
+        
+        % P2 = fft(data(:,j));
+        % P1 = abs(P2);
         dataFFT(:,j,n) = P1;
     end
 end

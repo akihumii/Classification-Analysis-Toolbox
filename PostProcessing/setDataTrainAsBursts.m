@@ -4,12 +4,15 @@ function dataBursts = setDataTrainAsBursts(outputBurstDetection, data)
 %function detectSpike
 %   dataBursts = setDataTrainAsBursts(outputBurstDetection, data)
 numBursts = numel(outputBurstDetection.spikeLocs);
-data = data(:);  % transform it into an 1D array
+data = reshape(data, [], size(data,3));  % transform it into an 1D array
 bursts = cell(numBursts, 1);
 for i = 1:numBursts
     locsTemp = outputBurstDetection.spikeLocs(i,1):...
         outputBurstDetection.burstEndLocs(i,1);
-    bursts{i,1} = data(locsTemp, 1);
+    bursts{i,1} = data(locsTemp, :);
 end
 dataBursts = cell2nanMat(bursts);
+if size(dataBursts, 3) ~= 1
+    dataBursts = permute(dataBursts, [1,3,2]);  % [dataPoints x chunk x channel]
+end
 end

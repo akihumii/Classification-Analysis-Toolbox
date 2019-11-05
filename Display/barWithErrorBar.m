@@ -1,7 +1,18 @@
-function varargout = barWithErrorBar(dataBar,dataStde,dataStar,titleName,legendNames)
+function varargout = barWithErrorBar(dataBar,dataStde,dataStar,varargin)
 %BARWITHERRORBAR Plot bar plot with error bar and stars as median or mean
 % output:   [p,h], both are optional
 %   varargout = barWithErrorBar(dataBar,dataStde,dataStar,path,titleName,saveBarPlot,legendNames)
+
+titleName = '';
+legendNames = '';
+
+if nargin > 3
+    titleName = varargin{1,1};
+end
+if nargin > 4
+    legendNames = varagin{1,2};
+end
+
 [numBar, numClass] = size(dataBar);
 
 figure

@@ -4,6 +4,10 @@ function dataFilt = filterData(data, samplingFreq, highPassCutoffFreq, lowPassCu
 %frequency if a bandpass filter is being selected.
 %   dataFilt = filterData(data, samplingFreq, highPassCutoffFreq, lowPassCutoffFreq, notchFreq)
 
+if ~exist('butter', 'file')
+    error('Please install Signal Processing Toolbox first...')
+end
+
 if nargin < 5
     notchFreq = 0;
 end

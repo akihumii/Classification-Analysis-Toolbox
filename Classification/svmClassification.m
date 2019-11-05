@@ -11,7 +11,7 @@ function output = svmClassification(trainingGroup,trainingClassGroup,testingGrou
 % kernelSizeValue = sqrt(numFeatures)/4; % fine Gaussian
 
 % templateMdl = templateSVM('Standardize',1,'KernelFunction','polynomial','KernelScale',kernelSizeValue);
-templateMdl = templateSVM('Standardize',1,'KernelFunction','polynomial');
+templateMdl = templateSVM('Standardize',1,'KernelFunction','linear');
 
 Mdl = fitcecoc(trainingGroup,trainingClassGroup,'Learners',templateMdl,'FitPosterior',1,...
                'Verbose',0, 'HyperparameterOptimizationOptions',struct('UseParallel',true));
