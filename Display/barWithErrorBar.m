@@ -10,7 +10,7 @@ if nargin > 3
     titleName = varargin{1,1};
 end
 if nargin > 4
-    legendNames = varagin{1,2};
+    legendNames = varargin{1,2};
 end
 
 [numBar, numClass] = size(dataBar);
