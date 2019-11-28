@@ -25,6 +25,8 @@ else
     end
 end
 
+files = sort(files);
+
 varargout{1} = files;
 varargout{2} = path;
 

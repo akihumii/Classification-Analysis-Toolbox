@@ -125,7 +125,7 @@ end
 for i = 1:numData
     f(i,1) = figure;
     hold on;
-    set(gcf, 'Position', get(0,'Screensize')-[0 0 0 80],'PaperPositionMode', 'auto');
+    setGcfFullScreen(gcf);
     
     if channel{1,1} ~= 0
         titleTemp = [' ch ', checkMatNAddStr(channel{i},' - ')];

@@ -1,5 +1,6 @@
 function [files, path, varargout] = getCurrentFiles(varargin)
-%GETCURRENTFILES Get the files in current directory
+%GETCURRENTFILES Get the files in current directory.
+% input: varargin: specific filename with wildcard available
 %   [files, path, varargout] = getCurrentFiles(varargin)
 
 if nargin == 1

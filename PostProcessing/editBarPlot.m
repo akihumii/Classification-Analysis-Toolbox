@@ -88,9 +88,10 @@ for i = 1:parameters.numBarShown
 %     [p,h] = barWithErrorBar(dataBar,dataStde,0,...
 %         titleName,legendName);
     [p,h] = barWithErrorBar(dataBar,dataStde,0);
-    ylim([0,1])
+    ylim([0,100])
     xlabel(parameters.xLabelText)
     ylabel(parameters.yLabelText)
+    xticks(1:size(dataBar,1))
 %     h.XTick = 1:size(dataBar,1);
 %     h.XTickLabel = parameters.xTickLabel;
 %     h.XTickLabel = XNames{i,1};

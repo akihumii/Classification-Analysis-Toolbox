@@ -19,7 +19,8 @@ middleNumber = floor(numClass/2);
 %     difference = 0.11;
 % end
 
-difference = 0.376 - numClass*0.038;
+% difference = 0.376 - numClass*0.038;
+difference = 0.34 - numClass*0.038;
 
 if logical(mod(numClass,2)) % odd number
     array = -middleNumber : middleNumber;

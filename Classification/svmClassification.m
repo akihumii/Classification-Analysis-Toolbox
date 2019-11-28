@@ -16,9 +16,11 @@ templateMdl = templateSVM('Standardize',1,'KernelFunction','linear');
 Mdl = fitcecoc(trainingGroup,trainingClassGroup,'Learners',templateMdl,'FitPosterior',1,...
                'Verbose',0, 'HyperparameterOptimizationOptions',struct('UseParallel',true));
 
-CVMdl = crossval(Mdl); % kFold = 10 for cross-validation
+% CVMdl = crossval(Mdl); % kFold = 10 for cross-validation
+CVMdl = [];
 
-oosLoss = kfoldLoss(CVMdl); % generalization error
+% oosLoss = kfoldLoss(CVMdl); % generalization error
+oosLoss = [];
 
 %% Prediction
 if isempty(testingGroup)
