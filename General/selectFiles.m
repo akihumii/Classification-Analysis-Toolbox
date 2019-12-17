@@ -25,7 +25,7 @@ else
     end
 end
 
-files = sort(files);
+files = natsortfiles(files);
 
 varargout{1} = files;
 varargout{2} = path;
