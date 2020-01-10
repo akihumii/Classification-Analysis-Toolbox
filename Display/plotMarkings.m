@@ -1,4 +1,4 @@
-function [] = plotMarkings(handle,time,dataValues,startingLocs,endLocs,threshold)
+function [] = plotMarkings(handle,time,dataValues,startingLocs,endLocs,threshold,parameters)
 %plotMarkings Plot starting point, end point, baseline
 %   [] = plotMarkings(handle,time,dataValues,startingLocs,endLocs,threshold)
 axes(handle);
@@ -21,6 +21,9 @@ endingX = plot(time(endLocs(notNanEndLocs)),dataValues(endLocs(notNanEndLocs)),'
 %% Baseline
 if ~isnan(threshold)
     thresholdL = plot(xlim,[threshold,threshold],'k-'); % plot the threshold
+    if parameters.rectifySpikeDetectionDataFlag
+        plot(xlim,[-threshold,-threshold],'k-');  % plot the negative threshold if the rectifySpikeDetectionDataFlag has been enabled
+    end
 end
 
 %% Legend

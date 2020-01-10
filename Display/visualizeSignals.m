@@ -84,10 +84,9 @@ if parameters.saveFFT || parameters.showFFT
 end
 
 %% Plot windows following stimulation artefacts
-if parameters.noClassification
-    windowsValues(i,1) = nan;
-else    
-    for i = 1:length(signalClassification)
+windowsValues = nan(length(signalClassification),1);
+for i = 1:length(signalClassification)
+    if ~parameters.noClassification
         %% Plot the data for peak detection
         if isequal(parameters.dataToBeDetectedSpike, 'dataFiltered') || isequal(parameters.dataToBeDetectedSpike, 'dataTKEO')
             parameters.dataToBeDetectedSpike = [{parameters.dataToBeDetectedSpike};{'values'}]; % reconstruct filtered vales, because the values lies in the field 'values' in the structure 'dataFiltered'
@@ -104,43 +103,45 @@ else
         
         % Plot the markings
         for j = 1:numChannel
-            plotMarkings(overallP(j,1), signal(i,1).time/signal(i,1).samplingFreq, dataValuesPeakDetection(:,j), signalClassification(i,1).burstDetection.spikeLocs(:,j), signalClassification(i,1).burstDetection.burstEndLocs(:,j), signalClassification(i,1).burstDetection.threshold(j,1))
+            plotMarkings(overallP(j,1), signal(i,1).time/signal(i,1).samplingFreq, dataValuesPeakDetection(:,j), signalClassification(i,1).burstDetection.spikeLocs(:,j), signalClassification(i,1).burstDetection.burstEndLocs(:,j), signalClassification(i,1).burstDetection.threshold(j,1), parameters)
         end
         
         %% Plot Overlapping Signals
-        if isequal(parameters.overlappedWindow, 'dataFiltered') || isequal(parameters.overlappedWindow, 'dataTKEO')
-            parameters.overlappedWindow = [{parameters.overlappedWindow};{'values'}]; % reconstruct filtered vales, because the values lies in the field 'values' in the structure 'dataFiltered'
+        if parameters.showOverlap || parameters.saveOverlap
+            if isequal(parameters.overlappedWindow, 'dataFiltered') || isequal(parameters.overlappedWindow, 'dataTKEO')
+                parameters.overlappedWindow = [{parameters.overlappedWindow};{'values'}]; % reconstruct filtered vales, because the values lies in the field 'values' in the structure 'dataFiltered'
+            end
+            
+            [dataValues, dataName] = loadMultiLayerStruct(signal(i,1),parameters.overlappedWindow); % get the values and the name of the selected window
+            
+            maxBurstLength = max(signalClassification(i,1).burstDetection.burstEndLocs - signalClassification(i,1).burstDetection.spikeLocs,[],1);
+            
+            windowsValues(i,1) = getPointsWithinRange(...
+                signal(i,1).time/signal(i,1).samplingFreq,...
+                dataValues,...
+                signalClassification(i,1).burstDetection.spikeLocs,...
+                signalClassification(i,1).burstDetection.spikeLocs + repmat(maxBurstLength*parameters.overlapWindowLengthMult,size(signalClassification(i,1).burstDetection.spikeLocs,1),1),...
+                parameters.windowSize, signal(i,1).samplingFreq, parameters.channelExtractStartingLocs);
+            
+            % Get all windows in same plots
+            %         windowsValues(i,1).xAxisValues = reshape(windowsValues(i,1).xAxisValues,[],2*size(windowsValues(i,1).xAxisValues,2));
+            %         windowsValues(i,1).burst = reshape(windowsValues(i,1).burst,[],2*size(windowsValues(i,1).burst,2));
+            
+            % Plot overlapping windows
+            overlapP = plotFig(windowsValues(i,1).xAxisValues,PP.overlappingYMult*windowsValues(i,1).burst,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],['Windows Following Artefacts ( ', dataName, ' )'],'Time (s)',['Amplitude (',PP.overlappingYUnit,')'],...
+                parameters.saveOverlap,... % save
+                parameters.showOverlap,... % show
+                signal(i,1).path,'overlap', signal(i,1).channelPair, 'linePlot', PP.overlappingYLimit);
+            
+            % plot averaging overlapping windows
+            plotFig(windowsValues(i,1).xAxisValues,PP.averageYMult*nanmean(windowsValues(i,1).burst,2),[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],['Average Windows Following Artefacts ( ', dataName, ' )'],'Time(s)',['Amplitude (',PP.averageYUnit,')'],...
+                parameters.saveOverlap,... % save
+                parameters.showOverlap,... % show
+                signal(i,1).path,'overlap', signal(i,1).channelPair,'linePlot',PP.averageYLimit);
         end
         
-        [dataValues, dataName] = loadMultiLayerStruct(signal(i,1),parameters.overlappedWindow); % get the values and the name of the selected window
-        
-        maxBurstLength = max(signalClassification(i,1).burstDetection.burstEndLocs - signalClassification(i,1).burstDetection.spikeLocs,[],1);
-        
-        windowsValues(i,1) = getPointsWithinRange(...
-            signal(i,1).time/signal(i,1).samplingFreq,...
-            dataValues,...
-            signalClassification(i,1).burstDetection.spikeLocs,...
-            signalClassification(i,1).burstDetection.spikeLocs + repmat(maxBurstLength*parameters.overlapWindowLengthMult,size(signalClassification(i,1).burstDetection.spikeLocs,1),1),...
-            parameters.windowSize, signal(i,1).samplingFreq, parameters.channelExtractStartingLocs);
-        
-        % Get all windows in same plots
-%         windowsValues(i,1).xAxisValues = reshape(windowsValues(i,1).xAxisValues,[],2*size(windowsValues(i,1).xAxisValues,2));
-%         windowsValues(i,1).burst = reshape(windowsValues(i,1).burst,[],2*size(windowsValues(i,1).burst,2));
-        
-        % Plot overlapping windows
-        overlapP = plotFig(windowsValues(i,1).xAxisValues,PP.overlappingYMult*windowsValues(i,1).burst,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],['Windows Following Artefacts ( ', dataName, ' )'],'Time (s)',['Amplitude (',PP.overlappingYUnit,')'],...
-            parameters.saveOverlap,... % save
-            parameters.showOverlap,... % show
-            signal(i,1).path,'overlap', signal(i,1).channelPair, 'linePlot', PP.overlappingYLimit);
-        
-        % plot averaging overlapping windows
-        plotFig(windowsValues(i,1).xAxisValues,PP.averageYMult*nanmean(windowsValues(i,1).burst,2),[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],['Average Windows Following Artefacts ( ', dataName, ' )'],'Time(s)',['Amplitude (',PP.averageYUnit,')'],...
-            parameters.saveOverlap,... % save
-            parameters.showOverlap,... % show
-            signal(i,1).path,'overlap', signal(i,1).channelPair,'linePlot',PP.averageYLimit);
-        
         % plot overall signal with spikes indicated
-        if parameters.showOverlap || parameters.saveOverlap
+        if parameters.showOverall || parameters.saveOverall
             [dataTemp, channelTemp] = bindSyncNCounter(PP.overallYMult*dataValues, parameters, signal(i,1));
             overallP = plotFig(signal(i,1).time/signal(i,1).samplingFreq,dataTemp,[signal(i,1).fileName,partialDataStartingTime{i,1},partialDataEndTime{i,1}],['Overall Signal with Spikes Indicated (', dataName, ')'],'Time(s)',['Amplitude (',PP.overallYUnit,')'],...
                 0,... % save
