@@ -1,0 +1,13 @@
+Changelog:
+
+20190926:
+'MClustCallbacks': line 74: show the .mat file in default while opening the dialog to select a file
+'Write_fd_file': line 185: load the files in different file types accordingly (i.e. .mat and .ntt). In .mat file loading session, it will read the variable 'wv' and 'block_t' saved in the .mat file.
+
+found issue: 
+1. error will appear if another file is loaded when a file has been loaded in MClust. This is due to the global variable will memorize the previous features that have been calculated based on the first file. The size of spikes in different files will be different from the first one, so the incompatible array size will rasie an error message.
+2. not able to load single channel yet.
+
+possible solution: 
+1. clear the global variable while reading a new file.  (eaiser to do)
+2. do not assign those features into a global variable. Using global variable makes the debugging harder, because we don't konw where the global variable has changed or has been modified.
