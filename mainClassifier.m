@@ -114,7 +114,8 @@ parameters = struct(...
     ...
     'noClassification',0,...
     'getFeaturesFlag',0,...
-    'saveUserInput',0); % set to 1 to save all the information, otherwise set to 0
+    'saveMClustInfoFlag',1,...
+    'saveUserInput',1); % set to 1 to save all the information, otherwise set to 0
 
 parameters.channelAveraging = [{[1,2,3,4,5]} ; {[6,7,8,9,10]}];  % average the channels stored in each cell, example:[{[1,2]};{[3,4,5]}], then it will average 1&2, then do another average on 3&4&5
 % parameters.channelAveraging = [{[9,13,14,17,21]};{[1,5,25,29,30]}];  % average the channels stored in each cell, example:[{[1,2]};{[3,4,5]}], then it will average 1&2, then do another average on 3&4&5
@@ -209,8 +210,15 @@ disp(' ')
 
 %% Ending
 tic
-popMsg('Saving .mat files...')
+if parameters.saveMClustInfoFlag
+    popMsg('Saving MClust information files...')
+    for i = 1:length(signal)
+        saveMClustInfo(signalClassification(i,1),signal(i,1),parameters.dataToBeDetectedSpike);  % save the 
+    end
+end
+
 if parameters.saveUserInput
+    popMsg('Saving .mat files...')
     for i = 1:length(signal)
         saveFileName{1,i} = saveVar([signal(i,1).path,'Info',filesep],signal(i,1).fileName,signal(i,1),signalClassification(i,1),windowsValues(i,1),parameters);
     end
