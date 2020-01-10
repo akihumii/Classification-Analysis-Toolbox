@@ -76,7 +76,11 @@ for i = 1:iter
     end
     
     % extract features
-    output(i,1) = featureExtraction(output(i,1),signal(i,1).samplingFreq,[{'selectedWindows'};{'burst'}]); % [1 * number of windows * number of sets]
+    if parameters.getFeaturesFlag
+        output(i,1) = featureExtraction(output(i,1),signal(i,1).samplingFreq,[{'selectedWindows'};{'burst'}]); % [1 * number of windows * number of sets]
+    else
+        output(i,1).features.maxValue = [];  % just a dummy value
+    end
     
     % group features for classification
     output(i,1) = classificationGrouping(output(i,1),'maxValue',i,parameters.trainingRatio);

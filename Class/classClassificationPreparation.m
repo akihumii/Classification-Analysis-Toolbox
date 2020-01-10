@@ -62,7 +62,11 @@ classdef classClassificationPreparation
             
             parameters.burstLen = floor(parameters.burstLen * targetClassData.samplingFreq);
             parameters.stepWindowSize = floor(parameters.stepWindowSize * targetClassData.samplingFreq);
-            clfp.burstDetection = detectSpikes(dataValue,minDistance,parameters);
+            if parameters.rectifySpikeDetectionDataFlag
+                clfp.burstDetection = detectSpikes(abs(dataValue),minDistance,parameters);
+            else
+                clfp.burstDetection = detectSpikes(dataValue,minDistance,parameters);
+            end
             clfp.burstDetection.dataAnalysed = [targetClassData.file,' -> ',dataName];
             clfp.burstDetection.detectionMethod = parameters.spikeDetectionType;
             clfp.burstDetection.channelExtractStartingLocs = parameters.channelExtractStartingLocs;
