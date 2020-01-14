@@ -15,11 +15,11 @@ deleteMsgBox(); % delete all the message boxes
 %% User's Input
 % General Parameters
 parameters = struct(...
-    'dataType','intan',... % configurable types: ,'neutrino2','neutrino', 'intan', 'sylphx', 'sylphii'
-    'channel',[1:3],... % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
+    'dataType','intanRaw',... % configurable types: ,'neutrino2','neutrino', 'intan', 'sylphx', 'sylphii'
+    'channel',[1:2],... % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
     'channelAveragingFlag',0,...  % use the channelAveraging below to do the average
     'channelPair',0,...; % input the pairs seperated in rows, eg:[1,2;3,4] means 1 pairs with 2 and 3 pairs with 4; input 0 if no differential data is needed.
-    'samplingFreq',20000,... % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 1798.2, sylphII: 1798.2)
+    'samplingFreq',30000,... % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 1798.2, sylphII: 1798.2)
     'neutrinoInputReferred',0,...; % input 1 to check input refer, otherwise input 0
     'neutrinoBit',0,...; % input 1 for 8 bit mode, input 0 for 10 bit mode
     'selectFile',1,... % 1 to select file manually, 0 to select all the files in the current directories, 2 to use the specific path stored in specificPath
@@ -52,8 +52,8 @@ parameters = struct(...
     'spikeDetectionType','trigger',... % input 'local maxima' for local maxima, input 'trigger for first point exceeding parameters.threshold, input 'TKEO' for taking following consecutive points into account
     'stepWindowSize', 0.05,...  % step size to use in TKEOmore mode, that a burst will be subsample to the size of burst length with separation of this stepWindowSize
     ...
-    'threshold', [0],... %[0.2e-4],... % specified one parameters.threshold for spikes detection in all the channels; multiple thresholds are allowed for different channels; input 0 for default value (baseline + threshMult * baselineStandardDeviation) (baseline is obtained by calculating the mean of the data points spanned between 1/4 to 3/4 of the data array sorted by amplitudes)
-    'threshStdMult',[20,20,Inf],... % multiples of standard deviation above the baseline as the parameters.threshold for TKEO detection. All channels will use the same value if there is only one value, multiple values are allowed for different channels
+    'threshold', [70],... %[0.2e-4],... % specified one parameters.threshold for spikes detection in all the channels; multiple thresholds are allowed for different channels; input 0 for default value (baseline + threshMult * baselineStandardDeviation) (baseline is obtained by calculating the mean of the data points spanned between 1/4 to 3/4 of the data array sorted by amplitudes)
+    'threshStdMult',[50,50,Inf],... % multiples of standard deviation above the baseline as the parameters.threshold for TKEO detection. All channels will use the same value if there is only one value, multiple values are allowed for different channels
     'sign',1,... % input 1 for threhoslding upwards, input -1 for thresholding downwards
     ...
     'windowSize', [0, 20/20000],... %[0, 0.02],... % range of window starting from the detected peaks(in seconds)
@@ -87,6 +87,8 @@ parameters = struct(...
     'burstTrimming',0,... % to exclude the bursts by inputting the bursts indexes
     'burstTrimmingWay','drag',... % 'key' to key in zeros, end the process by entering 0; 'drag' to drag the area that containst the burst, end the process by hitting 'Enter'
     'burstTrimmingType',1,... % 1 to delete; 2 to pick
+    ...
+    'showInverseFlag',1,...
     ...
     ...% Show & Save Plots Parameters. Input 1 to save/show, otherwise input 0.
     ...% Plots will be saved in the folder 'Figures' at the same path with the processed data

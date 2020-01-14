@@ -64,7 +64,15 @@ else
             [T,WV] = feval(LoadingEngine, fn);
         end
     case 3
-        [T,WV] = feval(LoadingEngine, fn, records_to_get, key);          
+        [T,WV] = feval(LoadingEngine, fn, records_to_get, key);
+        if contains(fn, '.mat')
+            matResult = load(fn);
+            T = matResult.signalClassification.burstDetection.spikeLocs(...
+                records_to_get,1);
+%             T = matResult.signalClassification.burstDetection.spikeLocs(...
+%                 records_to_get,1) / matResult.samplingFreq;
+        end
+            
     otherwise
         error('Incorrect parameters passed to MClust_LoadNeuralData');
     end
