@@ -193,6 +193,69 @@ classdef classSignalVisualization < handle
             end
         end
         
+        function plotDetectedBursts(obj)
+            f = gcf;
+            axesAll = flipud(findobj(f,'Type','Axes'));
+            
+            fNew = figure;
+            numAxes = numel(axesAll);
+            numAxesNew = numAxes + 1;
+            p(numAxesNew,1) = subplot(numAxesNew,1,numAxesNew);
+            hold on
+
+            if obj.parameters.showDetectedBurstsChannel == 0
+                showDetectedBurstsChannel = 1:numAxes;
+            else
+                showDetectedBurstsChannel = obj.parameters.showDetectedBurstsChannel;
+            end
+            
+            for i = 1:numAxes
+                p(i,1) = subplot(numAxesNew,1,i,copyobj(axesAll(i,1),fNew));
+                if ismember(i, showDetectedBurstsChannel)
+                    notNanLocsTemp = ~isnan(obj.signalClassification.burstDetection.spikeLocs(:,i));
+                    if ~isempty(notNanLocsTemp)
+                        startLocsTemp = obj.signalClassification.burstDetection.spikeLocs(notNanLocsTemp,i);
+                        endLocsTemp = obj.signalClassification.burstDetection.burstEndLocs(notNanLocsTemp,i);
+                        xDataTemp = axesAll(i,1).Children(end).XData;
+                        yDataTemp = axesAll(i,1).Children(end).YData;
+                        
+                        subplot(numAxesNew,1,numAxesNew)
+                        for j = 1:numel(startLocsTemp)
+                            locsTemp = startLocsTemp(j):endLocsTemp(j);
+                            l(i,1) = plot(xDataTemp(locsTemp), yDataTemp(locsTemp),...
+                                'Color',getColorArrayMatlab(i));
+                        end
+                    else
+                        popMsg('No detected bursts are found...');
+                    end
+                end
+            end
+            linkaxes(p,'x')
+
+            xlabel(p(numAxesNew), p(end-1).XLabel.String,...
+                'FontSize',p(end-1).XLabel.FontSize,...
+                'FontWeight',p(end-1).XLabel.FontWeight)
+            ylabel(p(numAxesNew), p(end-1).YLabel.String,...
+                'FontSize',p(end-1).YLabel.FontSize,...
+                'FontWeight',p(end-1).YLabel.FontWeight)
+            title(p(numAxesNew), 'Detected Bursts',...
+                'FontSize',p(end-1).Title.FontSize,...
+                'FontWeight',p(end-1).Title.FontWeight)
+            set(p(numAxesNew), 'FontSize', p(end-1).FontSize,...
+                    'LineWidth', p(end-1).LineWidth,...
+                    'FontWeight', p(end-1).FontWeight);
+                
+            ylim(p(numAxesNew), getMiddleZeroYLimit(ylim(p(numAxesNew))));
+            
+            plot(p(numAxesNew), xlim,zeros(1,2),'k-');  % plot zero line
+
+            legend(l,compose('data %d',1:numAxesNew));
+            
+            p(end-1).XLabel.String = '';
+            close(f)
+            
+        end
+        
         function plotOverlappingSignal(obj)
             for i = 1:length(obj.signalClassification)
                 if isequal(obj.parameters.overlappedWindow, 'dataFiltered') || isequal(obj.parameters.overlappedWindow, 'dataTKEO')
@@ -325,15 +388,6 @@ classdef classSignalVisualization < handle
                     close gcf
                 end
             end
-        end
-        
-        function plotDetectedBursts(obj)
-%             f = gcf;
-%             axesAll = flipud(findobj(f,'Type','Axes'));
-%             numAxes = numel(axesAll);
-%             for i = 1:numAxes
-%                 subplot(axesAll, numAxes+1,1,i)
-%             end
         end
         
         function plotRaster(~,rasterLocs, spikeLocs)

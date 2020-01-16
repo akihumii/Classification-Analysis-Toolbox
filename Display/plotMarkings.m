@@ -32,9 +32,7 @@ end
 plot(xlim,repmat(0,1,2),'k-');
 
 %% move zero to middle
-yLimit = ylim;
-maxYLimit = max(abs(yLimit));
-ylim([-maxYLimit, maxYLimit])
+ylim(getMiddleZeroYLimit(ylim));
 
 %% Legend
 try

@@ -67,14 +67,25 @@ classdef classClassificationPreparation
             else
                 clfp.burstDetection = detectSpikes(dataValue,minDistance,parameters);
             end
+            
+            clfp = shiftDetectedBurstLocs(clfp,dataValue,parameters.shiftDetectedBurstLocs);
+            
             clfp.burstDetection.dataAnalysed = [targetClassData.file,' -> ',dataName];
             clfp.burstDetection.detectionMethod = parameters.spikeDetectionType;
             clfp.burstDetection.channelExtractStartingLocs = parameters.channelExtractStartingLocs;
             
             if parameters.padZeroFlag
                 clfp = trimShortenedBursts(clfp,dataValue,targetClassData.samplingFreq);
+            end 
+        end
+        
+        function clfp = shiftDetectedBurstLocs(clfp,data,locs)
+            clfp.burstDetection.spikeLocs = clfp.burstDetection.spikeLocs + locs;
+            clfp.burstDetection.burstEndLocs = clfp.burstDetection.burstEndLocs + locs;
+            for i = 1:size(data,2)
+                clfp.burstDetection.spikePeaksValue = data(clfp.burstDetection.spikeLocs, i);
+                clfp.burstDetection.burstEndValue = data(clfp.burstDetection.burstEndLocs, i);
             end
-            
         end
         
         function clfp = classificationWindowSelection(clfp, targetClassData, parameters)
