@@ -27,6 +27,7 @@ parameters = struct(...
     'padZeroFlag',0,... % 1 to pad zero
     'showDetectedBurstsChannel',[0],...  % input 0 to show all channels, otherwise input an array to select the channels to show
     'shiftDetectedBurstLocs',0,...  % move the detected burst by a distance
+    'interpolationNumber',32,... % new number of points after interpolation have been performed on bursts
     ...
     'partialDataSelection',0,...; % input 1 to select partial data to analyse, otherwise input 0
     'constraintWindow',[-0.30075,6.9049],... % starting point and end point of constraint window, unit is in seconds. Input 0 for default (pre-select the whole signal). It can be found in signal.analysedDataTiming(2,:), the first row is the timing in seconds
@@ -219,7 +220,7 @@ tic
 if parameters.saveMClustInfoFlag
     popMsg('Saving MClust information files...')
     for i = 1:length(signal)
-        saveMClustInfo(signalClassification(i,1),signal(i,1),parameters.dataToBeDetectedSpike);  % save the 
+        saveMClustInfo(signalClassification(i,1),signal(i,1),parameters);  % save the 
     end
 end
 

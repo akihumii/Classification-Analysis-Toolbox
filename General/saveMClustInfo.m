@@ -1,4 +1,4 @@
-function [] = saveMClustInfo(signalClassification, signal, dataType)
+function [] = saveMClustInfo(signalClassification, signal, parameters)
 %SAVEMCLUSTINFO Save the required information for MClust
 %   [] = saveMClustInfo(signalClassification, signal)
 
@@ -8,14 +8,14 @@ function [] = saveMClustInfo(signalClassification, signal, dataType)
 block_t = transpose(1:numSpikes);
 
 % wv [number of spikes x channel x data points]
-signalClassification.burstDetection.spikeLocs =...
-    signalClassification.burstDetection.spikeLocs - 2;
-signalClassification.burstDetection.burstEndLocs =...
-    signalClassification.burstDetection.burstEndLocs - 2;
+% signalClassification.burstDetection.spikeLocs =...
+%     signalClassification.burstDetection.spikeLocs - 2;
+% signalClassification.burstDetection.burstEndLocs =...
+%     signalClassification.burstDetection.burstEndLocs - 2;
 
 for i = 1 : numChannel
     for j = 1 : numSpikes
-        switch dataType
+        switch parameters.dataToBeDetectedSpike
             case 'dataFiltered'
                 wv(j,i,:) = -signal.dataFiltered.values(...
                     signalClassification.burstDetection.spikeLocs(j,i):...
@@ -27,6 +27,15 @@ for i = 1 : numChannel
         end        
     end
 end
+
+wvInterpolated = [];
+for i = 1:numChannel
+    for j = 1:numSpikes
+        wvInterpolated(j,i,:) = interpolateData(wv(j,i,:), parameters.interpolationNumber);
+    end
+end
+
+wv = wvInterpolated;
 
 wv = repmat(wv(:,1:2,:),1,2,1);  % omit the 3rd channel and repeat the first 2 channels again to make it 4 in total
 

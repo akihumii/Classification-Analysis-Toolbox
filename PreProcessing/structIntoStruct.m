@@ -1,7 +1,7 @@
 function originalStruct = structIntoStruct(originalStruct, newStruct)
 %STRUCTINTOSTRUCT Insert the field of newStruct into originalStruct if it
 %appears in both stuctures.
-%   Detailed explanation goes here
+%   originalStruct = structIntoStruct(originalStruct, newStruct)
 
 fieldOrig = fieldnames(originalStruct);
 fieldNew = fieldnames(newStruct);
