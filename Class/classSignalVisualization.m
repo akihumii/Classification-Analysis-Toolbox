@@ -266,7 +266,7 @@ classdef classSignalVisualization < handle
                 
                 maxBurstLength = max(obj.signalClassification(i,1).burstDetection.burstEndLocs - obj.signalClassification(i,1).burstDetection.spikeLocs,[],1);
                 
-                obj.windowsValues(i,1) = getPointsWithinRange(...
+                windowsValuesTemp(i,1) = getPointsWithinRange(...
                     obj.signal(i,1).time/obj.signal(i,1).samplingFreq,...
                     dataValues,...
                     obj.signalClassification(i,1).burstDetection.spikeLocs,...
@@ -278,17 +278,18 @@ classdef classSignalVisualization < handle
                 %         windowsValues(i,1).burst = reshape(windowsValues(i,1).burst,[],2*size(windowsValues(i,1).burst,2));
                 
                 % Plot overlapping windows
-                overlapP = plotFig(obj.windowsValues(i,1).xAxisValues,obj.PP.overlappingYMult*obj.windowsValues(i,1).burst,[obj.signal(i,1).fileName,obj.partialDataStartingTime{i,1},obj.partialDataEndTime{i,1}],['Windows Following Artefacts ( ', dataName, ' )'],'Time (s)',['Amplitude (',obj.PP.overlappingYUnit,')'],...
+                overlapP = plotFig(windowsValuesTemp(i,1).xAxisValues,obj.PP.overlappingYMult*windowsValuesTemp(i,1).burst,[obj.signal(i,1).fileName,obj.partialDataStartingTime{i,1},obj.partialDataEndTime{i,1}],['Windows Following Artefacts ( ', dataName, ' )'],'Time (s)',['Amplitude (',obj.PP.overlappingYUnit,')'],...
                     obj.parameters.saveOverlap,... % save
                     obj.parameters.showOverlap,... % show
                     obj.signal(i,1).path,'overlap', obj.signal(i,1).channelPair, 'linePlot', obj.PP.overlappingYLimit);
                 
                 % plot averaging overlapping windows
-                plotFig(obj.windowsValues(i,1).xAxisValues,obj.PP.averageYMult*nanmean(obj.windowsValues(i,1).burst,2),[obj.signal(i,1).fileName,obj.partialDataStartingTime{i,1},obj.partialDataEndTime{i,1}],['Average Windows Following Artefacts ( ', dataName, ' )'],'Time(s)',['Amplitude (',obj.PP.averageYUnit,')'],...
+                plotFig(windowsValuesTemp(i,1).xAxisValues,obj.PP.averageYMult*nanmean(windowsValuesTemp(i,1).burst,2),[obj.signal(i,1).fileName,obj.partialDataStartingTime{i,1},obj.partialDataEndTime{i,1}],['Average Windows Following Artefacts ( ', dataName, ' )'],'Time(s)',['Amplitude (',obj.PP.averageYUnit,')'],...
                     obj.parameters.saveOverlap,... % save
                     obj.parameters.showOverlap,... % show
                     obj.signal(i,1).path,'overlap', obj.signal(i,1).channelPair,'linePlot',obj.PP.averageYLimit);
             end
+            obj.windowsValues = windowsValuesTemp;
         end
         
         function plotOverallSignal(obj)
@@ -303,7 +304,7 @@ classdef classSignalVisualization < handle
                 hold on
                 
                 % Plot the markings
-                for j = 1:numChannel
+                for j = 1:numel(channelTemp)
                     plotMarkings(overallP(j,1), obj.signal(i,1).time/obj.signal(i,1).samplingFreq, dataValues(:,j), obj.signalClassification(i,1).burstDetection.spikeLocs(:,j), obj.signalClassification(i,1).burstDetection.burstEndLocs(:,j), nan)
                 end
                 

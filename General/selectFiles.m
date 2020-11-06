@@ -1,4 +1,4 @@
-function varargout = selectFiles(dialogTitle)
+function varargout = selectFiles(dialogTitle, varargin)
 %selectFiles Select files and output its path and name
 %   varargout = selectFiles(dialogTitle)
 % 
@@ -12,8 +12,13 @@ function varargout = selectFiles(dialogTitle)
 if nargin < 1
     dialogTitle = 'select decoding file';
 end
+if nargin > 1
+    ext = varargin{1};
+else
+    ext = '*.*';
+end
 
-[files, path] = uigetfile('*.*',dialogTitle,'MultiSelect','on');
+[files, path] = uigetfile(['*',ext],dialogTitle,'MultiSelect','on');
 if iscell(files)
     iter = length(files);
 else

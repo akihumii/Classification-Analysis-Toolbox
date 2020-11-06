@@ -1,5 +1,6 @@
 function output = omitNan(data,dim,type)
-%omitNan Omit either the column or the row of nan values
+%omitNan Omit either the column or the row of nan values (can be found in
+%static function in Struct as well!)
 %
 % input:    dim:    1 to delete columns, 2 to delete rows
 %           type:   'all' for omitting only the arrays filled with only Nan;
