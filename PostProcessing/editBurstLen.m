@@ -15,11 +15,16 @@ burstEndLocs(burstEndLocsFlag) = nan;
 rowToBeDeleted = all(isnan(burstEndLocs),2);
 burstEndLocs(rowToBeDeleted,:) =  [];
 
-for i = 1:dataCol
-    burstEndValueTemp{i,1} = data(burstEndLocs(~isnan(burstEndLocs(:,i)),i));
+if ~isempty(burstEndLocs)
+    for i = 1:dataCol
+        burstEndValueTemp{i,1} = data(burstEndLocs(~isnan(burstEndLocs(:,i)),i));
+    end
+    
+    burstEndValue = cell2nanMat(burstEndValueTemp);
+else
+    burstEndValue = [];
 end
 
-burstEndValue = cell2nanMat(burstEndValueTemp);
 
 % omit burst that exceeds the end of data
 spikeLocs(rowToBeDeleted,:) = [];

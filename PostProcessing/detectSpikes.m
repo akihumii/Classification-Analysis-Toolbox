@@ -137,15 +137,8 @@ output.parameters.TKEOEndConsecutivePoints = parameters.TKEOEndConsecutivePoints
 
 %% mark bursts in all channels (optional)
 if parameters.burstLen
-    if strcmp(parameters.spikeDetectionType, 'TKEOmore')
-        [output.spikeLocs, output.spikePeaksValue, output.burstEndLocs, output.burstEndValue] = ...
-            subsampleBursts(data, parameters.burstLen, parameters.stepWindowSize, output.spikeLocs, output.burstEndLocs);
-        mergeType = 'just';
-    else
-        [output.spikeLocs, output.spikePeaksValue, output.burstEndLocs, output.burstEndValue] = ...
-            editBurstLen(data, parameters.burstLen, output.spikeLocs, output.spikePeaksValue);
-        mergeType = 'first';
-    end
+    [output.spikeLocs, output.spikePeaksValue, output.burstEndLocs, output.burstEndValue] =...
+        mergeBursts(data, parameters, spikeLocs, spikePeaksValue, burstEndLocs);
 else
     mergeType = 'merge';
 end

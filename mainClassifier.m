@@ -15,28 +15,31 @@ deleteMsgBox(); % delete all the message boxes
 %% User's Input
 % General Parameters
 parameters = struct(...
-    'dataType','neutrino2',... % configurable types: ,'neutrino2','neutrino', 'intan', 'sylphx', 'sylphii'
-    'channel',[1,2],... % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
-    'channelAveragingFlag',1,...  % use the channelAveraging below to do the average
+    'dataType','intan',... % configurable types: ,'neutrino2','neutrino', 'intan', 'sylphx', 'sylphii'
+    'channel', [9,13,14,21], ...[1,5,25,29,30],... % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
+    'channelAveragingFlag',0,...  % use the channelAveraging below to do the average
     'channelPair',0,...; % input the pairs seperated in rows, eg:[1,2;3,4] means 1 pairs with 2 and 3 pairs with 4; input 0 if no differential data is needed.
-    'samplingFreq',0,... % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 1798.2, sylphII: 1798.2)
+    'samplingFreq',30000,... % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 1798.2, sylphII: 1798.2)
     'neutrinoInputReferred',0,...; % input 1 to check input refer, otherwise input 0
     'neutrinoBit',0,...; % input 1 for 8 bit mode, input 0 for 10 bit mode
-    'selectFile',2,... % 1 to select file manually, 0 to select all the files in the current directories, 2 to use the specific path stored in specificPath
+    'selectFile',1,... % 1 to select file manually, 0 to select all the files in the current directories, 2 to use the specific path stored in specificPath
     'specificTarget','data_20190313_144318_250muA.csv',... 'NHP_Neuroma_190327_122547_60muA.rhd',... 'Neuroma_NHP201903_190313_131918_240muA.rhd',... % it will only be activated when selectFile is equal to 2
     'padZeroFlag',0,... % 1 to pad zero
+    'showDetectedBurstsChannel',[0],...  % input 0 to show all channels, otherwise input an array to select the channels to show
+    'shiftDetectedBurstLocs',0,...  % move the detected burst by a distance
+    'interpolationNumber',32,... % new number of points after interpolation have been performed on bursts
     ...
     'partialDataSelection',0,...; % input 1 to select partial data to analyse, otherwise input 0
     'constraintWindow',[-0.30075,6.9049],... % starting point and end point of constraint window, unit is in seconds. Input 0 for default (pre-select the whole signal). It can be found in signal.analysedDataTiming(2,:), the first row is the timing in seconds
-    'markBurstInAllChannels',0,... % mark all the channels when one of the channels detects a burst
+    'markBurstInAllChannels',1,... % mark all the channels when one of the channels detects a burst
     'makeFirstFileBaseline',0,...  % use the moving window technique to get the baseline of the first file as bursts
     'burstLen',0,... % fix the length of the detected bursts, input zero if not enabling it
-    'getBaselineFeatureFlag',1,... % get the features of the baseline, which is the data that are not marked as bursts
+    'getBaselineFeatureFlag',0,... % get the features of the baseline, which is the data that are not marked as bursts
     'baselineType','invert',... % either 'inverrt', 'sorted', or 'movingWindow': 'invert' will choose the sections that are not bursts, while 'sorted' will choose sort the data ascendingly and choose the middle part as baseline, 'movingWindow' will use either the largest burst length or 500 ms as window size and sweeping through to search for the window that doesn't have points exceeding threshold
     ...
     ...% Filtering Parameters
     'dataToBeFiltered','dataRaw',...; % input 'dataRaw' for raw data; input 'dataDifferential' for differential data; input 'dataRectified' for rectified data
-    'highPassCutoffFreq',300,... % high pass cutoff frequency, input 0 if not applied
+    'highPassCutoffFreq',30,... % high pass cutoff frequency, input 0 if not applied
     'lowPassCutoffFreq',5000,... % low pass cutoff frequency, input 0 if not applied
     'notchFreq',50,... % notch frequency, input 0 if not applied
     'downSamplingFreq',0,... % down sampling the data to the sampling rate of downSamplingFrequency; input 0 to deactivate
@@ -47,25 +50,26 @@ parameters = struct(...
     ...
     ...% Peak Detection Parameters
     'dataToBeDetectedSpike','dataFiltered',... % data for spike detecting
+    'rectifySpikeDetectionDataFlag',1,...  % rectify the dataToBeDetectedSpike before performing spike detection
     'overlappedWindow','dataFiltered',... % Select window for overlapping. Input 'dataRaw', 'dataFiltered', 'dataDifferential', 'dataTKEO'
     'spikeDetectionType','trigger',... % input 'local maxima' for local maxima, input 'trigger for first point exceeding parameters.threshold, input 'TKEO' for taking following consecutive points into account
     'stepWindowSize', 0.05,...  % step size to use in TKEOmore mode, that a burst will be subsample to the size of burst length with separation of this stepWindowSize
     ...
-    'threshold', [7e-3],... %[0.2e-4],... % specified one parameters.threshold for spikes detection in all the channels; multiple thresholds are allowed for different channels; input 0 for default value (baseline + threshMult * baselineStandardDeviation) (baseline is obtained by calculating the mean of the data points spanned between 1/4 to 3/4 of the data array sorted by amplitudes)
-    'threshStdMult',[25,20,20,20],... % multiples of standard deviation above the baseline as the parameters.threshold for TKEO detection. All channels will use the same value if there is only one value, multiple values are allowed for different channels
+    'threshold', 0.1e-4,... %[0.2e-4],... % specified one parameters.threshold for spikes detection in all the channels; multiple thresholds are allowed for different channels; input 0 for default value (baseline + threshMult * baselineStandardDeviation) (baseline is obtained by calculating the mean of the data points spanned between 1/4 to 3/4 of the data array sorted by amplitudes)
+    'threshStdMult',[50,50],... % multiples of standard deviation above the baseline as the parameters.threshold for TKEO detection. All channels will use the same value if there is only one value, multiple values are allowed for different channels
     'sign',1,... % input 1 for threhoslding upwards, input -1 for thresholding downwards
     ...
-    'windowSize', [0, 2.5e-3],... %[0, 0.02],... % range of window starting from the detected peaks(in seconds)
-    'overlapWindowLengthMult',0,...  % multiplier to set the overlap window length
+    'windowSize', [0, 0.03],... %[0, 0.02],... % range of window starting from the detected peaks(in seconds)
+    'overlapWindowLengthMult',1,...  % multiplier to set the overlap window length
     'channelExtractStartingLocs',0,... % input parameters.channel index (start from 1, then 2, 3...) to fix the locs for all the channels, windows between 2 consecutive starting points of the bursts will be extracted and overlapped. Input 0 to deactivate this function
     'trainingRatio',0.7,... % training ratio for classifier
     ...
-    'dataThresholdOmitFlag',1,... % flag to omit data found in peak detection
+    'dataThresholdOmitFlag',0,... % flag to omit data found in peak detection
     'windowSizeThresholdOmit',[-0.0002, 0.0202],...  % to omit the data found from peak detection
     'stitchFlag','stitch',...  % 'interpolate' to interpolate, 'stitch' to stitch two ends together, 'remain' to remain the time stamps
     'remainBurstLocs',0,...  % use the bursts locations found in first round
     ...
-    'restoreSyncPulseFlag',1,...  % restore the missing signal based on the detected spikes and their location 
+    'restoreSyncPulseFlag',0,...  % restore the missing signal based on the detected spikes and their location 
     'restoreInterSpikeSeparation',300,...  % (Hz) distance between detected spikes to use as trace for restoration
     'restoreInterStimulationSeparation',1,...  % (second) distance between each train
     'restoreNumSpikes',7,...  % number of spike in one train
@@ -87,6 +91,8 @@ parameters = struct(...
     'burstTrimmingWay','drag',... % 'key' to key in zeros, end the process by entering 0; 'drag' to drag the area that containst the burst, end the process by hitting 'Enter'
     'burstTrimmingType',1,... % 1 to delete; 2 to pick
     ...
+    'showInverseFlag',1,...
+    ...
     ...% Show & Save Plots Parameters. Input 1 to save/show, otherwise input 0.
     ...% Plots will be saved in the folder 'Figures' at the same path with the processed data
     'showRaw',0,...
@@ -94,22 +100,27 @@ parameters = struct(...
     'showRectified',0,...
     'showFilt',0,...
     'showOverlap',1,...
+    'showOverall',0,...  % show everything about the overlapping analysis
     'showFFT',0,...
     'showCompare',0,...
-    'showSyncPulse',1,...  % input 1 or 0, plot raw channel 11 in Compare Plot
+    'showSyncPulse',0,...  % input 1 or 0, plot raw channel 11 in Compare Plot
     'showCounter',0,...  % input 1 or 0, plot raw channel 13 in Compare Plot
-    'showRaster',1,...  % input zero to get the raster plots
+    'showRaster',0,...  % input zero to get the raster plots
+    'showDetectedBursts',0,...  % only works when 'noClassification' is 0, show detected bursts in a separate subplot
     ...
     'saveRaw',0,...
     'saveDifferential',0,...
     'saveRectified',0,...
     'saveFilt',0,...
     'saveOverlap',0,...
+    'saveOverall',0,...
     'saveFFT',0,...
     'saveCompare',0,...
     'saveRaster',0,...
     ...
-    'noClassification',0,...
+    'noClassification',0,...  % 1 to skip burst detection, vice versa
+    'getFeaturesFlag',0,...
+    'saveMClustInfoFlag',0,...
     'saveUserInput',0); % set to 1 to save all the information, otherwise set to 0
 
 parameters.channelAveraging = [{[1,2,3,4,5]} ; {[6,7,8,9,10]}];  % average the channels stored in each cell, example:[{[1,2]};{[3,4,5]}], then it will average 1&2, then do another average on 3&4&5
@@ -199,14 +210,22 @@ end
 
 tic
 popMsg('Visualizing signals...')
-windowsValues = visualizeSignals(signal, signalClassification, rasterLocs, parameters, PP);
+[~,windowsValues] = classSignalVisualization(signal, signalClassification, rasterLocs, parameters, PP);
+% windowsValues = visualizeSignals(signal, signalClassification, rasterLocs, parameters, PP);
 popMsg([num2str(toc), ' seconds is used for visualizing signals...'])
 disp(' ')
 
 %% Ending
 tic
-popMsg('Saving .mat files...')
+if parameters.saveMClustInfoFlag
+    popMsg('Saving MClust information files...')
+    for i = 1:length(signal)
+        saveMClustInfo(signalClassification(i,1),signal(i,1),parameters);  % save the 
+    end
+end
+
 if parameters.saveUserInput
+    popMsg('Saving .mat files...')
     for i = 1:length(signal)
         saveFileName{1,i} = saveVar([signal(i,1).path,'Info',filesep],signal(i,1).fileName,signal(i,1),signalClassification(i,1),windowsValues(i,1),parameters);
     end

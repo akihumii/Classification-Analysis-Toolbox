@@ -50,6 +50,11 @@ switch lower(fileType)
         data = data'; % make it into structure of [samplePoint x channels]
         timeIndex = transpose(timeIndex*samplingFreq);
         
+    case 'intanraw'
+        [data, timeIndex, samplingFreq] = readIntan(fullfile(path,files));
+        data = data'; % make it into structure of [samplePoint x channels]
+        timeIndex = transpose(timeIndex*samplingFreq);
+        
     case 'neutrino'
         %% For Neutrino
         data = csvread(fullfile(path,files)); % read the csv file into variable data
