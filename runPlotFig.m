@@ -2,11 +2,11 @@
 mainClassifier(...
     'showRaw',1,...
     'showFilt',0,...
-    'channel',[1:2],... % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
+    'channel',[1:6],... % channels to be processed. Consecutive channels can be exrpessed with ':'; Otherwise separate them with ','.
     'samplingFreq',30000,... % specified sampling frequency, otherwise input 0 for default value (Neutrino: 3e6/14/12, intan: 20000, sylphX: 1798.2, sylphII: 1798.2)
     'threshold', [70],... %[0.2e-4],... % specified one parameters.threshold for spikes detection in all the channels; multiple thresholds are allowed for different channels; input 0 for default value (baseline + threshMult * baselineStandardDeviation) (baseline is obtained by calculating the mean of the data points spanned between 1/4 to 3/4 of the data array sorted by amplitudes)
-    'highPassCutoffFreq',0,... % high pass cutoff frequency, input 0 if not applied
-    'lowPassCutoffFreq',0,... % low pass cutoff frequency, input 0 if not applied
+    'highPassCutoffFreq',300,... % high pass cutoff frequency, input 0 if not applied
+    'lowPassCutoffFreq',1000,... % low pass cutoff frequency, input 0 if not applied
     'notchFreq',0,... % notch frequency, input 0 if not applied
     ...
     'noClassification',1,...  % 1 to skip burst detection, vice versa

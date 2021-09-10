@@ -11,6 +11,7 @@ classdef KlustaMatlab < Files
         samplingFreq
         outputPath
         
+        channelID = 1:6  % input 0 to select all channels, other wise input an array of channel ID to show those channels only. eg. [1,2,6:10] will show channel 1, 2, 6, 7, 8, 9, 10
         partialDataRange = [30,50] % seconds, input 0 in first position to indicate 1, input 0 in 2nd position to use unitl the end
         
         lowpassFreq = 500
@@ -43,6 +44,7 @@ classdef KlustaMatlab < Files
             self.getKlustaData();
             self.getKlustaPrm();
             self.getKlustaPrb();
+            fclose('all');  % close all opened files
         end
         
         function readData(self)
@@ -53,6 +55,9 @@ classdef KlustaMatlab < Files
                     self.data = self.data / 0.195;  % convert from microvolts to unit
                 otherwise
                     error('Invalid KlustaMatlab fileType...')
+            end
+            if self.channelID ~= 0
+                self.data = self.data(self.channelID, :);
             end
             self.outputPath = fullfile(self.path,self.filenameShort);
         end
@@ -139,7 +144,16 @@ classdef KlustaMatlab < Files
             fullfilenamePrb = fullfile(self.outputPath, sprintf('%s.prb',self.filenameShort));
             fid = fopen(fullfilenamePrb, 'w');
             numChannel = size(self.data,1);
-            
+            chMat = [0:numChannel-3; 1:numChannel-2; 0:numChannel-3; 2:numChannel-1]';
+            chMat1 = chMat(:,1:2);
+            chMat2 = chMat(:, 3:4);
+            chMatLast =  [numChannel-2, numChannel-1];
+%             chCol1 = reshape(repmat(0:numChannel-3,2,1), [], 1);
+%             chCol1 = [chCol1; numChannel-2];
+%             if numChannel > 2
+%                 chCol2 = reshape(repmat(2:numChannel-1, 2, 1), [], 1);
+%             end
+%             chCol2 = [1; chCol2];
             fprintf(fid,[...
                          'channel_groups = {\n',...
                          '\t# Shank index.\n',...
@@ -151,6 +165,7 @@ classdef KlustaMatlab < Files
                          '\t\t\t# by considering the corresponding subgraph.\n',...
                          '\t\t\t''graph'': [\n',...
                          '%s',...  % channel adjacency
+                         '%s',...  % clast channel pair
                          '\t\t\t],\n\n',...
                          '\t\t\t# 2D positions of the channels, only for visualization purposes\n',...
                          '\t\t\t# in KlustaViewa. The unit doesn''t matter.\n',...
@@ -160,7 +175,8 @@ classdef KlustaMatlab < Files
                          '\t}\n',...
                          '}'],...
                          numChannel,...
-                         compose("\t\t\t\t(%d,%d),\n",[0:numChannel-2]',[1:numChannel-1]'),...
+                         join(compose("\t\t\t\t(%d,%d), (%d,%d),\n", chMat1, chMat2)),... join(compose("\t\t\t\t(%d,%d),\n",[0:numChannel-2]',[1:numChannel-1]')),...  compose("\t\t\t\t(%d,%d),\n",[0:numChannel-2]',[1:numChannel-1]'),...
+                         sprintf("\t\t\t\t(%d,%d),\n", chMatLast),...
                          join(compose("\t\t\t\t%d: (%d,%d),\n",[numChannel-1:-1:0]',[0:numChannel-1]',10*[0:numChannel-1]'),''));
             fclose(fid);
             fprintf('Saved %s...\n', fullfilenamePrb);
